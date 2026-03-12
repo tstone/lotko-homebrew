@@ -1,0 +1,9 @@
+[package]
+name = "lotko"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+env_logger = "0.11.9"
+frontbox = { path = "../fast-pinball-rs/frontbox" }
+tokio = { version = "1", features = ["full"] }

@@ -32,6 +32,16 @@ pub mod switches {
   pub const TROUGH_POS4: &str = "trough_pos4";
   pub const TROUGH_POS5: &str = "trough_pos5";
   pub const TROUGH_POS6: &str = "trough_pos6";
+  // midfield
+  pub const POP_RIGHT: &str = "pop_right";
+  pub const DROP_TARGET_RIGHT1: &str = "drop_target_right1";
+  pub const DROP_TARGET_RIGHT2: &str = "drop_target_right2";
+  pub const DROP_TARGET_RIGHT3: &str = "drop_target_right3";
+  // upper playfield
+  pub const POP_LEFT: &str = "pop_left";
+  pub const DROP_TARGET_LEFT1: &str = "drop_target_left1";
+  pub const DROP_TARGET_LEFT2: &str = "drop_target_left2";
+  pub const DROP_TARGET_LEFT3: &str = "drop_target_left3";
 }
 
 pub mod drivers {
@@ -57,24 +67,24 @@ pub mod drivers {
   pub const FLIPPER_UPPER_HOLD_RIGHT: &str = "flipper_upper_hold_right";
 }
 
-pub fn io_network() -> IoNetworkSpec {
-  let mut io_network = IoNetworkSpec::new();
+pub fn io_network() -> IoNetwork {
+  let mut io_network = IoNetworkBuilder::new();
 
   io_network.add_board(
     FastIoBoards::cabinet()
-      .with_switch(11, switches::COIN_DOOR)
-      .with_switch(12, switches::ACTION_BUTTON)
-      .with_switch(13, switches::START_BUTTON)
-      .with_switch(15, switches::LEFT_FLIPPER1)
-      .with_switch(14, switches::LEFT_FLIPPER2)
-      .with_switch(17, switches::DOOR_MENU_GREEN)
-      .with_switch(18, switches::DOOR_MENU_RED_L)
-      .with_switch(19, switches::DOOR_MENU_RED_R)
-      .with_switch(20, switches::DOOR_MENU_BLACK)
-      .with_switch(21, switches::TILT_BOB)
-      .with_switch(22, switches::RIGHT_FLIPPER1)
-      .with_switch(23, switches::RIGHT_FLIPPER2)
-      .with_driver_cfg(2, drivers::START_BUTTON, PulseHoldMode {
+      .with_switch(switches::COIN_DOOR, 11)
+      .with_switch(switches::ACTION_BUTTON, 12)
+      .with_switch(switches::START_BUTTON, 13)
+      .with_switch(switches::LEFT_FLIPPER1, 15)
+      .with_switch(switches::LEFT_FLIPPER2, 14)
+      .with_switch(switches::DOOR_MENU_GREEN, 17)
+      .with_switch(switches::DOOR_MENU_RED_L, 18)
+      .with_switch(switches::DOOR_MENU_RED_R, 19)
+      .with_switch(switches::DOOR_MENU_BLACK, 20)
+      .with_switch(switches::TILT_BOB, 21)
+      .with_switch(switches::RIGHT_FLIPPER1, 22)
+      .with_switch(switches::RIGHT_FLIPPER2, 23)
+      .with_driver_cfg( drivers::START_BUTTON, 2, PulseHoldMode {
         initial_pwm_length: Duration::ZERO,
         secondary_pwm_power: Power::FULL,
         ..Default::default()
@@ -84,26 +94,74 @@ pub fn io_network() -> IoNetworkSpec {
   io_network.add_board(
     FastIoBoards::io_3208()
       // TODO: left outlane switch not responding, need to investigate
-      .with_switch(27, switches::INLANE_LEFT)
-      .with_switch(31, switches::SLINGSHOT_LEFT)
-      .with_switch(30, switches::FLIPPER_MAIN_LEFT_EOS)
-      .with_switch(29, switches::FLIPPER_MAIN_RIGHT_EOS)
-      .with_switch(28, switches::SLINGSHOT_RIGHT)
-      .with_switch(24, switches::INLANE_RIGHT)
+      .with_switch(switches::INLANE_LEFT, 27)
+      .with_switch(switches::SLINGSHOT_LEFT, 31)
+      .with_switch(switches::FLIPPER_MAIN_LEFT_EOS, 30)
+      .with_switch(switches::FLIPPER_MAIN_RIGHT_EOS, 29)
+      .with_switch(switches::SLINGSHOT_RIGHT, 28)
+      .with_switch(switches::INLANE_RIGHT, 24)
       // TODO: right outlane switch not responding, need to investigate
-      .with_switch(25, switches::TROUGH_POS6)
-      .with_switch(22, switches::TROUGH_POS5)
-      .with_switch(21, switches::TROUGH_POS4)
-      .with_switch(19, switches::TROUGH_POS3)
-      .with_switch(20, switches::TROUGH_POS2)
-      .with_switch(18, switches::TROUGH_POS1)
+      .with_switch(switches::TROUGH_POS6, 25)
+      .with_switch(switches::TROUGH_POS5, 22)
+      .with_switch(switches::TROUGH_POS4, 21)
+      .with_switch(switches::TROUGH_POS3, 19)
+      .with_switch(switches::TROUGH_POS2, 20)
+      .with_switch(switches::TROUGH_POS1, 18)
 
-      .with_driver_cfg(0, drivers::SLINGSHOT_LEFT, PulseMode {
+      // Flippers
+      .with_driver_cfg( drivers::FLIPPER_MAIN_LEFT, 1, FlipperMainDirectMode {
+        button_switch: switches::LEFT_FLIPPER1,
+        eos_switch: switches::FLIPPER_MAIN_LEFT_EOS,
+        ..Default::default()
+      })
+      .with_driver_cfg( drivers::FLIPPER_MAIN_HOLD_LEFT, 2, FlipperHoldDirectMode {
+        button_switch: switches::LEFT_FLIPPER1,
+        ..Default::default()
+      })
+      // Slings
+      .with_driver_cfg( drivers::SLINGSHOT_LEFT, 0, PulseMode {
+        trigger_mode: DriverTriggerMode::Switch(switches::SLINGSHOT_LEFT),
         initial_pwm_power: Power::percent(80),
-        switch: Some(51), // TODO: this should be switches::SLINGSHOT_LEFT
+        ..Default::default()
+      })
+      .with_driver_cfg( drivers::SLINGSHOT_RIGHT, 7, PulseMode {
+        trigger_mode: DriverTriggerMode::Switch(switches::SLINGSHOT_RIGHT),
+        initial_pwm_power: Power::percent(80),
         ..Default::default()
       })
   );
 
-  io_network
+  io_network.add_board(
+    FastIoBoards::io_1616()
+      .with_switch(switches::POP_LEFT, 1)
+      .with_switch(switches::POP_RIGHT, 4)
+      .with_switch(switches::DROP_TARGET_RIGHT1, 5)
+      .with_switch(switches::DROP_TARGET_RIGHT2, 6)
+      .with_switch(switches::DROP_TARGET_RIGHT3, 7)
+      .with_driver_cfg( drivers::POP_RIGHT, 0, PulseMode {
+        trigger_mode: DriverTriggerMode::Switch(switches::POP_RIGHT),
+        initial_pwm_power: Power::FULL,
+        ..Default::default()
+      })
+      // 1 - upper left flipper main
+      // 2 - upper left flipper hold
+      .with_driver_cfg( drivers::DROP_TARGET_RIGHT, 3, PulseMode {
+        trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
+        initial_pwm_power: Power::FULL,
+        ..Default::default()
+      })
+      .with_driver_cfg( drivers::DROP_TARGET_LEFT, 4, PulseMode {
+        trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
+        initial_pwm_power: Power::FULL,
+        ..Default::default()
+      })
+      // 5 - upper right flipper main
+      .with_driver_cfg( drivers::FLIPPER_UPPER_LEFT, 5, PulseMode {
+        // TODO
+        ..Default::default()
+      })
+      // 6 - upper right flipper hold
+  );
+
+  io_network.build()
 }

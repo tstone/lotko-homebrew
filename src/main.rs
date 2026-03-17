@@ -12,9 +12,8 @@ async fn main() {
     .format(|buf, record| writeln!(buf, "[{}] {}\r", record.level(), record.args()))
     .init();
 
-  MachineBuilder::boot(BootConfig::default(), io_network().build(), exp_network())
+  App::boot(BootConfig::default(), io_network(), exp_network())
     .await
-    .build()
     .run(vec![LightStartBtn::new()])
     .await;
 }
@@ -42,42 +41,44 @@ impl LightStartBtn {
 }
 
 impl System for LightStartBtn {
-  fn on_startup(&mut self, _ctx: &Context, cmds: &mut Commands) {
-    // TODO: this should happen in a better way, watchdog just needs to start up 
-    cmds.start_game();
+  fn on_startup(&mut self, ctx: &mut Context) {
+    ctx.set_timer("flashing_start", Duration::from_millis(200), TimerMode::Repeating);
 
-    // cmds.set_timer("flashing_start", Duration::from_millis(200), TimerMode::Repeating);
+    ctx.command(ActivateDriver::new(drivers::SLINGSHOT_LEFT, ActivationMode::Automatic));
+    ctx.command(ActivateDriver::new(drivers::SLINGSHOT_RIGHT, ActivationMode::Automatic));
+    ctx.command(ActivateDriver::new(drivers::FLIPPER_MAIN_LEFT, ActivationMode::Automatic));
+    ctx.command(ActivateDriver::new(drivers::FLIPPER_MAIN_HOLD_LEFT, ActivationMode::Automatic));
+    ctx.command(ActivateDriver::new(drivers::POP_RIGHT, ActivationMode::Automatic));
+    ctx.command(ActivateDriver::new(drivers::POP_LEFT, ActivationMode::Automatic));
   }
 
-  fn on_timer(&mut self, timer_name: &'static str, _ctx: &Context, cmds: &mut Commands) {
+  fn on_timer(&mut self, timer_name: &'static str, ctx: &mut Context) {
     if timer_name == "flashing_start" {
       self.start_button_on = !self.start_button_on;
-      let trigger: DriverTriggerControlMode = match self.start_button_on {
-        true => DriverTriggerControlMode::On,
-        false => DriverTriggerControlMode::Off,
+      
+      match self.start_button_on {
+        true => ctx.command(ActivateDriver::new(drivers::START_BUTTON, ActivationMode::VirtualSwitchOn)),
+        false => ctx.command(DeactivateDriver::new(drivers::START_BUTTON, DeactivationMode::VirtualSwitchOff)),
       };
-      cmds.trigger_driver(drivers::START_BUTTON, trigger);
     }
   }
 
-  fn on_event(&mut self, event: &dyn FrontboxEvent, _ctx: &Context, _cmds: &mut Commands) {
-    handle_event!(event, {
-      SwitchClosed => |e| {
-        if e.switch.name == switches::DOOR_MENU_BLACK {
-          if self.action_color == 4 {
-            self.action_color = 0;
-          } else {
-            self.action_color += 1;
-          }
-        } else if e.switch.name == switches::DOOR_MENU_GREEN {
-          if self.action_color == 0 {
-            self.action_color = 4;
-          } else {
-            self.action_color -= 1;
-          }
+  fn on_event(&mut self, event: &dyn Event, _ctx: &mut Context) {
+    if let Some(e) = event.downcast_ref::<SwitchClosed>() {
+      if e.switch.name == switches::DOOR_MENU_BLACK {
+        if self.action_color == 4 {
+          self.action_color = 0;
+        } else {
+          self.action_color += 1;
+        }
+      } else if e.switch.name == switches::DOOR_MENU_GREEN {
+        if self.action_color == 0 {
+          self.action_color = 4;
+        } else {
+          self.action_color -= 1;
         }
       }
-    });
+    }
   }
 
   fn leds(&mut self, delta_time: Duration, _ctx: &Context) -> std::collections::HashMap<&'static str, LedState> {
@@ -89,7 +90,7 @@ impl System for LightStartBtn {
       _ => Color::black(),
     };
     LedDeclarationBuilder::new(delta_time)
-      // .next_frame(leds::ACTION_BUTTON, &mut self.action_anim)
+      .next_frame(leds::ACTION_BUTTON, &mut self.action_anim)
       // .on(switches::ACTION_BUTTON, color)
       .collect()
   }

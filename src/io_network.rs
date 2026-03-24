@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use frontbox::prelude::*;
 
 
@@ -32,6 +30,7 @@ pub mod switches {
   pub const TROUGH_POS4: &str = "trough_pos4";
   pub const TROUGH_POS5: &str = "trough_pos5";
   pub const TROUGH_POS6: &str = "trough_pos6";
+  pub const PLUNGE_LANE: &str = "plunge_lane";
   // midfield
   pub const POP_RIGHT: &str = "pop_right";
   pub const DROP_TARGET_RIGHT1: &str = "drop_target_right1";
@@ -42,6 +41,14 @@ pub mod switches {
   pub const DROP_TARGET_LEFT1: &str = "drop_target_left1";
   pub const DROP_TARGET_LEFT2: &str = "drop_target_left2";
   pub const DROP_TARGET_LEFT3: &str = "drop_target_left3";
+}
+
+pub mod switch_groups {
+  pub const BALL_IN_PLAY: &str = "ball_in_play";
+}
+
+pub mod driver_groups {
+  pub const PLAYFIELD: &str = "playfield";
 }
 
 pub mod drivers {
@@ -84,11 +91,7 @@ pub fn io_network() -> IoNetwork {
       .with_switch(switches::TILT_BOB, 21)
       .with_switch(switches::RIGHT_FLIPPER1, 22)
       .with_switch(switches::RIGHT_FLIPPER2, 23)
-      .with_driver_cfg( drivers::START_BUTTON, 2, PulseHoldMode {
-        initial_pwm_length: Duration::ZERO,
-        secondary_pwm_power: Power::FULL,
-        ..Default::default()
-      })
+      .with_driver( drivers::START_BUTTON, 2)
   );
 
   io_network.add_board(
@@ -107,6 +110,7 @@ pub fn io_network() -> IoNetwork {
       .with_switch(switches::TROUGH_POS3, 19)
       .with_switch(switches::TROUGH_POS2, 20)
       .with_switch(switches::TROUGH_POS1, 18)
+      .with_switch(switches::PLUNGE_LANE, 16) // TODO: temorary, this needs to be physicall hooked up
 
       // Flippers
       .with_driver_cfg( drivers::FLIPPER_MAIN_LEFT, 1, FlipperMainDirectMode {
@@ -118,6 +122,18 @@ pub fn io_network() -> IoNetwork {
         button_switch: switches::LEFT_FLIPPER1,
         ..Default::default()
       })
+      .with_driver_cfg( drivers::FLIPPER_MAIN_RIGHT, 5, FlipperMainDirectMode {
+        button_switch: switches::RIGHT_FLIPPER1,
+        eos_switch: switches::FLIPPER_MAIN_RIGHT_EOS,
+        ..Default::default()
+      })
+      .with_driver_cfg( drivers::FLIPPER_MAIN_HOLD_RIGHT, 6, FlipperHoldDirectMode {
+        button_switch: switches::RIGHT_FLIPPER1,
+        ..Default::default()
+      })
+      // Plunge
+      .with_driver(drivers::TROUGH_EJECT, 3)
+      .with_driver(drivers::AUTO_PLUNGER, 4)
       // Slings
       .with_driver_cfg( drivers::SLINGSHOT_LEFT, 0, PulseMode {
         trigger_mode: DriverTriggerMode::Switch(switches::SLINGSHOT_LEFT),
@@ -143,8 +159,15 @@ pub fn io_network() -> IoNetwork {
         initial_pwm_power: Power::FULL,
         ..Default::default()
       })
-      // 1 - upper left flipper main
-      // 2 - upper left flipper hold
+      .with_driver_cfg( drivers::FLIPPER_UPPER_LEFT, 1, FlipperMainDirectMode {
+        button_switch: switches::LEFT_FLIPPER2,
+        eos_switch: switches::FLIPPER_MAIN_LEFT_EOS,
+        ..Default::default()
+      })
+      .with_driver_cfg( drivers::FLIPPER_UPPER_HOLD_LEFT, 2, FlipperHoldDirectMode {
+        button_switch: switches::LEFT_FLIPPER2,
+        ..Default::default()
+      })
       .with_driver_cfg( drivers::DROP_TARGET_RIGHT, 3, PulseMode {
         trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
         initial_pwm_power: Power::FULL,
@@ -155,13 +178,49 @@ pub fn io_network() -> IoNetwork {
         initial_pwm_power: Power::FULL,
         ..Default::default()
       })
-      // 5 - upper right flipper main
-      .with_driver_cfg( drivers::FLIPPER_UPPER_LEFT, 5, PulseMode {
-        // TODO
+      .with_driver_cfg( drivers::FLIPPER_UPPER_RIGHT, 5, FlipperMainDirectMode {
+        button_switch: switches::RIGHT_FLIPPER2,
+        eos_switch: switches::FLIPPER_MAIN_RIGHT_EOS,
         ..Default::default()
       })
-      // 6 - upper right flipper hold
+      .with_driver_cfg( drivers::FLIPPER_UPPER_HOLD_RIGHT, 6, FlipperHoldDirectMode {
+        button_switch: switches::RIGHT_FLIPPER2,
+        ..Default::default()
+      })
+      .with_driver_cfg(drivers::POP_LEFT, 7, PulseMode {
+        initial_pwm_power: Power::FULL,
+        ..Default::default()
+      })
   );
+
+  io_network.add_switch_group(switch_groups::BALL_IN_PLAY, vec![
+    switches::OUTLANE_LEFT,
+    switches::INLANE_LEFT,
+    switches::INLANE_RIGHT,
+    switches::OUTLANE_RIGHT,
+    switches::SLINGSHOT_LEFT,
+    switches::SLINGSHOT_RIGHT,
+    switches::POP_LEFT,
+    switches::POP_RIGHT,
+  ]);
+
+  io_network.add_driver_group(driver_groups::PLAYFIELD, vec![
+    drivers::SLINGSHOT_LEFT,
+    drivers::SLINGSHOT_RIGHT,
+    drivers::FLIPPER_MAIN_LEFT,
+    drivers::FLIPPER_MAIN_HOLD_LEFT,
+    drivers::FLIPPER_MAIN_RIGHT,
+    drivers::FLIPPER_MAIN_HOLD_RIGHT,
+    drivers::TROUGH_EJECT,
+    drivers::AUTO_PLUNGER,
+    drivers::POP_RIGHT,
+    drivers::DROP_TARGET_RIGHT,
+    drivers::FLIPPER_UPPER_LEFT,
+    drivers::FLIPPER_UPPER_HOLD_LEFT,
+    drivers::DROP_TARGET_LEFT,
+    drivers::FLIPPER_UPPER_RIGHT,
+    drivers::FLIPPER_UPPER_HOLD_RIGHT,
+  ]);
 
   io_network.build()
 }

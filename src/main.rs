@@ -1,4 +1,4 @@
-use frontbox::plugins::TroughPlugin;
+use frontbox::plugins::{AutoplungerPlugin, TroughPlugin};
 use frontbox::prelude::*;
 use frontbox_turn_based::*;
 use std::io::Write;
@@ -29,18 +29,19 @@ async fn main() {
       vec![switches::TROUGH_POS1, switches::TROUGH_POS2],
       drivers::TROUGH_EJECT,
     ))
-    .plugin(CompetitiveGamePlugin::new(
-      4,
-      vec![],
-      switches::START_BUTTON,
-      vec![],
+    .plugin(AutoplungerPlugin::new(
+      switches::PLUNGE_LANE,
+      drivers::AUTO_PLUNGER,
+      switches::ACTION_BUTTON,
+      LedSetting::On(Color::red()),
     ))
+    .plugin(CompetitiveGamePlugin::new(vec![]))
     .configure(|app| {
-      app.system(StartableFlasher::new(
-        Some(drivers::START_BUTTON),
-        Some(switches::ACTION_BUTTON),
-        Some(LedSetting::On(Color::red())),
-      ));
+      app.system(
+        StartableFlasher::new()
+          .action_button_led(switches::ACTION_BUTTON)
+          .action_button_setting(LedSetting::On(Color::blue())),
+      );
       app.system(ActivatePlayfield::new());
       app.system(AutoTurnAdvance::new());
     })

@@ -1,7 +1,9 @@
 {
   "cSpell.words": [
+    "Autoplunger",
     "frontbox",
-    "Playfield"
+    "Playfield",
+    "Startable"
   ],
   "[rust]": {
     "editor.tabSize": 2,

@@ -1,5 +1,5 @@
 use frontbox::prelude::*;
-
+use frontbox::tags::*;
 
 pub mod switches {
   // Cabinet
@@ -79,148 +79,193 @@ pub fn io_network() -> IoNetwork {
 
   io_network.add_board(
     FastIoBoards::cabinet()
-      .with_switch(switches::COIN_DOOR, 11)
-      .with_switch(switches::ACTION_BUTTON, 12)
-      .with_switch(switches::START_BUTTON, 13)
-      .with_switch(switches::LEFT_FLIPPER1, 15)
-      .with_switch(switches::LEFT_FLIPPER2, 14)
-      .with_switch(switches::DOOR_MENU_GREEN, 17)
-      .with_switch(switches::DOOR_MENU_RED_L, 18)
-      .with_switch(switches::DOOR_MENU_RED_R, 19)
-      .with_switch(switches::DOOR_MENU_BLACK, 20)
-      .with_switch(switches::TILT_BOB, 21)
-      .with_switch(switches::RIGHT_FLIPPER1, 22)
-      .with_switch(switches::RIGHT_FLIPPER2, 23)
-      .with_driver( drivers::START_BUTTON, 2)
+      .with(switch(11).named(switches::COIN_DOOR).tagged(CoinDoor))
+      .with(
+        switch(12)
+          .named(switches::ACTION_BUTTON)
+          .tagged(ActionButton),
+      )
+      .with(switch(13).named(switches::START_BUTTON).tagged(StartButton))
+      .with(switch(15).named(switches::LEFT_FLIPPER1))
+      .with(switch(14).named(switches::LEFT_FLIPPER2))
+      .with(switch(17).named(switches::DOOR_MENU_GREEN))
+      .with(switch(18).named(switches::DOOR_MENU_RED_L))
+      .with(switch(19).named(switches::DOOR_MENU_RED_R))
+      .with(switch(20).named(switches::DOOR_MENU_BLACK))
+      .with(switch(21).named(switches::TILT_BOB).tagged(Tilt))
+      .with(switch(22).named(switches::RIGHT_FLIPPER1))
+      .with(switch(23).named(switches::RIGHT_FLIPPER2))
+      .with(driver(2).named(drivers::START_BUTTON).tagged(StartButton)),
   );
 
   io_network.add_board(
     FastIoBoards::io_3208()
       // TODO: left outlane switch not responding, need to investigate
-      .with_switch(switches::INLANE_LEFT, 27)
-      .with_switch(switches::SLINGSHOT_LEFT, 31)
-      .with_switch(switches::FLIPPER_MAIN_LEFT_EOS, 30)
-      .with_switch(switches::FLIPPER_MAIN_RIGHT_EOS, 29)
-      .with_switch(switches::SLINGSHOT_RIGHT, 28)
-      .with_switch(switches::INLANE_RIGHT, 24)
+      .with(switch(27).named(switches::INLANE_LEFT).tagged(Playfield))
+      .with(switch(31).named(switches::SLINGSHOT_LEFT).tagged(Playfield))
+      .with(
+        switch(30)
+          .named(switches::FLIPPER_MAIN_LEFT_EOS)
+          .tagged(Playfield),
+      )
+      .with(
+        switch(29)
+          .named(switches::FLIPPER_MAIN_RIGHT_EOS)
+          .tagged(Playfield),
+      )
+      .with(
+        switch(28)
+          .named(switches::SLINGSHOT_RIGHT)
+          .tagged(Playfield),
+      )
+      .with(switch(24).named(switches::INLANE_RIGHT).tagged(Playfield))
       // TODO: right outlane switch not responding, need to investigate
-      .with_switch(switches::TROUGH_POS6, 25)
-      .with_switch(switches::TROUGH_POS5, 22)
-      .with_switch(switches::TROUGH_POS4, 21)
-      .with_switch(switches::TROUGH_POS3, 19)
-      .with_switch(switches::TROUGH_POS2, 20)
-      .with_switch(switches::TROUGH_POS1, 18)
-      .with_switch(switches::PLUNGE_LANE, 16) // TODO: temorary, this needs to be physicall hooked up
-
+      .with(switch(25).named(switches::TROUGH_POS6))
+      .with(switch(22).named(switches::TROUGH_POS5))
+      .with(switch(21).named(switches::TROUGH_POS4))
+      .with(switch(19).named(switches::TROUGH_POS3))
+      .with(switch(20).named(switches::TROUGH_POS2))
+      .with(switch(18).named(switches::TROUGH_POS1))
+      .with(
+        switch(16)
+          .named(switches::PLUNGE_LANE)
+          .tagged(AutoPlungerSwitch),
+      ) // TODO: temporary, this needs to be physically hooked up
       // Flippers
-      .with_driver_cfg( drivers::FLIPPER_MAIN_LEFT, 1, FlipperMainDirectMode {
-        button_switch: switches::LEFT_FLIPPER1,
-        eos_switch: switches::FLIPPER_MAIN_LEFT_EOS,
-        ..Default::default()
-      })
-      .with_driver_cfg( drivers::FLIPPER_MAIN_HOLD_LEFT, 2, FlipperHoldDirectMode {
-        button_switch: switches::LEFT_FLIPPER1,
-        ..Default::default()
-      })
-      .with_driver_cfg( drivers::FLIPPER_MAIN_RIGHT, 5, FlipperMainDirectMode {
-        button_switch: switches::RIGHT_FLIPPER1,
-        eos_switch: switches::FLIPPER_MAIN_RIGHT_EOS,
-        ..Default::default()
-      })
-      .with_driver_cfg( drivers::FLIPPER_MAIN_HOLD_RIGHT, 6, FlipperHoldDirectMode {
-        button_switch: switches::RIGHT_FLIPPER1,
-        ..Default::default()
-      })
-      // Plunge
-      .with_driver(drivers::TROUGH_EJECT, 3)
-      .with_driver(drivers::AUTO_PLUNGER, 4)
+      .with(
+        driver(1)
+          .named(drivers::FLIPPER_MAIN_LEFT)
+          .mode(FlipperMainDirectMode {
+            button_switch: switches::LEFT_FLIPPER1,
+            eos_switch: switches::FLIPPER_MAIN_LEFT_EOS,
+            ..Default::default()
+          }),
+      )
+      .with(
+        driver(2)
+          .named(drivers::FLIPPER_MAIN_HOLD_LEFT)
+          .mode(FlipperHoldDirectMode {
+            button_switch: switches::LEFT_FLIPPER1,
+            ..Default::default()
+          }),
+      )
+      .with(
+        driver(2)
+          .named(drivers::FLIPPER_MAIN_HOLD_LEFT)
+          .mode(FlipperHoldDirectMode {
+            button_switch: switches::LEFT_FLIPPER1,
+            ..Default::default()
+          }),
+      )
+      .with(
+        driver(5)
+          .named(drivers::FLIPPER_MAIN_RIGHT)
+          .mode(FlipperMainDirectMode {
+            button_switch: switches::RIGHT_FLIPPER1,
+            eos_switch: switches::FLIPPER_MAIN_RIGHT_EOS,
+            ..Default::default()
+          }),
+      )
+      .with(
+        driver(6)
+          .named(drivers::FLIPPER_MAIN_HOLD_RIGHT)
+          .mode(FlipperHoldDirectMode {
+            button_switch: switches::RIGHT_FLIPPER1,
+            ..Default::default()
+          }),
+      )
+      .with(driver(3).named(drivers::TROUGH_EJECT).tagged(TroughCoil))
+      .with(
+        driver(4)
+          .named(drivers::AUTO_PLUNGER)
+          .tagged(AutoPlungerCoil),
+      )
       // Slings
-      .with_driver_cfg( drivers::SLINGSHOT_LEFT, 0, PulseMode {
+      .with(driver(0).named(drivers::SLINGSHOT_LEFT).mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(switches::SLINGSHOT_LEFT),
         initial_pwm_power: Power::percent(80),
         ..Default::default()
-      })
-      .with_driver_cfg( drivers::SLINGSHOT_RIGHT, 7, PulseMode {
+      }))
+      .with(driver(7).named(drivers::SLINGSHOT_RIGHT).mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(switches::SLINGSHOT_RIGHT),
         initial_pwm_power: Power::percent(80),
         ..Default::default()
-      })
+      })),
   );
 
   io_network.add_board(
     FastIoBoards::io_1616()
-      .with_switch(switches::POP_LEFT, 1)
-      .with_switch(switches::POP_RIGHT, 4)
-      .with_switch(switches::DROP_TARGET_RIGHT1, 5)
-      .with_switch(switches::DROP_TARGET_RIGHT2, 6)
-      .with_switch(switches::DROP_TARGET_RIGHT3, 7)
-      .with_driver_cfg( drivers::POP_RIGHT, 0, PulseMode {
+      .with(switch(1).named(switches::POP_LEFT).tagged(Playfield))
+      .with(switch(4).named(switches::POP_RIGHT).tagged(Playfield))
+      .with(
+        switch(5)
+          .named(switches::DROP_TARGET_RIGHT1)
+          .tagged(Playfield),
+      )
+      .with(
+        switch(6)
+          .named(switches::DROP_TARGET_RIGHT2)
+          .tagged(Playfield),
+      )
+      .with(
+        switch(7)
+          .named(switches::DROP_TARGET_RIGHT3)
+          .tagged(Playfield),
+      )
+      .with(driver(0).named(drivers::POP_RIGHT).mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(switches::POP_RIGHT),
         initial_pwm_power: Power::FULL,
         ..Default::default()
-      })
-      .with_driver_cfg( drivers::FLIPPER_UPPER_LEFT, 1, FlipperMainDirectMode {
-        button_switch: switches::LEFT_FLIPPER2,
-        eos_switch: switches::FLIPPER_MAIN_LEFT_EOS,
-        ..Default::default()
-      })
-      .with_driver_cfg( drivers::FLIPPER_UPPER_HOLD_LEFT, 2, FlipperHoldDirectMode {
-        button_switch: switches::LEFT_FLIPPER2,
-        ..Default::default()
-      })
-      .with_driver_cfg( drivers::DROP_TARGET_RIGHT, 3, PulseMode {
+      }))
+      .with(
+        driver(1)
+          .named(drivers::FLIPPER_UPPER_LEFT)
+          .mode(FlipperMainDirectMode {
+            button_switch: switches::LEFT_FLIPPER2,
+            eos_switch: switches::FLIPPER_MAIN_LEFT_EOS,
+            ..Default::default()
+          }),
+      )
+      .with(
+        driver(2)
+          .named(drivers::FLIPPER_UPPER_HOLD_LEFT)
+          .mode(FlipperHoldDirectMode {
+            button_switch: switches::LEFT_FLIPPER2,
+            ..Default::default()
+          }),
+      )
+      .with(driver(3).named(drivers::DROP_TARGET_RIGHT).mode(PulseMode {
         trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
         initial_pwm_power: Power::FULL,
         ..Default::default()
-      })
-      .with_driver_cfg( drivers::DROP_TARGET_LEFT, 4, PulseMode {
+      }))
+      .with(driver(4).named(drivers::DROP_TARGET_LEFT).mode(PulseMode {
         trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
         initial_pwm_power: Power::FULL,
         ..Default::default()
-      })
-      .with_driver_cfg( drivers::FLIPPER_UPPER_RIGHT, 5, FlipperMainDirectMode {
-        button_switch: switches::RIGHT_FLIPPER2,
-        eos_switch: switches::FLIPPER_MAIN_RIGHT_EOS,
-        ..Default::default()
-      })
-      .with_driver_cfg( drivers::FLIPPER_UPPER_HOLD_RIGHT, 6, FlipperHoldDirectMode {
-        button_switch: switches::RIGHT_FLIPPER2,
-        ..Default::default()
-      })
-      .with_driver_cfg(drivers::POP_LEFT, 7, PulseMode {
+      }))
+      .with(
+        driver(5)
+          .named(drivers::FLIPPER_UPPER_RIGHT)
+          .mode(FlipperMainDirectMode {
+            button_switch: switches::RIGHT_FLIPPER2,
+            eos_switch: switches::FLIPPER_MAIN_RIGHT_EOS,
+            ..Default::default()
+          }),
+      )
+      .with(
+        driver(6)
+          .named(drivers::FLIPPER_UPPER_HOLD_RIGHT)
+          .mode(FlipperHoldDirectMode {
+            button_switch: switches::RIGHT_FLIPPER2,
+            ..Default::default()
+          }),
+      )
+      .with(driver(7).named(drivers::POP_LEFT).mode(PulseMode {
         initial_pwm_power: Power::FULL,
         ..Default::default()
-      })
+      })),
   );
-
-  io_network.add_switch_group(switch_groups::BALL_IN_PLAY, vec![
-    switches::OUTLANE_LEFT,
-    switches::INLANE_LEFT,
-    switches::INLANE_RIGHT,
-    switches::OUTLANE_RIGHT,
-    switches::SLINGSHOT_LEFT,
-    switches::SLINGSHOT_RIGHT,
-    switches::POP_LEFT,
-    switches::POP_RIGHT,
-  ]);
-
-  io_network.add_driver_group(driver_groups::PLAYFIELD, vec![
-    drivers::SLINGSHOT_LEFT,
-    drivers::SLINGSHOT_RIGHT,
-    drivers::FLIPPER_MAIN_LEFT,
-    drivers::FLIPPER_MAIN_HOLD_LEFT,
-    drivers::FLIPPER_MAIN_RIGHT,
-    drivers::FLIPPER_MAIN_HOLD_RIGHT,
-    drivers::TROUGH_EJECT,
-    drivers::AUTO_PLUNGER,
-    drivers::POP_RIGHT,
-    drivers::DROP_TARGET_RIGHT,
-    drivers::FLIPPER_UPPER_LEFT,
-    drivers::FLIPPER_UPPER_HOLD_LEFT,
-    drivers::DROP_TARGET_LEFT,
-    drivers::FLIPPER_UPPER_RIGHT,
-    drivers::FLIPPER_UPPER_HOLD_RIGHT,
-  ]);
 
   io_network.build()
 }

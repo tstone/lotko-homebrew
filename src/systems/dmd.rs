@@ -39,8 +39,7 @@ impl DmdDisplay {
     frame.add(
       self
         .bold_10px
-        .text(format!("P{}:", game_state.current_player() + 1))
-        .recolor_vgradient(Rgba::medium_turquoise(), Rgba::dark_blue()),
+        .text(format!("P{}:", game_state.current_player() + 1)),
     );
 
     frame.add(
@@ -56,14 +55,18 @@ impl DmdDisplay {
 
   fn render_attract(&mut self, _ctx: &Context, _systems: &Systems) {
     let mut frame = Frame::for_dmd(&self.dmd);
-    frame.add(self.bold_10px.text("Press Start"));
+    frame.add(self.bold_10px.text("PRESS START").recolor(Rgba::yellow()));
     self.dmd.render(&frame).ok();
   }
 }
 
 impl System for DmdDisplay {
   fn on_tick(&mut self, _delta: Duration, ctx: &Context, systems: &Systems) {
-    if systems.contains::<GameManager>() {
+    if systems
+      .get::<GameManager>()
+      .map(|gm| gm.is_game_started())
+      .unwrap_or(false)
+    {
       self.render_in_game(ctx, systems);
     } else {
       self.render_attract(ctx, systems);

@@ -1,12 +1,13 @@
 use std::time::Duration;
 
-use frontbox::prelude::*;
+use frontbox::{animation::*, prelude::*};
 use frontbox_pin2dmd::*;
 use frontbox_turn_based::GameManager;
 
 pub struct DmdDisplay {
   dmd: Pin2Dmd,
   bold_10px: PixelFont,
+  start_flasher: Box<Tween<Duration, Rgba<u8>>>,
 }
 
 impl Default for DmdDisplay {
@@ -27,6 +28,12 @@ impl DmdDisplay {
     Self {
       dmd: Pin2Dmd::connect(width, height, panel_type).unwrap(),
       bold_10px,
+      start_flasher: Tween::new(
+        Duration::from_millis(400),
+        Curve::EaseInOut,
+        vec![Rgba::yellow(), Rgba::black()],
+        AnimationCycle::Forever,
+      ),
     }
   }
 
@@ -61,13 +68,18 @@ impl DmdDisplay {
 
   fn render_attract(&mut self, _ctx: &Context, _systems: &Systems) {
     let mut frame = Frame::for_dmd(&self.dmd);
-    frame.add(self.bold_10px.text("PRESS START").recolor(Rgba::yellow()));
+    frame.add(
+      self
+        .bold_10px
+        .text("PRESS START")
+        .recolor(self.start_flasher.sample()),
+    );
     self.dmd.render(&frame).ok();
   }
 }
 
 impl System for DmdDisplay {
-  fn on_tick(&mut self, _delta: Duration, ctx: &Context, systems: &Systems) {
+  fn on_tick(&mut self, delta: Duration, ctx: &Context, systems: &Systems) {
     if systems
       .get::<GameManager>()
       .map(|gm| gm.is_game_started())
@@ -75,6 +87,7 @@ impl System for DmdDisplay {
     {
       self.render_in_game(ctx, systems);
     } else {
+      self.start_flasher.accumulate(delta);
       self.render_attract(ctx, systems);
     }
   }

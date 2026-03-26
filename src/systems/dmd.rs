@@ -41,6 +41,12 @@ impl DmdDisplay {
         .bold_10px
         .text(format!("P{}:", game_state.current_player() + 1)),
     );
+    frame.add(
+      self
+        .bold_10px
+        .text(format!("B{}", game_state.current_player_turn() + 1))
+        .top(15),
+    );
 
     frame.add(
       self

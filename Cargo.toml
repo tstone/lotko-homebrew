@@ -5,6 +5,6 @@ edition = "2024"
 
 [dependencies]
 env_logger = "0.11.9"
-frontbox = { path = "../fast-pinball-rs/frontbox" }
-frontbox-turn-based = { path = "../fast-pinball-rs/frontbox-turn-based" }
+frontbox = { path = "../frontbox-rs/frontbox" }
+frontbox-turn-based = { path = "../frontbox-rs/frontbox-turn-based" }
 tokio = { version = "1", features = ["full"] }

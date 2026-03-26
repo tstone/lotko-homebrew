@@ -35,7 +35,7 @@ async fn main() {
       switches::ACTION_BUTTON,
       LedSetting::On(Color::red()),
     ))
-    .plugin(CompetitiveGamePlugin::new(vec![]))
+    .plugin(CompetitiveGamePlugin::new(systems![BasicPoints::new()]))
     .configure(|app| {
       app.system(
         StartableFlasher::new()
@@ -44,6 +44,7 @@ async fn main() {
       );
       app.system(ActivatePlayfield::new());
       app.system(AutoTurnAdvance::new());
+      app.system(DmdDisplay::default());
     })
     .run()
     .await;

@@ -7,4 +7,5 @@ edition = "2024"
 env_logger = "0.11.9"
 frontbox = { path = "../frontbox-rs/frontbox" }
 frontbox-turn-based = { path = "../frontbox-rs/frontbox-turn-based" }
+frontbox-pin2dmd = { path = "../frontbox-rs/frontbox-pin2dmd" }
 tokio = { version = "1", features = ["full"] }

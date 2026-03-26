@@ -3,7 +3,8 @@
     "Autoplunger",
     "frontbox",
     "Playfield",
-    "Startable"
+    "Startable",
+    "vgradient"
   ],
   "[rust]": {
     "editor.tabSize": 2,

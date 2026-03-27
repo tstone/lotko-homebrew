@@ -43,14 +43,6 @@ pub mod switches {
   pub const DROP_TARGET_LEFT3: &str = "drop_target_left3";
 }
 
-pub mod switch_groups {
-  pub const BALL_IN_PLAY: &str = "ball_in_play";
-}
-
-pub mod driver_groups {
-  pub const PLAYFIELD: &str = "playfield";
-}
-
 pub mod drivers {
   // lower thirds
   pub const START_BUTTON: &str = "start_button";

@@ -81,6 +81,7 @@ impl ActivatePlayfield {
 impl System for ActivatePlayfield {
   fn on_event(&mut self, event: &dyn Event, ctx: &Context, systems: &Systems) {
     if let Some(_) = event.downcast_ref::<GameStarted>() {
+      log::info!("Activating playfield drivers due to game start");
       self.activate(ctx, systems);
     }
   }

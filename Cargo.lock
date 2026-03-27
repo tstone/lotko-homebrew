@@ -909,6 +909,7 @@ dependencies = [
  "frontbox",
  "frontbox-pin2dmd",
  "frontbox-turn-based",
+ "log",
  "tokio",
 ]
 

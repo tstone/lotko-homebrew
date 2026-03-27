@@ -7,7 +7,7 @@ use frontbox_turn_based::GameManager;
 pub struct DmdDisplay {
   dmd: Pin2Dmd,
   bold_10px: PixelFont,
-  start_flasher: Box<Tween<Duration, Rgba<u8>>>,
+  start_flasher: Box<dyn Animation<Duration, Rgba<u8>>>,
 }
 
 impl Default for DmdDisplay {
@@ -29,9 +29,9 @@ impl DmdDisplay {
       dmd: Pin2Dmd::connect(width, height, panel_type).unwrap(),
       bold_10px,
       start_flasher: Tween::new(
-        Duration::from_millis(400),
+        Duration::from_millis(350),
         Curve::EaseInOut,
-        vec![Rgba::yellow(), Rgba::black()],
+        vec![Rgba::yellow(), Rgba::black(), Rgba::aqua(), Rgba::black()],
         AnimationCycle::Forever,
       ),
     }
@@ -72,7 +72,8 @@ impl DmdDisplay {
       self
         .bold_10px
         .text("PRESS START")
-        .recolor(self.start_flasher.sample()),
+        .recolor(self.start_flasher.sample())
+        .offset(14, 10),
     );
     self.dmd.render(&frame).ok();
   }

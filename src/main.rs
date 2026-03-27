@@ -40,8 +40,7 @@ async fn main() {
       app.system(
         StartableFlasher::new()
           .action_button_led(switches::ACTION_BUTTON)
-          .action_button_setting(LedSetting::On(Color::blue()))
-          .start_button_driver(HardwareSelection::Name(drivers::START_BUTTON)),
+          .action_button_setting(LedSetting::On(Color::rebecca_purple())),
       );
       app.system(ActivatePlayfield::new());
       app.system(AutoTurnAdvance::new());

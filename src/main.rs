@@ -41,8 +41,7 @@ async fn main() {
       app.system(ActivatePlayfield::new());
       app.system(AutoTurnAdvance::new());
 
-      // TODO: this no worky
-      // app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
+      app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
       app.system(Testing);
       // app.system(DmdDisplay::default());
     })
@@ -54,7 +53,11 @@ pub struct Testing;
 
 impl System for Testing {
   fn on_startup(&mut self, ctx: &Context, systems: &Systems) {
-    ctx.cue(Anonymous, Cue::Once(Duration::from_secs(1)));
+    systems
+      .expect_mut::<SoundSystem>()
+      .preload("test", "/usr/share/sounds/alsa/Front_Center.wav");
+
+    ctx.cue(Anonymous, Cue::Once(Duration::from_secs(3)));
     systems.expect_mut::<LedSystem>().declare(
       ctx.current_system_id(),
       named_led(ctx, leds::ACTION_BUTTON).color(Color::alice_blue()),
@@ -63,9 +66,8 @@ impl System for Testing {
 
   fn on_event(&mut self, event: &dyn Event, _ctx: &Context, systems: &Systems) {
     if event.is::<Anonymous>() {
-      // systems
-      //   .expect_mut::<SoundSystem>()
-      //   .play_sfx("/usr/share/sounds/alsa/Front_Center.wav");
+      log::info!("Playing sound");
+      systems.expect_mut::<SoundSystem>().play_sfx("test");
     }
   }
 }

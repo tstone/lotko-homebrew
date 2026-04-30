@@ -11,8 +11,8 @@ impl ActivatePlayfield {
     Self
   }
 
-  fn activate(&self, ctx: &Context, systems: &Systems) {
-    let machine = systems.expect::<Machine>();
+  fn activate(&self, ctx: &Context) {
+    let machine = ctx.systems.expect::<Machine>();
 
     machine.activate_driver(
       drivers::SLINGSHOT_LEFT,
@@ -79,10 +79,10 @@ impl ActivatePlayfield {
 }
 
 impl System for ActivatePlayfield {
-  fn on_event(&mut self, event: &dyn Event, ctx: &Context, systems: &Systems) {
+  fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
     if let Some(_) = event.downcast_ref::<GameStarted>() {
       log::info!("Activating playfield drivers due to game start");
-      self.activate(ctx, systems);
+      self.activate(ctx);
     }
   }
 }

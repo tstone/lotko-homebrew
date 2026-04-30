@@ -1,3 +1,4 @@
+use frontbox::animation::{Animation, AnimationCycle, Curve, Tween};
 use frontbox::plugins::{AutoplungerPlugin, TroughPlugin};
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystem;
@@ -42,32 +43,61 @@ async fn main() {
       app.system(AutoTurnAdvance::new());
 
       app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
-      app.system(Testing);
-      // app.system(DmdDisplay::default());
+      app.system(Testing::new());
+      app.system(DmdDisplay::default());
     })
     .run()
     .await;
 }
 
-pub struct Testing;
+pub struct Testing {
+  speaker_anim: Box<dyn Animation<Duration, f32>>,
+}
+
+impl Testing {
+  pub fn new() -> Self {
+    Testing {
+      speaker_anim: Tween::boxed(
+        Duration::from_millis(500),
+        Curve::Linear,
+        vec![0.0, 360.0],
+        AnimationCycle::Forever,
+      ),
+    }
+  }
+}
 
 impl System for Testing {
-  fn on_startup(&mut self, ctx: &Context, systems: &Systems) {
-    systems
-      .expect_mut::<SoundSystem>()
-      .preload("test", "/usr/share/sounds/alsa/Front_Center.wav");
+  fn on_spawn(&mut self, ctx: &Context) {
+    // ctx
+    //   .systems
+    //   .expect::<SoundSystem>()
+    //   .preload("test", "/usr/share/sounds/alsa/Front_Center.wav");
+    // ctx.cue(Anonymous, Cue::Once(Duration::from_secs(3)));
 
-    ctx.cue(Anonymous, Cue::Once(Duration::from_secs(3)));
-    systems.expect_mut::<LedSystem>().declare(
-      ctx.current_system_id(),
-      named_led(ctx, leds::ACTION_BUTTON).color(Color::alice_blue()),
-    );
+    ctx.declare_leds(named_led(ctx, leds::ACTION_BUTTON).color(Rgba::alice_blue()));
   }
 
-  fn on_event(&mut self, event: &dyn Event, _ctx: &Context, systems: &Systems) {
+  fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
     if event.is::<Anonymous>() {
       log::info!("Playing sound");
-      systems.expect_mut::<SoundSystem>().play_sfx("test");
+      ctx.systems.expect::<SoundSystem>().play_sfx("test");
     }
+  }
+
+  fn on_tick(&mut self, delta: Duration, ctx: &Context) {
+    self.speaker_anim.accumulate(delta);
+
+    ctx.declare_leds(
+      named_led_strip(ctx, leds::LEFT_SPEAKER_STRIP)
+        .gradient(Rgba::alice_blue(), Rgba::dark_blue())
+        .rotate_left(self.speaker_anim.sample()),
+    );
+
+    ctx.declare_leds(
+      named_led_strip(ctx, leds::RIGHT_SPEAKER_STRIP)
+        .gradient(Rgba::pink(), Rgba::dark_red())
+        .rotate_right(self.speaker_anim.sample()),
+    );
   }
 }

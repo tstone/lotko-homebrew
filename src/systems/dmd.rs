@@ -37,8 +37,8 @@ impl DmdDisplay {
     }
   }
 
-  fn render_in_game(&mut self, _ctx: &Context, systems: &Systems) {
-    let game_manager = systems.expect::<GameManager>();
+  fn render_in_game(&mut self, ctx: &Context) {
+    let game_manager = ctx.systems.expect::<GameManager>();
     let game_state = game_manager.game_state().unwrap();
     let score = game_state.current_player_score().unwrap_or(0);
 
@@ -66,7 +66,7 @@ impl DmdDisplay {
     self.dmd.render(&frame).ok();
   }
 
-  fn render_attract(&mut self, _ctx: &Context, _systems: &Systems) {
+  fn render_attract(&mut self, _ctx: &Context) {
     let mut frame = Frame::for_dmd(&self.dmd);
     frame.add(
       self
@@ -80,18 +80,21 @@ impl DmdDisplay {
 }
 
 impl System for DmdDisplay {
-  fn on_tick(&mut self, delta: Duration, ctx: &Context, systems: &Systems) {
-    if systems
+  fn on_tick(&mut self, delta: Duration, ctx: &Context) {
+    if ctx
+      .systems
       .get::<GameManager>()
       .map(|gm| gm.is_game_started())
       .unwrap_or(false)
     {
-      self.render_in_game(ctx, systems);
+      self.render_in_game(ctx);
     } else {
       self.start_flasher.accumulate(delta);
-      self.render_attract(ctx, systems);
+      self.render_attract(ctx);
     }
   }
+
+  // TODO: clear DMD on_despawn
 }
 
 // TODO: how should this handle assets after compilation/not using cargo

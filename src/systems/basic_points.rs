@@ -13,12 +13,12 @@ impl BasicPoints {
 }
 
 impl System for BasicPoints {
-  fn on_event(&mut self, event: &dyn Event, ctx: &Context, systems: &Systems) {
+  fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
     if let Some(e) = event.downcast_ref::<SwitchClosed>() {
       if e.switch.has_tag::<SlingShot>() {
-        systems.expect_mut::<GameManager>().add_points(100, ctx);
+        ctx.systems.expect::<GameManager>().add_points(100, ctx);
       } else if e.switch.has_tag::<Playfield>() {
-        systems.expect_mut::<GameManager>().add_points(10, ctx);
+        ctx.systems.expect::<GameManager>().add_points(10, ctx);
       }
     }
   }

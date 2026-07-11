@@ -25,17 +25,6 @@ impl ActivatePlayfield {
       ctx,
     );
     machine.activate_driver(
-      drivers::POP_RIGHT,
-      ActivationMode::Automatic(switches::POP_RIGHT),
-      ctx,
-    );
-    machine.activate_driver(
-      drivers::POP_LEFT,
-      ActivationMode::Automatic(switches::POP_LEFT),
-      ctx,
-    );
-
-    machine.activate_driver(
       drivers::FLIPPER_MAIN_LEFT,
       ActivationMode::Automatic(switches::LEFT_FLIPPER1),
       ctx,
@@ -56,16 +45,6 @@ impl ActivatePlayfield {
       ctx,
     );
     machine.activate_driver(
-      drivers::FLIPPER_UPPER_LEFT,
-      ActivationMode::Automatic(switches::LEFT_FLIPPER2),
-      ctx,
-    );
-    machine.activate_driver(
-      drivers::FLIPPER_UPPER_HOLD_LEFT,
-      ActivationMode::Automatic(switches::LEFT_FLIPPER2),
-      ctx,
-    );
-    machine.activate_driver(
       drivers::FLIPPER_UPPER_RIGHT,
       ActivationMode::Automatic(switches::RIGHT_FLIPPER2),
       ctx,
@@ -73,6 +52,12 @@ impl ActivatePlayfield {
     machine.activate_driver(
       drivers::FLIPPER_UPPER_HOLD_RIGHT,
       ActivationMode::Automatic(switches::RIGHT_FLIPPER2),
+      ctx,
+    );
+
+    machine.activate_driver(
+      drivers::LEFT_SCOOP,
+      ActivationMode::Automatic(switches::ACTION_BUTTON),
       ctx,
     );
   }

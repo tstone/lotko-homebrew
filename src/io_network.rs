@@ -32,15 +32,12 @@ pub mod switches {
   pub const TROUGH_POS6: &str = "trough_pos6";
   pub const PLUNGE_LANE: &str = "plunge_lane";
   // midfield
-  pub const POP_RIGHT: &str = "pop_right";
+  pub const POP_LEFT: &str = "pop_left";
+  pub const POP_UPPER_RIGHT: &str = "pop_upper_right";
+  pub const POP_LOWER_RIGHT: &str = "pop_lower_right";
   pub const DROP_TARGET_RIGHT1: &str = "drop_target_right1";
   pub const DROP_TARGET_RIGHT2: &str = "drop_target_right2";
   pub const DROP_TARGET_RIGHT3: &str = "drop_target_right3";
-  // upper playfield
-  pub const POP_LEFT: &str = "pop_left";
-  pub const DROP_TARGET_LEFT1: &str = "drop_target_left1";
-  pub const DROP_TARGET_LEFT2: &str = "drop_target_left2";
-  pub const DROP_TARGET_LEFT3: &str = "drop_target_left3";
 }
 
 pub mod drivers {
@@ -55,15 +52,16 @@ pub mod drivers {
   pub const TROUGH_EJECT: &str = "trough_eject";
   pub const AUTO_PLUNGER: &str = "auto_plunger";
   // midfield
-  pub const POP_RIGHT: &str = "pop_right";
-  pub const DROP_TARGET_RIGHT: &str = "drop_target_right";
-  pub const FLIPPER_UPPER_LEFT: &str = "flipper_upper_left";
-  pub const FLIPPER_UPPER_HOLD_LEFT: &str = "flipper_upper_hold_left";
-  // upper playfield
+  pub const LEFT_SCOOP: &str = "left_scoop";
+  // upper
   pub const POP_LEFT: &str = "pop_left";
-  pub const DROP_TARGET_LEFT: &str = "drop_target_left";
+  pub const POP_UPPER_RIGHT: &str = "pop_upper_right";
+  pub const POP_LOWER_RIGHT: &str = "pop_lower_right";
+  pub const DROP_TARGET_UP: &str = "drop_target_up";
   pub const FLIPPER_UPPER_RIGHT: &str = "flipper_upper_right";
   pub const FLIPPER_UPPER_HOLD_RIGHT: &str = "flipper_upper_hold_right";
+  pub const LIFT_RAMP: &str = "flip_ramp";
+  pub const REAR_SCOOP: &str = "rear_scoop";
 }
 
 pub fn io_network() -> IoNetwork {
@@ -128,16 +126,10 @@ pub fn io_network() -> IoNetwork {
         driver(1)
           .named(drivers::FLIPPER_MAIN_LEFT)
           .mode(FlipperMainDirectMode {
+            initial_pwm_power: Power::percent(40),
+            secondary_pwm_power: Power::percent(93),
             button_switch: switches::LEFT_FLIPPER1,
             eos_switch: switches::FLIPPER_MAIN_LEFT_EOS,
-            ..Default::default()
-          }),
-      )
-      .with(
-        driver(2)
-          .named(drivers::FLIPPER_MAIN_HOLD_LEFT)
-          .mode(FlipperHoldDirectMode {
-            button_switch: switches::LEFT_FLIPPER1,
             ..Default::default()
           }),
       )
@@ -153,6 +145,8 @@ pub fn io_network() -> IoNetwork {
         driver(5)
           .named(drivers::FLIPPER_MAIN_RIGHT)
           .mode(FlipperMainDirectMode {
+            initial_pwm_power: Power::percent(40),
+            secondary_pwm_power: Power::percent(93),
             button_switch: switches::RIGHT_FLIPPER1,
             eos_switch: switches::FLIPPER_MAIN_RIGHT_EOS,
             ..Default::default()
@@ -175,86 +169,65 @@ pub fn io_network() -> IoNetwork {
       // Slings
       .with(driver(0).named(drivers::SLINGSHOT_LEFT).mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(switches::SLINGSHOT_LEFT),
-        initial_pwm_power: Power::percent(80),
+        initial_pwm_power: Power::percent(65),
         ..Default::default()
       }))
       .with(driver(7).named(drivers::SLINGSHOT_RIGHT).mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(switches::SLINGSHOT_RIGHT),
-        initial_pwm_power: Power::percent(80),
+        initial_pwm_power: Power::percent(68),
         ..Default::default()
       })),
   );
 
   io_network.add_board(
     FastIoBoards::io_1616()
-      .with(switch(1).named(switches::POP_LEFT).tagged(Playfield))
-      .with(switch(4).named(switches::POP_RIGHT).tagged(Playfield))
-      .with(
-        switch(5)
-          .named(switches::DROP_TARGET_RIGHT1)
-          .tagged(Playfield),
-      )
-      .with(
-        switch(6)
-          .named(switches::DROP_TARGET_RIGHT2)
-          .tagged(Playfield),
-      )
-      .with(
-        switch(7)
-          .named(switches::DROP_TARGET_RIGHT3)
-          .tagged(Playfield),
-      )
-      .with(driver(0).named(drivers::POP_RIGHT).mode(PulseMode {
-        trigger_mode: DriverTriggerMode::Switch(switches::POP_RIGHT),
-        initial_pwm_power: Power::FULL,
+      .with(driver(0).named(drivers::REAR_SCOOP).mode(PulseMode {
+        initial_pwm_power: Power::percent(100),
         ..Default::default()
       }))
       .with(
         driver(1)
-          .named(drivers::FLIPPER_UPPER_LEFT)
-          .mode(FlipperMainDirectMode {
-            button_switch: switches::LEFT_FLIPPER2,
-            eos_switch: switches::FLIPPER_MAIN_LEFT_EOS,
-            ..Default::default()
-          }),
-      )
-      .with(
-        driver(2)
-          .named(drivers::FLIPPER_UPPER_HOLD_LEFT)
-          .mode(FlipperHoldDirectMode {
-            button_switch: switches::LEFT_FLIPPER2,
-            ..Default::default()
-          }),
-      )
-      .with(driver(3).named(drivers::DROP_TARGET_RIGHT).mode(PulseMode {
-        trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
-        initial_pwm_power: Power::FULL,
-        ..Default::default()
-      }))
-      .with(driver(4).named(drivers::DROP_TARGET_LEFT).mode(PulseMode {
-        trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
-        initial_pwm_power: Power::FULL,
-        ..Default::default()
-      }))
-      .with(
-        driver(5)
           .named(drivers::FLIPPER_UPPER_RIGHT)
           .mode(FlipperMainDirectMode {
+            initial_pwm_power: Power::percent(35),
+            secondary_pwm_power: Power::percent(92),
             button_switch: switches::RIGHT_FLIPPER2,
             eos_switch: switches::FLIPPER_MAIN_RIGHT_EOS,
             ..Default::default()
           }),
       )
       .with(
-        driver(6)
+        driver(2)
           .named(drivers::FLIPPER_UPPER_HOLD_RIGHT)
           .mode(FlipperHoldDirectMode {
             button_switch: switches::RIGHT_FLIPPER2,
             ..Default::default()
           }),
       )
-      .with(driver(7).named(drivers::POP_LEFT).mode(PulseMode {
-        initial_pwm_power: Power::FULL,
+      .with(driver(3).named(drivers::POP_LEFT).mode(PulseMode {
+        trigger_mode: DriverTriggerMode::Switch(switches::POP_LEFT),
+        initial_pwm_power: Power::percent(80),
+        ..Default::default()
+      }))
+      .with(driver(4).named(drivers::LIFT_RAMP).mode(PulseMode {
+        trigger_mode: DriverTriggerMode::Switch(switches::ACTION_BUTTON),
+        initial_pwm_power: Power::percent(100),
+        ..Default::default()
+      }))
+      .with(driver(5).named(drivers::POP_UPPER_RIGHT).mode(PulseMode {
+        trigger_mode: DriverTriggerMode::Switch(switches::POP_UPPER_RIGHT),
+        initial_pwm_power: Power::percent(80),
+        ..Default::default()
+      }))
+      .with(driver(6).named(drivers::POP_LOWER_RIGHT).mode(PulseMode {
+        trigger_mode: DriverTriggerMode::Switch(switches::POP_LOWER_RIGHT),
+        initial_pwm_power: Power::percent(80),
+        ..Default::default()
+      }))
+      .with(driver(7).named(drivers::LEFT_SCOOP).mode(PulseKickMode {
+        trigger_mode: DriverTriggerMode::Switch(switches::ACTION_BUTTON),
+        initial_pwm_length: Duration::from_millis(7),
+        secondary_pwm_length: Duration::from_millis(38),
         ..Default::default()
       })),
   );

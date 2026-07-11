@@ -52,14 +52,23 @@ async fn main() {
 
 pub struct Testing {
   speaker_anim: Box<dyn Animation<Duration, f32>>,
+  speaker_alt_anim: Box<dyn Animation<Duration, f32>>,
+  mode: u8,
 }
 
 impl Testing {
   pub fn new() -> Self {
     Testing {
+      mode: 0,
       speaker_anim: Tween::boxed(
-        Duration::from_millis(500),
+        Duration::from_millis(900),
         Curve::Linear,
+        vec![0.0, 360.0],
+        AnimationCycle::Forever,
+      ),
+      speaker_alt_anim: Tween::boxed(
+        Duration::from_millis(80),
+        Curve::Random,
         vec![0.0, 360.0],
         AnimationCycle::Forever,
       ),
@@ -73,31 +82,67 @@ impl System for Testing {
     //   .systems
     //   .expect::<SoundSystem>()
     //   .preload("test", "/usr/share/sounds/alsa/Front_Center.wav");
-    // ctx.cue(Anonymous, Cue::Once(Duration::from_secs(3)));
+
+    ctx.cue(Anonymous, Cue::Once(Duration::from_millis(600)));
 
     ctx.declare_leds(named_led(ctx, leds::ACTION_BUTTON).color(Rgba::alice_blue()));
+
+    ctx.declare_leds(named_led(ctx, leds::city::SOLARIUM_ATRIUMS).color(Rgba::red()));
+    ctx.declare_leds(named_led(ctx, leds::city::SKYRAIL_STATION).color(Rgba::orange()));
+    ctx.declare_leds(named_led(ctx, leds::city::NIMBUS_PROMENADE).color(Rgba::yellow()));
+    ctx.declare_leds(named_led(ctx, leds::city::MERIDIAN_BASINS).color(Rgba::lime()));
+    ctx.declare_leds(named_led(ctx, leds::LEFT_INLANE_TARGET).color(Rgba::cyan()));
+
+    ctx.declare_leds(named_led(ctx, leds::LOWER_SCOOP_LEFT_BOLT).color(Rgba::white()));
+    ctx.declare_leds(named_led(ctx, leds::LOWER_SCOOP_RIGHT_BOLT).color(Rgba::teal()));
+
+    ctx.declare_leds(named_led(ctx, leds::GI::BOTTOM_LEFT_TRIANGLE).color(Rgba::tan()));
+
+    ctx.cue(Anonymous, Cue::Loop(Duration::from_secs(5)));
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
     if event.is::<Anonymous>() {
-      log::info!("Playing sound");
-      ctx.systems.expect::<SoundSystem>().play_sfx("test");
+      self.mode += 1;
+      if self.mode == 2 {
+        self.mode = 0;
+      }
     }
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &Context) {
     self.speaker_anim.accumulate(delta);
+    self.speaker_alt_anim.accumulate(delta);
 
-    ctx.declare_leds(
-      named_led_strip(ctx, leds::LEFT_SPEAKER_STRIP)
-        .gradient(Rgba::alice_blue(), Rgba::dark_blue())
-        .rotate_left(self.speaker_anim.sample()),
-    );
+    // ctx.declare_leds(
+    //   named_led_strip(ctx, leds::LEFT_SPEAKER_STRIP)
+    //     .gradient(Rgba::alice_blue(), Rgba::dark_blue())
+    //     .rotate_left(self.speaker_anim.sample()),
+    // );
 
-    ctx.declare_leds(
-      named_led_strip(ctx, leds::RIGHT_SPEAKER_STRIP)
-        .gradient(Rgba::pink(), Rgba::dark_red())
-        .rotate_right(self.speaker_anim.sample()),
-    );
+    // ctx.declare_leds(
+    //   named_led_strip(ctx, leds::RIGHT_SPEAKER_STRIP)
+    //     .gradient(Rgba::pink(), Rgba::dark_red())
+    //     .rotate_right(self.speaker_anim.sample()),
+    // );
+
+    // if self.mode == 0 {
+    //   self.speaker_anim.accumulate(delta);
+    //   ctx.declare_leds(
+    //     named_led_strip(ctx, leds::V_SPINNER)
+    //       // .gradient(Rgba::alice_blue(), Rgba::dark_blue())
+    //       .color_idx(0, Rgba::dark_blue())
+    //       .color_idx(6, Rgba::dark_red())
+    //       .rotate_right(self.speaker_anim.sample()),
+    //   );
+    // } else if self.mode == 1 {
+    //   self.speaker_alt_anim.accumulate(delta);
+    //   ctx.declare_leds(
+    //     named_led_strip(ctx, leds::V_SPINNER)
+    //       // .gradient(Rgba::alice_blue(), Rgba::dark_blue())
+    //       .color_idx(3, Rgba::dark_orange())
+    //       .rotate_left(self.speaker_alt_anim.sample()),
+    //   );
+    // }
   }
 }

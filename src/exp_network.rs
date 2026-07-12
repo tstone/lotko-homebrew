@@ -13,6 +13,7 @@ pub mod leds {
   pub const RIGHT_OUTLANE: &str = "right_outlane";
   pub const LOWER_SCOOP_LEFT_BOLT: &str = "lower_scoop_lbolt";
   pub const LOWER_SCOOP_RIGHT_BOLT: &str = "lower_scoop_rbolt";
+  pub const SUBWAY: &str = "subway";
 
   pub mod city {
     pub const SOLARIUM_ATRIUMS: &str = "solariaum_atriums";
@@ -23,6 +24,8 @@ pub mod leds {
 
   pub mod GI {
     pub const BOTTOM_LEFT_TRIANGLE: &str = "bottom_left_tri";
+    pub const MID_LEFT: &str = "mid_left";
+    pub const LEFT_SLING: &str = "lsling";
   }
 
   // mid-field
@@ -54,7 +57,13 @@ pub fn exp_network() -> Vec<ExpansionBoard> {
         .with(led(leds::LEFT_POP).tagged(tags::Playfield))
         .with(led(leds::LEFT_POP_TARGET).tagged(tags::Playfield))
         .with(led_strip(leds::LEFT_RAMP, 7))
-        .with(led_strip(leds::LEFT_ORBIT, 7)),
+        .with(led_strip(leds::LEFT_ORBIT, 7))
+        .with(
+          led(leds::GI::MID_LEFT)
+            .tagged(tags::Playfield)
+            .tagged(tags::GI),
+        )
+        .with(led_strip(leds::SUBWAY, 11)),
     )
     .port(
       7,
@@ -74,7 +83,13 @@ pub fn exp_network() -> Vec<ExpansionBoard> {
             .tagged(tags::Playfield)
             .tagged(tags::GI),
         )
-        .with(led(leds::LOWER_SCOOP_RIGHT_BOLT).tagged(tags::Playfield)),
+        .with(led(leds::LOWER_SCOOP_RIGHT_BOLT).tagged(tags::Playfield))
+        .with(led(leds::LEFT_OUTLANE).tagged(tags::Playfield))
+        .with(
+          led(leds::GI::LEFT_SLING)
+            .tagged(tags::Playfield)
+            .tagged(tags::GI),
+        ),
     );
 
   vec![neuron_expansion, playfield_0081]

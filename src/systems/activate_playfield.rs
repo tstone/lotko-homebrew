@@ -1,8 +1,6 @@
+use crate::hardware::*;
 use frontbox::prelude::*;
 use frontbox_turn_based::GameStarted;
-
-use crate::io_network::{drivers, switches};
-
 /// Turn on all playfield drivers once the game starts
 pub struct ActivatePlayfield;
 
@@ -15,49 +13,50 @@ impl ActivatePlayfield {
     let machine = ctx.systems.expect::<Machine>();
 
     machine.activate_driver(
-      drivers::SLINGSHOT_LEFT,
-      ActivationMode::Automatic(switches::SLINGSHOT_LEFT),
+      slingshots::LEFT_COIL.name,
+      ActivationMode::Automatic(slingshots::LEFT_SWITCH.name),
       ctx,
     );
     machine.activate_driver(
-      drivers::SLINGSHOT_RIGHT,
-      ActivationMode::Automatic(switches::SLINGSHOT_RIGHT),
+      slingshots::RIGHT_COIL.name,
+      ActivationMode::Automatic(slingshots::RIGHT_SWITCH.name),
       ctx,
     );
     machine.activate_driver(
-      drivers::FLIPPER_MAIN_LEFT,
-      ActivationMode::Automatic(switches::LEFT_FLIPPER1),
+      left_flipper::MAIN_COIL.name,
+      ActivationMode::Automatic(cabinet::LEFT_FLIPPER_SWITCH1.name),
       ctx,
     );
     machine.activate_driver(
-      drivers::FLIPPER_MAIN_HOLD_LEFT,
-      ActivationMode::Automatic(switches::LEFT_FLIPPER1),
+      left_flipper::HOLD_COIL.name,
+      ActivationMode::Automatic(cabinet::LEFT_FLIPPER_SWITCH1.name),
       ctx,
     );
     machine.activate_driver(
-      drivers::FLIPPER_MAIN_RIGHT,
-      ActivationMode::Automatic(switches::RIGHT_FLIPPER1),
+      right_flipper::MAIN_COIL.name,
+      ActivationMode::Automatic(cabinet::RIGHT_FLIPPER_SWITCH1.name),
       ctx,
     );
     machine.activate_driver(
-      drivers::FLIPPER_MAIN_HOLD_RIGHT,
-      ActivationMode::Automatic(switches::RIGHT_FLIPPER1),
+      right_flipper::HOLD_COIL.name,
+      ActivationMode::Automatic(cabinet::RIGHT_FLIPPER_SWITCH1.name),
       ctx,
     );
     machine.activate_driver(
-      drivers::FLIPPER_UPPER_RIGHT,
-      ActivationMode::Automatic(switches::RIGHT_FLIPPER2),
+      upper_flipper::MAIN_COIL.name,
+      ActivationMode::Automatic(cabinet::RIGHT_FLIPPER_SWITCH2.name),
       ctx,
     );
     machine.activate_driver(
-      drivers::FLIPPER_UPPER_HOLD_RIGHT,
-      ActivationMode::Automatic(switches::RIGHT_FLIPPER2),
+      upper_flipper::HOLD_COIL.name,
+      ActivationMode::Automatic(cabinet::RIGHT_FLIPPER_SWITCH2.name),
       ctx,
     );
 
+    // temporary for testing
     machine.activate_driver(
-      drivers::LEFT_SCOOP,
-      ActivationMode::Automatic(switches::ACTION_BUTTON),
+      lower_scoop::COIL.name,
+      ActivationMode::Automatic(cabinet::action_button::SWITCH.name),
       ctx,
     );
   }

@@ -1,10 +1,12 @@
 use frontbox::prelude::*;
-use frontbox::tags::*;
 
 use crate::hardware::cabinet;
 use crate::hardware::left_flipper;
 use crate::hardware::left_inlane;
+use crate::hardware::lift_ramp;
+use crate::hardware::lower_scoop;
 use crate::hardware::plunge_lane;
+use crate::hardware::pop_cluster;
 use crate::hardware::right_flipper;
 use crate::hardware::right_inlane;
 use crate::hardware::slingshots;
@@ -12,7 +14,7 @@ use crate::hardware::trough;
 use crate::hardware::upper_flipper;
 
 pub fn io_network() -> IoNetwork {
-  let mut io_network = IoNetwork::new(vec![
+  IoNetwork::new(vec![
     IoBoards::cabinet()
       // switches
       .wire_switch(11, &cabinet::coin_door::OPEN_SWITCH)
@@ -56,70 +58,14 @@ pub fn io_network() -> IoNetwork {
     IoBoards::io_1616()
       // switches
       // TODO
-      // 0?
-      .wire_driver(1, &upper_flipper::MAIN_COIL)
-      .wire_driver(2, &upper_flipper::HOLD_COIL)
-      .wire_driver(3, &upper_flipper::HOLD_COIL),
-  ]);
-
-  io_network.add_board(
-    FastIoBoards::io_1616()
-      .with(driver(3).named(drivers::DROP_TARGET_RIGHT).mode(PulseMode {
-        trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
-        initial_pwm_power: Power::FULL,
-        ..Default::default()
-      }))
-      .with(driver(4).named(drivers::DROP_TARGET_LEFT).mode(PulseMode {
-        trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
-        initial_pwm_power: Power::FULL,
-        ..Default::default()
-      }))
-      .with(
-        driver(5)
-          .named(drivers::FLIPPER_UPPER_RIGHT)
-          .mode(FlipperMainDirectMode {
-            initial_pwm_power: Power::percent(35),
-            secondary_pwm_power: Power::percent(92),
-            button_switch: switches::RIGHT_FLIPPER2,
-            eos_switch: switches::FLIPPER_MAIN_RIGHT_EOS,
-            ..Default::default()
-          }),
-      )
-      .with(
-        driver(2)
-          .named(drivers::FLIPPER_UPPER_HOLD_RIGHT)
-          .mode(FlipperHoldDirectMode {
-            button_switch: switches::RIGHT_FLIPPER2,
-            ..Default::default()
-          }),
-      )
-      .with(driver(3).named(drivers::POP_LEFT).mode(PulseMode {
-        trigger_mode: DriverTriggerMode::Switch(switches::POP_LEFT),
-        initial_pwm_power: Power::percent(80),
-        ..Default::default()
-      }))
-      .with(driver(4).named(drivers::LIFT_RAMP).mode(PulseMode {
-        trigger_mode: DriverTriggerMode::Switch(switches::ACTION_BUTTON),
-        initial_pwm_power: Power::percent(100),
-        ..Default::default()
-      }))
-      .with(driver(5).named(drivers::POP_UPPER_RIGHT).mode(PulseMode {
-        trigger_mode: DriverTriggerMode::Switch(switches::POP_UPPER_RIGHT),
-        initial_pwm_power: Power::percent(80),
-        ..Default::default()
-      }))
-      .with(driver(6).named(drivers::POP_LOWER_RIGHT).mode(PulseMode {
-        trigger_mode: DriverTriggerMode::Switch(switches::POP_LOWER_RIGHT),
-        initial_pwm_power: Power::percent(80),
-        ..Default::default()
-      }))
-      .with(driver(7).named(drivers::LEFT_SCOOP).mode(PulseKickMode {
-        trigger_mode: DriverTriggerMode::Switch(switches::ACTION_BUTTON),
-        initial_pwm_length: Duration::from_millis(7),
-        secondary_pwm_length: Duration::from_millis(38),
-        ..Default::default()
-      })),
-  );
-
-  io_network.build()
+      // drivers
+      .wire_driver(0, &lift_ramp::EJECT_COIL)
+      .wire_driver(1, &upper_flipper::HOLD_COIL)
+      .wire_driver(2, &upper_flipper::MAIN_COIL)
+      .wire_driver(3, &pop_cluster::left::COIL)
+      .wire_driver(4, &lift_ramp::RAMP_COIL)
+      .wire_driver(5, &pop_cluster::upper_right::COIL)
+      .wire_driver(6, &pop_cluster::lower_right::COIL)
+      .wire_driver(7, &lower_scoop::COIL),
+  ])
 }

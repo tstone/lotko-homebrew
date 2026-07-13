@@ -1,17 +1,22 @@
 use frontbox::animation::{Animation, AnimationCycle, Curve, Tween};
-use frontbox::plugins::{AutoplungerPlugin, TroughPlugin};
+use frontbox::prelude::tags::GeneralIllumination;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystem;
 use frontbox_turn_based::*;
 use std::io::Write;
 
-mod io_network;
-use io_network::*;
 mod exp_network;
-use exp_network::*;
+mod io_network;
 mod systems;
 use systems::*;
 mod hardware;
+
+use hardware::*;
+
+use crate::exp_network::exp_network;
+use crate::hardware::cabinet::action_button;
+use crate::hardware::more_tags::*;
+use crate::io_network::io_network;
 
 // Tween::new(
 //   Duration::from_millis(1000),
@@ -28,14 +33,8 @@ async fn main() {
 
   App::boot("/dev/ttyACM0", "/dev/ttyACM1", io_network(), exp_network())
     .await
-    .plugin(TroughPlugin::new(
-      vec![switches::TROUGH_POS1, switches::TROUGH_POS2],
-      drivers::TROUGH_EJECT,
-    ))
-    .plugin(AutoplungerPlugin::new(
-      HardwareSelection::Name(switches::PLUNGE_LANE),
-      HardwareSelection::Name(drivers::AUTO_PLUNGER),
-    ))
+    .plugin(trough::plugin())
+    .plugin(plunge_lane::plugin())
     .plugin(CompetitiveGamePlugin::new(systems![BasicPoints::new()]))
     .configure(|app| {
       app.system(LedSystem::new());
@@ -86,23 +85,16 @@ impl System for Testing {
 
     ctx.cue(Anonymous, Cue::Once(Duration::from_millis(600)));
 
-    ctx.declare_leds(named_led(ctx, leds::ACTION_BUTTON).color(Rgba::alice_blue()));
-
-    ctx.declare_leds(named_led(ctx, leds::city::SOLARIUM_ATRIUMS).color(Rgba::red()));
-    ctx.declare_leds(named_led(ctx, leds::city::SKYRAIL_STATION).color(Rgba::orange()));
-    ctx.declare_leds(named_led(ctx, leds::city::NIMBUS_PROMENADE).color(Rgba::yellow()));
-    ctx.declare_leds(named_led(ctx, leds::city::MERIDIAN_BASINS).color(Rgba::lime()));
-    ctx.declare_leds(named_led(ctx, leds::LEFT_INLANE_TARGET).color(Rgba::cyan()));
-
-    ctx.declare_leds(named_led(ctx, leds::LOWER_SCOOP_LEFT_BOLT).color(Rgba::white()));
-    ctx.declare_leds(named_led(ctx, leds::LOWER_SCOOP_RIGHT_BOLT).color(Rgba::teal()));
-
-    ctx.declare_leds(named_led(ctx, leds::GI::BOTTOM_LEFT_TRIANGLE).color(Rgba::tan()));
+    ctx.declare_leds(action_button::LED.q(), Rgba::alice_blue());
+    ctx.declare_leds(Q::tag::<Bolt>(), Rgba::yellow());
+    ctx.declare_leds(Q::tag::<Circle>(), Rgba::blue());
+    ctx.declare_leds(Q::tag::<CityMap>(), Rgba::green());
+    ctx.declare_leds(Q::tag::<GeneralIllumination>(), Rgba::white());
 
     ctx.cue(Anonymous, Cue::Loop(Duration::from_secs(5)));
   }
 
-  fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
+  fn on_event(&mut self, event: &dyn Event, _ctx: &Context) {
     if event.is::<Anonymous>() {
       self.mode += 1;
       if self.mode == 2 {
@@ -111,7 +103,7 @@ impl System for Testing {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &Context) {
+  fn on_tick(&mut self, delta: Duration, _ctx: &Context) {
     self.speaker_anim.accumulate(delta);
     self.speaker_alt_anim.accumulate(delta);
 

@@ -3,8 +3,6 @@ use frontbox::tags::*;
 
 use crate::hardware::more_tags::*;
 
-const NAME: &'static str = "l_inlane";
-
 hardware_defs! {
   pub SOLARIUM_ATRIUMS: LedDefinition = LedDefinition::single("sol_atriums")
     .tag(Playfield)
@@ -34,5 +32,9 @@ hardware_defs! {
   pub APEX_TERRACES: LedDefinition = LedDefinition::single("apex_terraces")
     .tag(Playfield)
     .tag(Circle)
+    .tag(CityMap);
+
+  pub SPORE_COUNT: LedDefinition = LedDefinition::strip("spore_count", 16)
+    .tag(Playfield)
     .tag(CityMap);
 }

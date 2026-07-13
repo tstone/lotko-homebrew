@@ -16,11 +16,12 @@ hardware_defs! {
   pub EJECT_COIL: DriverDefinition = DriverDefinition::new("lift_ramp_eject")
     .tag(Playfield)
     .mode(PulseKickMode {
-      trigger_mode: VirtualSwitchTrue,
-      initial_pwm_length: Duration::from_millis(7),
-      secondary_pwm_length: Duration::from_millis(35),
-      ..Default::default()
-    });
+        trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
+        initial_pwm_length: Duration::from_millis(7),
+        secondary_pwm_length: Duration::from_millis(35),
+        secondary_pwm_power: Power::FULL,
+        ..Default::default()
+      });
 
   pub RAMP_OPTO: SwitchDefinition = SwitchDefinition::new("lift_ramp_opto");
   pub SUBWAY_SWITCH: SwitchDefinition = SwitchDefinition::new("lift_ramp_subway");

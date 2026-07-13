@@ -5,18 +5,14 @@ use frontbox_sound::SoundSystem;
 use frontbox_turn_based::*;
 use std::io::Write;
 
-mod exp_network;
-mod io_network;
 mod systems;
 use systems::*;
 mod hardware;
 
 use hardware::*;
 
-use crate::exp_network::exp_network;
 use crate::hardware::cabinet::action_button;
 use crate::hardware::more_tags::*;
-use crate::io_network::io_network;
 
 // Tween::new(
 //   Duration::from_millis(1000),

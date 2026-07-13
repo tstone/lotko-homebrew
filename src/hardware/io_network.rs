@@ -57,7 +57,8 @@ pub fn io_network() -> IoNetwork {
       .wire_driver(7, &slingshots::RIGHT_COIL),
     IoBoards::io_1616()
       // switches
-      // TODO
+      .wire_switch(0, &upper_flipper::EOS_SWITCH) // temporary
+      .wire_switch(1, &plunge_lane::SWITCH) // also temp for testing
       // drivers
       .wire_driver(0, &lift_ramp::EJECT_COIL)
       .wire_driver(1, &upper_flipper::HOLD_COIL)

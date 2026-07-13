@@ -28,12 +28,12 @@ impl DmdDisplay {
     Self {
       dmd: Pin2Dmd::connect(width, height, panel_type).unwrap(),
       bold_10px,
-      start_flasher: Tween::boxed(
+      start_flasher: Box::new(Tween::new(
         Duration::from_millis(350),
         Curve::EaseInOut,
         vec![Rgba::yellow(), Rgba::black(), Rgba::aqua(), Rgba::black()],
         AnimationCycle::Forever,
-      ),
+      )),
     }
   }
 

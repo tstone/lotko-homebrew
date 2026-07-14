@@ -5,8 +5,8 @@ hardware_defs! {
   pub LEFT_FLIPPER_SWITCH1: SwitchDefinition = SwitchDefinition::new("l_flipper1");
   pub LEFT_FLIPPER_SWITCH2: SwitchDefinition = SwitchDefinition::new("l_flipper2");
 
-  pub RIGHT_FLIPPER_SWITCH1: SwitchDefinition = SwitchDefinition::new("l_flipper1");
-  pub RIGHT_FLIPPER_SWITCH2: SwitchDefinition = SwitchDefinition::new("l_flipper2");
+  pub RIGHT_FLIPPER_SWITCH1: SwitchDefinition = SwitchDefinition::new("r_flipper1");
+  pub RIGHT_FLIPPER_SWITCH2: SwitchDefinition = SwitchDefinition::new("r_flipper2");
 
   pub TILT_BOB_SWITCH: SwitchDefinition = SwitchDefinition::new("tilt");
 }
@@ -27,8 +27,11 @@ pub mod start_button {
   pub const NAME: &'static str = "start";
 
   hardware_defs! {
-    pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME);
-    pub LAMP_DRIVER: DriverDefinition = DriverDefinition::new(NAME);
+    pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
+      .tag(StartButton);
+
+    pub LAMP_DRIVER: DriverDefinition = DriverDefinition::new(NAME)
+      .tag(StartButton);
   }
 }
 

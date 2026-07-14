@@ -42,7 +42,6 @@ pub mod right_flipper {
         button_switch: cabinet::RIGHT_FLIPPER_SWITCH1.name,
         ..Default::default()
       });
-
   }
 }
 
@@ -55,7 +54,7 @@ pub mod slingshots {
 
     // -- Coils --
 
-    pub LEFT_COIL: DriverDefinition = DriverDefinition::new("l_coil")
+    pub LEFT_COIL: DriverDefinition = DriverDefinition::new("l_sling_coil")
       .mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(LEFT_SWITCH.name),
         initial_pwm_power: Power::percent(80),
@@ -64,7 +63,7 @@ pub mod slingshots {
       .tag(Playfield)
       .tag(SlingShot);
 
-    pub RIGHT_COIL: DriverDefinition = DriverDefinition::new("r_coil")
+    pub RIGHT_COIL: DriverDefinition = DriverDefinition::new("r_sling_coil")
       .mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(RIGHT_SWITCH.name),
         initial_pwm_power: Power::percent(80),

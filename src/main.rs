@@ -85,8 +85,14 @@ impl System for Testing {
     ctx.declare_leds(Q::tag::<Circle>(), Rgba::blue());
     ctx.declare_leds(Q::tag::<CityMap>(), Rgba::green());
     ctx.declare_leds(Q::tag::<SmallArrow>(), Rgba::red());
-    ctx.declare_leds(Q::tag::<Hex>(), Rgba::aqua());
     ctx.declare_leds(Q::tag::<GeneralIllumination>(), Rgba::tan());
+
+    ctx.declare_leds(left_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
+    ctx.declare_leds(left_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
+    // ctx.declare_leds(arc_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
+    // ctx.declare_leds(center_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
+    // ctx.declare_leds(lift_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
+    // ctx.declare_leds(right_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
 
     ctx.declare_leds(action_button::LED.q(), Rgba::alice_blue());
 

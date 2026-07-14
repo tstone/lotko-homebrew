@@ -81,11 +81,19 @@ impl System for Testing {
 
     ctx.cue(Anonymous, Cue::Once(Duration::from_millis(600)));
 
-    ctx.declare_leds(action_button::LED.q(), Rgba::alice_blue());
     ctx.declare_leds(Q::tag::<Bolt>(), Rgba::yellow());
     ctx.declare_leds(Q::tag::<Circle>(), Rgba::blue());
     ctx.declare_leds(Q::tag::<CityMap>(), Rgba::green());
-    ctx.declare_leds(Q::tag::<GeneralIllumination>(), Rgba::white());
+    ctx.declare_leds(Q::tag::<SmallArrow>(), Rgba::red());
+    ctx.declare_leds(Q::tag::<Hex>(), Rgba::aqua());
+    ctx.declare_leds(Q::tag::<GeneralIllumination>(), Rgba::tan());
+
+    ctx.declare_leds(action_button::LED.q(), Rgba::alice_blue());
+
+    ctx.declare_leds(
+      arc_ramp::SUBWAY_LEDS.q(),
+      Colors::gradient(vec![Rgba::red(), Rgba::blue()]),
+    );
 
     ctx.cue(Anonymous, Cue::Loop(Duration::from_secs(5)));
   }
@@ -99,9 +107,14 @@ impl System for Testing {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, _ctx: &Context) {
+  fn on_tick(&mut self, delta: Duration, ctx: &Context) {
     self.speaker_anim.accumulate(delta);
     self.speaker_alt_anim.accumulate(delta);
+
+    // ctx.declare_leds(
+    //   arc_ramp::SUBWAY_LEDS.q(),
+    //   Colors::gradient(vec![Rgba::red(), Rgba::aqua()]).rotated_left(self.speaker_anim.sample()),
+    // );
 
     // ctx.declare_leds(
     //   named_led_strip(ctx, leds::LEFT_SPEAKER_STRIP)

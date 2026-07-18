@@ -11,11 +11,7 @@ mod hardware;
 
 use hardware::*;
 
-<<<<<<< HEAD
-use crate::hardware::cabinet::{action_button, start_button};
-=======
 use crate::hardware::cabinet::*;
->>>>>>> a4678a55a05f01467ca271fd2b8934b2a48abe31
 use crate::hardware::more_tags::*;
 
 // Tween::new(

@@ -27,23 +27,32 @@ async fn main() {
     .format(|buf, record| writeln!(buf, "[{}] {}\r", record.level(), record.args()))
     .init();
 
-  App::boot("/dev/ttyACM0", "/dev/ttyACM1", io_network(), exp_network())
-    .await
-    .plugin(trough::plugin())
-    .plugin(plunge_lane::plugin())
-    .plugin(CompetitiveGamePlugin::new(systems![BasicPoints::new()]))
-    .configure(|app| {
-      app.system(LedSystem::new());
-      app.system(StartableFlasher::new());
-      app.system(ActivatePlayfield::new());
-      app.system(AutoTurnAdvance::new());
+  App::boot(BootConfig {
+    io_network: io_network(),
+    exp_network: exp_network(),
+    ..Default::default()
+  })
+  .await
+  // .plugin(CompetitiveGamePlugin::new(systems![BasicPoints::new()]))
+  .configure(|app| {
+    app.system(trough::system());
+    app.system(plunge_lane::system());
+    app.system(LedSystem::new());
+    app.system(StartableFlasher::new());
+    app.system(ActivatePlayfield::new());
+    app.system(CompetitiveGame::new(
+      4,
+      systems![BasicPoints::new()],
+      Q::tag::<tags::Playfield>(),
+    ));
+    app.system(AutoTurnAdvance::new()); // temporary
 
-      app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
-      app.system(Testing::new());
-      app.system(DmdDisplay::default());
-    })
-    .run()
-    .await;
+    app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
+    app.system(Testing::new());
+    app.system(DmdDisplay::default());
+  })
+  .run()
+  .await;
 }
 
 pub struct Testing {

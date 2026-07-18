@@ -57,7 +57,7 @@ pub mod slingshots {
     pub LEFT_COIL: DriverDefinition = DriverDefinition::new("l_sling_coil")
       .mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(LEFT_SWITCH.name),
-        initial_pwm_power: Power::percent(80),
+        initial_pwm_power: HardwareValue::config("Left Sling Power", "Power of the left slingshot", Power::percent(80), Ranges::full_power()),
         ..Default::default()
       })
       .tag(Playfield)
@@ -66,7 +66,7 @@ pub mod slingshots {
     pub RIGHT_COIL: DriverDefinition = DriverDefinition::new("r_sling_coil")
       .mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(RIGHT_SWITCH.name),
-        initial_pwm_power: Power::percent(80),
+        initial_pwm_power: HardwareValue::config("Right Sling Power", "Power of the right slingshot", Power::percent(80), Ranges::full_power()),
         ..Default::default()
       })
       .tag(Playfield)

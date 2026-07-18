@@ -6,7 +6,18 @@ hardware_defs! {
     .tag(Playfield)
     .mode(PulseMode {
       trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
-      initial_pwm_power: Power::FULL,
+      initial_pwm_length: HardwareValue::config(
+        "Drop Target Reset Duration",
+        "Amount of time fire the coil to reset the bank",
+        Duration::from_millis(35),
+        Ranges::duration(5, 100)
+      ),
+      initial_pwm_power: HardwareValue::config(
+        "Drop Target Return Duration",
+        "Power to use when resetting the bank",
+        Power::FULL,
+        Ranges::full_power()
+      ),
       ..Default::default()
     });
 

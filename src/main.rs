@@ -11,7 +11,7 @@ mod hardware;
 
 use hardware::*;
 
-use crate::hardware::cabinet::action_button;
+use crate::hardware::cabinet::*;
 use crate::hardware::more_tags::*;
 
 // Tween::new(
@@ -35,21 +35,28 @@ async fn main() {
   .await
   // .plugin(CompetitiveGamePlugin::new(systems![BasicPoints::new()]))
   .configure(|app| {
-    app.system(trough::system());
-    app.system(plunge_lane::system());
+    // core hardware
     app.system(LedSystem::new());
-    app.system(StartableFlasher::new());
+    app.system(DmdDisplay::default());
+    app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
     app.system(ActivatePlayfield::new());
-    app.system(CompetitiveGame::new(
+
+    // game management
+    app.system(FreePlay::default());
+    app.system(StartableFlasher::new(start_button::LAMP_DRIVER.name));
+    app.system(GameManager::competitive(
       4,
       systems![BasicPoints::new()],
       Q::tag::<tags::Playfield>(),
     ));
-    app.system(AutoTurnAdvance::new()); // temporary
 
-    app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
+    // playfield
+    app.system(trough::system());
+    app.system(plunge_lane::system());
+
+    // temporary stuff
     app.system(Testing::new());
-    app.system(DmdDisplay::default());
+    app.system(AutoTurnAdvance::new());
   })
   .run()
   .await;
@@ -103,7 +110,7 @@ impl System for Testing {
     // ctx.declare_leds(lift_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
     // ctx.declare_leds(right_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
 
-    ctx.declare_leds(action_button::LED.q(), Rgba::alice_blue());
+    // ctx.declare_leds(action_button::LED.q(), Rgba::alice_blue());
 
     ctx.declare_leds(
       arc_ramp::SUBWAY_LEDS.q(),

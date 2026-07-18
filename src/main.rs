@@ -11,7 +11,7 @@ mod hardware;
 
 use hardware::*;
 
-use crate::hardware::cabinet::action_button;
+use crate::hardware::cabinet::{action_button, start_button};
 use crate::hardware::more_tags::*;
 
 // Tween::new(
@@ -38,7 +38,6 @@ async fn main() {
     app.system(trough::system());
     app.system(plunge_lane::system());
     app.system(LedSystem::new());
-    app.system(StartableFlasher::new());
     app.system(ActivatePlayfield::new());
     app.system(CompetitiveGame::new(
       4,
@@ -46,6 +45,7 @@ async fn main() {
       Q::tag::<tags::Playfield>(),
     ));
     app.system(AutoTurnAdvance::new()); // temporary
+    app.system(non_game::game_startable());
 
     app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
     app.system(Testing::new());
@@ -90,23 +90,23 @@ impl System for Testing {
 
     ctx.cue(Anonymous, Cue::Once(Duration::from_millis(600)));
 
-    ctx.declare_leds(Q::tag::<Bolt>(), Rgba::yellow());
-    ctx.declare_leds(Q::tag::<Circle>(), Rgba::blue());
-    ctx.declare_leds(Q::tag::<CityMap>(), Rgba::green());
-    ctx.declare_leds(Q::tag::<SmallArrow>(), Rgba::red());
-    ctx.declare_leds(Q::tag::<GeneralIllumination>(), Rgba::tan());
+    ctx.declare_leds(&Q::tag::<Bolt>(), Rgba::yellow());
+    ctx.declare_leds(&Q::tag::<Circle>(), Rgba::blue());
+    ctx.declare_leds(&Q::tag::<CityMap>(), Rgba::green());
+    ctx.declare_leds(&Q::tag::<SmallArrow>(), Rgba::red());
+    ctx.declare_leds(&Q::tag::<GeneralIllumination>(), Rgba::tan());
 
-    ctx.declare_leds(left_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
-    ctx.declare_leds(left_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
+    ctx.declare_leds(&left_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
+    ctx.declare_leds(&left_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
     // ctx.declare_leds(arc_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
     // ctx.declare_leds(center_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
     // ctx.declare_leds(lift_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
     // ctx.declare_leds(right_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
 
-    ctx.declare_leds(action_button::LED.q(), Rgba::alice_blue());
+    ctx.declare_leds(&action_button::LED.q(), Rgba::alice_blue());
 
     ctx.declare_leds(
-      arc_ramp::SUBWAY_LEDS.q(),
+      &arc_ramp::SUBWAY_LEDS.q(),
       Colors::gradient(vec![Rgba::red(), Rgba::blue()]),
     );
 
@@ -122,7 +122,7 @@ impl System for Testing {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &Context) {
+  fn on_tick(&mut self, delta: Duration, _ctx: &Context) {
     self.speaker_anim.accumulate(delta);
     self.speaker_alt_anim.accumulate(delta);
 

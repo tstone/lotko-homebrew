@@ -24,6 +24,10 @@ pub fn exp_network() -> Vec<ExpansionBoard> {
           &left_orbit::HEX_LEDS,
           &gi::LOWER_SCOOP_ABOVE,
           &arc_ramp::SUBWAY_LEDS,
+          &upper_pass_lane::SPINNER,
+          &drop_bank::PADDLE_LED,
+          &gi::DROP1,
+          &gi::DROP2,
         ]),
       )
       .wire_led_port(

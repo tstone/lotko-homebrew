@@ -23,15 +23,17 @@ pub mod action_button {
 }
 
 pub mod start_button {
+  use frontbox_turn_based::StartableFlasher;
+
   use super::*;
   pub const NAME: &'static str = "start";
 
   hardware_defs! {
     pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
-      .tag(StartButton);
+      .tag(StartButton)
+      .tag(Cabinet);
 
-    pub LAMP_DRIVER: DriverDefinition = DriverDefinition::new(NAME)
-      .tag(StartButton);
+    pub LAMP_DRIVER: DriverDefinition = StartableFlasher::lamp_driver(NAME);
   }
 }
 

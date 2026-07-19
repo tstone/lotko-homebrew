@@ -23,9 +23,9 @@ pub mod action_button {
 }
 
 pub mod start_button {
-  use frontbox_turn_based::StartableFlasher;
-
   use super::*;
+  use frontbox_turn_based::GameStartable;
+
   pub const NAME: &'static str = "start";
 
   hardware_defs! {
@@ -33,7 +33,7 @@ pub mod start_button {
       .tag(StartButton)
       .tag(Cabinet);
 
-    pub LAMP_DRIVER: DriverDefinition = StartableFlasher::lamp_driver(NAME);
+    pub LAMP_DRIVER: DriverDefinition = GameStartable::lamp_driver(NAME);
   }
 }
 

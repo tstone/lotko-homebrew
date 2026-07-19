@@ -2,8 +2,11 @@ use frontbox::prelude::*;
 use frontbox::provided::Trough;
 use frontbox::tags::*;
 
+use crate::hardware::more_tags::*;
+
 hardware_defs! {
   pub DRAIN_LED: LedDefinition = LedDefinition::single("drain")
+    .tag(Circle)
     .tag(Playfield);
 
   pub SWITCH1: SwitchDefinition = Trough::switch_definition("trough_1");

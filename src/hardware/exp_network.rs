@@ -16,6 +16,14 @@ pub fn exp_network() -> Vec<ExpansionBoard> {
       ),
     ExpansionBoard::fp_exp0081(JumperState::Open, JumperState::Open)
       .wire_led_port(
+        4,
+        LedPort::ws2812().leds(vec![
+          &city_map::SPORE_COUNT,
+          &slingshots::POST_LEDS3,
+          &slingshots::POST_LEDS4,
+        ]),
+      )
+      .wire_led_port(
         7,
         LedPort::ws2812().leds(vec![
           &pop_cluster::left::POP_LED,
@@ -43,6 +51,12 @@ pub fn exp_network() -> Vec<ExpansionBoard> {
           &lower_scoop::RIGHT_BOLT,
           &left_outlane::LED,
           &gi::LEFT_SLING,
+          &lower_thirds::slingshots::POST_LEDS1, // 8
+          &lower_thirds::slingshots::POST_LEDS2, // 8
+          &trough::DRAIN_LED,
+          &right_inlane::LANE_LED1,
+          &right_inlane::LANE_LED2,
+          &plunge_lane::LED_STRIP,
         ]),
       ),
   ]

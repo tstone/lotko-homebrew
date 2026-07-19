@@ -33,21 +33,20 @@ async fn main() {
     ..Default::default()
   })
   .await
-  // .plugin(CompetitiveGamePlugin::new(systems![BasicPoints::new()]))
   .configure(|app| {
     // core hardware
     app.system(LedSystem::new());
     app.system(ActivatePlayfield::new());
+    app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
+    app.system(DmdDisplay::default());
 
     // game management
     app.system(FreePlay::default());
-    app.system(StartableFlasher::new(start_button::LAMP_DRIVER.name));
     app.system(GameManager::competitive(
       4,
       systems![BasicPoints::new()],
       Q::tag::<tags::Playfield>(),
     ));
-    app.system(AutoTurnAdvance::new()); // temporary
     app.system(non_game::game_startable());
 
     // playfield
@@ -101,7 +100,7 @@ impl System for Testing {
     ctx.declare_leds(&Q::tag::<Circle>(), Rgba::blue());
     ctx.declare_leds(&Q::tag::<CityMap>(), Rgba::green());
     ctx.declare_leds(&Q::tag::<SmallArrow>(), Rgba::red());
-    ctx.declare_leds(&Q::tag::<GeneralIllumination>(), Rgba::tan());
+    ctx.declare_leds(&Q::tag::<GeneralIllumination>(), Rgba::white());
 
     ctx.declare_leds(&left_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
     ctx.declare_leds(&left_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
@@ -110,14 +109,14 @@ impl System for Testing {
     // ctx.declare_leds(lift_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
     // ctx.declare_leds(right_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
 
-<<<<<<< HEAD
-    ctx.declare_leds(&action_button::LED.q(), Rgba::alice_blue());
-=======
     // ctx.declare_leds(action_button::LED.q(), Rgba::alice_blue());
->>>>>>> a4678a55a05f01467ca271fd2b8934b2a48abe31
 
     ctx.declare_leds(
       &arc_ramp::SUBWAY_LEDS.q(),
+      Colors::gradient(vec![Rgba::red(), Rgba::blue()]),
+    );
+    ctx.declare_leds(
+      &city_map::SPORE_COUNT.q(),
       Colors::gradient(vec![Rgba::red(), Rgba::blue()]),
     );
 

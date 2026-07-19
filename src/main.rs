@@ -96,14 +96,23 @@ impl System for Testing {
 
     ctx.cue(Anonymous, Cue::Once(Duration::from_millis(600)));
 
-    ctx.declare_leds(&Q::tag::<Bolt>(), Rgba::yellow());
-    ctx.declare_leds(&Q::tag::<Circle>(), Rgba::blue());
-    ctx.declare_leds(&Q::tag::<CityMap>(), Rgba::green());
-    ctx.declare_leds(&Q::tag::<SmallArrow>(), Rgba::red());
-    ctx.declare_leds(&Q::tag::<GeneralIllumination>(), Rgba::white());
+    ctx.declare_leds(&Q::tag::<Bolt>(), Colors::solid(Rgba::yellow()));
+    ctx.declare_leds(&Q::tag::<Circle>(), Colors::solid(Rgba::blue()));
+    ctx.declare_leds(&Q::tag::<CityMap>(), Colors::solid(Rgba::green()));
+    ctx.declare_leds(&Q::tag::<SmallArrow>(), Colors::solid(Rgba::red()));
+    ctx.declare_leds(
+      &Q::tag::<GeneralIllumination>(),
+      Colors::solid(Rgba::white()),
+    );
 
-    ctx.declare_leds(&left_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
-    ctx.declare_leds(&left_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
+    ctx.declare_leds(
+      &left_orbit::HEX_LEDS.child(6).unwrap().q(),
+      Colors::solid(Rgba::aqua()),
+    );
+    ctx.declare_leds(
+      &left_ramp::HEX_LEDS.child(6).unwrap().q(),
+      Colors::solid(Rgba::aqua()),
+    );
     // ctx.declare_leds(arc_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
     // ctx.declare_leds(center_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
     // ctx.declare_leds(lift_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());

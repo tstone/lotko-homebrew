@@ -3,12 +3,15 @@ use frontbox::prelude::*;
 use crate::hardware::cabinet;
 use crate::hardware::left_flipper;
 use crate::hardware::left_inlane;
+use crate::hardware::left_outlane;
 use crate::hardware::lift_ramp;
 use crate::hardware::lower_scoop;
 use crate::hardware::plunge_lane;
 use crate::hardware::pop_cluster;
 use crate::hardware::right_flipper;
 use crate::hardware::right_inlane;
+use crate::hardware::right_outlane;
+use crate::hardware::right_pass_lane;
 use crate::hardware::slingshots;
 use crate::hardware::trough;
 use crate::hardware::upper_flipper;
@@ -34,13 +37,21 @@ pub fn io_network() -> IoNetwork {
       .wire_driver(2, &cabinet::start_button::LAMP_DRIVER),
     IoBoards::io_3208()
       // switches
+      .wire_switch(0, &right_pass_lane::LOWER_SWITCH)
+      .wire_switch(1, &right_pass_lane::UPPER_SWITCH)
+      .wire_switch(2, &pop_cluster::lower_right::SPOON_SWITCH)
+      .wire_switch(3, &plunge_lane::SWITCH)
+      .wire_switch(4, &upper_flipper::EOS_SWITCH)
+      .wire_switch(5, &pop_cluster::lower_right::TARGET_SWITCH)
       .wire_switch(18, &trough::SWITCH1)
       .wire_switch(19, &trough::SWITCH3)
       .wire_switch(20, &trough::SWITCH2)
       .wire_switch(21, &trough::SWITCH4)
       .wire_switch(22, &trough::SWITCH5)
+      .wire_switch(23, &trough::SWITCH6)
       .wire_switch(24, &right_inlane::SWITCH)
-      .wire_switch(25, &trough::SWITCH6)
+      .wire_switch(25, &right_outlane::SWITCH)
+      .wire_switch(26, &left_outlane::SWITCH)
       .wire_switch(27, &left_inlane::TARGET_SWITCH)
       .wire_switch(28, &slingshots::RIGHT_SWITCH)
       .wire_switch(29, &right_flipper::EOS_SWITCH)

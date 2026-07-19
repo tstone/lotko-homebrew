@@ -47,7 +47,7 @@ async fn main() {
       systems![BasicPoints::new()],
       Q::tag::<tags::Playfield>(),
     ));
-    app.system(non_game::game_startable());
+    // app.system(non_game::game_startable());
 
     // playfield
     app.system(trough::system());
@@ -118,6 +118,10 @@ impl System for Testing {
     ctx.declare_leds(
       &city_map::SPORE_COUNT.q(),
       Colors::gradient(vec![Rgba::red(), Rgba::blue()]),
+    );
+    ctx.declare_leds(
+      &plunge_lane::LED_STRIP.q(),
+      Colors::gradient(vec![Rgba::yellow(), Rgba::red()]),
     );
 
     ctx.cue(Anonymous, Cue::Loop(Duration::from_secs(5)));

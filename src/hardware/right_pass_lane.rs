@@ -1,6 +1,8 @@
 use frontbox::prelude::*;
 use frontbox::tags::*;
 
+use crate::hardware::more_tags::*;
+
 hardware_defs! {
   pub UPPER_SWITCH: SwitchDefinition = SwitchDefinition::new("r_pass_lane_upper")
     .tag(Playfield)
@@ -12,5 +14,6 @@ hardware_defs! {
 
   pub ARROW_LED: LedDefinition = LedDefinition::single("r_pass_lane_arr")
     .tag(Playfield)
+    .tag(SmallArrow)
     .tag(Lane);
 }

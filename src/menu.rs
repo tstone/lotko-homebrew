@@ -6,7 +6,7 @@ use frontbox_pin2dmd::menu::*;
 pub static MENU: LazyLock<MenuSection> = LazyLock::new(|| {
   MenuSection::root()
     .section(
-      MenuSection::new("Hardware")
+      MenuSection::new("HARDWARE")
         .section(MenuSection::new("Flippers"))
         .configs(left_flipper::MAIN_COIL.generalized_config_values())
         .configs(left_flipper::HOLD_COIL.generalized_config_values())

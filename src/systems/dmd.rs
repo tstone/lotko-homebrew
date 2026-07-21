@@ -1,23 +1,31 @@
 use std::time::Duration;
 
 use frontbox::{animation::*, prelude::*};
-use frontbox_pin2dmd::*;
+use frontbox_pin2dmd::{
+  menu::{Menu, MenuSection},
+  *,
+};
 use frontbox_turn_based::GameManager;
 
 pub struct DmdDisplay {
   dmd: Pin2Dmd,
   bold_10px: SpriteSheetFont,
   start_flasher: Box<dyn Animation<Duration, Rgba<u8>>>,
-}
-
-impl Default for DmdDisplay {
-  fn default() -> Self {
-    Self::new(128, 32, PanelType::Rgb)
-  }
+  menu_root: &'static MenuSection,
+  menu: Option<Menu>,
 }
 
 impl DmdDisplay {
-  pub fn new(width: usize, height: usize, panel_type: PanelType) -> Self {
+  pub fn default(menu: &'static MenuSection) -> Self {
+    Self::new(128, 32, PanelType::Rgb, menu)
+  }
+
+  pub fn new(
+    width: usize,
+    height: usize,
+    panel_type: PanelType,
+    menu: &'static MenuSection,
+  ) -> Self {
     let bold_10px = SpriteSheetFontBuilder::new()
       .path(local_asset("bold_pixels.png"))
       .sheet_layout(4, 16)
@@ -34,6 +42,8 @@ impl DmdDisplay {
         vec![Rgba::yellow(), Rgba::black(), Rgba::cyan(), Rgba::black()],
         AnimationCycle::Forever,
       )),
+      menu_root: menu,
+      menu: None,
     }
   }
 
@@ -77,9 +87,22 @@ impl DmdDisplay {
     );
     self.dmd.render(&frame).ok();
   }
+
+  fn render_menu(&mut self, ctx: &Context) {
+    let menu = self.menu.as_ref().unwrap();
+    let mut frame = Frame::for_dmd(&self.dmd);
+
+    menu.render(&mut frame, ctx);
+    self.dmd.render(&frame).ok();
+  }
 }
 
 impl System for DmdDisplay {
+  fn on_spawn(&mut self, ctx: &Context) {
+    let font = PixelFont::new(&*SIGI_REGULAR_5PX_FONT);
+    self.menu = Some(Menu::new(self.menu_root, font, ctx));
+  }
+
   fn on_tick(&mut self, delta: Duration, ctx: &Context) {
     if ctx
       .systems
@@ -90,7 +113,8 @@ impl System for DmdDisplay {
       self.render_in_game(ctx);
     } else {
       self.start_flasher.accumulate(delta);
-      self.render_attract(ctx);
+      //self.render_attract(ctx);
+      self.render_menu(ctx);
     }
   }
 

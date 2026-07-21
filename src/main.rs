@@ -14,6 +14,7 @@ use hardware::*;
 
 use crate::hardware::cabinet::*;
 use crate::hardware::more_tags::*;
+use crate::menu::MENU;
 
 // Tween::new(
 //   Duration::from_millis(1000),
@@ -39,7 +40,7 @@ async fn main() {
     app.system(LedSystem::new());
     app.system(ActivatePlayfield::new());
     app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
-    app.system(DmdDisplay::default());
+    app.system(DmdDisplay::default(&*MENU));
 
     // game management
     app.system(FreePlay::default());

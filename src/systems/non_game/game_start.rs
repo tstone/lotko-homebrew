@@ -1,4 +1,5 @@
 use frontbox::animation::*;
+use frontbox::prelude::color_sequence::*;
 use frontbox::prelude::*;
 use frontbox_turn_based::*;
 
@@ -12,14 +13,14 @@ pub fn game_startable() -> GameStartable {
     .effect(
       LedEffect::new(
         action_button::LED.q(),
-        Colors::pattern(vec![Rgba::alice_blue()]),
+        ColorSequence::solid(Rgba::blue().lighten(0.35)),
       )
       .animate(
-        |pattern, new_color| pattern.seq[0] = new_color,
+        |seq, new_color| seq.fill.recolor(new_color),
         Tween::forever(
           Duration::from_secs(2),
           Curve::Linear,
-          vec![Rgba::alice_blue(), Rgba::rebecca_purple()],
+          vec![Rgba::blue().lighten(0.35), Rgba::purple().desaturate(0.25)],
         ),
       ),
     )
@@ -27,10 +28,15 @@ pub fn game_startable() -> GameStartable {
     .effect(
       LedEffect::new(
         Q::any_of(vec![gi::LEFT_SLING.q(), gi::RIGHT_SLING.q()]),
-        Colors::pattern(vec![Rgba::medium_purple(), Rgba::default()]),
+        ColorSequence::pattern(vec![Rgba::purple(), Rgba::default()], Cycle::Forever)
+          .modify(Modification::rotated(0.0)),
       )
       .animate(
-        |pattern, rot| pattern.rotation = rot,
+        |seq, degree| {
+          if let Some(rotation) = seq.modifications[0].rotation_mut() {
+            *rotation = degree;
+          }
+        },
         Tween::forever(Duration::from_millis(200), Curve::Linear, vec![0.0, 360.0]),
       ),
     )

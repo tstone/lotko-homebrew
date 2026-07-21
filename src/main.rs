@@ -8,6 +8,7 @@ use std::io::Write;
 mod systems;
 use systems::*;
 mod hardware;
+pub mod menu;
 
 use hardware::*;
 
@@ -96,41 +97,41 @@ impl System for Testing {
 
     ctx.cue(Anonymous, Cue::Once(Duration::from_millis(600)));
 
-    ctx.declare_leds(&Q::tag::<Bolt>(), Colors::solid(Rgba::yellow()));
-    ctx.declare_leds(&Q::tag::<Circle>(), Colors::solid(Rgba::blue()));
-    ctx.declare_leds(&Q::tag::<CityMap>(), Colors::solid(Rgba::green()));
-    ctx.declare_leds(&Q::tag::<SmallArrow>(), Colors::solid(Rgba::red()));
+    ctx.declare_leds(&Q::tag::<Bolt>(), ColorSequence::solid(Rgba::yellow()));
+    ctx.declare_leds(&Q::tag::<Circle>(), ColorSequence::solid(Rgba::blue()));
+    ctx.declare_leds(&Q::tag::<CityMap>(), ColorSequence::solid(Rgba::green()));
+    ctx.declare_leds(&Q::tag::<SmallArrow>(), ColorSequence::solid(Rgba::red()));
     ctx.declare_leds(
       &Q::tag::<GeneralIllumination>(),
-      Colors::solid(Rgba::white()),
+      ColorSequence::solid(Rgba::white()),
     );
 
     ctx.declare_leds(
       &left_orbit::HEX_LEDS.child(6).unwrap().q(),
-      Colors::solid(Rgba::aqua()),
+      ColorSequence::solid(Rgba::cyan()),
     );
     ctx.declare_leds(
       &left_ramp::HEX_LEDS.child(6).unwrap().q(),
-      Colors::solid(Rgba::aqua()),
+      ColorSequence::solid(Rgba::cyan()),
     );
-    // ctx.declare_leds(arc_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
-    // ctx.declare_leds(center_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
-    // ctx.declare_leds(lift_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
-    // ctx.declare_leds(right_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::aqua());
+    // ctx.declare_leds(arc_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
+    // ctx.declare_leds(center_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
+    // ctx.declare_leds(lift_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
+    // ctx.declare_leds(right_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
 
     // ctx.declare_leds(action_button::LED.q(), Rgba::alice_blue());
 
     ctx.declare_leds(
       &arc_ramp::SUBWAY_LEDS.q(),
-      Colors::gradient(vec![Rgba::red(), Rgba::blue()]),
+      ColorSequence::fade(Rgba::red(), Rgba::blue()),
     );
     ctx.declare_leds(
       &city_map::SPORE_COUNT.q(),
-      Colors::gradient(vec![Rgba::red(), Rgba::blue()]),
+      ColorSequence::analogous(Rgba::orange(), 60.0),
     );
     ctx.declare_leds(
       &plunge_lane::LED_STRIP.q(),
-      Colors::gradient(vec![Rgba::yellow(), Rgba::red()]),
+      ColorSequence::fade(Rgba::yellow(), Rgba::red()),
     );
 
     ctx.cue(Anonymous, Cue::Loop(Duration::from_secs(5)));
@@ -151,7 +152,7 @@ impl System for Testing {
 
     // ctx.declare_leds(
     //   arc_ramp::SUBWAY_LEDS.q(),
-    //   Colors::gradient(vec![Rgba::red(), Rgba::aqua()]).rotated_left(self.speaker_anim.sample()),
+    //   ColorSequence::gradient(vec![Rgba::red(), Rgba::cyan()]).rotated_left(self.speaker_anim.sample()),
     // );
 
     // ctx.declare_leds(

@@ -6,7 +6,7 @@ use frontbox_turn_based::GameManager;
 
 pub struct DmdDisplay {
   dmd: Pin2Dmd,
-  bold_10px: PixelFont,
+  bold_10px: SpriteSheetFont,
   start_flasher: Box<dyn Animation<Duration, Rgba<u8>>>,
 }
 
@@ -18,7 +18,7 @@ impl Default for DmdDisplay {
 
 impl DmdDisplay {
   pub fn new(width: usize, height: usize, panel_type: PanelType) -> Self {
-    let bold_10px = PixelFontBuilder::new()
+    let bold_10px = SpriteSheetFontBuilder::new()
       .path(local_asset("bold_pixels.png"))
       .sheet_layout(4, 16)
       .default_char_width(9)
@@ -31,7 +31,7 @@ impl DmdDisplay {
       start_flasher: Box::new(Tween::new(
         Duration::from_millis(350),
         Curve::EaseInOut,
-        vec![Rgba::yellow(), Rgba::black(), Rgba::aqua(), Rgba::black()],
+        vec![Rgba::yellow(), Rgba::black(), Rgba::cyan(), Rgba::black()],
         AnimationCycle::Forever,
       )),
     }
@@ -59,7 +59,7 @@ impl DmdDisplay {
       self
         .bold_10px
         .text(TextFormatting::number(score))
-        .recolor_vgradient(Rgba::medium_turquoise(), Rgba::dark_blue())
+        .recolor_vgradient(Rgba::turquoise(), Rgba::blue().darken(0.50))
         .left(30),
     );
 

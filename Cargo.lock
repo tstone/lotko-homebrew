@@ -660,6 +660,7 @@ dependencies = [
  "itertools",
  "log",
  "noise",
+ "num-traits",
  "palette",
  "priority-queue",
  "rand 0.10.0",
@@ -669,6 +670,16 @@ dependencies = [
  "tokio-serial",
  "tokio-util",
  "toml",
+]
+
+[[package]]
+name = "frontbox-canvas"
+version = "0.1.0"
+dependencies = [
+ "frontbox",
+ "glam 0.33.2",
+ "image",
+ "log",
 ]
 
 [[package]]
@@ -685,6 +696,7 @@ name = "frontbox-pin2dmd"
 version = "0.1.0"
 dependencies = [
  "frontbox",
+ "frontbox-canvas",
  "image",
  "log",
  "rand 0.10.0",
@@ -1172,6 +1184,7 @@ version = "0.1.0"
 dependencies = [
  "env_logger",
  "frontbox",
+ "frontbox-canvas",
  "frontbox-pin2dmd",
  "frontbox-sound",
  "frontbox-turn-based",

@@ -9,5 +9,6 @@ frontbox = { path = "../frontbox-rs/frontbox" }
 frontbox-turn-based = { path = "../frontbox-rs/frontbox-turn-based" }
 frontbox-pin2dmd = { path = "../frontbox-rs/frontbox-pin2dmd" }
 frontbox-sound = { path = "../frontbox-rs/frontbox-sound" }
+frontbox-canvas = { path = "../frontbox-rs/frontbox-canvas" }
 tokio = { version = "1", features = ["full"] }
 log = "0.4.29"

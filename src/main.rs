@@ -1,6 +1,8 @@
 use frontbox::animation::{Animation, AnimationCycle, Curve, Tween};
 use frontbox::prelude::tags::GeneralIllumination;
 use frontbox::prelude::*;
+use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
+use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
 use frontbox_sound::SoundSystem;
 use frontbox_turn_based::*;
 use std::io::Write;
@@ -40,7 +42,21 @@ async fn main() {
     app.system(LedSystem::new());
     app.system(ActivatePlayfield::new());
     app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
-    app.system(DmdDisplay::default(&*MENU));
+
+    // dmd
+    let dmd = Pin2Dmd::connect(128, 32, PanelType::Rgb).unwrap();
+    app.system(DmdSystem::new(dmd));
+    app.system(DmdMenuSystem::new(
+      MenuSwitches {
+        back_btn: coin_door::MENU_BLACK_SWITCH.name,
+        select_btn: coin_door::MENU_GREEN_SWITCH.name,
+        inc_btn: coin_door::MENU_RED_R_SWITCH.name,
+        dec_btn: coin_door::MENU_RED_L_SWITCH.name,
+        coin_door: coin_door::OPEN_SWITCH.name,
+      },
+      &MENU,
+      DmdMenuTheme::carbon(),
+    ));
 
     // game management
     app.system(FreePlay::default());

@@ -12,6 +12,8 @@ pub mod left_flipper {
     .mode(FlipperMainDirectMode {
         button_switch: cabinet::LEFT_FLIPPER_SWITCH1.name,
         eos_switch: EOS_SWITCH.name,
+        initial_pwm_power: HardwareValue::config("Initial Power", "", Power::percent(45), Ranges::full_power()),
+        secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::FULL, Ranges::full_power()),
         ..Default::default()
       });
 
@@ -34,6 +36,8 @@ pub mod right_flipper {
     .mode(FlipperMainDirectMode {
         button_switch: cabinet::RIGHT_FLIPPER_SWITCH1.name,
         eos_switch: EOS_SWITCH.name,
+        initial_pwm_power: HardwareValue::config("Initial Power", "", Power::percent(45), Ranges::full_power()),
+        secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::FULL, Ranges::full_power()),
         ..Default::default()
       });
 

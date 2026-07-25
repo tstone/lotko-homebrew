@@ -25,6 +25,8 @@ pub fn exp_network() -> Vec<ExpansionBoard> {
           &right_outlane::LED,
           &right_pass_lane::ARROW_LED,
           &gi::LOWER_RIGHT_POP,
+          &pop_cluster::lower_right::POP_LED,
+          &pop_cluster::lower_right::TARGET_LED,
         ]),
       )
       .wire_led_port(

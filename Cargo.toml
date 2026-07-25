@@ -12,3 +12,10 @@ frontbox-sound = { path = "../frontbox-rs/frontbox-sound" }
 frontbox-canvas = { path = "../frontbox-rs/frontbox-canvas" }
 tokio = { version = "1", features = ["full"] }
 log = "0.4.29"
+
+[profile.dev]
+opt-level = 0
+debug = 1
+
+[profile.dev.package."*"]
+opt-level = 3 # optimize all dependencies fully

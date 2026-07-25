@@ -28,7 +28,15 @@ use crate::menu::MENU;
 #[tokio::main]
 async fn main() {
   env_logger::Builder::from_default_env()
-    .format(|buf, record| writeln!(buf, "[{}] {}\r", record.level(), record.args()))
+    .format(|buf, record| {
+      writeln!(
+        buf,
+        "[{} {}] {}\r",
+        buf.timestamp_millis(),
+        record.level(),
+        record.args()
+      )
+    })
     .init();
 
   App::boot(BootConfig {
@@ -38,18 +46,19 @@ async fn main() {
   })
   .await
   .configure(|app| {
-    // core hardware
+    // core
     app.system(LedSystem::new());
     app.system(ActivatePlayfield::new());
     app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
+    app.system(OperatorConfig::new());
 
     // dmd
     let dmd = Pin2Dmd::connect(128, 32, PanelType::Rgb).unwrap();
     app.system(DmdSystem::new(dmd));
     app.system(DmdMenuSystem::new(
       MenuSwitches {
-        back_btn: coin_door::MENU_BLACK_SWITCH.name,
-        select_btn: coin_door::MENU_GREEN_SWITCH.name,
+        back_btn: coin_door::MENU_GREEN_SWITCH.name,
+        select_btn: coin_door::MENU_BLACK_SWITCH.name,
         inc_btn: coin_door::MENU_RED_R_SWITCH.name,
         dec_btn: coin_door::MENU_RED_L_SWITCH.name,
         coin_door: coin_door::OPEN_SWITCH.name,
@@ -144,7 +153,7 @@ impl System for Testing {
     );
     ctx.declare_leds(
       &city_map::SPORE_COUNT.q(),
-      ColorSequence::analogous(Rgba::orange(), 60.0),
+      ColorSequence::analogous(Rgba::orange(), 45.0),
     );
     ctx.declare_leds(
       &plunge_lane::LED_STRIP.q(),

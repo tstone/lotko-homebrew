@@ -64,7 +64,7 @@ async fn main() {
         coin_door: coin_door::OPEN_SWITCH.name,
       },
       &MENU,
-      DmdMenuTheme::carbon(),
+      DmdMenuTheme::default(),
     ));
 
     // game management

@@ -27,6 +27,12 @@ pub fn exp_network() -> Vec<ExpansionBoard> {
           &gi::LOWER_RIGHT_POP,
           &pop_cluster::lower_right::POP_LED,
           &pop_cluster::lower_right::TARGET_LED,
+          &vspinner::lower_right_ray::LED1,
+          &vspinner::lower_right_ray::LED2,
+          &vspinner::lower_right_ray::LED3,
+          &vspinner::LEDS,        // 12
+          &right_orbit::HEX_LEDS, // 7
+          &pop_cluster::upper_right::POP_LED,
         ]),
       )
       .wire_led_port(
@@ -35,6 +41,24 @@ pub fn exp_network() -> Vec<ExpansionBoard> {
           &city_map::SPORE_COUNT,
           &slingshots::POST_LEDS3,
           &slingshots::POST_LEDS4,
+        ]),
+      )
+      .wire_led_port(
+        6,
+        LedPort::ws2812().leds(vec![
+          &vspinner::left_ray::LED4,
+          &vspinner::left_ray::LED3,
+          &vspinner::left_ray::LED2,
+          &vspinner::left_ray::LED1,
+          &upper_pass_lane::ARROW_LED1,
+          &upper_pass_lane::ARROW_LED2,
+          &captive_ball::RIGHT_BOLT,
+          &captive_ball::LEFT_BOLT,
+          &gi::CAPTIVE_BALL,
+          &center_orbit::SPINNER_LED,
+          &arc_ramp::HEX_LEDS,
+          &center_orbit::HEX_LEDS,
+          &lift_ramp::HEX_LEDS,
         ]),
       )
       .wire_led_port(

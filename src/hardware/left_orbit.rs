@@ -8,6 +8,7 @@ const NAME: &'static str = "l_orbit";
 hardware_defs! {
 
   pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME);
+  pub UPPER_SWITCH: SwitchDefinition = SwitchDefinition::new("l_orbit_upper");
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME, 7)
     .tag(Playfield)

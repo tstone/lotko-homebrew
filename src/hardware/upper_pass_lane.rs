@@ -9,8 +9,10 @@ hardware_defs! {
     .tag(Lane);
 
   pub ARROW_LED1: LedDefinition = LedDefinition::single("upper_pass_arrow1")
+    .tag(SmallArrow)
     .tag(Lane);
 
-  pub ARROW_LED2: LedDefinition = LedDefinition::single("upper_pass_arrow1")
+  pub ARROW_LED2: LedDefinition = LedDefinition::single("upper_pass_arrow2")
+    .tag(SmallArrow)
     .tag(Lane);
 }

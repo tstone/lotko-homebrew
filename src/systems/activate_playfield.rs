@@ -12,6 +12,7 @@ impl ActivatePlayfield {
   fn activate(&self, ctx: &Context) {
     let machine = ctx.systems.expect::<Machine>();
 
+    // slings
     machine.activate_driver(
       slingshots::LEFT_COIL.name,
       ActivationMode::Automatic(slingshots::LEFT_SWITCH.name),
@@ -22,6 +23,7 @@ impl ActivatePlayfield {
       ActivationMode::Automatic(slingshots::RIGHT_SWITCH.name),
       ctx,
     );
+    // flippers
     machine.activate_driver(
       left_flipper::MAIN_COIL.name,
       ActivationMode::Automatic(cabinet::LEFT_FLIPPER_SWITCH1.name),
@@ -50,6 +52,22 @@ impl ActivatePlayfield {
     machine.activate_driver(
       upper_flipper::HOLD_COIL.name,
       ActivationMode::Automatic(cabinet::RIGHT_FLIPPER_SWITCH2.name),
+      ctx,
+    );
+    // pops
+    machine.activate_driver(
+      pop_cluster::lower_right::COIL.name,
+      ActivationMode::Automatic(pop_cluster::lower_right::SPOON_SWITCH.name),
+      ctx,
+    );
+    machine.activate_driver(
+      pop_cluster::upper_right::COIL.name,
+      ActivationMode::Automatic(pop_cluster::upper_right::SPOON_SWITCH.name),
+      ctx,
+    );
+    machine.activate_driver(
+      pop_cluster::left::COIL.name,
+      ActivationMode::Automatic(pop_cluster::left::SPOON_SWITCH.name),
       ctx,
     );
 

@@ -140,12 +140,22 @@ impl System for Testing {
       &left_ramp::HEX_LEDS.child(6).unwrap().q(),
       ColorSequence::solid(Rgba::cyan()),
     );
-    // ctx.declare_leds(arc_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
-    // ctx.declare_leds(center_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
-    // ctx.declare_leds(lift_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
-    // ctx.declare_leds(right_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
+    // ctx.declare_leds(&arc_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
+    // ctx.declare_leds(&center_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
+    // ctx.declare_leds(&lift_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
+    ctx.declare_leds(
+      &right_orbit::HEX_LEDS.child(6).unwrap().q(),
+      ColorSequence::solid(Rgba::cyan()),
+    );
 
     // ctx.declare_leds(action_button::LED.q(), Rgba::alice_blue());
+
+    // one-offs
+
+    ctx.declare_leds(
+      &drop_bank::PADDLE_LED.q(),
+      ColorSequence::solid(Rgba::purple()),
+    );
 
     ctx.declare_leds(
       &arc_ramp::SUBWAY_LEDS.q(),
@@ -158,6 +168,10 @@ impl System for Testing {
     ctx.declare_leds(
       &plunge_lane::LED_STRIP.q(),
       ColorSequence::fade(Rgba::yellow(), Rgba::red()),
+    );
+    ctx.declare_leds(
+      &vspinner::LEDS.q(),
+      ColorSequence::analogous(Rgba::purple(), 30.0),
     );
 
     ctx.cue(Anonymous, Cue::Loop(Duration::from_secs(5)));

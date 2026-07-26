@@ -140,9 +140,18 @@ impl System for Testing {
       &left_ramp::HEX_LEDS.child(6).unwrap().q(),
       ColorSequence::solid(Rgba::cyan()),
     );
-    // ctx.declare_leds(&arc_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
-    // ctx.declare_leds(&center_orbit::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
-    // ctx.declare_leds(&lift_ramp::HEX_LEDS.child(6).unwrap().q(), Rgba::cyan());
+    ctx.declare_leds(
+      &arc_ramp::HEX_LEDS.child(6).unwrap().q(),
+      ColorSequence::solid(Rgba::cyan()),
+    );
+    ctx.declare_leds(
+      &center_orbit::HEX_LEDS.child(6).unwrap().q(),
+      ColorSequence::solid(Rgba::cyan()),
+    );
+    ctx.declare_leds(
+      &lift_ramp::HEX_LEDS.child(6).unwrap().q(),
+      ColorSequence::solid(Rgba::cyan()),
+    );
     ctx.declare_leds(
       &right_orbit::HEX_LEDS.child(6).unwrap().q(),
       ColorSequence::solid(Rgba::cyan()),

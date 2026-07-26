@@ -11,7 +11,7 @@ hardware_defs! {
   pub SUBWAY_LEDS: LedDefinition = LedDefinition::multi("arc_subway", 11)
     .tag(Playfield);
 
-  pub HEX_LEDS: LedDefinition = LedDefinition::multi("lift_ramp_lane", 7)
+  pub HEX_LEDS: LedDefinition = LedDefinition::multi("arc_ramp_lane", 7)
     .tag(Playfield)
     .tag(Lane);
 }

@@ -16,6 +16,15 @@ pub fn exp_network() -> Vec<ExpansionBoard> {
       ),
     ExpansionBoard::fp_exp0081(JumperState::Open, JumperState::Open)
       .wire_led_port(
+        2,
+        LedPort::ws2812().leds(vec![
+          &vspinner::upper_right_ray::LED3,
+          &vspinner::upper_right_ray::LED2,
+          &vspinner::upper_right_ray::LED1,
+          &pop_cluster::upper_right::TARGET_LED,
+        ]),
+      )
+      .wire_led_port(
         3,
         LedPort::ws2812().leds(vec![
           &city_map::APEX_TERRACES,

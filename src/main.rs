@@ -1,4 +1,4 @@
-use frontbox::animation::{Animation, AnimationCycle, Curve, Tween};
+use frontbox::animation::{Animation, Curve, Tween};
 use frontbox::prelude::tags::GeneralIllumination;
 use frontbox::prelude::*;
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
@@ -15,6 +15,7 @@ pub mod menu;
 use hardware::*;
 
 use crate::hardware::cabinet::*;
+use crate::hardware::lower_scoop::LowerScoopSystem;
 use crate::hardware::more_tags::*;
 use crate::menu::MENU;
 
@@ -71,7 +72,7 @@ async fn main() {
     app.system(FreePlay::default());
     app.system(GameManager::competitive(
       4,
-      systems![BasicPoints::new()],
+      systems![BasicPoints::new(), LowerScoopSystem::new()],
       Q::tag::<tags::Playfield>(),
     ));
     // app.system(non_game::game_startable());
@@ -102,13 +103,13 @@ impl Testing {
         Duration::from_millis(900),
         Curve::Linear,
         vec![0.0, 360.0],
-        AnimationCycle::Forever,
+        Cycle::Forever,
       ),
       speaker_alt_anim: Tween::boxed(
         Duration::from_millis(80),
         Curve::Random,
         vec![0.0, 360.0],
-        AnimationCycle::Forever,
+        Cycle::Forever,
       ),
     }
   }

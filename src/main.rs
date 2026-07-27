@@ -1,5 +1,3 @@
-use frontbox::animation::{Animation, Curve, Tween};
-use frontbox::prelude::tags::GeneralIllumination;
 use frontbox::prelude::*;
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
@@ -16,16 +14,9 @@ use hardware::*;
 
 use crate::hardware::cabinet::*;
 use crate::hardware::lower_scoop::LowerScoopSystem;
-use crate::hardware::more_tags::*;
+use crate::hardware::trough::DRAIN_LED;
 use crate::menu::MENU;
 use crate::systems::non_game::game_startable;
-
-// Tween::new(
-//   Duration::from_millis(1000),
-//   Curve::Linear,
-//   vec![Color::purple(), Color::blue(), Color::yellow()],
-//   AnimationCycle::Forever,
-// )
 
 #[tokio::main]
 async fn main() {
@@ -121,11 +112,14 @@ async fn main() {
       systems![
         BasicPoints::new(),
         LowerScoopSystem::new(),
-        BallSaveSystem::new(Duration::from_secs(6))
+        BallSaveSystem::new(Duration::from_secs(4)).effect(LedEffect::flash(
+          DRAIN_LED.q(),
+          Rgba::green(),
+          Duration::from_millis(185)
+        ))
       ],
       Q::tag::<tags::Playfield>(),
     ));
-    // app.system(non_game::game_startable());
 
     // playfield
     app.system(trough::system());

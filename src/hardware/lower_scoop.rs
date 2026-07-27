@@ -1,4 +1,3 @@
-use frontbox::animation::Tween;
 use frontbox::prelude::DriverTriggerMode::*;
 use frontbox::prelude::color_sequence::Modification;
 use frontbox::prelude::*;
@@ -49,17 +48,11 @@ pub struct LowerScoopSystem {
 
 impl LowerScoopSystem {
   pub fn new() -> Self {
-    let mut eject_effect = LedEffect::new(
+    let mut eject_effect = LedEffect::rotate(
       LEFT_BOLT.q().or(RIGHT_BOLT.q()),
       ColorSequence::exact(vec![Rgba::white(), Rgba::default()]).modify(Modification::rotated(0.0)),
-    )
-    .animate(
-      |seq, angle| *seq.modifications[0].rotation_mut().unwrap() = angle,
-      Tween::linear(
-        Duration::from_millis(150),
-        vec![0.0f32, 180.0],
-        Cycle::Times(5),
-      ),
+      Duration::from_millis(332),
+      RotationDirection::Clockwise,
     );
     eject_effect.stop();
 
@@ -68,13 +61,13 @@ impl LowerScoopSystem {
 
   pub fn eject(&mut self, ctx: &Context) {
     // TODO: play sound
-    // TODO: LED sequence
     ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
     self.eject_effect.play();
   }
 
-  fn complete_eject(&self, ctx: &Context) {
+  fn complete_eject(&mut self, ctx: &Context) {
     ctx.activate_driver(COIL.name, ActivationMode::Tap);
+    self.eject_effect.stop_and_clear(ctx);
   }
 }
 
@@ -84,8 +77,6 @@ impl System for LowerScoopSystem {
     if ctx.switches.is_closed(OPTO.name).unwrap_or(false) {
       log::debug!("Lower scoop is occupied. Ejecting.");
       self.complete_eject(ctx);
-    } else {
-      log::debug!("Lower scoop is empty.");
     }
   }
 
@@ -94,7 +85,7 @@ impl System for LowerScoopSystem {
       && event.switch.name == OPTO.name
     {
       self.eject(ctx);
-    } else if event.downcast_ref::<EjectLowerScoop>().is_some() {
+    } else if event.is::<EjectLowerScoop>() {
       self.complete_eject(ctx);
     }
   }

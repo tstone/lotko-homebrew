@@ -4,7 +4,7 @@ use frontbox::prelude::*;
 use frontbox_turn_based::*;
 
 use crate::hardware::cabinet::*;
-use crate::hardware::gi;
+use crate::hardware::slingshots::*;
 
 pub fn game_startable() -> GameStartable {
   GameStartable::new()
@@ -24,20 +24,31 @@ pub fn game_startable() -> GameStartable {
         ),
       ),
     )
-    // animate GI
+    // animate GI posts
     .effect(
-      LedEffect::new(
-        Q::any_of(vec![gi::LEFT_SLING.q(), gi::RIGHT_SLING.q()]),
-        ColorSequence::pattern(vec![Rgba::purple(), Rgba::default()], Cycle::Forever)
-          .modify(Modification::rotated(0.0)),
+      LedEffect::rotate(
+        POST_LEDS1.q(),
+        ColorSequence::fade(Rgba::cyan(), Rgba::pink()),
+        Duration::from_millis(750),
+        RotationDirection::CounterClockwise,
       )
-      .animate(
-        |seq, degree| {
-          if let Some(rotation) = seq.modifications[0].rotation_mut() {
-            *rotation = degree;
-          }
-        },
-        Tween::forever(Duration::from_millis(200), Curve::Linear, vec![0.0, 360.0]),
+      .cycle(
+        vec![ColorSequence::off()],
+        Duration::from_millis(1500),
+        Curve::EaseInOut,
+      ),
+    )
+    .effect(
+      LedEffect::rotate(
+        POST_LEDS4.q(),
+        ColorSequence::fade(Rgba::cyan(), Rgba::pink()),
+        Duration::from_millis(750),
+        RotationDirection::Clockwise,
+      )
+      .cycle(
+        vec![ColorSequence::off()],
+        Duration::from_millis(1500),
+        Curve::EaseInOut,
       ),
     )
 }

@@ -18,6 +18,7 @@ use crate::hardware::cabinet::*;
 use crate::hardware::lower_scoop::LowerScoopSystem;
 use crate::hardware::more_tags::*;
 use crate::menu::MENU;
+use crate::systems::non_game::game_startable;
 
 // Tween::new(
 //   Duration::from_millis(1000),
@@ -49,9 +50,10 @@ async fn main() {
   .configure(|app| {
     // core
     app.system(LedSystem::new());
-    app.system(ActivatePlayfield::new());
     app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
     app.system(OperatorConfig::new());
+    app.system(FreePlay::default());
+    app.system(game_startable());
 
     // dmd
     let dmd = Pin2Dmd::connect(128, 32, PanelType::Rgb).unwrap();
@@ -68,11 +70,59 @@ async fn main() {
       DmdMenuTheme::default(),
     ));
 
-    // game management
-    app.system(FreePlay::default());
+    // game
+    app.system(
+      ActivatePlayfieldSystem::new()
+        // slings
+        .driver(slingshots::LEFT_COIL.name, slingshots::LEFT_SWITCH.name)
+        .driver(slingshots::RIGHT_COIL.name, slingshots::RIGHT_SWITCH.name)
+        // flippers
+        .driver(
+          left_flipper::MAIN_COIL.name,
+          cabinet::LEFT_FLIPPER_SWITCH1.name,
+        )
+        .driver(
+          left_flipper::HOLD_COIL.name,
+          cabinet::LEFT_FLIPPER_SWITCH1.name,
+        )
+        .driver(
+          right_flipper::MAIN_COIL.name,
+          cabinet::RIGHT_FLIPPER_SWITCH1.name,
+        )
+        .driver(
+          right_flipper::HOLD_COIL.name,
+          cabinet::RIGHT_FLIPPER_SWITCH1.name,
+        )
+        .driver(
+          upper_flipper::MAIN_COIL.name,
+          cabinet::RIGHT_FLIPPER_SWITCH2.name,
+        )
+        .driver(
+          upper_flipper::HOLD_COIL.name,
+          cabinet::RIGHT_FLIPPER_SWITCH2.name,
+        )
+        // pops
+        .driver(
+          pop_cluster::lower_right::COIL.name,
+          pop_cluster::lower_right::SPOON_SWITCH.name,
+        )
+        .driver(
+          pop_cluster::upper_right::COIL.name,
+          pop_cluster::upper_right::SPOON_SWITCH.name,
+        )
+        .driver(
+          pop_cluster::left::COIL.name,
+          pop_cluster::left::SPOON_SWITCH.name,
+        ),
+    );
+
     app.system(GameManager::competitive(
       4,
-      systems![BasicPoints::new(), LowerScoopSystem::new()],
+      systems![
+        BasicPoints::new(),
+        LowerScoopSystem::new(),
+        BallSaveSystem::new(Duration::from_secs(6))
+      ],
       Q::tag::<tags::Playfield>(),
     ));
     // app.system(non_game::game_startable());
@@ -82,158 +132,8 @@ async fn main() {
     app.system(plunge_lane::system());
 
     // temporary stuff
-    app.system(Testing::new());
     app.system(AutoTurnAdvance::new());
   })
   .run()
   .await;
-}
-
-pub struct Testing {
-  speaker_anim: Box<dyn Animation<Duration, f32>>,
-  speaker_alt_anim: Box<dyn Animation<Duration, f32>>,
-  mode: u8,
-}
-
-impl Testing {
-  pub fn new() -> Self {
-    Testing {
-      mode: 0,
-      speaker_anim: Tween::boxed(
-        Duration::from_millis(900),
-        Curve::Linear,
-        vec![0.0, 360.0],
-        Cycle::Forever,
-      ),
-      speaker_alt_anim: Tween::boxed(
-        Duration::from_millis(80),
-        Curve::Random,
-        vec![0.0, 360.0],
-        Cycle::Forever,
-      ),
-    }
-  }
-}
-
-impl System for Testing {
-  fn on_spawn(&mut self, ctx: &Context) {
-    // ctx
-    //   .systems
-    //   .expect::<SoundSystem>()
-    //   .preload("test", "/usr/share/sounds/alsa/Front_Center.wav");
-
-    ctx.cue(Anonymous, Cue::Once(Duration::from_millis(600)));
-
-    ctx.declare_leds(&Q::tag::<Bolt>(), ColorSequence::solid(Rgba::yellow()));
-    ctx.declare_leds(&Q::tag::<Circle>(), ColorSequence::solid(Rgba::blue()));
-    ctx.declare_leds(&Q::tag::<CityMap>(), ColorSequence::solid(Rgba::green()));
-    ctx.declare_leds(&Q::tag::<SmallArrow>(), ColorSequence::solid(Rgba::red()));
-    ctx.declare_leds(
-      &Q::tag::<GeneralIllumination>(),
-      ColorSequence::solid(Rgba::white()),
-    );
-
-    ctx.declare_leds(
-      &left_orbit::HEX_LEDS.child(6).unwrap().q(),
-      ColorSequence::solid(Rgba::cyan()),
-    );
-    ctx.declare_leds(
-      &left_ramp::HEX_LEDS.child(6).unwrap().q(),
-      ColorSequence::solid(Rgba::cyan()),
-    );
-    ctx.declare_leds(
-      &arc_ramp::HEX_LEDS.child(6).unwrap().q(),
-      ColorSequence::solid(Rgba::cyan()),
-    );
-    ctx.declare_leds(
-      &center_orbit::HEX_LEDS.child(6).unwrap().q(),
-      ColorSequence::solid(Rgba::cyan()),
-    );
-    ctx.declare_leds(
-      &lift_ramp::HEX_LEDS.child(6).unwrap().q(),
-      ColorSequence::solid(Rgba::cyan()),
-    );
-    ctx.declare_leds(
-      &right_orbit::HEX_LEDS.child(6).unwrap().q(),
-      ColorSequence::solid(Rgba::cyan()),
-    );
-
-    // ctx.declare_leds(action_button::LED.q(), Rgba::alice_blue());
-
-    // one-offs
-
-    ctx.declare_leds(
-      &drop_bank::PADDLE_LED.q(),
-      ColorSequence::solid(Rgba::purple()),
-    );
-
-    ctx.declare_leds(
-      &arc_ramp::SUBWAY_LEDS.q(),
-      ColorSequence::fade(Rgba::red(), Rgba::blue()),
-    );
-    ctx.declare_leds(
-      &city_map::SPORE_COUNT.q(),
-      ColorSequence::analogous(Rgba::orange(), 45.0),
-    );
-    ctx.declare_leds(
-      &plunge_lane::LED_STRIP.q(),
-      ColorSequence::fade(Rgba::yellow(), Rgba::red()),
-    );
-    ctx.declare_leds(
-      &vspinner::LEDS.q(),
-      ColorSequence::analogous(Rgba::purple(), 30.0),
-    );
-
-    ctx.cue(Anonymous, Cue::Loop(Duration::from_secs(5)));
-  }
-
-  fn on_event(&mut self, event: &dyn Event, _ctx: &Context) {
-    if event.is::<Anonymous>() {
-      self.mode += 1;
-      if self.mode == 2 {
-        self.mode = 0;
-      }
-    }
-  }
-
-  fn on_tick(&mut self, delta: Duration, _ctx: &Context) {
-    self.speaker_anim.accumulate(delta);
-    self.speaker_alt_anim.accumulate(delta);
-
-    // ctx.declare_leds(
-    //   arc_ramp::SUBWAY_LEDS.q(),
-    //   ColorSequence::gradient(vec![Rgba::red(), Rgba::cyan()]).rotated_left(self.speaker_anim.sample()),
-    // );
-
-    // ctx.declare_leds(
-    //   named_led_strip(ctx, leds::LEFT_SPEAKER_STRIP)
-    //     .gradient(Rgba::alice_blue(), Rgba::dark_blue())
-    //     .rotate_left(self.speaker_anim.sample()),
-    // );
-
-    // ctx.declare_leds(
-    //   named_led_strip(ctx, leds::RIGHT_SPEAKER_STRIP)
-    //     .gradient(Rgba::pink(), Rgba::dark_red())
-    //     .rotate_right(self.speaker_anim.sample()),
-    // );
-
-    // if self.mode == 0 {
-    //   self.speaker_anim.accumulate(delta);
-    //   ctx.declare_leds(
-    //     named_led_strip(ctx, leds::V_SPINNER)
-    //       // .gradient(Rgba::alice_blue(), Rgba::dark_blue())
-    //       .color_idx(0, Rgba::dark_blue())
-    //       .color_idx(6, Rgba::dark_red())
-    //       .rotate_right(self.speaker_anim.sample()),
-    //   );
-    // } else if self.mode == 1 {
-    //   self.speaker_alt_anim.accumulate(delta);
-    //   ctx.declare_leds(
-    //     named_led_strip(ctx, leds::V_SPINNER)
-    //       // .gradient(Rgba::alice_blue(), Rgba::dark_blue())
-    //       .color_idx(3, Rgba::dark_orange())
-    //       .rotate_left(self.speaker_alt_anim.sample()),
-    //   );
-    // }
-  }
 }

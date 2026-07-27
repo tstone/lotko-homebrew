@@ -28,7 +28,7 @@ pub fn game_startable() -> GameStartable {
     .effect(
       LedEffect::rotate(
         POST_LEDS1.q(),
-        ColorSequence::fade(Rgba::cyan(), Rgba::pink()),
+        ColorSequence::fade(Rgba::cyan(), Rgba::pink()).padding_right(3),
         Duration::from_millis(750),
         RotationDirection::CounterClockwise,
       )
@@ -41,7 +41,7 @@ pub fn game_startable() -> GameStartable {
     .effect(
       LedEffect::rotate(
         POST_LEDS4.q(),
-        ColorSequence::fade(Rgba::cyan(), Rgba::pink()),
+        ColorSequence::fade(Rgba::cyan(), Rgba::pink()).padding_left(3),
         Duration::from_millis(750),
         RotationDirection::Clockwise,
       )

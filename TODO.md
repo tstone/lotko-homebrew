@@ -1,0 +1,4 @@
+- Ball doesn't always trigger in-game when leaving the plunge lane; might need to set a short timer and if the ball leaves the plunge lane switch and doesn't come back soon(tm) then it's in-play instead of hitting a PF switch
+- Lower scoop needs an eject sound
+- Attract mode LED sequences
+- Attract mode DMD something rather

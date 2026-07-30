@@ -16,6 +16,7 @@ use crate::hardware::cabinet::*;
 use crate::hardware::lower_scoop::LowerScoopSystem;
 use crate::hardware::trough::DRAIN_LED;
 use crate::menu::MENU;
+use crate::systems::dmd::GamePointsDmdSystem;
 use crate::systems::non_game::game_startable;
 
 #[tokio::main]
@@ -60,6 +61,7 @@ async fn main() {
       &MENU,
       DmdMenuTheme::default(),
     ));
+    app.system(GamePointsDmdSystem::new());
 
     // game
     app.system(
@@ -112,7 +114,7 @@ async fn main() {
       systems![
         BasicPoints::new(),
         LowerScoopSystem::new(),
-        BallSaveSystem::new(Duration::from_secs(4)).effect(LedEffect::flash(
+        BallSaveSystem::new(Duration::from_secs(4)).effect(LedEffect::flash_on_off(
           DRAIN_LED.q(),
           Rgba::green(),
           Duration::from_millis(185)

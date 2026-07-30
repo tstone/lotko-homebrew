@@ -1,8 +1,10 @@
+use frontbox::animation::Curve;
 use frontbox::prelude::DriverTriggerMode::*;
-use frontbox::prelude::color_sequence::Modification;
 use frontbox::prelude::*;
 use frontbox::tags::*;
+use frontbox_turn_based::GameManagementExt;
 
+use crate::hardware::arc_ramp::SUBWAY_SWITCH;
 use crate::hardware::more_tags::*;
 
 hardware_defs! {
@@ -30,7 +32,7 @@ hardware_defs! {
       ..Default::default()
     });
 
-  pub OPTO: SwitchDefinition = SwitchDefinition::new("lower_scoop").inverted();
+  pub OPTO: SwitchDefinition = SwitchDefinition::new("lower_scoop").inverted().tag(Playfield);
 
   pub LEFT_BOLT: LedDefinition = LedDefinition::single("scoop_bolt1")
     .tag(Bolt)
@@ -44,25 +46,37 @@ hardware_defs! {
 #[derive(Clone)]
 pub struct LowerScoopSystem {
   eject_effect: LedEffect,
+  subway_entry: bool,
 }
 
 impl LowerScoopSystem {
   pub fn new() -> Self {
-    let mut eject_effect = LedEffect::rotate(
+    let mut eject_effect = LedEffect::cycle(
       LEFT_BOLT.q().or(RIGHT_BOLT.q()),
-      ColorSequence::exact(vec![Rgba::white(), Rgba::default()]).modify(Modification::rotated(0.0)),
-      Duration::from_millis(332),
-      RotationDirection::Clockwise,
+      Duration::from_millis(750 / 4),
+      Curve::Steps(2),
+      vec![
+        ColorSequence::exact(vec![Rgba::white(), Rgba::default()]),
+        ColorSequence::exact(vec![Rgba::default(), Rgba::white()]),
+      ],
     );
     eject_effect.stop();
 
-    Self { eject_effect }
+    Self {
+      eject_effect,
+      subway_entry: false,
+    }
   }
 
   pub fn eject(&mut self, ctx: &Context) {
+    if !self.subway_entry {
+      ctx.add_points(250);
+      self.subway_entry = false;
+    }
+
     // TODO: play sound
     ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
-    self.eject_effect.play();
+    self.eject_effect.resume();
   }
 
   fn complete_eject(&mut self, ctx: &Context) {
@@ -81,10 +95,12 @@ impl System for LowerScoopSystem {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
-    if let Some(event) = event.downcast_ref::<SwitchClosed>()
-      && event.switch.name == OPTO.name
-    {
-      self.eject(ctx);
+    if let Some(event) = event.downcast_ref::<SwitchClosed>() {
+      if event.switch.name == OPTO.name {
+        self.eject(ctx);
+      } else if event.switch.name == SUBWAY_SWITCH.name {
+        self.subway_entry = true;
+      }
     } else if event.is::<EjectLowerScoop>() {
       self.complete_eject(ctx);
     }

@@ -16,7 +16,7 @@ use crate::hardware::cabinet::*;
 use crate::hardware::lower_scoop::LowerScoopSystem;
 use crate::hardware::trough::DRAIN_LED;
 use crate::menu::MENU;
-use crate::systems::dmd::GamePointsDmdSystem;
+use crate::systems::dmd::{AttractModeDmdSystem, GamePointsDmdSystem};
 use crate::systems::non_game::{AttractModeSystem, game_startable};
 
 #[tokio::main]
@@ -63,6 +63,7 @@ async fn main() {
       &MENU,
       DmdMenuTheme::default(),
     ));
+    app.system(AttractModeDmdSystem::new());
     app.system(GamePointsDmdSystem::new());
 
     // game

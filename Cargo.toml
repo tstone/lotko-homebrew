@@ -12,6 +12,8 @@ frontbox-sound = { path = "../frontbox-rs/frontbox-sound" }
 frontbox-canvas = { path = "../frontbox-rs/frontbox-canvas" }
 tokio = { version = "1", features = ["full"] }
 log = "0.4.29"
+image = "0.25.10"
+rand = "0.10.2"
 
 [profile.dev]
 opt-level = 0

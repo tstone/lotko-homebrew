@@ -43,6 +43,7 @@ async fn main() {
     // core
     app.system(LedSystem::new());
     app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
+    app.system(SoundLoaderSystem::new());
     app.system(OperatorConfig::new());
     app.system(FreePlay::default());
     app.system(game_startable());

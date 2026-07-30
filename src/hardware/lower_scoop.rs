@@ -43,6 +43,10 @@ hardware_defs! {
     .tag(Playfield);
 }
 
+// -- System --
+
+pub const LOWER_SCOOP_EJECT_SND: &'static str = "dmd_menu_select";
+
 #[derive(Clone)]
 pub struct LowerScoopSystem {
   eject_effect: LedEffect,
@@ -69,6 +73,7 @@ impl LowerScoopSystem {
   }
 
   pub fn eject(&mut self, ctx: &Context) {
+    // If the player gets the ball into the scoop without using the subway, it gives points
     if !self.subway_entry {
       ctx.add_points(250);
       self.subway_entry = false;

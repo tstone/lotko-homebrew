@@ -17,7 +17,7 @@ use crate::hardware::lower_scoop::LowerScoopSystem;
 use crate::hardware::trough::DRAIN_LED;
 use crate::menu::MENU;
 use crate::systems::dmd::{AttractModeDmdSystem, GamePointsDmdSystem};
-use crate::systems::non_game::{AttractModeSystem, game_startable};
+use crate::systems::non_game::{AttractModeLedsSystem, game_startable};
 
 #[tokio::main]
 async fn main() {
@@ -47,7 +47,7 @@ async fn main() {
     app.system(OperatorConfig::new());
     app.system(FreePlay::default());
     app.system(game_startable());
-    app.system(AttractModeSystem::new());
+    app.system(AttractModeLedsSystem::new());
 
     // dmd
     let dmd = Pin2Dmd::connect(128, 32, PanelType::Rgb).unwrap();

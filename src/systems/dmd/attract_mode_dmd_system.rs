@@ -1,5 +1,5 @@
-use frontbox_canvas::{Gif, Horizontal, Layer, StaticImage, Vertical};
-use frontbox_pin2dmd::DmdSystem;
+use frontbox_canvas::{Container, Gif, Horizontal, Layer, StaticImage, Vertical};
+use frontbox_pin2dmd::{DmdSystem, SIGI_BOLD_7PX_FONT};
 use image::RgbaImage;
 use std::path::PathBuf;
 
@@ -14,7 +14,7 @@ pub struct AttractModeDmdSystem {
 
 impl AttractModeDmdSystem {
   pub fn new() -> Self {
-    let frames = Gif::decode_from_path(local_asset("../../assets/gif/bio-spore-pink"));
+    let frames = Gif::decode_from_path(local_asset("gif/bio-spore-pink.gif"));
     Self {
       animation: Self::rnd_animation(&frames),
       bio_spore: frames,
@@ -22,17 +22,16 @@ impl AttractModeDmdSystem {
   }
 
   pub fn rnd_animation(frames: &Vec<Frame>) -> Sequence<Duration, RgbaImage> {
-    let repeat = rand::random_range(1..=4);
     let end_frame = rand::random_range(1..frames.len());
 
     Tween::ping_pong(
-      Duration::from_millis(1250),
+      Duration::from_millis(rand::random_range(2000..=3000)),
       Curve::EaseInOut,
       vec![
         frames[0].buffer().clone(),
         frames[end_frame].buffer().clone(),
       ],
-      Cycle::Times(repeat),
+      Cycle::Times(rand::random_range(1..=2)),
     )
   }
 }
@@ -50,14 +49,32 @@ impl System for AttractModeDmdSystem {
       let w = img.width();
       let h = img.height();
 
-      dmd.insert_layer(
-        0,
+      let mut window = Container::transparent();
+
+      window.add(
         StaticImage::from_image(img)
           .width(w)
           .height(h)
           .horizontal(Horizontal::Centered)
           .vertical(Vertical::Centered),
       );
+
+      let mut text_row = Container::transparent().with_padding_all(5);
+
+      text_row.add(
+        SIGI_BOLD_7PX_FONT
+          .left_aligned("press", Rgba::cyan().lighten(0.35))
+          .default_position(),
+      );
+
+      text_row.add(
+        SIGI_BOLD_7PX_FONT
+          .left_aligned("start", Rgba::cyan().lighten(0.35))
+          .left_offset(81),
+      );
+
+      window.add(text_row.top_offset(7));
+      dmd.insert_layer(0, window.default_position());
     }
   }
 }

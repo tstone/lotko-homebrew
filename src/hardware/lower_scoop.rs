@@ -59,6 +59,7 @@ impl LowerScoopSystem {
       LEFT_BOLT.q().or(RIGHT_BOLT.q()),
       Duration::from_millis(750 / 4),
       Curve::Steps(2),
+      Cycle::Times(4),
       vec![
         ColorSequence::exact(vec![Rgba::white(), Rgba::default()]),
         ColorSequence::exact(vec![Rgba::default(), Rgba::white()]),

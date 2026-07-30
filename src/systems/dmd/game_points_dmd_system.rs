@@ -66,9 +66,9 @@ impl GamePointsDmdSystem {
           TextFormatting::number(player_scores[current_player as usize]),
           Rgba::white(),
         )
-        .recolor_fade(Rgba::cyan().lighten(0.2), Rgba::blue().darken(0.20), 90.0)
-        .left_offset(3)
-        .top_offset(9),
+        .recolor_fade(Rgba::cyan().lighten(0.3), Rgba::blue().darken(0.20), 90.0)
+        .right_offset(3)
+        .top_offset(10),
     );
 
     // bottom row of individual player scores

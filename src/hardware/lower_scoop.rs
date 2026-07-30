@@ -2,6 +2,7 @@ use frontbox::animation::Curve;
 use frontbox::prelude::DriverTriggerMode::*;
 use frontbox::prelude::*;
 use frontbox::tags::*;
+use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
 
 use crate::hardware::arc_ramp::SUBWAY_SWITCH;
@@ -80,7 +81,7 @@ impl LowerScoopSystem {
       self.subway_entry = false;
     }
 
-    // TODO: play sound
+    ctx.play_sfx(LOWER_SCOOP_EJECT_SND);
     ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
     self.eject_effect.resume();
   }

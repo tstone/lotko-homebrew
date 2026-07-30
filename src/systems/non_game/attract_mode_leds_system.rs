@@ -5,7 +5,7 @@ use frontbox::prelude::color_sequence::Fill1d;
 use frontbox::prelude::tags::*;
 use frontbox::prelude::*;
 use frontbox_pin2dmd::menu::DmdMenuSystem;
-use frontbox_turn_based::GameManagementExt;
+use frontbox_turn_based::*;
 use rand::seq::IndexedRandom;
 
 static COLORS: LazyLock<Vec<Rgba<u8>>> = LazyLock::new(|| {
@@ -76,7 +76,7 @@ impl AttractModeLedsSystem {
 
 impl System for AttractModeLedsSystem {
   fn is_active(&self, ctx: &Context) -> bool {
-    // Either the game isn't running or the menu isn't active
+    // TODO: should an LED system depend on a DMD system? this might need a generalized 'machine state' system
     !ctx.is_game_started()
       && !ctx
         .systems

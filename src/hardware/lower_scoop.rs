@@ -27,13 +27,16 @@ hardware_defs! {
       kick_length: HardwareValue::config(
         "Lower Scoop Eject Time",
         "Duration that the plunger exert full power onto the ball (kick)",
-        Duration::from_millis(40),
+        Duration::from_millis(35),
         Ranges::duration(10, 300),
       ),
       ..Default::default()
     });
 
-  pub OPTO: SwitchDefinition = SwitchDefinition::new("lower_scoop").inverted().tag(Playfield);
+  pub OPTO: SwitchDefinition = SwitchDefinition::new("lower_scoop")
+    .inverted()
+    .debounce_close(Duration::from_millis(100))
+    .tag(Playfield);
 
   pub LEFT_BOLT: LedDefinition = LedDefinition::single("scoop_bolt1")
     .tag(Bolt)

@@ -8,6 +8,8 @@ hardware_defs! {
   .mode(FlipperMainDirectMode {
       button_switch: cabinet::RIGHT_FLIPPER_SWITCH2.name,
       eos_switch: EOS_SWITCH.name,
+      initial_pwm_power: HardwareValue::config("Initial Power", "", Power::percent(50), Ranges::full_power()),
+      secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::FULL, Ranges::full_power()),
       ..Default::default()
     });
 

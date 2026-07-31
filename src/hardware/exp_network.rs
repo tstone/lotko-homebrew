@@ -2,9 +2,9 @@ use frontbox::prelude::*;
 
 use crate::hardware::*;
 
-pub fn exp_network() -> Vec<ExpansionBoard> {
-  vec![
-    ExpansionBoard::neuron()
+pub fn exp_network() -> ExpNetwork {
+  ExpNetwork::new(vec![
+    ExpBoard::neuron()
       .wire_led_port(1, LedPort::ws2812().leds(vec![&backbox::LEFT_SPEAKER_LEDS]))
       .wire_led_port(
         2,
@@ -14,7 +14,7 @@ pub fn exp_network() -> Vec<ExpansionBoard> {
         3,
         LedPort::ws2812().leds(vec![&cabinet::action_button::LED]),
       ),
-    ExpansionBoard::fp_exp0081(JumperState::Open, JumperState::Open)
+    ExpBoard::fp_exp0081(JumperState::Open, JumperState::Open)
       .wire_led_port(
         2,
         LedPort::ws2812().leds(vec![
@@ -106,5 +106,5 @@ pub fn exp_network() -> Vec<ExpansionBoard> {
           &plunge_lane::LED_STRIP,
         ]),
       ),
-  ]
+  ])
 }

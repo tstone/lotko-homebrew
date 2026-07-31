@@ -49,7 +49,7 @@ hardware_defs! {
 
 // -- System --
 
-pub const LOWER_SCOOP_EJECT_SND: &'static str = "dmd_menu_select";
+pub const LOWER_SCOOP_EJECT_SND: &'static str = "lower_scoop_eject";
 
 #[derive(Clone)]
 pub struct LowerScoopSystem {

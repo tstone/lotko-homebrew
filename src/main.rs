@@ -1,4 +1,5 @@
 use frontbox::prelude::*;
+use frontbox::provided::{AutoPlungerSystem, PlungeLaneSystem};
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
 use frontbox_sound::SoundSystem;
@@ -43,9 +44,9 @@ async fn main() {
     // core
     app.system(LedSystem::new());
     app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
-    app.system(SoundLoaderSystem::new());
     app.system(OperatorConfig::new());
     app.system(FreePlay::default());
+    app.system(SoundLoaderSystem::new());
     app.system(game_startable());
     app.system(AttractModeLedsSystem::new());
 
@@ -128,7 +129,12 @@ async fn main() {
 
     // playfield
     app.system(trough::system());
-    app.system(plunge_lane::system());
+    app.system(PlungeLaneSystem::new(
+      plunge_lane::SWITCH.name,
+      Duration::from_millis(1200),
+    ));
+    app.system(AutoPlungerSystem::new(plunge_lane::COIL.name));
+    // TODO: action button plunge
 
     // temporary stuff
     app.system(AutoTurnAdvance::new());

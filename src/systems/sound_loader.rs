@@ -9,9 +9,8 @@ pub mod sounds {
 
 impl System for SoundLoaderSystem {
   fn on_spawn(&mut self, ctx: &Context) {
-    if let Some(mut snd) = ctx.systems.get::<SoundSystem>() {
-      snd.preload_embedded(LOWER_SCOOP_EJECT_SND, sounds::LOWER_SCOOP_EJECT);
-    }
+    let mut snd = ctx.systems.expect::<SoundSystem>();
+    snd.preload_embedded(LOWER_SCOOP_EJECT_SND, sounds::LOWER_SCOOP_EJECT);
 
     // We're done. Sounds will remain preloaded.
     ctx.despawn_self();

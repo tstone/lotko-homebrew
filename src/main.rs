@@ -118,10 +118,10 @@ async fn main() {
       systems![
         BasicPoints::new(),
         LowerScoopSystem::new(),
-        BallSaveSystem::new(Duration::from_secs(4)).effect(LedEffect::flash_on_off(
+        BallSaveSystem::new(Duration::from_secs(5)).effect(LedEffect::flash_on_off(
           DRAIN_LED.q(),
-          Rgba::green(),
-          Duration::from_millis(185)
+          Rgba::purple(),
+          Duration::from_millis(83 * 2)
         ))
       ],
       Q::tag::<tags::Playfield>(),

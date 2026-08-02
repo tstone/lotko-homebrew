@@ -22,6 +22,7 @@ pub mod right_inlane;
 pub mod right_orbit;
 pub mod right_outlane;
 pub mod right_pass_lane;
+mod scoop;
 pub mod upper_flipper;
 pub mod upper_pass_lane;
 pub mod vspinner;
@@ -31,3 +32,4 @@ mod io_network;
 
 pub use exp_network::*;
 pub use io_network::*;
+pub use scoop::*;

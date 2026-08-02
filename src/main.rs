@@ -14,11 +14,13 @@ pub mod menu;
 use hardware::*;
 
 use crate::hardware::cabinet::*;
+use crate::hardware::lift_ramp::LiftRampSystem;
 use crate::hardware::lower_scoop::LowerScoopSystem;
 use crate::hardware::trough::DRAIN_LED;
 use crate::menu::MENU;
-use crate::systems::dmd::{AttractModeDmdSystem, GamePointsDmdSystem};
-use crate::systems::non_game::{AttractModeLedsSystem, game_startable};
+use crate::systems::dmd::*;
+use crate::systems::game::*;
+use crate::systems::non_game::*;
 
 #[tokio::main]
 async fn main() {
@@ -68,61 +70,22 @@ async fn main() {
     app.system(GamePointsDmdSystem::new());
 
     // game
-    app.system(
-      ActivatePlayfieldSystem::new()
-        // slings
-        .driver(slingshots::LEFT_COIL.name, slingshots::LEFT_SWITCH.name)
-        .driver(slingshots::RIGHT_COIL.name, slingshots::RIGHT_SWITCH.name)
-        // flippers
-        .driver(
-          left_flipper::MAIN_COIL.name,
-          cabinet::LEFT_FLIPPER_SWITCH1.name,
-        )
-        .driver(
-          left_flipper::HOLD_COIL.name,
-          cabinet::LEFT_FLIPPER_SWITCH1.name,
-        )
-        .driver(
-          right_flipper::MAIN_COIL.name,
-          cabinet::RIGHT_FLIPPER_SWITCH1.name,
-        )
-        .driver(
-          right_flipper::HOLD_COIL.name,
-          cabinet::RIGHT_FLIPPER_SWITCH1.name,
-        )
-        .driver(
-          upper_flipper::MAIN_COIL.name,
-          cabinet::RIGHT_FLIPPER_SWITCH2.name,
-        )
-        .driver(
-          upper_flipper::HOLD_COIL.name,
-          cabinet::RIGHT_FLIPPER_SWITCH2.name,
-        )
-        // pops
-        .driver(
-          pop_cluster::lower_right::COIL.name,
-          pop_cluster::lower_right::SPOON_SWITCH.name,
-        )
-        .driver(
-          pop_cluster::upper_right::COIL.name,
-          pop_cluster::upper_right::SPOON_SWITCH.name,
-        )
-        .driver(
-          pop_cluster::left::COIL.name,
-          pop_cluster::left::SPOON_SWITCH.name,
-        ),
-    );
-
+    app.system(activate_playfield());
     app.system(GameManager::competitive(
       4,
       systems![
         BasicPoints::new(),
         LowerScoopSystem::new(),
+        LiftRampSystem::new(),
+        left_orbit::LeftOrbitSystem::new(),
+        center_orbit::CenterOrbitSystem::new(),
+        right_orbit::RightOrbitSystem::new(),
         BallSaveSystem::new(Duration::from_secs(4)).effect(LedEffect::flash_on_off(
           DRAIN_LED.q(),
           Rgba::green(),
           Duration::from_millis(185)
-        ))
+        )),
+        CityCoverageQualification2::new(false, false, true),
       ],
       Q::tag::<tags::Playfield>(),
     ));

@@ -65,9 +65,10 @@ pub fn exp_network() -> ExpNetwork {
           &captive_ball::LEFT_BOLT,
           &gi::CAPTIVE_BALL,
           &center_orbit::SPINNER_LED,
+          &lift_ramp::BOLT_LED,
           &arc_ramp::HEX_LEDS,
-          &center_orbit::HEX_LEDS,
           &lift_ramp::HEX_LEDS,
+          &center_orbit::HEX_LEDS,
         ]),
       )
       .wire_led_port(

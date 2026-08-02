@@ -57,7 +57,7 @@ hardware_defs! {
       ..Default::default()
     });
 
-  pub SCOOP_OPTO: SwitchDefinition = SwitchDefinition::new("eject_opto")
+  pub SCOOP_OPTO: SwitchDefinition = SwitchDefinition::new("lift_ramp_scoop_opto")
     .inverted()
     .debounce_close(Duration::from_millis(100))
     .tag(Playfield);
@@ -82,11 +82,10 @@ pub fn hex_center_led_q() -> HardwareQuery {
 }
 
 pub fn hex_line_leds_q() -> HardwareQuery {
-  // TODO: verify order
   Q::names(vec![
-    HEX_LEDS.child(1).unwrap().name(),
+    HEX_LEDS.child(5).unwrap().name(),
     HEX_LEDS.child(6).unwrap().name(),
-    HEX_LEDS.child(4).unwrap().name(),
+    HEX_LEDS.child(2).unwrap().name(),
   ])
 }
 

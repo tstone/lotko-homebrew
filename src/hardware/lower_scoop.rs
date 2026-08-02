@@ -7,7 +7,7 @@ use frontbox_turn_based::GameManagementExt;
 
 use crate::hardware::ScoopBallEntered;
 use crate::hardware::ScoopBallExited;
-use crate::hardware::arc_ramp::SUBWAY_SWITCH;
+use crate::hardware::arc_ramp::SUBWAY_OPTO;
 use crate::hardware::more_tags::*;
 
 hardware_defs! {
@@ -146,7 +146,7 @@ impl System for LowerScoopSystem {
     if let Some(event) = event.downcast_ref::<SwitchClosed>() {
       if event.switch.name == OPTO.name {
         self.on_ball_enter(ctx);
-      } else if event.switch.name == SUBWAY_SWITCH.name {
+      } else if event.switch.name == SUBWAY_OPTO.name {
         self.subway_entry = true;
       }
     } else if let Some(event) = event.downcast_ref::<SwitchOpened>()

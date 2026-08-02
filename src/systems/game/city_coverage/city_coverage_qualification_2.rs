@@ -25,13 +25,13 @@ impl CityCoverageQualification2 {
   }
 
   fn create_led_effect(query: HardwareQuery, hit: bool) -> Option<LedEffect> {
-    if hit {
+    if !hit {
       Some(
         LedEffect::initial(
           query,
           ColorSequence::exact(vec![Rgba::white(), Rgba::default(), Rgba::default()]),
         )
-        .rotating(Duration::from_millis(750), Curve::Linear),
+        .rotating(Duration::from_millis(520), Curve::EaseOut),
       )
     } else {
       None
@@ -66,14 +66,28 @@ impl System for CityCoverageQualification2 {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
-    if event.is::<left_orbit::LeftOrbitHit>() && self.left_orbit_effect.is_none() {
+    if event.is::<left_orbit::LeftOrbitHit>() && self.left_orbit_effect.is_some() {
       ctx.add_points(10000);
+      self.left_orbit_effect.as_mut().unwrap().stop_and_clear(ctx);
+      self.left_orbit_effect = None;
       self.attempt_complete(ctx);
-    } else if event.is::<center_orbit::CenterOrbitHit>() && self.center_orbit_effect.is_none() {
+    } else if event.is::<center_orbit::CenterOrbitHit>() && self.center_orbit_effect.is_some() {
       ctx.add_points(10000);
+      self
+        .center_orbit_effect
+        .as_mut()
+        .unwrap()
+        .stop_and_clear(ctx);
+      self.center_orbit_effect = None;
       self.attempt_complete(ctx);
-    } else if event.is::<right_orbit::RightOrbitHit>() && self.right_orbit_effect.is_none() {
+    } else if event.is::<right_orbit::RightOrbitHit>() && self.right_orbit_effect.is_some() {
       ctx.add_points(10000);
+      self
+        .right_orbit_effect
+        .as_mut()
+        .unwrap()
+        .stop_and_clear(ctx);
+      self.right_orbit_effect = None;
       self.attempt_complete(ctx);
     }
   }

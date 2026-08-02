@@ -80,7 +80,7 @@ async fn main() {
         left_orbit::LeftOrbitSystem::new(),
         center_orbit::CenterOrbitSystem::new(),
         right_orbit::RightOrbitSystem::new(),
-        BallSaveSystem::new(Duration::from_secs(4)).effect(LedEffect::flash_on_off(
+        BallSaveSystem::new(Duration::from_secs(5)).effect(LedEffect::flash_on_off(
           DRAIN_LED.q(),
           Rgba::green(),
           Duration::from_millis(185)

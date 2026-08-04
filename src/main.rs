@@ -75,6 +75,7 @@ async fn main() {
       4,
       systems![
         BasicPoints::new(),
+        // TODO: move hardware management to root level, but make only active when in game
         LowerScoopSystem::new(),
         LiftRampSystem::new(),
         left_orbit::LeftOrbitSystem::new(),

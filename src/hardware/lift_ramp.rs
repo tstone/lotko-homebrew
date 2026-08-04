@@ -15,7 +15,7 @@ hardware_defs! {
       initial_pwm_length: HardwareValue::config(
         "Lift Ramp Kick Duration",
         "Amount of time to initially kick the lift ramp open",
-        Duration::from_millis(25),
+        Duration::from_millis(15),
         Ranges::duration(5, 100)
       ),
       initial_pwm_power: HardwareValue::config(
@@ -27,7 +27,7 @@ hardware_defs! {
       secondary_pwm_power: HardwareValue::config(
         "Lift Ramp Hold Power",
         "Amount of power to keep ramp held up",
-        Power::percent(25),
+        Power::percent(15),
         Ranges::full_power()
       ),
       ..Default::default()
@@ -125,6 +125,7 @@ impl LiftRampSystem {
 
   pub fn lift_up(&mut self, ctx: &Context, max_duration: Duration) {
     if !self.ramp_lifted {
+      log::debug!("Lifting ramp up.");
       self.ramp_lifted = true;
       ctx.activate_driver(RAMP_COIL.name, VirtualSwitchOn);
       ctx.emit(LiftRampUp);
@@ -134,6 +135,7 @@ impl LiftRampSystem {
 
   pub fn lift_down(&mut self, ctx: &Context) {
     if self.ramp_lifted {
+      log::debug!("Lifting ramp down.");
       self.ramp_lifted = false;
       ctx.deactivate_driver(RAMP_COIL.name, VirtualSwitchOff);
       ctx.emit(LiftRampDown);

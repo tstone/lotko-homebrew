@@ -16,13 +16,13 @@ impl CityCoverageQualification3 {
         lift_ramp::BOLT_LED.q(),
         Rgba::white(),
         Rgba::cyan(),
-        Duration::from_millis(83 * 2),
+        Duration::from_millis(83 * 3),
       )),
       lower_scoop_effect: LedEffect::flash(
         lower_scoop::bolts_q(),
         Rgba::white(),
         Rgba::cyan(),
-        Duration::from_millis(83 * 2),
+        Duration::from_millis(83 * 3),
       ),
     }
   }
@@ -45,6 +45,10 @@ impl System for CityCoverageQualification3 {
       .systems
       .expect::<lower_scoop::LowerScoopSystem>()
       .set_mode(lower_scoop::LowerScoopMode::ModeStart, ctx);
+    ctx
+      .systems
+      .expect::<lift_ramp::LiftRampSystem>()
+      .lift_up(ctx, Duration::from_millis(20));
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &Context) {

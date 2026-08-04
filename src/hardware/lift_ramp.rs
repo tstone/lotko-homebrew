@@ -10,12 +10,12 @@ use crate::hardware::more_tags::*;
 hardware_defs! {
   pub RAMP_COIL: DriverDefinition = DriverDefinition::new("lift_ramp")
     .tag(Playfield)
-    .mode(PulseHoldCancelMode {
-      trigger_mode: DriverTriggerDualMode::VirtualFlip_FlopSwitchTrue(SCOOP_OPTO.name),
+    .mode(PulseHoldMode {
+      trigger_mode: VirtualSwitchTrue,
       initial_pwm_length: HardwareValue::config(
         "Lift Ramp Kick Duration",
         "Amount of time to initially kick the lift ramp open",
-        Duration::from_millis(15),
+        Duration::from_millis(20),
         Ranges::duration(5, 100)
       ),
       initial_pwm_power: HardwareValue::config(
@@ -24,13 +24,8 @@ hardware_defs! {
         Power::FULL,
         Ranges::full_power()
       ),
-      secondary_pwm_power: HardwareValue::config(
-        "Lift Ramp Hold Power",
-        "Amount of power to keep ramp held up",
-        Power::EIGHTH,
-        Ranges::full_power()
-      ),
-      ..Default::default()
+      secondary_pwm_power: HardwareValue::fixed(Power::EIGHTH),
+      rest: HardwareValue::Fixed(Duration::from_millis(255)),
     });
 
   pub EJECT_COIL: DriverDefinition = DriverDefinition::new("lift_ramp_eject")
@@ -51,8 +46,8 @@ hardware_defs! {
       kick_length: HardwareValue::config(
         "Rear Scoop Eject Time",
         "Duration that the plunger exert full power onto the ball (kick)",
-        Duration::from_millis(35),
-        Ranges::duration(10, 300),
+        Duration::from_millis(13),
+        Ranges::duration(10, 100),
       ),
       ..Default::default()
     });

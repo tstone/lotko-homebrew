@@ -32,6 +32,14 @@ impl CityCoverageQualification3 {
   pub fn complete(&mut self, ctx: &Context) {
     ctx.play_sfx(sounds::LANE_HIT_COMPLETE);
     ctx.add_points(50000);
+
+    // clear effects
+    if let Some(effect) = &mut self.lift_ramp_effect {
+      effect.stop_and_clear(ctx);
+    }
+    self.lift_ramp_effect = None;
+    self.lower_scoop_effect.stop_and_clear(ctx);
+
     // TODO: launch menu
 
     // TEMPORARY: move this to menu system:
@@ -51,7 +59,8 @@ impl System for CityCoverageQualification3 {
     ctx
       .systems
       .expect::<lift_ramp::LiftRampSystem>()
-      .lift_up(ctx, Duration::from_millis(20));
+      // TODO: should this hurry up time be flexed up or down depending on other achievements? (yes)
+      .lift_up(ctx, Duration::from_millis(30));
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &Context) {

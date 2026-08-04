@@ -22,7 +22,7 @@ hardware_defs! {
         Ranges::duration(0, 100),
       ),
       initial_pwm_power: HardwareValue::fixed(
-        Power::percent(75),
+        Power::THREE_QUARTERS,
       ),
       secondary_pwm_power: HardwareValue::Fixed(Power::ZERO),
       secondary_pwm_length: HardwareValue::Fixed(Duration::ZERO),

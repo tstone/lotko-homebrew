@@ -27,7 +27,7 @@ hardware_defs! {
       secondary_pwm_power: HardwareValue::config(
         "Lift Ramp Hold Power",
         "Amount of power to keep ramp held up",
-        Power::percent(25),
+        Power::EIGHTH,
         Ranges::full_power()
       ),
       ..Default::default()
@@ -44,7 +44,7 @@ hardware_defs! {
         Ranges::duration(0, 100),
       ),
       initial_pwm_power: HardwareValue::fixed(
-        Power::percent(75),
+        Power::THREE_QUARTERS,
       ),
       secondary_pwm_power: HardwareValue::Fixed(Power::ZERO),
       secondary_pwm_length: HardwareValue::Fixed(Duration::ZERO),

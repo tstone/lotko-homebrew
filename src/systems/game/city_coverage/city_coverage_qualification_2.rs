@@ -1,9 +1,11 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::*;
+use frontbox_sound::*;
 use frontbox_turn_based::*;
 
 use crate::hardware::*;
 use crate::systems::game::CityCoverageQualification3;
+use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct CityCoverageQualification2 {
@@ -67,11 +69,13 @@ impl System for CityCoverageQualification2 {
 
   fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
     if event.is::<left_orbit::LeftOrbitHit>() && self.left_orbit_effect.is_some() {
+      ctx.play_sfx(sounds::rnd_lane_hit());
       ctx.add_points(10000);
       self.left_orbit_effect.as_mut().unwrap().stop_and_clear(ctx);
       self.left_orbit_effect = None;
       self.attempt_complete(ctx);
     } else if event.is::<center_orbit::CenterOrbitHit>() && self.center_orbit_effect.is_some() {
+      ctx.play_sfx(sounds::rnd_lane_hit());
       ctx.add_points(10000);
       self
         .center_orbit_effect
@@ -81,6 +85,7 @@ impl System for CityCoverageQualification2 {
       self.center_orbit_effect = None;
       self.attempt_complete(ctx);
     } else if event.is::<right_orbit::RightOrbitHit>() && self.right_orbit_effect.is_some() {
+      ctx.play_sfx(sounds::rnd_lane_hit());
       ctx.add_points(10000);
       self
         .right_orbit_effect

@@ -1,7 +1,9 @@
 use frontbox::prelude::*;
+use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::*;
 
 use crate::hardware::{ScoopBallEntered, lift_ramp, lower_scoop};
+use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct CityCoverageQualification3 {
@@ -28,6 +30,7 @@ impl CityCoverageQualification3 {
   }
 
   pub fn complete(&mut self, ctx: &Context) {
+    ctx.play_sfx(sounds::LANE_HIT_COMPLETE);
     ctx.add_points(50000);
     // TODO: launch menu
 

@@ -1,8 +1,10 @@
 use frontbox::prelude::*;
+use frontbox_sound::*;
 use frontbox_turn_based::*;
 
 use crate::hardware::*;
 use crate::systems::game::CityCoverageQualification2;
+use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct CityCoverageQualification1;
@@ -34,6 +36,7 @@ impl System for CityCoverageQualification1 {
       || event.is::<center_orbit::CenterOrbitHit>()
       || event.is::<right_orbit::RightOrbitHit>()
     {
+      ctx.play_sfx(sounds::rnd_lane_hit());
       ctx.add_points(10000);
       ctx.replace_self(CityCoverageQualification2::new(
         event.is::<left_orbit::LeftOrbitHit>(),

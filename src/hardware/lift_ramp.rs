@@ -154,9 +154,6 @@ impl LiftRampSystem {
 impl System for LiftRampSystem {
   fn on_spawn(&mut self, ctx: &Context) {
     self.ball_present = ctx.switches.is_closed(SCOOP_OPTO.name).unwrap_or(false);
-    if self.ball_present {
-      self.eject(ctx);
-    }
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &Context) {

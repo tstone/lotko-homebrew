@@ -51,6 +51,7 @@ async fn main() {
     app.system(SoundLoaderSystem::new());
     app.system(game_startable());
     app.system(AttractModeLedsSystem::new());
+    app.system(StartupEject::new());
 
     // dmd
     let dmd = Pin2Dmd::connect(128, 32, PanelType::Rgb).unwrap();

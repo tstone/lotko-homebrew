@@ -30,6 +30,11 @@ impl CityCoverageQualification3 {
   }
 
   pub fn complete(&mut self, ctx: &Context) {
+    ctx
+      .systems
+      .expect::<lift_ramp::LiftRampSystem>()
+      .lift_down(ctx);
+
     ctx.play_sfx(sounds::LANE_HIT_COMPLETE);
     ctx.add_points(50000);
 

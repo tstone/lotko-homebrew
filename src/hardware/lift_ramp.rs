@@ -162,7 +162,10 @@ impl System for LiftRampSystem {
   }
 }
 
+#[derive(serde::Serialize, Event)]
 struct CloseRamp;
 
+#[derive(serde::Serialize, Event)]
 pub struct LiftRampUp;
+#[derive(serde::Serialize, Event)]
 pub struct LiftRampDown;

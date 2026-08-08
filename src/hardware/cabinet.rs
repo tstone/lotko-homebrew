@@ -30,7 +30,6 @@ pub mod start_button {
 
   hardware_defs! {
     pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
-      .tag(StartButton)
       .tag(Cabinet);
 
     pub LAMP_DRIVER: DriverDefinition = GameStartable::lamp_driver(NAME);

@@ -82,5 +82,7 @@ impl System for LeftOrbitSystem {
   }
 }
 
+#[derive(serde::Serialize, Event)]
 pub struct LeftOrbitHit;
+#[derive(serde::Serialize, Event)]
 struct ClearSkipNext;

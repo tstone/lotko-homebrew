@@ -12,8 +12,8 @@ pub mod left_flipper {
     .mode(FlipperMainDirectMode {
         button_switch: cabinet::LEFT_FLIPPER_SWITCH1.name,
         eos_switch: EOS_SWITCH.name,
-        initial_pwm_power: HardwareValue::config("Initial Power", "", Power::percent(44), Ranges::full_power()),
-        secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::percent(99), Ranges::full_power()),
+        initial_pwm_power: HardwareValue::config("Initial Power", "", Power::FULL, Ranges::full_power()),
+        secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::HALF, Ranges::full_power()),
         ..Default::default()
       });
 
@@ -36,8 +36,8 @@ pub mod right_flipper {
     .mode(FlipperMainDirectMode {
         button_switch: cabinet::RIGHT_FLIPPER_SWITCH1.name,
         eos_switch: EOS_SWITCH.name,
-        initial_pwm_power: HardwareValue::config("Initial Power", "", Power::percent(44), Ranges::full_power()),
-        secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::FULL, Ranges::full_power()),
+        initial_pwm_power: HardwareValue::config("Initial Power", "", Power::FULL, Ranges::full_power()),
+        secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::HALF, Ranges::full_power()),
         ..Default::default()
       });
 
@@ -61,20 +61,18 @@ pub mod slingshots {
     pub LEFT_COIL: DriverDefinition = DriverDefinition::new("l_sling_coil")
       .mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(LEFT_SWITCH.name),
-        initial_pwm_power: HardwareValue::config("Left Sling Power", "Power of the left slingshot", Power::percent(80), Ranges::full_power()),
+        initial_pwm_power: HardwareValue::config("Left Sling Power", "Power of the left slingshot", Power::THREE_QUARTERS, Ranges::full_power()),
         ..Default::default()
       })
-      .tag(Playfield)
-      .tag(SlingShot);
+      .tag(Playfield);
 
     pub RIGHT_COIL: DriverDefinition = DriverDefinition::new("r_sling_coil")
       .mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(RIGHT_SWITCH.name),
-        initial_pwm_power: HardwareValue::config("Right Sling Power", "Power of the right slingshot", Power::percent(80), Ranges::full_power()),
+        initial_pwm_power: HardwareValue::config("Right Sling Power", "Power of the right slingshot", Power::THREE_QUARTERS, Ranges::full_power()),
         ..Default::default()
       })
-      .tag(Playfield)
-      .tag(SlingShot);
+      .tag(Playfield);
 
     // -- Post LEDs --
 

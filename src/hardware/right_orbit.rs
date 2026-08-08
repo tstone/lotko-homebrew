@@ -58,4 +58,5 @@ impl System for RightOrbitSystem {
   }
 }
 
+#[derive(serde::Serialize, Event)]
 pub struct RightOrbitHit;

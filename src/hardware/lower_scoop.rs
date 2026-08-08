@@ -163,6 +163,7 @@ impl System for LowerScoopSystem {
   }
 }
 
+#[derive(serde::Serialize, Event)]
 struct EjectLowerScoop;
 
 #[derive(Clone, Debug, PartialEq, Eq)]

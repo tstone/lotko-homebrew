@@ -1,5 +1,5 @@
 use frontbox::prelude::*;
-use frontbox::provided::Trough;
+use frontbox::provided::TroughSystem;
 use frontbox::tags::*;
 
 use crate::hardware::more_tags::*;
@@ -9,18 +9,18 @@ hardware_defs! {
     .tag(Circle)
     .tag(Playfield);
 
-  pub SWITCH1: SwitchDefinition = Trough::switch_definition("trough_1");
-  pub SWITCH2: SwitchDefinition = Trough::switch_definition("trough_2");
-  pub SWITCH3: SwitchDefinition = Trough::switch_definition("trough_3");
-  pub SWITCH4: SwitchDefinition = Trough::switch_definition("trough_4");
-  pub SWITCH5: SwitchDefinition = Trough::switch_definition("trough_5");
-  pub SWITCH6: SwitchDefinition = Trough::switch_definition("trough_6");
+  pub SWITCH1: SwitchDefinition = TroughSystem::switch_definition("trough_1");
+  pub SWITCH2: SwitchDefinition = TroughSystem::switch_definition("trough_2");
+  pub SWITCH3: SwitchDefinition = TroughSystem::switch_definition("trough_3");
+  pub SWITCH4: SwitchDefinition = TroughSystem::switch_definition("trough_4");
+  pub SWITCH5: SwitchDefinition = TroughSystem::switch_definition("trough_5");
+  pub SWITCH6: SwitchDefinition = TroughSystem::switch_definition("trough_6");
 
-  pub COIL: DriverDefinition = Trough::eject_coil_definition("trough_coil");
+  pub COIL: DriverDefinition = TroughSystem::eject_coil_definition("trough_coil");
 }
 
-pub fn system() -> Trough {
-  Trough::new(
+pub fn system() -> TroughSystem {
+  TroughSystem::new(
     COIL.name,
     vec![
       SWITCH1.name,

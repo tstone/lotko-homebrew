@@ -10,10 +10,13 @@ frontbox-turn-based = { path = "../frontbox-rs/frontbox-turn-based" }
 frontbox-pin2dmd = { path = "../frontbox-rs/frontbox-pin2dmd" }
 frontbox-sound = { path = "../frontbox-rs/frontbox-sound" }
 frontbox-canvas = { path = "../frontbox-rs/frontbox-canvas" }
+frontbox-web-console = { path = "../frontbox-rs/frontbox-web-console" }
 tokio = { version = "1.53.1", features = ["full"] }
 log = "0.4.33"
 image = "0.25.10"
 rand = "0.10.2"
+serde = "1.0.229"
+serde_json = "1.0.151"
 
 [profile.dev]
 opt-level = 0

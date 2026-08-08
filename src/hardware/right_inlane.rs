@@ -1,4 +1,4 @@
-use frontbox::LedChannels::GRB;
+use frontbox::led::LedChannels::GRB;
 use frontbox::prelude::*;
 use frontbox::tags::*;
 

@@ -62,4 +62,5 @@ impl System for CenterOrbitSystem {
   }
 }
 
+#[derive(serde::Serialize, Event)]
 pub struct CenterOrbitHit;

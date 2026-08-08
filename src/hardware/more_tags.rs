@@ -1,14 +1,16 @@
-#[derive(Clone, Debug)]
+use frontbox::prelude::Tag;
+
+#[derive(Tag)]
 pub struct CityMap;
 
-#[derive(Clone, Debug)]
+#[derive(Tag)]
 pub struct Bolt;
 
-#[derive(Clone, Debug)]
+#[derive(Tag)]
 pub struct Hex;
 
-#[derive(Clone, Debug)]
+#[derive(Tag)]
 pub struct SmallArrow;
 
-#[derive(Clone, Debug)]
+#[derive(Tag)]
 pub struct Circle;

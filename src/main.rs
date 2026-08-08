@@ -4,6 +4,7 @@ use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
 use frontbox_sound::SoundSystem;
 use frontbox_turn_based::*;
+use frontbox_web_console::WebTracer;
 use std::io::Write;
 
 mod systems;
@@ -43,11 +44,13 @@ async fn main() {
   })
   .await
   .configure(|app| {
+    app.tracer(WebTracer::new());
+
     // core
     app.system(LedSystem::new());
     app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
     app.system(OperatorConfig::new());
-    app.system(FreePlay::default());
+    app.system(FreePlay::new(start_button::SWITCH.q()));
     app.system(SoundLoaderSystem::new());
     app.system(game_startable());
     app.system(AttractModeLedsSystem::new());

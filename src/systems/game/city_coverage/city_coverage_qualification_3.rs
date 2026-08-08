@@ -19,12 +19,14 @@ impl CityCoverageQualification3 {
         Rgba::white(),
         Rgba::cyan(),
         Duration::from_millis(83 * 3),
+        Cycle::Forever,
       )),
       lower_scoop_effect: LedEffect::flash(
         lower_scoop::bolts_q(),
         Rgba::white(),
         Rgba::cyan(),
         Duration::from_millis(83 * 3),
+        Cycle::Forever,
       ),
     }
   }
@@ -65,7 +67,7 @@ impl System for CityCoverageQualification3 {
       .systems
       .expect::<lift_ramp::LiftRampSystem>()
       // TODO: should this hurry up time be flexed up or down depending on other achievements? (yes)
-      .lift_up(ctx, Duration::from_millis(30));
+      .lift_up(ctx, Duration::from_secs(30));
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &Context) {

@@ -1,4 +1,4 @@
-use frontbox::animation::Curve;
+use frontbox::animation::{Accumulator, Curve};
 use frontbox::prelude::*;
 use frontbox_sound::*;
 use frontbox_turn_based::*;
@@ -24,12 +24,18 @@ impl CityCoverageQualification2 {
         center_orbit_hit,
       ),
       right_orbit_effect: Self::create_led_effect(right_orbit::hex_line_leds_q(), right_orbit_hit),
-      shot_hit_effect: LedEffect::initial(
+      shot_hit_effect: LedEffect::cycle(
         Q::tag::<more_tags::Circle>(),
-        ColorSequence::fade(Rgba::white(), Rgba::black()),
+        Duration::from_millis(90),
+        Curve::Steps(3),
+        Cycle::Times(3),
+        vec![
+          ColorSequence::fade(Rgba::white(), Rgba::black()),
+          ColorSequence::fade(Rgba::black(), Rgba::white()),
+        ],
       )
       .shuffled(rand::random())
-      .rotating(Duration::from_millis(60), Curve::Steps(3), Cycle::Times(3))
+      .rotating(Duration::from_millis(30), Curve::Linear, Cycle::Forever)
       .stopped(),
     }
   }
@@ -52,6 +58,8 @@ impl CityCoverageQualification2 {
     self.left_orbit_effect.is_none()
       && self.center_orbit_effect.is_none()
       && self.right_orbit_effect.is_none()
+      // let animation play out before swapping modes
+      && self.shot_hit_effect.is_complete()
   }
 
   fn attempt_complete(&mut self, ctx: &Context) {
@@ -73,11 +81,14 @@ impl System for CityCoverageQualification2 {
     if let Some(effect) = self.right_orbit_effect.as_mut() {
       effect.apply(delta, ctx);
     }
+
     self.shot_hit_effect.apply(delta, ctx);
+    self.attempt_complete(ctx);
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
     if event.is::<left_orbit::LeftOrbitHit>() && self.left_orbit_effect.is_some() {
+      log::info!("Coverage Qualification: Left orbit hit");
       self.shot_hit_effect.play();
       ctx.play_sfx(sounds::rnd_lane_hit());
       ctx.add_points(10000);
@@ -85,6 +96,7 @@ impl System for CityCoverageQualification2 {
       self.left_orbit_effect = None;
       self.attempt_complete(ctx);
     } else if event.is::<center_orbit::CenterOrbitHit>() && self.center_orbit_effect.is_some() {
+      log::info!("Coverage Qualification: Center orbit hit");
       self.shot_hit_effect.play();
       ctx.play_sfx(sounds::rnd_lane_hit());
       ctx.add_points(10000);
@@ -92,6 +104,7 @@ impl System for CityCoverageQualification2 {
       self.center_orbit_effect = None;
       self.attempt_complete(ctx);
     } else if event.is::<right_orbit::RightOrbitHit>() && self.right_orbit_effect.is_some() {
+      log::info!("Coverage Qualification: Right orbit hit");
       self.shot_hit_effect.play();
       ctx.play_sfx(sounds::rnd_lane_hit());
       ctx.add_points(10000);

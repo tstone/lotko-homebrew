@@ -1,3 +1,4 @@
+use frontbox::prelude::Cycle::Forever;
 use frontbox::prelude::*;
 use frontbox::provided::{AutoPlungerSystem, PlungeLaneSystem};
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
@@ -89,7 +90,8 @@ async fn main() {
         BallSaveSystem::new(Duration::from_secs(5)).effect(LedEffect::flash_on_off(
           DRAIN_LED.q(),
           Rgba::green(),
-          Duration::from_millis(185)
+          Duration::from_millis(185),
+          Forever
         )),
         CityCoverageQualification2::new(false, false, true),
       ],

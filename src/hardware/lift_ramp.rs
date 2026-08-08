@@ -122,7 +122,7 @@ impl LiftRampSystem {
 
   pub fn lift_up(&mut self, ctx: &Context, max_duration: Duration) {
     if !self.ramp_lifted {
-      log::debug!("Lifting ramp up.");
+      log::info!("Lifting ramp up.");
       self.ramp_lifted = true;
       ctx.activate_driver(RAMP_COIL.name, VirtualSwitchOn);
       ctx.emit(LiftRampUp);
@@ -132,11 +132,11 @@ impl LiftRampSystem {
 
   pub fn lift_down(&mut self, ctx: &Context) {
     if self.ramp_lifted {
-      log::debug!("Lifting ramp down.");
+      log::info!("Lifting ramp down.");
       self.ramp_lifted = false;
       ctx.deactivate_driver(RAMP_COIL.name, VirtualSwitchOff);
       ctx.emit(LiftRampDown);
-      if let Some(cue_id) = self.close_cue_id.take() {
+      if let Some(cue_id) = self.close_cue_id {
         ctx.cancel_cue(cue_id);
         self.close_cue_id = None;
       }
@@ -159,6 +159,7 @@ impl System for LiftRampSystem {
     {
       ctx.emit(ScoopBallEntered(SCOOP_NAME));
     } else if event.is::<CloseRamp>() {
+      log::info!("Lift ramp: Max time expired");
       self.lift_down(ctx);
     }
   }

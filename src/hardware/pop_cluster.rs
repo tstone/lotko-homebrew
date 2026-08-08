@@ -11,6 +11,7 @@ pub mod left {
       .mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(SPOON_SWITCH.name),
         initial_pwm_power: HardwareValue::config("Left Pop Power", "Power of the left pop bumper", Power::FULL, Ranges::full_power()),
+        initial_pwm_length: HardwareValue::Fixed(Duration::from_millis(30)),
         ..Default::default()
       })
       .tag(Playfield);
@@ -40,6 +41,7 @@ pub mod upper_right {
       .mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(SPOON_SWITCH.name),
         initial_pwm_power: HardwareValue::config("Upper Right Pop Power", "Power of the upper right pop bumper", Power::FULL, Ranges::full_power()),
+        initial_pwm_length: HardwareValue::Fixed(Duration::from_millis(30)),
         ..Default::default()
       })
       .tag(Playfield);
@@ -69,6 +71,7 @@ pub mod lower_right {
       .mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(SPOON_SWITCH.name),
         initial_pwm_power: HardwareValue::config("Lower Right Pop Power", "Power of the lower right pop bumper", Power::FULL, Ranges::full_power()),
+        initial_pwm_length: HardwareValue::Fixed(Duration::from_millis(30)),
         ..Default::default()
       })
       .tag(Playfield);

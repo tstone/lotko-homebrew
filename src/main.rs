@@ -40,6 +40,7 @@ async fn main() {
   App::boot(BootConfig {
     io_network: io_network(),
     exp_network: exp_network(),
+    system_interval: Duration::from_millis(67),
     ..Default::default()
   })
   .await

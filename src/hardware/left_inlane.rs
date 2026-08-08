@@ -13,6 +13,7 @@ hardware_defs! {
 
   pub TARGET_LED: LedDefinition = LedDefinition::single(NAME)
     .tag(Playfield)
+    .tag(Insert)
     .tag(Circle)
     .tag(Target);
 }

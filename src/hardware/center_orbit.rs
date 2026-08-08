@@ -11,10 +11,12 @@ hardware_defs! {
 
   pub SPINNER_LED: LedDefinition = LedDefinition::single("center_spinner")
     .tag(Circle)
+    .tag(Insert)
     .tag(Playfield);
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME, 7)
     .tag(Playfield)
+    .tag(Insert)
     .tag(Hex)
     .tag(Lane);
 }
@@ -25,9 +27,9 @@ pub fn hex_center_led_q() -> HardwareQuery {
 
 pub fn hex_line_leds_q() -> HardwareQuery {
   Q::names(vec![
-    HEX_LEDS.child(2).unwrap().name(),
-    HEX_LEDS.child(0).unwrap().name(),
+    HEX_LEDS.child(5).unwrap().name(),
     HEX_LEDS.child(6).unwrap().name(),
+    HEX_LEDS.child(2).unwrap().name(),
   ])
 }
 

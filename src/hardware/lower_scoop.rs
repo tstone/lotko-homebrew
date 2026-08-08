@@ -42,10 +42,12 @@ hardware_defs! {
 
   pub LEFT_BOLT: LedDefinition = LedDefinition::single("scoop_bolt1")
     .tag(Bolt)
+    .tag(Insert)
     .tag(Playfield);
 
   pub RIGHT_BOLT: LedDefinition = LedDefinition::single("scoop_bolt2")
     .tag(Bolt)
+    .tag(Insert)
     .tag(Playfield);
 }
 
@@ -72,7 +74,7 @@ pub struct LowerScoopSystem {
 
 impl LowerScoopSystem {
   pub fn new() -> Self {
-    let mut eject_effect = LedEffect::cycle(
+    let eject_effect = LedEffect::cycle(
       bolts_q(),
       Duration::from_millis(750 / 4),
       Curve::Steps(2),
@@ -81,8 +83,8 @@ impl LowerScoopSystem {
         ColorSequence::exact(vec![Rgba::white(), Rgba::default()]),
         ColorSequence::exact(vec![Rgba::default(), Rgba::white()]),
       ],
-    );
-    eject_effect.stop();
+    )
+    .stopped();
 
     Self {
       eject_effect,
@@ -95,12 +97,12 @@ impl LowerScoopSystem {
   pub fn eject(&mut self, ctx: &Context) {
     ctx.play_sfx(LOWER_SCOOP_EJECT_SND);
     ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
-    self.eject_effect.resume();
+    self.eject_effect.play();
   }
 
   fn complete_eject(&mut self, ctx: &Context) {
     ctx.activate_driver(COIL.name, ActivationMode::Tap);
-    self.eject_effect.stop_and_clear(ctx);
+    self.eject_effect.stop(ctx);
   }
 
   pub fn set_mode(&mut self, mode: LowerScoopMode, ctx: &Context) {

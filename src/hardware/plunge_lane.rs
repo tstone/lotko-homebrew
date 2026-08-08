@@ -7,5 +7,6 @@ hardware_defs! {
   pub SWITCH: SwitchDefinition = PlungeLaneSystem::switch_definition("plunge_lane_sw");
 
   pub LED_STRIP: LedDefinition = LedDefinition::multi("plunge", 4)
+    .tag(Insert)
     .tag(Playfield);
 }

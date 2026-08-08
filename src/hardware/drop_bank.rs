@@ -27,12 +27,15 @@ hardware_defs! {
   pub PADDLE_SWITCH: SwitchDefinition = SwitchDefinition::new("drop_paddle");
 
   pub TARGET1_LEDS: LedDefinition = LedDefinition::strip("target1", 4)
+    .tag(Insert)
     .tag(Playfield);
 
   pub TARGET2_LEDS: LedDefinition = LedDefinition::strip("target2", 4)
+    .tag(Insert)
     .tag(Playfield);
 
   pub TARGET3_LEDS: LedDefinition = LedDefinition::strip("target3", 4)
+    .tag(Insert)
     .tag(Playfield);
 
   pub PADDLE_LED: LedDefinition = LedDefinition::single("paddle")

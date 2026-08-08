@@ -68,6 +68,7 @@ impl AttractModeLedsSystem {
     .rotating(
       Duration::from_secs(rand::random_range(20..=32)),
       Curve::Linear,
+      Cycle::Forever,
     );
 
     (effect, *colors[0], *colors[1])

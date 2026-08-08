@@ -17,18 +17,22 @@ pub mod left_ray {
   hardware_defs! {
     pub LED1: LedDefinition = LedDefinition::single("vs_left_ray1")
       .tag(Circle)
+      .tag(Insert)
       .tag(Playfield);
 
     pub LED2: LedDefinition = LedDefinition::single("vs_left_ray2")
       .tag(Circle)
+      .tag(Insert)
       .tag(Playfield);
 
     pub LED3: LedDefinition = LedDefinition::single("vs_left_ray3")
       .tag(Circle)
+      .tag(Insert)
       .tag(Playfield);
 
     pub LED4: LedDefinition = LedDefinition::single("vs_left_ray4")
       .tag(Circle)
+      .tag(Insert)
       .tag(Playfield);
   }
 
@@ -47,14 +51,17 @@ pub mod upper_right_ray {
   hardware_defs! {
     pub LED1: LedDefinition = LedDefinition::single("vs_ur_ray1")
       .tag(Circle)
+      .tag(Insert)
       .tag(Playfield);
 
     pub LED2: LedDefinition = LedDefinition::single("vs_ur_ray2")
       .tag(Circle)
+      .tag(Insert)
       .tag(Playfield);
 
     pub LED3: LedDefinition = LedDefinition::single("vs_ur_ray3")
       .tag(Circle)
+      .tag(Insert)
       .tag(Playfield);
   }
 
@@ -72,14 +79,17 @@ pub mod lower_right_ray {
   hardware_defs! {
     pub LED1: LedDefinition = LedDefinition::single("vs_lr_ray1")
       .tag(Circle)
+      .tag(Insert)
       .tag(Playfield);
 
     pub LED2: LedDefinition = LedDefinition::single("vs_lr_ray2")
       .tag(Circle)
+      .tag(Insert)
       .tag(Playfield);
 
     pub LED3: LedDefinition = LedDefinition::single("vs_lr_ray3")
       .tag(Circle)
+      .tag(Insert)
       .tag(Playfield);
   }
 

@@ -11,9 +11,11 @@ hardware_defs! {
 
   pub LEFT_BOLT: LedDefinition = LedDefinition::single("l_cap_ball_bolt")
     .tag(Bolt)
+    .tag(Insert)
     .tag(Playfield);
 
   pub RIGHT_BOLT: LedDefinition = LedDefinition::single("r_cap_ball_bolt")
     .tag(Bolt)
+    .tag(Insert)
     .tag(Playfield);
 }

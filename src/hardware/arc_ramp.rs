@@ -16,6 +16,7 @@ hardware_defs! {
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi("arc_ramp_lane", 7)
     .tag(Playfield)
+    .tag(Insert)
     .tag(Lane);
 }
 

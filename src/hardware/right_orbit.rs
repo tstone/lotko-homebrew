@@ -11,6 +11,7 @@ hardware_defs! {
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME, 7)
     .tag(Playfield)
+    .tag(Insert)
     .tag(Hex)
     .tag(Lane);
 }

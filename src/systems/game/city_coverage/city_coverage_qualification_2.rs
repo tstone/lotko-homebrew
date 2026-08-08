@@ -12,6 +12,7 @@ pub struct CityCoverageQualification2 {
   left_orbit_effect: Option<LedEffect>,
   center_orbit_effect: Option<LedEffect>,
   right_orbit_effect: Option<LedEffect>,
+  shot_hit_effect: LedEffect,
 }
 
 impl CityCoverageQualification2 {
@@ -23,6 +24,13 @@ impl CityCoverageQualification2 {
         center_orbit_hit,
       ),
       right_orbit_effect: Self::create_led_effect(right_orbit::hex_line_leds_q(), right_orbit_hit),
+      shot_hit_effect: LedEffect::initial(
+        Q::tag::<more_tags::Circle>(),
+        ColorSequence::fade(Rgba::white(), Rgba::black()),
+      )
+      .shuffled(rand::random())
+      .rotating(Duration::from_millis(60), Curve::Steps(3), Cycle::Times(3))
+      .stopped(),
     }
   }
 
@@ -33,7 +41,7 @@ impl CityCoverageQualification2 {
           query,
           ColorSequence::exact(vec![Rgba::white(), Rgba::default(), Rgba::default()]),
         )
-        .rotating(Duration::from_millis(520), Curve::EaseOut),
+        .rotating(Duration::from_millis(520), Curve::Linear, Cycle::Forever),
       )
     } else {
       None
@@ -65,33 +73,29 @@ impl System for CityCoverageQualification2 {
     if let Some(effect) = self.right_orbit_effect.as_mut() {
       effect.apply(delta, ctx);
     }
+    self.shot_hit_effect.apply(delta, ctx);
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
     if event.is::<left_orbit::LeftOrbitHit>() && self.left_orbit_effect.is_some() {
+      self.shot_hit_effect.play();
       ctx.play_sfx(sounds::rnd_lane_hit());
       ctx.add_points(10000);
-      self.left_orbit_effect.as_mut().unwrap().stop_and_clear(ctx);
+      self.left_orbit_effect.as_mut().unwrap().stop(ctx);
       self.left_orbit_effect = None;
       self.attempt_complete(ctx);
     } else if event.is::<center_orbit::CenterOrbitHit>() && self.center_orbit_effect.is_some() {
+      self.shot_hit_effect.play();
       ctx.play_sfx(sounds::rnd_lane_hit());
       ctx.add_points(10000);
-      self
-        .center_orbit_effect
-        .as_mut()
-        .unwrap()
-        .stop_and_clear(ctx);
+      self.center_orbit_effect.as_mut().unwrap().stop(ctx);
       self.center_orbit_effect = None;
       self.attempt_complete(ctx);
     } else if event.is::<right_orbit::RightOrbitHit>() && self.right_orbit_effect.is_some() {
+      self.shot_hit_effect.play();
       ctx.play_sfx(sounds::rnd_lane_hit());
       ctx.add_points(10000);
-      self
-        .right_orbit_effect
-        .as_mut()
-        .unwrap()
-        .stop_and_clear(ctx);
+      self.right_orbit_effect.as_mut().unwrap().stop(ctx);
       self.right_orbit_effect = None;
       self.attempt_complete(ctx);
     }

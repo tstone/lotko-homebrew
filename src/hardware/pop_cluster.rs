@@ -21,10 +21,12 @@ pub mod left {
     pub POP_LED: LedDefinition = LedDefinition::single("l_pop_led")
       .tag(Playfield)
       .tag(SmallArrow)
+      .tag(Insert)
       .tag(Target);
 
     pub TARGET_LED: LedDefinition = LedDefinition::single("l_target_led")
       .tag(Playfield)
+      .tag(Insert)
       .tag(SmallArrow)
       .tag(Target);
   }
@@ -47,11 +49,13 @@ pub mod upper_right {
 
     pub POP_LED: LedDefinition = LedDefinition::single("ur_pop_led")
       .tag(Playfield)
+      .tag(Insert)
       .tag(SmallArrow)
       .tag(Target);
 
     pub TARGET_LED: LedDefinition = LedDefinition::single("ur_target_led")
       .tag(Playfield)
+      .tag(Insert)
       .tag(SmallArrow)
       .tag(Target);
   }
@@ -74,11 +78,13 @@ pub mod lower_right {
 
     pub POP_LED: LedDefinition = LedDefinition::single("lr_pop_led")
       .tag(Playfield)
+      .tag(Insert)
       .tag(SmallArrow)
       .tag(Target);
 
     pub TARGET_LED: LedDefinition = LedDefinition::single("lr_target_led")
       .tag(Playfield)
+      .tag(Insert)
       .tag(SmallArrow)
       .tag(Target);
   }

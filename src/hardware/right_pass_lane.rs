@@ -14,6 +14,7 @@ hardware_defs! {
 
   pub ARROW_LED: LedDefinition = LedDefinition::single("r_pass_lane_arr")
     .tag(Playfield)
+    .tag(Insert)
     .tag(SmallArrow)
     .tag(Lane);
 }

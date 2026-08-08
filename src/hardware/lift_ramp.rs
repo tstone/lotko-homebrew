@@ -63,11 +63,13 @@ hardware_defs! {
 
   pub BOLT_LED: LedDefinition = LedDefinition::single("lift_ramp_bolt")
     .tag(Playfield)
+    .tag(Insert)
     .tag(Bolt)
     .tag(Lane);
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi("lift_ramp_lane", 7)
     .tag(Playfield)
+    .tag(Insert)
     .tag(Hex)
     .tag(Lane);
 }

@@ -14,6 +14,7 @@ hardware_defs! {
 
   pub ENTRANCE_LED: LedDefinition = LedDefinition::single(NAME)
     .tag(Playfield)
+    .tag(Insert)
     .tag(Circle)
     .tag(Lane);
 

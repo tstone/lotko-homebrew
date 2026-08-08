@@ -40,10 +40,10 @@ impl CityCoverageQualification3 {
 
     // clear effects
     if let Some(effect) = &mut self.lift_ramp_effect {
-      effect.stop_and_clear(ctx);
+      effect.stop(ctx);
     }
     self.lift_ramp_effect = None;
-    self.lower_scoop_effect.stop_and_clear(ctx);
+    self.lower_scoop_effect.stop(ctx);
 
     // TODO: launch menu
 
@@ -78,7 +78,7 @@ impl System for CityCoverageQualification3 {
   fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
     if event.is::<lift_ramp::LiftRampDown>() {
       if let Some(effect) = &mut self.lift_ramp_effect {
-        effect.stop_and_clear(ctx);
+        effect.stop(ctx);
       }
       self.lift_ramp_effect = None;
     } else if let Some(ScoopBallEntered(name)) = event.downcast_ref::<ScoopBallEntered>() {

@@ -153,16 +153,11 @@ impl System for LiftRampSystem {
     self.ball_present = ctx.switches.is_closed(SCOOP_OPTO.name).unwrap_or(false);
   }
 
-<<<<<<< HEAD
   fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
     if event.is::<CloseRamp>() {
       log::info!("Lift ramp: Max time expired");
       self.lift_down(ctx);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
-=======
-  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if let Some(event) = event.downcast_ref::<SwitchClosed>()
->>>>>>> 75bba8e (Updates to SystemContext)
       && event.switch.name == SCOOP_OPTO.name
     {
       ctx.emit(ScoopBallEntered(SCOOP_NAME));

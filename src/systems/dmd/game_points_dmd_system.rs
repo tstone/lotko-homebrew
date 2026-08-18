@@ -26,7 +26,7 @@ impl GamePointsDmdSystem {
         ..
       }) => self.draw_competitive(
         *player_count,
-        player_scores,
+        &player_scores,
         *current_player,
         player_turns[*current_player as usize],
       ),

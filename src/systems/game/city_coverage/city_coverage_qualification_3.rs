@@ -59,7 +59,7 @@ impl System for CityCoverageQualification3 {
     ctx
       .expect::<lift_ramp::LiftRampSystem>()
       // TODO: should this hurry up time be flexed up or down depending on other achievements? (yes)
-      .lift_up(ctx, Duration::from_secs(4)); // TODO: set this to 25 or something useful
+      .lift_up(ctx.into(), Duration::from_secs(4)); // TODO: set this to 25 or something useful
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
@@ -79,7 +79,9 @@ impl System for CityCoverageQualification3 {
       if (*name).eq(lower_scoop::SCOOP_NAME) {
         self.complete(ctx);
       } else if (*name).eq(lift_ramp::SCOOP_NAME) {
-        ctx.expect::<lift_ramp::LiftRampSystem>().lift_down(ctx);
+        ctx
+          .expect::<lift_ramp::LiftRampSystem>()
+          .lift_down(ctx.into());
         self.complete(ctx);
       }
     }

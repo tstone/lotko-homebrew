@@ -105,6 +105,7 @@ pub struct LiftRampSystem {
   ramp_lifted: bool,
   close_cue_id: Option<u64>,
   ball_present: bool,
+  handle: SystemHandle,
 }
 
 impl LiftRampSystem {
@@ -113,6 +114,7 @@ impl LiftRampSystem {
       ramp_lifted: false,
       close_cue_id: None,
       ball_present: false,
+      handle: SystemHandle::default(),
     }
   }
 
@@ -120,8 +122,9 @@ impl LiftRampSystem {
     self.ramp_lifted
   }
 
-  pub fn lift_up(&mut self, ctx: &SystemContext, max_duration: Duration) {
+  pub fn lift_up(&mut self, ctx: &ServiceContext, max_duration: Duration) {
     if !self.ramp_lifted {
+      let ctx = ctx.for_system(self.handle);
       log::info!("Lifting ramp up.");
       self.ramp_lifted = true;
       ctx.activate_driver(RAMP_COIL.name, VirtualSwitchOn);
@@ -130,8 +133,9 @@ impl LiftRampSystem {
     }
   }
 
-  pub fn lift_down(&mut self, ctx: &SystemContext) {
+  pub fn lift_down(&mut self, ctx: &ServiceContext) {
     if self.ramp_lifted {
+      let ctx = ctx.for_system(self.handle);
       log::info!("Lifting ramp down.");
       self.ramp_lifted = false;
       ctx.deactivate_driver(RAMP_COIL.name, VirtualSwitchOff);
@@ -150,19 +154,18 @@ impl LiftRampSystem {
 
 impl System for LiftRampSystem {
   fn on_spawn(&mut self, ctx: &SystemContext) {
+    self.handle = *ctx.current_handle();
     self.ball_present = ctx.switches.is_closed(SCOOP_OPTO.name).unwrap_or(false);
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<CloseRamp>() {
       log::info!("Lift ramp: Max time expired");
-      self.lift_down(ctx);
+      self.lift_down(ctx.into());
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && event.switch.name == SCOOP_OPTO.name
     {
       ctx.emit(ScoopBallEntered(SCOOP_NAME));
-    } else {
-      log::info!("Received event but not matched");
     }
   }
 }

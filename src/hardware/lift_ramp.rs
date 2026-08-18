@@ -120,7 +120,7 @@ impl LiftRampSystem {
     self.ramp_lifted
   }
 
-  pub fn lift_up(&mut self, ctx: &Context, max_duration: Duration) {
+  pub fn lift_up(&mut self, ctx: &SystemContext, max_duration: Duration) {
     if !self.ramp_lifted {
       log::info!("Lifting ramp up.");
       self.ramp_lifted = true;
@@ -130,7 +130,7 @@ impl LiftRampSystem {
     }
   }
 
-  pub fn lift_down(&mut self, ctx: &Context) {
+  pub fn lift_down(&mut self, ctx: &SystemContext) {
     if self.ramp_lifted {
       log::info!("Lifting ramp down.");
       self.ramp_lifted = false;
@@ -143,21 +143,26 @@ impl LiftRampSystem {
     }
   }
 
-  pub fn eject(&mut self, ctx: &Context) {
+  pub fn eject(&mut self, ctx: &SystemContext) {
     ctx.activate_driver(EJECT_COIL.name, ActivationMode::Tap);
   }
 }
 
 impl System for LiftRampSystem {
-  fn on_spawn(&mut self, ctx: &Context) {
+  fn on_spawn(&mut self, ctx: &SystemContext) {
     self.ball_present = ctx.switches.is_closed(SCOOP_OPTO.name).unwrap_or(false);
   }
 
+<<<<<<< HEAD
   fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
     if event.is::<CloseRamp>() {
       log::info!("Lift ramp: Max time expired");
       self.lift_down(ctx);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
+=======
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if let Some(event) = event.downcast_ref::<SwitchClosed>()
+>>>>>>> 75bba8e (Updates to SystemContext)
       && event.switch.name == SCOOP_OPTO.name
     {
       ctx.emit(ScoopBallEntered(SCOOP_NAME));

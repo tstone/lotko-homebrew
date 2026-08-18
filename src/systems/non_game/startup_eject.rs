@@ -11,7 +11,7 @@ impl StartupEject {
 }
 
 impl System for StartupEject {
-  fn on_spawn(&mut self, ctx: &Context) {
+  fn on_spawn(&mut self, ctx: &SystemContext) {
     // lift ramp
     if ctx
       .switches

@@ -94,18 +94,18 @@ impl LowerScoopSystem {
     }
   }
 
-  pub fn eject(&mut self, ctx: &Context) {
+  pub fn eject(&mut self, ctx: &SystemContext) {
     ctx.play_sfx(LOWER_SCOOP_EJECT_SND);
     ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
     self.eject_effect.play();
   }
 
-  fn complete_eject(&mut self, ctx: &Context) {
+  fn complete_eject(&mut self, ctx: &SystemContext) {
     ctx.activate_driver(COIL.name, ActivationMode::Tap);
     self.eject_effect.stop(ctx);
   }
 
-  pub fn set_mode(&mut self, mode: LowerScoopMode, ctx: &Context) {
+  pub fn set_mode(&mut self, mode: LowerScoopMode, ctx: &SystemContext) {
     self.mode = mode;
 
     // If mode was updated to auto-eject and there is a ball present, eject it
@@ -114,7 +114,7 @@ impl LowerScoopSystem {
     }
   }
 
-  fn on_ball_enter(&mut self, ctx: &Context) {
+  fn on_ball_enter(&mut self, ctx: &SystemContext) {
     // If the player gets the ball into the scoop without using the subway, it gives points
     if !self.subway_entry {
       ctx.add_points(500);
@@ -129,14 +129,14 @@ impl LowerScoopSystem {
     }
   }
 
-  fn on_ball_exit(&mut self, ctx: &Context) {
+  fn on_ball_exit(&mut self, ctx: &SystemContext) {
     self.ball_present = false;
     ctx.emit(ScoopBallExited(SCOOP_NAME));
   }
 }
 
 impl System for LowerScoopSystem {
-  fn on_spawn(&mut self, ctx: &Context) {
+  fn on_spawn(&mut self, ctx: &SystemContext) {
     // check if there is a ball at startup and eject if so
     if ctx.switches.is_closed(OPTO.name).unwrap_or(false) {
       log::debug!("Lower scoop is occupied. Ejecting.");
@@ -144,7 +144,7 @@ impl System for LowerScoopSystem {
     }
   }
 
-  fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if let Some(event) = event.downcast_ref::<SwitchClosed>() {
       if event.switch.name == OPTO.name {
         self.on_ball_enter(ctx);
@@ -160,7 +160,7 @@ impl System for LowerScoopSystem {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &Context) {
+  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.eject_effect.apply(delta, ctx);
   }
 }

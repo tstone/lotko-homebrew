@@ -39,24 +39,23 @@ impl AttractModeDmdSystem {
 }
 
 impl System for AttractModeDmdSystem {
-  fn is_active(&self, ctx: &Context) -> bool {
+  fn is_active(&self, ctx: &SystemContext) -> bool {
     // Either the game isn't running or the menu isn't active
     !ctx.is_game_started()
       && !ctx
-        .systems
         .get::<DmdMenuSystem>()
         .map(|menu| menu.is_active(ctx))
         .unwrap_or(false)
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &Context) {
+  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     if self.animation.is_complete() {
       self.animation = Self::rnd_animation(&self.bio_spore);
     } else {
       self.animation.accumulate(delta);
     }
 
-    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
+    if let Some(mut dmd) = ctx.get::<DmdSystem>() {
       let img = self.animation.sample();
       let w = img.width();
       let h = img.height();

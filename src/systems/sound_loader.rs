@@ -31,8 +31,8 @@ pub mod sounds_bytes {
 }
 
 impl System for SoundLoaderSystem {
-  fn on_spawn(&mut self, ctx: &Context) {
-    let mut snd = ctx.systems.expect::<SoundSystem>();
+  fn on_spawn(&mut self, ctx: &SystemContext) {
+    let mut snd = ctx.expect::<SoundSystem>();
 
     snd.preload_embedded(LOWER_SCOOP_EJECT_SND, sounds_bytes::LOWER_SCOOP_EJECT);
     snd.preload_embedded(sounds::LANE_HIT1, sounds_bytes::LANE_HIT1);

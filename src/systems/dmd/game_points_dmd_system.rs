@@ -13,8 +13,8 @@ impl GamePointsDmdSystem {
     Self { redraw: true }
   }
 
-  fn draw(&self, ctx: &Context) -> Container {
-    let game = ctx.systems.get::<GameManager>().unwrap();
+  fn draw(&self, ctx: &SystemContext) -> Container {
+    let game = ctx.get::<GameManager>().unwrap();
     let game_state = game.game_state();
 
     match game_state {
@@ -90,13 +90,13 @@ impl GamePointsDmdSystem {
 }
 
 impl System for GamePointsDmdSystem {
-  fn is_active(&self, ctx: &Context) -> bool {
+  fn is_active(&self, ctx: &SystemContext) -> bool {
     ctx.is_game_started()
   }
 
-  fn on_tick(&mut self, _delta: Duration, ctx: &Context) {
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
     if self.redraw
-      && let Some(mut dmd) = ctx.systems.get::<DmdSystem>()
+      && let Some(mut dmd) = ctx.get::<DmdSystem>()
     {
       dmd.insert_layer(0, self.draw(&ctx).default_position());
     }

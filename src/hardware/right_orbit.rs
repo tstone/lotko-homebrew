@@ -50,7 +50,7 @@ impl RightOrbitSystem {
 }
 
 impl System for RightOrbitSystem {
-  fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && event.switch.name == SWITCH.name
     {

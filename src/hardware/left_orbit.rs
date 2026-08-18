@@ -63,7 +63,7 @@ impl LeftOrbitSystem {
 }
 
 impl System for LeftOrbitSystem {
-  fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<CenterOrbitHit>() {
       self.skip_next = true;
       // TODO: tune duration
@@ -78,7 +78,7 @@ impl System for LeftOrbitSystem {
     }
   }
 
-  fn on_reactivate(&mut self, _ctx: &Context) {
+  fn on_reactivate(&mut self, _ctx: &SystemContext) {
     self.reset();
   }
 }

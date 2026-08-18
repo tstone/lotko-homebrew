@@ -16,7 +16,7 @@ impl CityCoverageQualification1 {
 }
 
 impl System for CityCoverageQualification1 {
-  fn on_spawn(&mut self, ctx: &Context) {
+  fn on_spawn(&mut self, ctx: &SystemContext) {
     ctx.declare_leds(
       &left_orbit::hex_center_led_q(),
       ColorSequence::solid(Rgba::white()),
@@ -31,7 +31,7 @@ impl System for CityCoverageQualification1 {
     );
   }
 
-  fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<left_orbit::LeftOrbitHit>()
       || event.is::<center_orbit::CenterOrbitHit>()
       || event.is::<right_orbit::RightOrbitHit>()

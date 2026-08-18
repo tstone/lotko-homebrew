@@ -62,7 +62,7 @@ impl CityCoverageQualification2 {
       && self.shot_hit_effect.is_complete()
   }
 
-  fn attempt_complete(&mut self, ctx: &Context) {
+  fn attempt_complete(&mut self, ctx: &SystemContext) {
     if self.is_complete() {
       ctx.add_points(20000);
       ctx.replace_self(CityCoverageQualification3::new());
@@ -71,7 +71,7 @@ impl CityCoverageQualification2 {
 }
 
 impl System for CityCoverageQualification2 {
-  fn on_tick(&mut self, delta: Duration, ctx: &Context) {
+  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     if let Some(effect) = self.left_orbit_effect.as_mut() {
       effect.apply(delta, ctx);
     }
@@ -86,7 +86,7 @@ impl System for CityCoverageQualification2 {
     self.attempt_complete(ctx);
   }
 
-  fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<left_orbit::LeftOrbitHit>() && self.left_orbit_effect.is_some() {
       log::info!("Coverage Qualification: Left orbit hit");
       self.shot_hit_effect.play();

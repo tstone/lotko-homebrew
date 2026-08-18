@@ -50,8 +50,8 @@
 //     }
 //   }
 
-//   fn render_in_game(&mut self, ctx: &Context) {
-//     let game_manager = ctx.systems.expect::<GameManager>();
+//   fn render_in_game(&mut self, ctx: &SystemContext) {
+//     let game_manager = ctx.expect::<GameManager>();
 //     let game_state = game_manager.game_state().unwrap();
 //     let score = game_state.current_player_score().unwrap_or(0);
 
@@ -79,7 +79,7 @@
 //     self.dmd.render(&frame).ok();
 //   }
 
-//   fn render_attract(&mut self, _ctx: &Context) {
+//   fn render_attract(&mut self, _ctx: &SystemContext) {
 //     let mut frame = Frame::for_dmd(&self.dmd);
 //     frame.add(
 //       self
@@ -91,7 +91,7 @@
 //     self.dmd.render(&frame).ok();
 //   }
 
-//   fn render_menu(&mut self, ctx: &Context) {
+//   fn render_menu(&mut self, ctx: &SystemContext) {
 //     let menu = self.menu.as_ref().unwrap();
 //     let mut frame = Frame::for_dmd(&self.dmd);
 
@@ -101,12 +101,12 @@
 // }
 
 // impl System for DmdDisplay {
-//   fn on_spawn(&mut self, ctx: &Context) {
+//   fn on_spawn(&mut self, ctx: &SystemContext) {
 //     let font = PixelFont::new(&*SIGI_REGULAR_5PX_FONT);
 //     self.menu = Some(Menu::new(self.menu_root, font, ctx));
 //   }
 
-//   fn on_tick(&mut self, delta: Duration, ctx: &Context) {
+//   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
 //     if ctx
 //       .systems
 //       .get::<GameManager>()
@@ -121,7 +121,7 @@
 //     }
 //   }
 
-//   fn on_despawn(&mut self, ctx: &Context) {
+//   fn on_despawn(&mut self, ctx: &SystemContext) {
 //     self.dmd.clear();
 //   }
 // }

@@ -31,12 +31,7 @@ impl CityCoverageQualification3 {
     }
   }
 
-  pub fn complete(&mut self, ctx: &Context) {
-    ctx
-      .systems
-      .expect::<lift_ramp::LiftRampSystem>()
-      .lift_down(ctx);
-
+  pub fn complete(&mut self, ctx: &SystemContext) {
     ctx.play_sfx(sounds::LANE_HIT_COMPLETE);
     ctx.add_points(50000);
 
@@ -58,7 +53,7 @@ impl CityCoverageQualification3 {
 }
 
 impl System for CityCoverageQualification3 {
-  fn on_spawn(&mut self, ctx: &Context) {
+  fn on_spawn(&mut self, ctx: &SystemContext) {
     ctx
       .systems
       .expect::<lower_scoop::LowerScoopSystem>()
@@ -70,14 +65,14 @@ impl System for CityCoverageQualification3 {
       .lift_up(ctx, Duration::from_secs(4)); // TODO: set this to 25 or something useful
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &Context) {
+  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     if let Some(effect) = self.lift_ramp_effect.as_mut() {
       effect.apply(delta, ctx);
     }
     self.lower_scoop_effect.apply(delta, ctx);
   }
 
-  fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<lift_ramp::LiftRampDown>() {
       if let Some(effect) = &mut self.lift_ramp_effect {
         effect.stop(ctx);

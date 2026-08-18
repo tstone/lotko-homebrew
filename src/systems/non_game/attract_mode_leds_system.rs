@@ -76,17 +76,16 @@ impl AttractModeLedsSystem {
 }
 
 impl System for AttractModeLedsSystem {
-  fn is_active(&self, ctx: &Context) -> bool {
+  fn is_active(&self, ctx: &SystemContext) -> bool {
     // TODO: should an LED system depend on a DMD system? this might need a generalized 'machine state' system
     !ctx.is_game_started()
       && !ctx
-        .systems
         .get::<DmdMenuSystem>()
         .map(|menu| menu.is_active(ctx))
         .unwrap_or(false)
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &Context) {
+  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     if self.effect.is_complete() {
       let (prev_from, prev_to) = self.prior_pair;
       let (effect, from, to) = Self::rnd_effect(prev_from, prev_to);

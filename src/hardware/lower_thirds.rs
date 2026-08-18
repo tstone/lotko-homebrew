@@ -13,7 +13,7 @@ pub mod left_flipper {
         button_switch: cabinet::LEFT_FLIPPER_SWITCH1.name,
         eos_switch: EOS_SWITCH.name,
         initial_pwm_power: HardwareValue::config("Initial Power", "", Power::FULL, Ranges::full_power()),
-        secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::HALF, Ranges::full_power()),
+        secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::THREE_QUARTERS, Ranges::full_power()),
         ..Default::default()
       });
 
@@ -36,8 +36,8 @@ pub mod right_flipper {
     .mode(FlipperMainDirectMode {
         button_switch: cabinet::RIGHT_FLIPPER_SWITCH1.name,
         eos_switch: EOS_SWITCH.name,
-        initial_pwm_power: HardwareValue::config("Initial Power", "", Power::FULL, Ranges::full_power()),
-        secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::HALF, Ranges::full_power()),
+        initial_pwm_power: HardwareValue::config("Initial Power", "", Power::THREE_QUARTERS, Ranges::full_power()),
+        secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::FULL, Ranges::full_power()),
         ..Default::default()
       });
 
@@ -61,7 +61,7 @@ pub mod slingshots {
     pub LEFT_COIL: DriverDefinition = DriverDefinition::new("l_sling_coil")
       .mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(LEFT_SWITCH.name),
-        initial_pwm_power: HardwareValue::config("Left Sling Power", "Power of the left slingshot", Power::THREE_QUARTERS, Ranges::full_power()),
+        initial_pwm_power: HardwareValue::config("Left Sling Power", "Power of the left slingshot", Power::HALF, Ranges::full_power()),
         ..Default::default()
       })
       .tag(Playfield);

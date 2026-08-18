@@ -58,32 +58,33 @@ impl GamePointsDmdSystem {
     );
     frame.add(current_player_row.default_position());
 
-    // large region for score
+    // large score
     frame.add(
-      // TODO: use a fancier/nicer pixel font
-      SIGI_BOLD_7PX_FONT
+      BOLD_PIXELS_10PX_REGULAR_FONT
         .right_aligned(
           TextFormatting::number(player_scores[current_player as usize]),
           Rgba::white(),
         )
-        .recolor_fade(Rgba::cyan().lighten(0.3), Rgba::blue().darken(0.20), 90.0)
-        .right_offset(3)
+        .recolor_fade(Rgba::white(), Rgba::blue().lighten(0.2), 90.0)
+        .right_offset(2)
         .top_offset(10),
     );
 
     // bottom row of individual player scores
-    let mut player_scores_row = Container::transparent();
-    for (i, score) in player_scores.iter().enumerate() {
-      player_scores_row.add(
-        SIGISH_REGULAR_4PX_FONT
-          .left_aligned(
-            format!("{}", TextFormatting::abbreviate_num(*score, 4)),
-            Rgba::white().darken(0.4),
-          )
-          .left_offset(i as f32 / player_count as f32),
-      );
+    if player_count > 1 {
+      let mut player_scores_row = Container::transparent();
+      for (i, score) in player_scores.iter().enumerate() {
+        player_scores_row.add(
+          SIGI_REGULAR_5PX_FONT
+            .left_aligned(
+              format!("{}", TextFormatting::abbreviate_num(*score, 4)),
+              Rgba::white().darken(0.4),
+            )
+            .left_offset(i as f32 / player_count as f32),
+        );
+      }
+      frame.add(player_scores_row.bottom_offset(0).height(5));
     }
-    frame.add(player_scores_row.bottom_offset(0).height(5));
 
     frame
   }

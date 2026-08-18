@@ -119,11 +119,11 @@ async fn main() {
 pub struct CueTest;
 
 impl System for CueTest {
-  fn on_spawn(&mut self, ctx: &Context) {
+  fn on_spawn(&mut self, ctx: &SystemContext) {
     ctx.cue(TestTest, Cue::Once(Duration::from_secs(4)));
   }
 
-  fn on_event(&mut self, event: &dyn Event, _ctx: &Context) {
+  fn on_event(&mut self, event: &dyn Event, _ctx: &SystemContext) {
     if event.is::<TestTest>() {
       log::info!("=> => Test test");
     }

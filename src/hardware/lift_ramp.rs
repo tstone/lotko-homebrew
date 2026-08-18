@@ -153,7 +153,7 @@ impl System for LiftRampSystem {
     self.ball_present = ctx.switches.is_closed(SCOOP_OPTO.name).unwrap_or(false);
   }
 
-  fn on_event(&mut self, event: &dyn Event, ctx: &Context) {
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<CloseRamp>() {
       log::info!("Lift ramp: Max time expired");
       self.lift_down(ctx);

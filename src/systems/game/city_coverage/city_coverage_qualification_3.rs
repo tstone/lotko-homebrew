@@ -46,7 +46,6 @@ impl CityCoverageQualification3 {
 
     // TEMPORARY: move this to menu system:
     ctx
-      .systems
       .expect::<lower_scoop::LowerScoopSystem>()
       .set_mode(lower_scoop::LowerScoopMode::AutoEject, ctx);
   }
@@ -55,11 +54,9 @@ impl CityCoverageQualification3 {
 impl System for CityCoverageQualification3 {
   fn on_spawn(&mut self, ctx: &SystemContext) {
     ctx
-      .systems
       .expect::<lower_scoop::LowerScoopSystem>()
       .set_mode(lower_scoop::LowerScoopMode::ModeStart, ctx);
     ctx
-      .systems
       .expect::<lift_ramp::LiftRampSystem>()
       // TODO: should this hurry up time be flexed up or down depending on other achievements? (yes)
       .lift_up(ctx, Duration::from_secs(4)); // TODO: set this to 25 or something useful
@@ -82,10 +79,7 @@ impl System for CityCoverageQualification3 {
       if (*name).eq(lower_scoop::SCOOP_NAME) {
         self.complete(ctx);
       } else if (*name).eq(lift_ramp::SCOOP_NAME) {
-        ctx
-          .systems
-          .expect::<lift_ramp::LiftRampSystem>()
-          .lift_down(ctx);
+        ctx.expect::<lift_ramp::LiftRampSystem>().lift_down(ctx);
         self.complete(ctx);
       }
     }

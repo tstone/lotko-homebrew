@@ -1,5 +1,6 @@
 use itertools::Itertools;
 use std::collections::HashMap;
+use std::fmt;
 use std::sync::LazyLock;
 
 use frontbox::animation::*;
@@ -8,7 +9,7 @@ use frontbox::prelude::*;
 use crate::systems::game::spores::*;
 use crate::systems::game::*;
 
-static AOE_DECAY: LazyLock<Duration> = LazyLock::new(|| Duration::from_secs(45));
+static AOE_DECAY: LazyLock<Duration> = LazyLock::new(|| Duration::from_secs(30));
 static COLOR: LazyLock<Rgba<u8>> = LazyLock::new(|| Rgba::magenta());
 
 /// PinkSpore creates an AoE type effect that also hits nearby shots, but those extra hits decay
@@ -27,43 +28,67 @@ impl PinkSpore {
   }
 
   fn push_next_locked(&mut self, shot: &CityShot) {
-    if let Some(idx) = self.next_idx_for_shot(shot) {
-      self.nodes.get_mut(shot).unwrap()[idx] = SporeNode::Locked;
+    let idx = self.next_idx_for_shot(shot);
+    match self.nodes.get_mut(shot) {
+      Some(n) => n[idx] = SporeNode::Locked,
+      None => {
+        let mut nodes = vec![SporeNode::Empty; SPORE_COUNT as usize];
+        nodes[idx] = SporeNode::Locked;
+        self.nodes.insert(*shot, nodes);
+      }
     }
   }
 
   fn push_next_decay(&mut self, shot: &CityShot) {
-    if let Some(idx) = self.next_idx_for_shot(shot) {
-      self.nodes.get_mut(shot).unwrap()[idx] = SporeNode::Decaying(Tween::new(
-        AOE_DECAY.clone(),
-        Curve::Linear,
-        vec![*COLOR, Rgba::default()],
-        Cycle::Once,
-      ));
+    let idx = self.next_idx_for_shot(shot);
+    let node = SporeNode::Decaying(Tween::new(
+      AOE_DECAY.clone(),
+      Curve::Linear,
+      vec![*COLOR, Rgba::default()],
+      Cycle::Once,
+    ));
+
+    match self.nodes.get_mut(shot) {
+      Some(n) => n[idx] = node,
+      None => {
+        let mut nodes = vec![SporeNode::Empty; SPORE_COUNT as usize];
+        nodes[idx] = node;
+        self.nodes.insert(*shot, nodes);
+      }
     }
   }
 
-  fn next_idx_for_shot(&self, shot: &CityShot) -> Option<usize> {
-    if let Some(shot_decay) = self.nodes.get(&shot) {
-      let next = shot_decay.len() + 1;
-      if next < SPORE_COUNT as usize {
-        Some(next)
-      } else {
-        // there aren't any free ones left
-        // find the most depleted and use that
-        shot_decay
-          .iter()
-          .enumerate()
-          .filter_map(|(idx, node)| match node {
-            SporeNode::Decaying(tween) => Some((idx, tween)),
-            _ => None,
-          })
-          .sorted_by(|(_, a), (_, b)| a.remaining().cmp(&b.remaining()))
-          .map(|(idx, _)| idx)
-          .next()
+  fn next_idx_for_shot(&self, shot: &CityShot) -> usize {
+    if let Some(nodes) = self.nodes.get(&shot) {
+      // attempt to find the first empty node
+      if let Some(next_idx) = nodes
+        .iter()
+        .enumerate()
+        .filter_map(|(idx, node)| match node {
+          SporeNode::Empty => Some(idx),
+          SporeNode::Decaying(tween) if tween.is_complete() => Some(idx),
+          _ => None,
+        })
+        .sorted()
+        .next()
+      {
+        return next_idx;
       }
+
+      // If there are none, pick the one which is decaying but closest to completion and replace it
+      nodes
+        .iter()
+        .enumerate()
+        .filter_map(|(idx, node)| match node {
+          SporeNode::Decaying(tween) => Some((idx, tween)),
+          _ => None,
+        })
+        .sorted_by(|(_, a), (_, b)| a.remaining().cmp(&b.remaining()))
+        .map(|(idx, _)| idx)
+        .next()
+        .unwrap_or(0)
     } else {
-      Some(0)
+      0
     }
   }
 }
@@ -81,6 +106,7 @@ impl Spore for PinkSpore {
       .iter()
       .position(|s| s == target_shot)
       .unwrap_or(0);
+
     let prev_idx = (hit_idx as isize - 1).rem_euclid(count) as usize;
     let next_idx = (hit_idx as isize + 1).rem_euclid(count) as usize;
 
@@ -94,13 +120,15 @@ impl Spore for PinkSpore {
     if prev_idx != hit_idx {
       let shot = region_shots[prev_idx];
       results.insert(shot, SPORE_UNIT);
-      self.push_next_decay(target_shot);
+      self.push_next_decay(&shot);
     }
     if next_idx != hit_idx && next_idx != prev_idx {
       let shot = region_shots[next_idx];
       results.insert(shot, SPORE_UNIT);
-      self.push_next_decay(target_shot);
+      self.push_next_decay(&shot);
     }
+
+    log::info!("PinkSpore: {:?}", self.nodes);
 
     results
   }
@@ -109,6 +137,10 @@ impl Spore for PinkSpore {
 impl System for PinkSpore {
   fn on_spawn(&mut self, ctx: &SystemContext) {
     self.handle = *ctx.current_handle();
+  }
+
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    self.handle_event(event, ctx);
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
@@ -143,6 +175,7 @@ impl System for PinkSpore {
           .iter()
           .filter(|n| match n {
             SporeNode::Locked => true,
+            SporeNode::Empty => false,
             SporeNode::Decaying(tween) => tween.is_complete(),
           })
           .count();
@@ -155,9 +188,20 @@ impl System for PinkSpore {
 
 #[derive(Clone)]
 enum SporeNode {
+  Empty,
   Locked,
   Decaying(Tween<Duration, Rgba<u8>>),
 }
 
-#[derive(serde::Serialize, Event)]
-struct SpreadDecay(pub CityShot, pub f32);
+impl fmt::Debug for SporeNode {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match self {
+      SporeNode::Empty => write!(f, "Empty"),
+      SporeNode::Locked => write!(f, "Locked"),
+      SporeNode::Decaying(tween) => f
+        .debug_struct("Decaying")
+        .field("remaining", &tween.remaining())
+        .finish(),
+    }
+  }
+}

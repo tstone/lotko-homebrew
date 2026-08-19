@@ -85,6 +85,7 @@ pub fn io_network() -> IoNetwork {
       .wire_switch(5, &captive_ball::TARGET_SWITCH)
       .wire_switch(6, &pop_cluster::upper_right::TARGET_SWITCH)
       .wire_switch(7, &pop_cluster::upper_right::SPOON_SWITCH)
+      .wire_switch(12, &right_orbit::SWITCH)
       .wire_switch(13, &arc_ramp::SUBWAY_OPTO)
       .wire_switch(14, &left_orbit::SWITCH)
       .wire_switch(15, &drop_bank::PADDLE_SWITCH)

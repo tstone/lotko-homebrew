@@ -1,5 +1,4 @@
 use dyn_clone::DynClone;
-use std::cell::RefMut;
 use std::collections::HashMap;
 
 use frontbox::prelude::*;
@@ -18,11 +17,14 @@ pub trait Spore: DynClone {
   ) -> HashMap<CityShot, f32>;
 
   fn handle_shot(&mut self, shot: CityShot, ctx: &SystemContext) {
+    log::info!("City coverage shot hit: {:?}", shot);
     let mut city_manager = ctx.expect::<CityManager>();
     if let Some(shot_amounts) = city_manager.shot_amounts(ctx.into()) {
       for (shot, amount) in self.apply(&shot, &shot_amounts, ctx.into()) {
         city_manager.apply_biospore(shot, amount, ctx.into());
       }
+    } else {
+      log::warn!("No shot amounts received from CityManager");
     }
 
     ctx.emit(SporeShot(shot));

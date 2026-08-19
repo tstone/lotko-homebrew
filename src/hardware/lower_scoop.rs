@@ -70,6 +70,7 @@ pub struct LowerScoopSystem {
   subway_entry: bool,
   mode: LowerScoopMode,
   ball_present: bool,
+  handle: SystemHandle,
 }
 
 impl LowerScoopSystem {
@@ -91,6 +92,7 @@ impl LowerScoopSystem {
       subway_entry: false,
       mode: LowerScoopMode::AutoEject,
       ball_present: false,
+      handle: SystemHandle::default(),
     }
   }
 
@@ -98,7 +100,8 @@ impl LowerScoopSystem {
     self.ball_present
   }
 
-  pub fn eject(&mut self, ctx: &SystemContext) {
+  pub fn eject(&mut self, ctx: &ServiceContext) {
+    let ctx = ctx.for_system(self.handle);
     ctx.play_sfx(LOWER_SCOOP_EJECT_SND);
     ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
     self.eject_effect.play();
@@ -109,7 +112,7 @@ impl LowerScoopSystem {
     self.eject_effect.stop(ctx);
   }
 
-  pub fn set_mode(&mut self, mode: LowerScoopMode, ctx: &SystemContext) {
+  pub fn set_mode(&mut self, mode: LowerScoopMode, ctx: &ServiceContext) {
     self.mode = mode;
 
     // If mode was updated to auto-eject and there is a ball present, eject it
@@ -119,6 +122,8 @@ impl LowerScoopSystem {
   }
 
   fn on_ball_enter(&mut self, ctx: &SystemContext) {
+    log::info!("Ball entered lower scoop");
+
     // If the player gets the ball into the scoop without using the subway, it gives points
     if !self.subway_entry {
       ctx.add_points(500);
@@ -129,7 +134,7 @@ impl LowerScoopSystem {
     ctx.emit(ScoopBallEntered(SCOOP_NAME));
 
     if self.mode == LowerScoopMode::AutoEject {
-      self.eject(ctx);
+      self.eject(ctx.into());
     }
   }
 
@@ -141,6 +146,8 @@ impl LowerScoopSystem {
 
 impl System for LowerScoopSystem {
   fn on_spawn(&mut self, ctx: &SystemContext) {
+    self.handle = *ctx.current_handle();
+
     // check if there is a ball at startup and eject if so
     if ctx.switches.is_closed(OPTO.name).unwrap_or(false) {
       log::debug!("Lower scoop is occupied. Ejecting.");

@@ -72,9 +72,12 @@ impl System for LeftOrbitSystem {
       self.reset();
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && event.switch.name == SWITCH.name
-      && !self.skip_next
     {
-      ctx.emit(LeftOrbitHit);
+      if self.skip_next {
+        self.skip_next = false;
+      } else {
+        ctx.emit(LeftOrbitHit);
+      }
     }
   }
 

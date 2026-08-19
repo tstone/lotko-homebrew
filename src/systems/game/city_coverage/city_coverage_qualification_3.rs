@@ -2,18 +2,16 @@ use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::*;
 
-use crate::hardware::lift_ramp::LiftRampSystem;
 use crate::hardware::lower_scoop::LowerScoopSystem;
 use crate::hardware::{ScoopBallEntered, lift_ramp, lower_scoop};
-use crate::systems::game::{
-  CityManager, CityRegion, CityRegions, CityShot, HydroCore, MeridianBasins,
-};
+use crate::systems::game::{CityManager, CityRegions};
 use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct CityCoverageQualification3 {
   lift_ramp_effect: Option<LedEffect>,
   lower_scoop_effect: LedEffect,
+  handle: SystemHandle,
 }
 
 impl CityCoverageQualification3 {
@@ -33,12 +31,18 @@ impl CityCoverageQualification3 {
         Duration::from_millis(83 * 3),
         Cycle::Forever,
       ),
+      handle: SystemHandle::default(),
     }
   }
 
-  pub fn complete(&mut self, ctx: &SystemContext) {
+  pub fn complete(&mut self, svc_ctx: &ServiceContext) {
+    let ctx = &svc_ctx.for_system(self.handle);
+    log::info!("City coverage qualification 3 complete");
     ctx.play_sfx(sounds::LANE_HIT_COMPLETE);
     ctx.add_points(50000);
+
+    let mut lift_ramp = ctx.expect::<lift_ramp::LiftRampSystem>();
+    lift_ramp.lift_down(svc_ctx);
 
     // clear effects
     if let Some(effect) = &mut self.lift_ramp_effect {
@@ -51,27 +55,17 @@ impl CityCoverageQualification3 {
     // TODO: move this to menu system once thats implemented
     ctx
       .expect::<lower_scoop::LowerScoopSystem>()
-      .set_mode(lower_scoop::LowerScoopMode::AutoEject, ctx);
+      .set_mode(lower_scoop::LowerScoopMode::AutoEject, svc_ctx);
 
     // TEMP: Pick a random uncompleted tier 1 city (this should probably somehow factor in completion state)
-    let region = if rand::random_bool(0.5) {
-      CityRegions::MeridianBasins
-    } else {
-      CityRegions::HydroCore
-    };
-    ctx.expect::<CityManager>().activate_region(region);
-
-    // Return ball to player
-    let mut lower_scoop = ctx.expect::<LowerScoopSystem>();
-    if lower_scoop.ball_present() {
-      lower_scoop.eject(ctx);
-    } else {
-      let mut lift_ramp = ctx.expect::<LiftRampSystem>();
-      if lift_ramp.ball_present() {
-        lift_ramp.eject(ctx);
-      }
-    }
-
+    // let region = if rand::random_bool(0.5) {
+    //   CityRegions::MeridianBasins
+    // } else {
+    //   CityRegions::HydroCore
+    // };
+    ctx
+      .expect::<CityManager>()
+      .activate_region(CityRegions::MeridianBasins, svc_ctx);
     ctx.despawn_self();
   }
 }
@@ -85,9 +79,11 @@ impl System for CityCoverageQualification3 {
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
+    self.handle = *ctx.current_handle();
+
     ctx
       .expect::<lower_scoop::LowerScoopSystem>()
-      .set_mode(lower_scoop::LowerScoopMode::ModeStart, ctx);
+      .set_mode(lower_scoop::LowerScoopMode::ModeStart, ctx.into());
     ctx
       .expect::<lift_ramp::LiftRampSystem>()
       .lift_up(ctx.into());
@@ -113,13 +109,13 @@ impl System for CityCoverageQualification3 {
       }
       self.lift_ramp_effect = None;
     } else if let Some(ScoopBallEntered(name)) = event.downcast_ref::<ScoopBallEntered>() {
+      let svc_ctx: &ServiceContext = ctx.into();
       if (*name).eq(lower_scoop::SCOOP_NAME) {
-        self.complete(ctx);
+        self.complete(ctx.into());
+        ctx.expect::<LowerScoopSystem>().eject(svc_ctx);
       } else if (*name).eq(lift_ramp::SCOOP_NAME) {
-        ctx
-          .expect::<lift_ramp::LiftRampSystem>()
-          .lift_down(ctx.into());
-        self.complete(ctx);
+        self.complete(svc_ctx);
+        ctx.expect::<lift_ramp::LiftRampSystem>().eject(svc_ctx);
       }
     }
   }

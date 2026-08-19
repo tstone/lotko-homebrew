@@ -3,6 +3,8 @@ use frontbox::prelude::DeactivationMode::VirtualSwitchOff;
 use frontbox::prelude::DriverTriggerMode::VirtualSwitchTrue;
 use frontbox::prelude::*;
 use frontbox::tags::*;
+use frontbox_turn_based::GameManager;
+use frontbox_turn_based::TurnState;
 
 use crate::hardware::ScoopBallEntered;
 use crate::hardware::more_tags::*;
@@ -150,12 +152,21 @@ impl LiftRampSystem {
     }
   }
 
-  pub fn eject(&mut self, ctx: &SystemContext) {
-    ctx.activate_driver(EJECT_COIL.name, ActivationMode::Tap);
+  pub fn eject(&mut self, ctx: &ServiceContext) {
+    ctx
+      .for_system(self.handle)
+      .activate_driver(EJECT_COIL.name, ActivationMode::Tap);
   }
 }
 
 impl System for LiftRampSystem {
+  fn is_active(&self, ctx: &SystemContext) -> bool {
+    ctx
+      .get::<GameManager>()
+      .map(|game| game.turn_state() == Some(&TurnState::Active))
+      .unwrap_or(false)
+  }
+
   fn on_spawn(&mut self, ctx: &SystemContext) {
     self.handle = *ctx.current_handle();
     self.ball_present = ctx.switches.is_closed(SCOOP_OPTO.name).unwrap_or(false);
@@ -168,14 +179,17 @@ impl System for LiftRampSystem {
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && event.switch.name == SCOOP_OPTO.name
     {
+      log::info!("Ball entered lift ramp scoop");
       ctx.emit(ScoopBallEntered(SCOOP_NAME));
     }
   }
 
+  fn on_despawn(&mut self, ctx: &SystemContext) {
+    self.lift_down(ctx.into());
+  }
+
   fn on_deactivate(&mut self, ctx: &SystemContext) {
-    if self.is_lifted() {
-      self.lift_down(ctx.into());
-    }
+    self.lift_down(ctx.into());
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {

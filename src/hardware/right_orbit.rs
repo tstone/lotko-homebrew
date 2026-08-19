@@ -7,7 +7,10 @@ const NAME: &'static str = "r_orbit";
 
 hardware_defs! {
 
-  pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME);
+  pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
+    // this is a swinging roll-under and can activate multiple times
+    .debounce_open(Duration::from_millis(20))
+    .debounce_close(Duration::from_millis(20));
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME, 7)
     .tag(Playfield)

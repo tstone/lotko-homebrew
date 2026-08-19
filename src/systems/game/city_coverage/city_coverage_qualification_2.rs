@@ -1,5 +1,3 @@
-use rand::Rng;
-
 use frontbox::animation::{Accumulator, Curve};
 use frontbox::prelude::*;
 use frontbox_sound::*;

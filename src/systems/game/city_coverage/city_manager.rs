@@ -12,12 +12,21 @@ pub struct CityManager {
   active_region_effect: Option<LedEffect>,
   refresh_map: bool,
   handle: SystemHandle,
+  spore: SporeType,
 }
 
 impl CityManager {
-  pub fn activate_region(&mut self, region: CityRegions) {
+  pub fn activate_region(&mut self, region: CityRegions, ctx: &ServiceContext) {
+    log::info!("Entering city region {:?}", region);
     self.active_region = Some(region);
     self.refresh_map = true;
+
+    if self.active_spore_system(ctx).is_none() {
+      let ctx = ctx.for_system(self.handle);
+      match self.spore {
+        SporeType::Pink => ctx.spawn_system(PinkSpore::new()),
+      }
+    }
   }
 
   pub fn shot_amounts(&self, ctx: &ServiceContext) -> Option<HashMap<CityShot, f32>> {
@@ -54,6 +63,16 @@ impl CityManager {
     }
   }
 
+  fn active_spore_system<'a>(&self, ctx: &'a ServiceContext) -> Option<RefMut<'a, dyn Spore>> {
+    match self.spore {
+      SporeType::Pink => {
+        let r = ctx.get::<PinkSpore>(self.handle)?;
+        Some(r)
+      }
+      _ => None,
+    }
+  }
+
   fn render_map(&mut self, ctx: &SystemContext) {
     if self.active_region.is_none()
       && let Some(effect) = &mut self.active_region_effect
@@ -83,7 +102,7 @@ impl CityManager {
   }
 
   fn active_effect(q: HardwareQuery) -> LedEffect {
-    LedEffect::flash_on_off(q, Rgba::white(), Duration::from_millis(186), Cycle::Forever)
+    LedEffect::breathe(q, Rgba::white(), Duration::from_millis(750), Cycle::Forever)
   }
 
   fn complete_color() -> ColorSequence {
@@ -103,7 +122,7 @@ impl System for CityManager {
     ctx.spawn_system(MeridianBasins::new());
     ctx.spawn_system(HydroCore::new());
     // and the first qualification mode
-    ctx.spawn_system(CityCoverageQualification1::new());
+    ctx.spawn_system(CityCoverageQualification2::new_rnd());
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {

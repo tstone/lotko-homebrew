@@ -46,7 +46,7 @@ pub mod upper_right {
       })
       .tag(Playfield);
 
-    pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("ur_spoon");
+    pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("ur_spoon").debounce_close(Duration::from_millis(8));
     pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("ur_target");
 
     pub POP_LED: LedDefinition = LedDefinition::single("ur_pop_led")

@@ -40,7 +40,7 @@ hardware_defs! {
     .tag(Circle)
     .tag(CityMap);
 
-  pub SPORE_COUNT: LedDefinition = LedDefinition::strip("spore_count", 16)
+  pub SPORE_COUNT_BAR: LedDefinition = LedDefinition::strip("spore_count", 16)
     .tag(Playfield)
     .tag(CityMap);
 }

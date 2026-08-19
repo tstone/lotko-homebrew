@@ -47,7 +47,7 @@ pub fn exp_network() -> ExpNetwork {
       .wire_led_port(
         4,
         LedPort::ws2812().leds(vec![
-          &city_map::SPORE_COUNT,
+          &city_map::SPORE_COUNT_BAR,
           &slingshots::POST_LEDS3,
           &slingshots::POST_LEDS4,
         ]),

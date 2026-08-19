@@ -1,21 +1,44 @@
-use std::sync::LazyLock;
+use std::cell::RefMut;
+use std::collections::HashMap;
 
 use crate::hardware::city_map;
 use crate::systems::game::*;
 use frontbox::prelude::*;
-
-const COMPLETED_COLOR: LazyLock<Rgba<u8>> = LazyLock::new(|| Rgba::green());
 
 #[derive(Clone, Default)]
 pub struct CityManager {
   active_region: Option<CityRegions>,
   active_region_effect: Option<LedEffect>,
   refresh_map: bool,
+  handle: SystemHandle,
 }
 
 impl CityManager {
-  pub fn active_region(&self) -> &Option<CityRegions> {
-    &self.active_region
+  // pub fn active_region(&self) -> &Option<CityRegions> {
+  //   &self.active_region
+  // }
+
+  pub fn shot_amounts(&self, ctx: &ServiceContext) -> Option<HashMap<CityShot, f32>> {
+    self
+      .active_region_system(ctx)
+      .map(|region| region.shot_amounts().clone())
+  }
+
+  pub fn apply_biospore(&self, shot: CityShot, amount: f32, ctx: &ServiceContext) {
+    if let Some(mut system) = self.active_region_system(ctx) {
+      system.apply_biospore(shot, amount);
+    }
+  }
+
+  fn active_region_system<'a>(
+    &self,
+    ctx: &'a ServiceContext,
+  ) -> Option<RefMut<'a, dyn CityRegion>> {
+    match self.active_region {
+      Some(CityRegions::MeridianBasins) => Some(ctx.expect::<MeridianBasins>(self.handle)),
+      Some(CityRegions::HydroCore) => Some(ctx.expect::<HydroCore>(self.handle)),
+      _ => None,
+    }
   }
 
   fn render_map(&mut self, ctx: &SystemContext) {
@@ -58,6 +81,16 @@ impl CityManager {
 }
 
 impl System for CityManager {
+  fn on_spawn(&mut self, ctx: &SystemContext) {
+    self.handle = *ctx.current_handle();
+
+    // spawn all the region systems
+    ctx.spawn_system(MeridianBasins::new());
+    ctx.spawn_system(HydroCore::new());
+    // and the first qualification mode
+    ctx.spawn_system(CityCoverageQualification1::new());
+  }
+
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     if self.refresh_map {
       self.render_map(ctx);

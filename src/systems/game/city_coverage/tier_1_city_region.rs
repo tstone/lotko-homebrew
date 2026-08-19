@@ -7,6 +7,7 @@ use crate::systems::game::{CityRegion, CityShot};
 
 pub trait Tier1CityRegion {
   fn shot_amounts_src(&self) -> &HashMap<CityShot, f32>;
+  fn shot_amounts_mut(&mut self) -> &mut HashMap<CityShot, f32>;
   fn shots(&self) -> &Vec<CityShot>;
 }
 
@@ -14,12 +15,12 @@ impl<T: Tier1CityRegion> CityRegion for T {
   fn apply_biospore(&mut self, shot: CityShot, amount: f32) {
     let shots = self.shots();
     if shots.contains(&shot) {
-      self.shot_amounts().insert(shot, amount);
+      self.shot_amounts_mut().insert(shot, amount);
     }
   }
 
-  fn shot_amounts(&self) -> HashMap<CityShot, f32> {
-    self.shot_amounts_src().clone()
+  fn shot_amounts(&self) -> &HashMap<CityShot, f32> {
+    self.shot_amounts_src()
   }
 
   fn is_started(&self) -> bool {
@@ -65,7 +66,9 @@ impl Tier1CityRegion for MeridianBasins {
   fn shot_amounts_src(&self) -> &HashMap<CityShot, f32> {
     &self.shot_amounts
   }
-
+  fn shot_amounts_mut(&mut self) -> &mut HashMap<CityShot, f32> {
+    &mut self.shot_amounts
+  }
   fn shots(&self) -> &Vec<CityShot> {
     &MERIDIAN_BASIN_SHOTS
   }
@@ -98,7 +101,9 @@ impl Tier1CityRegion for HydroCore {
   fn shot_amounts_src(&self) -> &HashMap<CityShot, f32> {
     &self.shot_amounts
   }
-
+  fn shot_amounts_mut(&mut self) -> &mut HashMap<CityShot, f32> {
+    &mut self.shot_amounts
+  }
   fn shots(&self) -> &Vec<CityShot> {
     &HYDRO_CORE_SHOTS
   }

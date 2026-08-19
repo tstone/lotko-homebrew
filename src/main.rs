@@ -93,7 +93,6 @@ async fn main() {
           Duration::from_millis(185),
           Forever
         )),
-        CityCoverageQualification1::new(),
         CityManager::default(),
       ],
       Q::tag::<tags::Playfield>(),

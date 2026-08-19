@@ -16,7 +16,7 @@ pub use tier_1_city_region::*;
 
 pub trait CityRegion {
   fn apply_biospore(&mut self, shot: CityShot, amount: f32);
-  fn shot_amounts(&self) -> HashMap<CityShot, f32>;
+  fn shot_amounts(&self) -> &HashMap<CityShot, f32>;
   fn is_started(&self) -> bool;
   fn is_complete(&self) -> bool;
 }

@@ -18,7 +18,7 @@ pub trait Spore: DynClone {
   ) -> HashMap<CityShot, f32>;
 
   fn handle_shot(&mut self, shot: CityShot, ctx: &SystemContext) {
-    let city_manager = ctx.expect::<CityManager>();
+    let mut city_manager = ctx.expect::<CityManager>();
     if let Some(shot_amounts) = city_manager.shot_amounts(ctx.into()) {
       for (shot, amount) in self.apply(&shot, &shot_amounts, ctx.into()) {
         city_manager.apply_biospore(shot, amount, ctx.into());

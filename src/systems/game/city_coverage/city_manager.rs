@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use crate::hardware::city_map;
 use crate::systems::game::*;
 use frontbox::prelude::*;
+use frontbox_turn_based::GameManagementExt;
 
 #[derive(Clone, Default)]
 pub struct CityManager {
@@ -14,9 +15,10 @@ pub struct CityManager {
 }
 
 impl CityManager {
-  // pub fn active_region(&self) -> &Option<CityRegions> {
-  //   &self.active_region
-  // }
+  pub fn activate_region(&mut self, region: CityRegions) {
+    self.active_region = Some(region);
+    self.refresh_map = true;
+  }
 
   pub fn shot_amounts(&self, ctx: &ServiceContext) -> Option<HashMap<CityShot, f32>> {
     self
@@ -24,9 +26,20 @@ impl CityManager {
       .map(|region| region.shot_amounts().clone())
   }
 
-  pub fn apply_biospore(&self, shot: CityShot, amount: f32, ctx: &ServiceContext) {
+  pub fn apply_biospore(&mut self, shot: CityShot, amount: f32, ctx: &ServiceContext) {
     if let Some(mut system) = self.active_region_system(ctx) {
       system.apply_biospore(shot, amount);
+
+      if system.is_complete() {
+        // TODO: fancy effects on finish
+        // TODO: points should vary based on which region it was, and some other factors
+        let ctx = ctx.for_system(self.handle);
+
+        ctx.add_points(100_000);
+        self.active_region = None;
+        self.refresh_map = true;
+        ctx.spawn_system(CityCoverageQualification1::new());
+      }
     }
   }
 
@@ -42,7 +55,9 @@ impl CityManager {
   }
 
   fn render_map(&mut self, ctx: &SystemContext) {
-    if let Some(effect) = &mut self.active_region_effect {
+    if self.active_region.is_none()
+      && let Some(effect) = &mut self.active_region_effect
+    {
       effect.stop(ctx);
     }
 

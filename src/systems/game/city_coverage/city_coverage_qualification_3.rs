@@ -2,8 +2,12 @@ use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::*;
 
+use crate::hardware::lift_ramp::LiftRampSystem;
+use crate::hardware::lower_scoop::LowerScoopSystem;
 use crate::hardware::{ScoopBallEntered, lift_ramp, lower_scoop};
-use crate::systems::game::{HydroCore, MeridianBasins};
+use crate::systems::game::{
+  CityManager, CityRegion, CityRegions, CityShot, HydroCore, MeridianBasins,
+};
 use crate::systems::sounds;
 
 #[derive(Clone)]
@@ -49,12 +53,26 @@ impl CityCoverageQualification3 {
       .expect::<lower_scoop::LowerScoopSystem>()
       .set_mode(lower_scoop::LowerScoopMode::AutoEject, ctx);
 
-    // TEMP: Pick a random uncompleted tier 1 city and start it
-    if rand::random_bool(0.5) {
-      ctx.replace_self(MeridianBasins::new());
+    // TEMP: Pick a random uncompleted tier 1 city (this should probably somehow factor in completion state)
+    let region = if rand::random_bool(0.5) {
+      CityRegions::MeridianBasins
     } else {
-      ctx.replace_self(HydroCore::new());
+      CityRegions::HydroCore
+    };
+    ctx.expect::<CityManager>().activate_region(region);
+
+    // Return ball to player
+    let mut lower_scoop = ctx.expect::<LowerScoopSystem>();
+    if lower_scoop.ball_present() {
+      lower_scoop.eject(ctx);
+    } else {
+      let mut lift_ramp = ctx.expect::<LiftRampSystem>();
+      if lift_ramp.ball_present() {
+        lift_ramp.eject(ctx);
+      }
     }
+
+    ctx.despawn_self();
   }
 }
 

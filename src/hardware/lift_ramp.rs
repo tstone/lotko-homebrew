@@ -118,6 +118,10 @@ impl LiftRampSystem {
     }
   }
 
+  pub fn ball_present(&self) -> bool {
+    self.ball_present
+  }
+
   pub fn is_lifted(&self) -> bool {
     self.ramp_lifted
   }

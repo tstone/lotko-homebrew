@@ -146,7 +146,7 @@ impl System for PinkSpore {
             SporeNode::Decaying(tween) => tween.is_complete(),
           })
           .count();
-        let city_manager = ctx.expect::<CityManager>();
+        let mut city_manager = ctx.expect::<CityManager>();
         city_manager.apply_biospore(*shot, count as f32 * SPORE_UNIT, ctx.into());
       }
     }

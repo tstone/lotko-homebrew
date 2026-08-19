@@ -94,6 +94,10 @@ impl LowerScoopSystem {
     }
   }
 
+  pub fn ball_present(&self) -> bool {
+    self.ball_present
+  }
+
   pub fn eject(&mut self, ctx: &SystemContext) {
     ctx.play_sfx(LOWER_SCOOP_EJECT_SND);
     ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));

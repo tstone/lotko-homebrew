@@ -1,4 +1,4 @@
-use frontbox::animation::{Accumulator, Curve};
+use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox_sound::*;
 use frontbox_turn_based::*;
@@ -10,34 +10,25 @@ use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct CityCoverageQualification2 {
-  left_orbit_effect: Option<LedEffect>,
-  center_orbit_effect: Option<LedEffect>,
-  right_orbit_effect: Option<LedEffect>,
-  shot_hit_effect: LedEffect,
+  left_orbit_effect: Option<LedProgram1d>,
+  center_orbit_effect: Option<LedProgram1d>,
+  right_orbit_effect: Option<LedProgram1d>,
+  shot_hit_effect: LedProgram1d,
 }
 
 impl CityCoverageQualification2 {
   pub fn new(left_orbit_hit: bool, center_orbit_hit: bool, right_orbit_hit: bool) -> Self {
     Self {
-      left_orbit_effect: Self::create_led_effect(left_orbit::hex_line_leds_q(), left_orbit_hit),
-      center_orbit_effect: Self::create_led_effect(
-        center_orbit::hex_line_leds_q(),
-        center_orbit_hit,
-      ),
-      right_orbit_effect: Self::create_led_effect(right_orbit::hex_line_leds_q(), right_orbit_hit),
-      shot_hit_effect: LedEffect::cycle(
+      left_orbit_effect: Self::hex_led_program(left_orbit::hex_line_leds_q(), left_orbit_hit),
+      center_orbit_effect: Self::hex_led_program(center_orbit::hex_line_leds_q(), center_orbit_hit),
+      right_orbit_effect: Self::hex_led_program(right_orbit::hex_line_leds_q(), right_orbit_hit),
+      shot_hit_effect: LedProgram1d::rotating(
         Q::tag::<more_tags::Circle>(),
+        ColorSequence::tile(vec![Rgba::white(), Rgba::black()]),
         Duration::from_millis(90),
         Curve::Steps(3),
         Cycle::Times(3),
-        vec![
-          ColorSequence::fade(Rgba::white(), Rgba::black()),
-          ColorSequence::fade(Rgba::black(), Rgba::white()),
-        ],
-      )
-      .shuffled(rand::random())
-      .rotating(Duration::from_millis(30), Curve::Linear, Cycle::Forever)
-      .stopped(),
+      ),
     }
   }
 
@@ -48,15 +39,15 @@ impl CityCoverageQualification2 {
     Self::new(completed[0], completed[1], completed[2])
   }
 
-  fn create_led_effect(query: HardwareQuery, hit: bool) -> Option<LedEffect> {
+  fn hex_led_program(query: HardwareQuery, hit: bool) -> Option<LedProgram1d> {
     if !hit {
-      Some(
-        LedEffect::initial(
-          query,
-          ColorSequence::exact(vec![Rgba::white(), Rgba::default(), Rgba::default()]),
-        )
-        .rotating(Duration::from_millis(520), Curve::Linear, Cycle::Forever),
-      )
+      Some(LedProgram1d::rotating(
+        query,
+        ColorSequence::exact(vec![Rgba::white(), Rgba::default(), Rgba::default()]),
+        Duration::from_millis(520),
+        Curve::Linear,
+        Cycle::Forever,
+      ))
     } else {
       None
     }

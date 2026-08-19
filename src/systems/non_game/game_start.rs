@@ -10,7 +10,7 @@ pub fn game_startable() -> GameStartable {
     // Disabled to reduce testing noise:
     // .flash_lamp(start_button::LAMP_DRIVER.name)
     // animate action button
-    .effect(LedEffect::cycle(
+    .effect(LedProgram1d::tween(
       action_button::LED.q(),
       Duration::from_secs(2),
       Curve::Linear,

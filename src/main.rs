@@ -87,10 +87,9 @@ async fn main() {
         left_orbit::LeftOrbitSystem::new(),
         center_orbit::CenterOrbitSystem::new(),
         right_orbit::RightOrbitSystem::new(),
-        BallSaveSystem::new(Duration::from_secs(5)).effect(LedEffect::flash_on_off(
+        BallSaveSystem::new(Duration::from_secs(5)).effect(LedProgram1d::flash(
           DRAIN_LED.q(),
-          Rgba::green(),
-          Duration::from_millis(185),
+          ColorSequence::solid(Rgba::green()),
           Forever
         )),
         CityManager::default(),

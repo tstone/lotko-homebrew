@@ -9,7 +9,7 @@ use frontbox_turn_based::GameManagementExt;
 #[derive(Clone, Default)]
 pub struct CityManager {
   active_region: Option<CityRegions>,
-  active_region_effect: Option<LedEffect>,
+  active_region_effect: Option<LedProgram1d>,
   refresh_map: bool,
   handle: SystemHandle,
   spore: SporeType,
@@ -101,8 +101,8 @@ impl CityManager {
     }
   }
 
-  fn active_effect(q: HardwareQuery) -> LedEffect {
-    LedEffect::breathe(q, Rgba::white(), Duration::from_millis(750), Cycle::Forever)
+  fn active_effect(q: HardwareQuery) -> LedProgram1d {
+    LedProgram1d::breathe(q, Rgba::white(), Cycle::Forever)
   }
 
   fn complete_color() -> ColorSequence {

@@ -66,7 +66,7 @@ pub const LOWER_SCOOP_EJECT_SND: &'static str = "lower_scoop_eject";
 
 #[derive(Clone)]
 pub struct LowerScoopSystem {
-  eject_effect: LedEffect,
+  eject_program: LedProgram1d,
   subway_entry: bool,
   mode: LowerScoopMode,
   ball_present: bool,
@@ -75,7 +75,7 @@ pub struct LowerScoopSystem {
 
 impl LowerScoopSystem {
   pub fn new() -> Self {
-    let eject_effect = LedEffect::cycle(
+    let eject_program = LedProgram1d::tween(
       bolts_q(),
       Duration::from_millis(750 / 4),
       Curve::Steps(2),
@@ -84,11 +84,10 @@ impl LowerScoopSystem {
         ColorSequence::exact(vec![Rgba::white(), Rgba::default()]),
         ColorSequence::exact(vec![Rgba::default(), Rgba::white()]),
       ],
-    )
-    .stopped();
+    );
 
     Self {
-      eject_effect,
+      eject_program,
       subway_entry: false,
       mode: LowerScoopMode::AutoEject,
       ball_present: false,
@@ -104,12 +103,12 @@ impl LowerScoopSystem {
     let ctx = ctx.for_system(self.handle);
     ctx.play_sfx(LOWER_SCOOP_EJECT_SND);
     ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
-    self.eject_effect.play();
+    self.eject_program.play();
   }
 
   fn complete_eject(&mut self, ctx: &SystemContext) {
     ctx.activate_driver(COIL.name, ActivationMode::Tap);
-    self.eject_effect.stop(ctx);
+    self.eject_program.stop(ctx);
   }
 
   pub fn set_mode(&mut self, mode: LowerScoopMode, ctx: &ServiceContext) {
@@ -172,7 +171,7 @@ impl System for LowerScoopSystem {
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.eject_effect.apply(delta, ctx);
+    self.eject_program.apply(delta, ctx);
   }
 }
 

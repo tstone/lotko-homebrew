@@ -1,3 +1,4 @@
+use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::*;
@@ -9,27 +10,32 @@ use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct CityCoverageQualification3 {
-  lift_ramp_effect: Option<LedEffect>,
-  lower_scoop_effect: LedEffect,
+  lift_ramp_program: Option<LedProgram1d>,
+  lower_scoop_program: LedProgram1d,
   handle: SystemHandle,
 }
 
 impl CityCoverageQualification3 {
   pub fn new() -> Self {
+    let colors = vec![
+      ColorSequence::solid(Rgba::white()),
+      ColorSequence::solid(Rgba::magenta()),
+      ColorSequence::solid(Rgba::cyan()),
+    ];
     Self {
-      lift_ramp_effect: Some(LedEffect::flash(
+      lift_ramp_program: Some(LedProgram1d::tween(
         lift_ramp::BOLT_LED.q(),
-        Rgba::white(),
-        Rgba::cyan(),
         Duration::from_millis(83 * 3),
+        Curve::SmoothRandom,
         Cycle::Forever,
+        colors.clone(),
       )),
-      lower_scoop_effect: LedEffect::flash(
+      lower_scoop_program: LedProgram1d::tween(
         lower_scoop::bolts_q(),
-        Rgba::white(),
-        Rgba::cyan(),
         Duration::from_millis(83 * 3),
+        Curve::SmoothRandom,
         Cycle::Forever,
+        colors,
       ),
       handle: SystemHandle::default(),
     }
@@ -45,11 +51,11 @@ impl CityCoverageQualification3 {
     lift_ramp.lift_down(svc_ctx);
 
     // clear effects
-    if let Some(effect) = &mut self.lift_ramp_effect {
+    if let Some(effect) = &mut self.lift_ramp_program {
       effect.stop(ctx);
     }
-    self.lift_ramp_effect = None;
-    self.lower_scoop_effect.stop(ctx);
+    self.lift_ramp_program = None;
+    self.lower_scoop_program.stop(ctx);
 
     // TODO: launch menu
     // TODO: move this to menu system once thats implemented
@@ -93,10 +99,10 @@ impl System for CityCoverageQualification3 {
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if let Some(effect) = self.lift_ramp_effect.as_mut() {
+    if let Some(effect) = self.lift_ramp_program.as_mut() {
       effect.apply(delta, ctx);
     }
-    self.lower_scoop_effect.apply(delta, ctx);
+    self.lower_scoop_program.apply(delta, ctx);
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
@@ -104,10 +110,10 @@ impl System for CityCoverageQualification3 {
       ctx
         .expect::<lift_ramp::LiftRampSystem>()
         .lift_down(ctx.into());
-      if let Some(effect) = &mut self.lift_ramp_effect {
+      if let Some(effect) = &mut self.lift_ramp_program {
         effect.stop(ctx);
       }
-      self.lift_ramp_effect = None;
+      self.lift_ramp_program = None;
     } else if let Some(ScoopBallEntered(name)) = event.downcast_ref::<ScoopBallEntered>() {
       let svc_ctx: &ServiceContext = ctx.into();
       if (*name).eq(lower_scoop::SCOOP_NAME) {

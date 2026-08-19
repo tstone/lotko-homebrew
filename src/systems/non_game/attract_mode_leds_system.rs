@@ -1,7 +1,6 @@
 use std::sync::LazyLock;
 
 use frontbox::animation::*;
-use frontbox::prelude::color_sequence::Fill1d;
 use frontbox::prelude::tags::*;
 use frontbox::prelude::*;
 use frontbox_pin2dmd::menu::DmdMenuSystem;
@@ -21,57 +20,53 @@ static COLORS: LazyLock<Vec<Rgba<u8>>> = LazyLock::new(|| {
 });
 
 pub struct AttractModeLedsSystem {
-  effect: LedEffect,
+  effect: LedProgram1d,
   prior_pair: (Rgba<u8>, Rgba<u8>),
 }
 
 impl AttractModeLedsSystem {
   pub fn new() -> Self {
-    let (effect, from, to) = Self::rnd_effect(Rgba::cyan(), Rgba::magenta());
+    let (effect, from, to) = Self::rnd_program(Rgba::cyan(), Rgba::magenta());
     Self {
       effect,
       prior_pair: (from, to),
     }
   }
 
-  fn rnd_effect(from: Rgba<u8>, to: Rgba<u8>) -> (LedEffect, Rgba<u8>, Rgba<u8>) {
+  fn rnd_program(from: Rgba<u8>, to: Rgba<u8>) -> (LedProgram1d, Rgba<u8>, Rgba<u8>) {
     let colors = COLORS
       .as_slice()
       .sample(&mut rand::rng(), 2)
       .collect::<Vec<_>>();
 
-    let mut next = ColorSequence::fade(
-      colors[0].lighten(rand::random_range(0.0..=0.3)),
-      colors[1].darken(rand::random_range(0.0..=0.3)),
-    );
+    let next_from = colors[0].lighten(rand::random_range(0.0..=0.3));
+    let next_to = colors[1].darken(rand::random_range(0.0..=0.3));
+    let cycle = Cycle::Times(rand::random_range(1..5));
+    let duration = Duration::from_secs(rand::random_range(6..=12));
 
-    for _ in 0..5 {
-      if rand::random_bool(0.25) {
-        next = next.overwrite(
-          Fill1d::Pattern {
-            pattern: vec![Rgba::default()],
-            cycle: Cycle::Times(rand::random_range(1..5)),
-          },
-          color_sequence::Fill1dArea::Full,
-        )
-      }
-    }
-
-    let effect = LedEffect::cycle(
+    let program = LedProgram1d::rotating(
       Q::tag::<Playfield>(),
-      Duration::from_secs(rand::random_range(6..=12)),
+      ColorSequence::fade(from, to).shuffle(rand::random()),
+      duration,
       Curve::SmoothRandom,
-      Cycle::Once,
-      vec![ColorSequence::fade(from, to), next],
+      cycle,
     )
-    .shuffled(rand::random())
-    .rotating(
-      Duration::from_secs(rand::random_range(20..=32)),
-      Curve::Linear,
-      Cycle::Forever,
+    // Modulated starting color
+    .modulate(
+      Tween::new(duration, Curve::Linear, vec![from, next_from], cycle),
+      |colors, from| {
+        colors.fill.gradient_stops_mut().unwrap()[0] = GradientStop::new(0.0, from);
+      },
+    )
+    // Modulate ending color
+    .modulate(
+      Tween::new(duration, Curve::Linear, vec![to, next_to], cycle),
+      |colors, to| {
+        colors.fill.gradient_stops_mut().unwrap()[1] = GradientStop::new(1.0, to);
+      },
     );
 
-    (effect, *colors[0], *colors[1])
+    (program, *colors[0], *colors[1])
   }
 }
 
@@ -88,7 +83,7 @@ impl System for AttractModeLedsSystem {
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     if self.effect.is_complete() {
       let (prev_from, prev_to) = self.prior_pair;
-      let (effect, from, to) = Self::rnd_effect(prev_from, prev_to);
+      let (effect, from, to) = Self::rnd_program(prev_from, prev_to);
       self.prior_pair = (from, to);
       self.effect = effect;
       self.effect.apply(Duration::ZERO, ctx);

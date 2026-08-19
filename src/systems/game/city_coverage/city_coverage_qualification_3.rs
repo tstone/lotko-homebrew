@@ -3,6 +3,7 @@ use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::*;
 
 use crate::hardware::{ScoopBallEntered, lift_ramp, lower_scoop};
+use crate::systems::game::{HydroCore, MeridianBasins};
 use crate::systems::sounds;
 
 #[derive(Clone)]
@@ -43,11 +44,17 @@ impl CityCoverageQualification3 {
     self.lower_scoop_effect.stop(ctx);
 
     // TODO: launch menu
-
-    // TEMPORARY: move this to menu system:
+    // TODO: move this to menu system once thats implemented
     ctx
       .expect::<lower_scoop::LowerScoopSystem>()
       .set_mode(lower_scoop::LowerScoopMode::AutoEject, ctx);
+
+    // TEMP: Pick a random uncompleted tier 1 city and start it
+    if rand::random_bool(0.5) {
+      ctx.replace_self(MeridianBasins::new());
+    } else {
+      ctx.replace_self(HydroCore::new());
+    }
   }
 }
 

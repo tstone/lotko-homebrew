@@ -93,8 +93,8 @@ async fn main() {
           Duration::from_millis(185),
           Forever
         )),
-        CityCoverageQualification2::new(false, false, true),
-        CueTest,
+        CityCoverageQualification1::new(),
+        CityManager::default(),
       ],
       Q::tag::<tags::Playfield>(),
     ));
@@ -114,21 +114,3 @@ async fn main() {
   .run()
   .await;
 }
-
-#[derive(Clone)]
-pub struct CueTest;
-
-impl System for CueTest {
-  fn on_spawn(&mut self, ctx: &SystemContext) {
-    ctx.cue(TestTest, Cue::Once(Duration::from_secs(4)));
-  }
-
-  fn on_event(&mut self, event: &dyn Event, _ctx: &SystemContext) {
-    if event.is::<TestTest>() {
-      log::info!("=> => Test test");
-    }
-  }
-}
-
-#[derive(Serialize, Event)]
-struct TestTest;

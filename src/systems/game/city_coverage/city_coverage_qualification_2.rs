@@ -1,7 +1,10 @@
+use rand::Rng;
+
 use frontbox::animation::{Accumulator, Curve};
 use frontbox::prelude::*;
 use frontbox_sound::*;
 use frontbox_turn_based::*;
+use rand::prelude::RngExt;
 
 use crate::hardware::*;
 use crate::systems::game::CityCoverageQualification3;
@@ -38,6 +41,13 @@ impl CityCoverageQualification2 {
       .rotating(Duration::from_millis(30), Curve::Linear, Cycle::Forever)
       .stopped(),
     }
+  }
+
+  /// Creates a new Qualification2 instance with 1 shot randomly completed
+  pub fn new_rnd() -> Self {
+    let mut completed = vec![false; 3];
+    completed[rand::rng().random_range(0..3)] = true;
+    Self::new(completed[0], completed[1], completed[2])
   }
 
   fn create_led_effect(query: HardwareQuery, hit: bool) -> Option<LedEffect> {

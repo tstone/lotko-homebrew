@@ -1,9 +1,11 @@
 use std::cell::RefMut;
 use std::collections::HashMap;
+use std::path::Path;
 
 use crate::hardware::city_map;
 use crate::systems::game::*;
 use frontbox::prelude::*;
+use frontbox_sound::SoundSystem;
 use frontbox_turn_based::GameManagementExt;
 
 #[derive(Clone, Default)]
@@ -123,6 +125,10 @@ impl System for CityManager {
     ctx.spawn_system(HydroCore::new());
     // and the first qualification mode
     ctx.spawn_system(CityCoverageQualification2::new_rnd());
+
+    ctx
+      .expect::<SoundSystem>()
+      .play_music(Path::new("/userdata/home/armsom/music/colyn-rushing.mp3"));
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {

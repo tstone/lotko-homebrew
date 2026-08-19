@@ -52,6 +52,13 @@ impl CityCoverageQualification3 {
 }
 
 impl System for CityCoverageQualification3 {
+  fn is_active(&self, ctx: &SystemContext) -> bool {
+    ctx
+      .get::<GameManager>()
+      .map(|game| game.turn_state() == Some(&TurnState::Active))
+      .unwrap_or(false)
+  }
+
   fn on_spawn(&mut self, ctx: &SystemContext) {
     ctx
       .expect::<lower_scoop::LowerScoopSystem>()

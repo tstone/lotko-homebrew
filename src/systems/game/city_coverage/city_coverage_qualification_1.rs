@@ -16,6 +16,13 @@ impl CityCoverageQualification1 {
 }
 
 impl System for CityCoverageQualification1 {
+  fn is_active(&self, ctx: &SystemContext) -> bool {
+    ctx
+      .get::<GameManager>()
+      .map(|game| game.turn_state() == Some(&TurnState::Active))
+      .unwrap_or(false)
+  }
+
   fn on_spawn(&mut self, ctx: &SystemContext) {
     ctx.declare_leds(
       &left_orbit::hex_center_led_q(),

@@ -71,6 +71,13 @@ impl CityCoverageQualification2 {
 }
 
 impl System for CityCoverageQualification2 {
+  fn is_active(&self, ctx: &SystemContext) -> bool {
+    ctx
+      .get::<GameManager>()
+      .map(|game| game.turn_state() == Some(&TurnState::Active))
+      .unwrap_or(false)
+  }
+
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     if let Some(effect) = self.left_orbit_effect.as_mut() {
       effect.apply(delta, ctx);

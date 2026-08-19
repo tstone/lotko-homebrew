@@ -58,8 +58,10 @@ impl System for CityCoverageQualification3 {
       .set_mode(lower_scoop::LowerScoopMode::ModeStart, ctx);
     ctx
       .expect::<lift_ramp::LiftRampSystem>()
-      // TODO: should this hurry up time be flexed up or down depending on other achievements? (yes)
-      .lift_up(ctx.into(), Duration::from_secs(25));
+      .lift_up(ctx.into());
+
+    // TODO: should this hurry up time be flexed up or down depending on other achievements? (yes)
+    ctx.cue(LiftRampHurryUpDone, Cue::Once(Duration::from_secs(25)));
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
@@ -70,7 +72,10 @@ impl System for CityCoverageQualification3 {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<lift_ramp::LiftRampDown>() {
+    if event.is::<LiftRampHurryUpDone>() {
+      ctx
+        .expect::<lift_ramp::LiftRampSystem>()
+        .lift_down(ctx.into());
       if let Some(effect) = &mut self.lift_ramp_effect {
         effect.stop(ctx);
       }
@@ -87,3 +92,6 @@ impl System for CityCoverageQualification3 {
     }
   }
 }
+
+#[derive(serde::Serialize, Event)]
+struct LiftRampHurryUpDone;

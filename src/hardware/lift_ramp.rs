@@ -122,14 +122,13 @@ impl LiftRampSystem {
     self.ramp_lifted
   }
 
-  pub fn lift_up(&mut self, ctx: &ServiceContext, max_duration: Duration) {
+  pub fn lift_up(&mut self, ctx: &ServiceContext) {
     if !self.ramp_lifted {
       let ctx = ctx.for_system(self.handle);
       log::info!("Lifting ramp up.");
-      self.ramp_lifted = true;
       ctx.activate_driver(RAMP_COIL.name, VirtualSwitchOn);
+      self.ramp_lifted = true;
       ctx.emit(LiftRampUp);
-      self.close_cue_id = Some(ctx.cue(CloseRamp, Cue::Once(max_duration)));
     }
   }
 
@@ -166,6 +165,19 @@ impl System for LiftRampSystem {
       && event.switch.name == SCOOP_OPTO.name
     {
       ctx.emit(ScoopBallEntered(SCOOP_NAME));
+    }
+  }
+
+  fn on_deactivate(&mut self, ctx: &SystemContext) {
+    if self.is_lifted() {
+      self.lift_down(ctx.into());
+    }
+  }
+
+  fn on_reactivate(&mut self, ctx: &SystemContext) {
+    // If the ramp was up before, raise it up again
+    if self.is_lifted() {
+      self.lift_up(ctx.into());
     }
   }
 }

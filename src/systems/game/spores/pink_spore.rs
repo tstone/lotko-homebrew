@@ -128,8 +128,6 @@ impl Spore for PinkSpore {
       self.push_next_decay(&shot);
     }
 
-    log::info!("PinkSpore: {:?}", self.nodes);
-
     results
   }
 }

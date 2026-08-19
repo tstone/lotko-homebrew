@@ -41,13 +41,16 @@ impl CityCoverageQualification2 {
 
   fn hex_led_program(query: HardwareQuery, hit: bool) -> Option<LedProgram1d> {
     if !hit {
-      Some(LedProgram1d::rotating(
-        query,
-        ColorSequence::exact(vec![Rgba::white(), Rgba::default(), Rgba::default()]),
-        Duration::from_millis(520),
-        Curve::Linear,
-        Cycle::Forever,
-      ))
+      Some(
+        LedProgram1d::rotating(
+          query,
+          ColorSequence::exact(vec![Rgba::white(), Rgba::default(), Rgba::default()]),
+          Duration::from_millis(520),
+          Curve::Linear,
+          Cycle::Forever,
+        )
+        .playing(),
+      )
     } else {
       None
     }

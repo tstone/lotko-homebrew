@@ -77,6 +77,7 @@ async fn main() {
 
     // game
     app.system(activate_playfield());
+    app.system(EndOfBallSystem::new());
     app.system(GameManager::competitive(
       4,
       systems![
@@ -105,9 +106,6 @@ async fn main() {
     ));
     app.system(AutoPlungerSystem::new(plunge_lane::COIL.name));
     // TODO: action button plunge
-
-    // temporary stuff
-    app.system(AutoTurnAdvance::new());
   })
   .run()
   .await;

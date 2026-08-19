@@ -20,15 +20,15 @@ static COLORS: LazyLock<Vec<Rgba<u8>>> = LazyLock::new(|| {
 });
 
 pub struct AttractModeLedsSystem {
-  effect: LedProgram1d,
+  program: LedProgram1d,
   prior_pair: (Rgba<u8>, Rgba<u8>),
 }
 
 impl AttractModeLedsSystem {
   pub fn new() -> Self {
-    let (effect, from, to) = Self::rnd_program(Rgba::cyan(), Rgba::magenta());
+    let (program, from, to) = Self::rnd_program(Rgba::cyan(), Rgba::magenta());
     Self {
-      effect,
+      program,
       prior_pair: (from, to),
     }
   }
@@ -47,8 +47,8 @@ impl AttractModeLedsSystem {
     let program = LedProgram1d::rotating(
       Q::tag::<Playfield>(),
       ColorSequence::fade(from, to).shuffle(rand::random()),
-      duration,
-      Curve::SmoothRandom,
+      Duration::from_secs(36),
+      Curve::Steps(12),
       cycle,
     )
     // Modulated starting color
@@ -64,7 +64,8 @@ impl AttractModeLedsSystem {
       |colors, to| {
         colors.fill.gradient_stops_mut().unwrap()[1] = GradientStop::new(1.0, to);
       },
-    );
+    )
+    .playing();
 
     (program, *colors[0], *colors[1])
   }
@@ -81,14 +82,14 @@ impl System for AttractModeLedsSystem {
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if self.effect.is_complete() {
+    if self.program.is_complete() {
       let (prev_from, prev_to) = self.prior_pair;
-      let (effect, from, to) = Self::rnd_program(prev_from, prev_to);
+      let (program, from, to) = Self::rnd_program(prev_from, prev_to);
       self.prior_pair = (from, to);
-      self.effect = effect;
-      self.effect.apply(Duration::ZERO, ctx);
+      self.program = program;
+      self.program.apply(Duration::ZERO, ctx);
     } else {
-      self.effect.apply(delta, ctx);
+      self.program.apply(delta, ctx);
     }
   }
 }

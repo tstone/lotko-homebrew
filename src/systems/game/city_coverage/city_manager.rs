@@ -125,7 +125,9 @@ impl System for CityManager {
     ctx.spawn_system(HydroCore::new());
     // and the first qualification mode
     ctx.spawn_system(CityCoverageQualification2::new_rnd());
+  }
 
+  fn on_reactivate(&mut self, ctx: &SystemContext) {
     ctx
       .expect::<SoundSystem>()
       .play_music(Path::new("/userdata/home/armsom/music/colyn-rushing.mp3"));

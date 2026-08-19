@@ -10,6 +10,7 @@ pub mod captive_ball;
 pub mod center_orbit;
 pub mod city_map;
 pub mod drop_bank;
+pub mod flashers;
 pub mod gi;
 pub mod left_orbit;
 pub mod left_ramp;

@@ -22,6 +22,9 @@ pub fn exp_network() -> ExpNetwork {
           &vspinner::upper_right_ray::LED2,
           &vspinner::upper_right_ray::LED1,
           &pop_cluster::upper_right::TARGET_LED,
+          &flashers::LEFT_FLASHER,
+          &arc_ramp::ARC_LEDS,
+          &flashers::CENTER_FLASHER,
         ]),
       )
       .wire_led_port(

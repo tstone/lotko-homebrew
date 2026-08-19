@@ -108,6 +108,7 @@ impl LowerScoopSystem {
 
   fn complete_eject(&mut self, ctx: &SystemContext) {
     ctx.activate_driver(COIL.name, ActivationMode::Tap);
+    log::info!("Stopping LEDs after complete eject");
     self.eject_program.stop(ctx);
   }
 

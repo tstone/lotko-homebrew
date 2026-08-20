@@ -5,10 +5,15 @@ use std::sync::LazyLock;
 use crate::hardware::more_tags::*;
 
 hardware_defs! {
-  pub OPTO: SwitchDefinition = SwitchDefinition::new("vspinner");
+  pub OPTO: SwitchDefinition = SwitchDefinition::new("vspinner")
+    .inverted()
+    .debounce(Duration::from_millis(12))
+    .tag(Playfield)
+    .tag(Spinner);
 
   // Circular ring under the verticals pinner
   pub LEDS: LedDefinition = LedDefinition::multi("vspinner", 12)
+    .tag(Spinner)
     .tag(Playfield);
 }
 

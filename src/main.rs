@@ -1,7 +1,6 @@
 use frontbox::prelude::Cycle::Forever;
 use frontbox::prelude::*;
 use frontbox::provided::{AutoPlungerSystem, PlungeLaneSystem};
-use frontbox::tags::GeneralIllumination;
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
 use frontbox_sound::SoundSystem;
@@ -89,6 +88,7 @@ async fn main() {
         left_orbit::LeftOrbitSystem::new(),
         center_orbit::CenterOrbitSystem::new(),
         right_orbit::RightOrbitSystem::new(),
+        drop_bank::DropBankSystem::new(),
         BallSaveSystem::new(Duration::from_secs(5)).effect(LedProgram1d::flash(
           DRAIN_LED.q(),
           ColorSequence::solid(Rgba::green()),

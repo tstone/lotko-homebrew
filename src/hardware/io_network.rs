@@ -21,6 +21,7 @@ use crate::hardware::right_pass_lane;
 use crate::hardware::slingshots;
 use crate::hardware::trough;
 use crate::hardware::upper_flipper;
+use crate::hardware::vspinner;
 
 pub fn io_network() -> IoNetwork {
   IoNetwork::new(vec![
@@ -52,6 +53,10 @@ pub fn io_network() -> IoNetwork {
       .wire_switch(6, &pop_cluster::left::SPOON_SWITCH)
       .wire_switch(7, &lower_scoop::OPTO)
       .wire_switch(8, &pop_cluster::left::TARGET_SWITCH)
+      .wire_switch(12, &vspinner::OPTO)
+      .wire_switch(13, &drop_bank::TARGET3)
+      .wire_switch(14, &drop_bank::TARGET2)
+      .wire_switch(15, &drop_bank::TARGET1)
       .wire_switch(18, &trough::SWITCH1)
       .wire_switch(19, &trough::SWITCH3)
       .wire_switch(20, &trough::SWITCH2)
@@ -85,6 +90,8 @@ pub fn io_network() -> IoNetwork {
       .wire_switch(5, &captive_ball::TARGET_SWITCH)
       .wire_switch(6, &pop_cluster::upper_right::TARGET_SWITCH)
       .wire_switch(7, &pop_cluster::upper_right::SPOON_SWITCH)
+      .wire_switch(8, &arc_ramp::RAMP_OPTO)
+      .wire_switch(9, &center_orbit::SPINNER_OPTO)
       .wire_switch(12, &right_orbit::SWITCH)
       .wire_switch(13, &arc_ramp::SUBWAY_OPTO)
       .wire_switch(14, &left_orbit::SWITCH)
@@ -97,6 +104,7 @@ pub fn io_network() -> IoNetwork {
       .wire_driver(4, &lift_ramp::RAMP_COIL)
       .wire_driver(5, &pop_cluster::upper_right::COIL)
       .wire_driver(6, &pop_cluster::lower_right::COIL)
-      .wire_driver(7, &lower_scoop::COIL),
+      .wire_driver(7, &lower_scoop::COIL)
+      .wire_driver(8, &drop_bank::COIL),
   ])
 }

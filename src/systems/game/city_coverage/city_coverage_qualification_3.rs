@@ -1,5 +1,6 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::*;
+use frontbox::tags::Playfield;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::*;
 
@@ -13,6 +14,7 @@ pub struct CityCoverageQualification3 {
   lift_ramp_program: Option<LedProgram1d>,
   lower_scoop_program: LedProgram1d,
   handle: SystemHandle,
+  complete_program: LedProgram1d,
 }
 
 impl CityCoverageQualification3 {
@@ -23,21 +25,35 @@ impl CityCoverageQualification3 {
       ColorSequence::solid(Rgba::cyan()),
     ];
     Self {
-      lift_ramp_program: Some(LedProgram1d::tween(
-        lift_ramp::BOLT_LED.q(),
-        Duration::from_millis(83 * 3),
-        Curve::SmoothRandom,
-        Cycle::Forever,
-        colors.clone(),
-      )),
+      handle: SystemHandle::default(),
+      lift_ramp_program: Some(
+        LedProgram1d::tween(
+          lift_ramp::BOLT_LED.q(),
+          Duration::from_millis(83 * 3),
+          Curve::SmoothRandom,
+          Cycle::Forever,
+          colors.clone(),
+        )
+        .playing(),
+      ),
       lower_scoop_program: LedProgram1d::tween(
         lower_scoop::bolts_q(),
         Duration::from_millis(83 * 3),
         Curve::SmoothRandom,
         Cycle::Forever,
         colors,
+      )
+      .playing(),
+      complete_program: LedProgram1d::tween(
+        Q::tag::<Playfield>().at_z(-1),
+        Duration::from_millis(1000),
+        Curve::EaseOut,
+        Cycle::Once,
+        vec![
+          ColorSequence::solid(Rgba::magenta()),
+          ColorSequence::solid(Rgba::default()),
+        ],
       ),
-      handle: SystemHandle::default(),
     }
   }
 
@@ -103,6 +119,11 @@ impl System for CityCoverageQualification3 {
       effect.apply(delta, ctx);
     }
     self.lower_scoop_program.apply(delta, ctx);
+    self.complete_program.apply(delta, ctx);
+
+    if self.complete_program.is_complete() {
+      self.complete(ctx.into());
+    }
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
@@ -117,10 +138,10 @@ impl System for CityCoverageQualification3 {
     } else if let Some(ScoopBallEntered(name)) = event.downcast_ref::<ScoopBallEntered>() {
       let svc_ctx: &ServiceContext = ctx.into();
       if (*name).eq(lower_scoop::SCOOP_NAME) {
-        self.complete(ctx.into());
+        self.complete_program.play();
         ctx.expect::<LowerScoopSystem>().eject(svc_ctx);
       } else if (*name).eq(lift_ramp::SCOOP_NAME) {
-        self.complete(svc_ctx);
+        self.complete_program.play();
         ctx.expect::<lift_ramp::LiftRampSystem>().eject(svc_ctx);
       }
     }

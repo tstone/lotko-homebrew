@@ -7,7 +7,8 @@ hardware_defs! {
   pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("cap_ball_target")
     .tag(Playfield);
 
-  pub REST_SWITCH: SwitchDefinition = SwitchDefinition::new("cap_ball_rest");
+  pub REST_SWITCH: SwitchDefinition = SwitchDefinition::new("cap_ball_rest")
+    .tag(Playfield);
 
   pub LEFT_BOLT: LedDefinition = LedDefinition::single("l_cap_ball_bolt")
     .tag(Bolt)

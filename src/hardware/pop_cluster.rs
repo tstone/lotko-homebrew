@@ -16,8 +16,8 @@ pub mod left {
       })
       .tag(Playfield);
 
-    pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("l_spoon");
-    pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("l_target");
+    pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("l_spoon").tag(Playfield);
+    pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("l_target").tag(Playfield);
 
     pub POP_LED: LedDefinition = LedDefinition::single("l_pop_led")
       .tag(Playfield)
@@ -46,8 +46,12 @@ pub mod upper_right {
       })
       .tag(Playfield);
 
-    pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("ur_spoon").debounce_close(Duration::from_millis(8));
-    pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("ur_target");
+    pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("ur_spoon")
+      .debounce_close(Duration::from_millis(8))
+      .tag(Playfield);
+
+    pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("ur_target")
+      .tag(Playfield);
 
     pub POP_LED: LedDefinition = LedDefinition::single("ur_pop_led")
       .tag(Playfield)
@@ -76,8 +80,8 @@ pub mod lower_right {
       })
       .tag(Playfield);
 
-    pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("lr_spoon");
-    pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("lr_target");
+    pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("lr_spoon").tag(Playfield);
+    pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("lr_target").tag(Playfield);
 
     pub POP_LED: LedDefinition = LedDefinition::single("lr_pop_led")
       .tag(Playfield)

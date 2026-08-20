@@ -125,6 +125,7 @@ impl System for CityManager {
     ctx.spawn_system(HydroCore::new());
     // and the first qualification mode
     ctx.spawn_system(CityCoverageQualification2::new_rnd());
+    // ctx.spawn_system(CityCoverageQualification3::new());
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {

@@ -158,7 +158,7 @@ impl AttractModeDmdSystem {
 
   fn cue_next(&mut self, ctx: &SystemContext) {
     self.cancel_cue(ctx);
-    self.cue_id = Some(ctx.cue(NextScreen, Cue::Loop(Duration::from_secs(7))));
+    self.cue_id = Some(ctx.cue(NextScreen, Cue::Loop(Duration::from_secs(6))));
   }
 
   fn cancel_cue(&mut self, ctx: &SystemContext) {
@@ -183,6 +183,10 @@ impl System for AttractModeDmdSystem {
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
+    self.cue_next(ctx);
+  }
+
+  fn on_spawn(&mut self, ctx: &SystemContext) {
     self.cue_next(ctx);
   }
 

@@ -1,6 +1,7 @@
 use frontbox::prelude::Cycle::Forever;
 use frontbox::prelude::*;
 use frontbox::provided::{AutoPlungerSystem, PlungeLaneSystem};
+use frontbox::tags::GeneralIllumination;
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
 use frontbox_sound::SoundSystem;
@@ -94,6 +95,7 @@ async fn main() {
           Forever
         )),
         CityManager::default(),
+        PlayfieldIllumination::new(),
       ],
       Q::tag::<tags::Playfield>(),
     ));

@@ -17,7 +17,7 @@ hardware_defs! {
       initial_pwm_length: HardwareValue::config(
         "Lift Ramp Kick Duration",
         "Amount of time to initially kick the lift ramp open",
-        Duration::from_millis(20),
+        Duration::from_millis(22),
         Ranges::duration(5, 100)
       ),
       initial_pwm_power: HardwareValue::config(

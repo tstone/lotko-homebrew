@@ -103,6 +103,7 @@ impl LowerScoopSystem {
     let ctx = ctx.for_system(self.handle);
     ctx.play_sfx(LOWER_SCOOP_EJECT_SND);
     ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
+    self.eject_program.reset();
     self.eject_program.play();
   }
 

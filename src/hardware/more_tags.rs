@@ -14,3 +14,6 @@ pub struct SmallArrow;
 
 #[derive(Tag)]
 pub struct Circle;
+
+#[derive(Tag)]
+pub struct DropBank;

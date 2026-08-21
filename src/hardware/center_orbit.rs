@@ -6,8 +6,15 @@ use crate::hardware::more_tags::*;
 pub const NAME: &'static str = "center_orbit";
 
 hardware_defs! {
-  pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME);
-  pub SPINNER_OPTO: SwitchDefinition = SwitchDefinition::new("center_spinner");
+  pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
+    .tag(Lane)
+    .tag(Playfield);
+
+  pub SPINNER_OPTO: SwitchDefinition = SwitchDefinition::new("center_spinner")
+    .inverted()
+    .debounce_close(Duration::from_millis(10))
+    .tag(Spinner)
+    .tag(Playfield);
 
   pub SPINNER_LED: LedDefinition = LedDefinition::single("center_spinner")
     .tag(Circle)

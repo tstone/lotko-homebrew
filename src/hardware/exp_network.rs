@@ -22,9 +22,9 @@ pub fn exp_network() -> ExpNetwork {
           &vspinner::upper_right_ray::LED2,
           &vspinner::upper_right_ray::LED1,
           &pop_cluster::upper_right::TARGET_LED,
-          &flashers::LEFT_FLASHER,
-          &arc_ramp::ARC_LEDS,
-          &flashers::CENTER_FLASHER,
+          &flashers::LEFT_FLASHER,   // 8
+          &arc_ramp::ARC_LEDS,       // 18
+          &flashers::CENTER_FLASHER, // 8
         ]),
       )
       .wire_led_port(
@@ -53,6 +53,14 @@ pub fn exp_network() -> ExpNetwork {
           &city_map::SPORE_COUNT_BAR,
           &slingshots::POST_LEDS3,
           &slingshots::POST_LEDS4,
+        ]),
+      )
+      .wire_led_port(
+        5,
+        LedPort::ws2812().leds(vec![
+          &drop_bank::TARGET1_LEDS,
+          &drop_bank::TARGET2_LEDS,
+          &drop_bank::TARGET3_LEDS,
         ]),
       )
       .wire_led_port(

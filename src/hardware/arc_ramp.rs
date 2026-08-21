@@ -4,7 +4,9 @@ use frontbox::prelude::*;
 use frontbox::tags::*;
 
 hardware_defs! {
-  pub RAMP_OPTO: SwitchDefinition = SwitchDefinition::new("arc_opto");
+  pub RAMP_OPTO: SwitchDefinition = SwitchDefinition::new("arc_opto")
+    .inverted()
+    .tag(Playfield);
 
   /// detects when the ball has entered the arc subway
   pub SUBWAY_OPTO: SwitchDefinition = SwitchDefinition::new("arc_subway")

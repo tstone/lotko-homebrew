@@ -1,5 +1,8 @@
 use frontbox::prelude::*;
 use frontbox::tags::*;
+use frontbox_turn_based::GameStarted;
+
+use crate::hardware::more_tags::DropBank;
 
 hardware_defs! {
   pub COIL: DriverDefinition = DriverDefinition::new("drop")
@@ -21,10 +24,23 @@ hardware_defs! {
       ..Default::default()
     });
 
-  pub TARGET1: SwitchDefinition = SwitchDefinition::new("drop_target1");
-  pub TARGET2: SwitchDefinition = SwitchDefinition::new("drop_target2");
-  pub TARGET3: SwitchDefinition = SwitchDefinition::new("drop_target3");
-  pub PADDLE_SWITCH: SwitchDefinition = SwitchDefinition::new("drop_paddle");
+  pub TARGET1: SwitchDefinition = SwitchDefinition::new("drop_target1")
+    .inverted()
+    .tag(DropBank)
+    .tag(Playfield);
+
+  pub TARGET2: SwitchDefinition = SwitchDefinition::new("drop_target2")
+    .inverted()
+    .tag(DropBank)
+    .tag(Playfield);
+
+  pub TARGET3: SwitchDefinition = SwitchDefinition::new("drop_target3")
+    .inverted()
+    .tag(DropBank)
+    .tag(Playfield);
+
+  pub PADDLE_SWITCH: SwitchDefinition = SwitchDefinition::new("drop_paddle")
+    .tag(Playfield);
 
   pub TARGET1_LEDS: LedDefinition = LedDefinition::strip("target1", 4)
     .tag(Insert)
@@ -40,4 +56,36 @@ hardware_defs! {
 
   pub PADDLE_LED: LedDefinition = LedDefinition::single("paddle")
     .tag(Playfield);
+}
+
+#[derive(Clone)]
+pub struct DropBankSystem {
+  handle: SystemHandle,
+}
+
+impl DropBankSystem {
+  pub fn new() -> Self {
+    Self {
+      handle: SystemHandle::default(),
+    }
+  }
+
+  pub fn raise_targets(&self, ctx: &ServiceContext) {
+    ctx
+      .for_system(self.handle)
+      .activate_driver(COIL.name, ActivationMode::Tap);
+  }
+}
+
+impl System for DropBankSystem {
+  fn on_spawn(&mut self, ctx: &SystemContext) {
+    self.handle = *ctx.current_handle();
+  }
+
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    // TODO: can this "see" the game started event or does that happen before it's spawned?
+    if event.is::<GameStarted>() {
+      self.raise_targets(ctx.into());
+    }
+  }
 }

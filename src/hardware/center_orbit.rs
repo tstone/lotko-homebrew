@@ -33,15 +33,15 @@ hardware_defs! {
 pub static HEX_CENTER_LED: LazyLock<HardwareQuery> =
   LazyLock::new(|| HEX_LEDS.child(6).unwrap().q());
 
-pub fn hex_line_leds_q() -> HardwareQuery {
+pub static HEX_LINE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
   Q::names(vec![
     HEX_LEDS.child(5).unwrap().name(),
     HEX_LEDS.child(6).unwrap().name(),
     HEX_LEDS.child(2).unwrap().name(),
   ])
-}
+});
 
-pub fn hex_circle_leds_q() -> HardwareQuery {
+pub static HEX_CIRCLE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
   // TODO: verify order
   Q::names(vec![
     HEX_LEDS.child(0).unwrap().name(),
@@ -51,7 +51,7 @@ pub fn hex_circle_leds_q() -> HardwareQuery {
     HEX_LEDS.child(4).unwrap().name(),
     HEX_LEDS.child(5).unwrap().name(),
   ])
-}
+});
 
 #[derive(Clone)]
 pub struct CenterOrbitSystem;

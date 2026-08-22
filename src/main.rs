@@ -53,7 +53,8 @@ async fn main() {
     app.system(FreePlay::new(start_button::SWITCH.q()));
     app.system(SoundLoaderSystem::new());
     app.system(game_startable());
-    app.system(AttractModeLedsSystem::new());
+    // app.system(AttractModeLedsSystem::new());
+    app.system(HexTest::new());
     app.system(StartupEject::new());
 
     // dmd

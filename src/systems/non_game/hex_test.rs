@@ -21,12 +21,12 @@ impl HexTest {
   fn center_program() -> LedProgram1d {
     LedProgram1d::fixed(
       Q::any_of(vec![
-        left_orbit::HEX_CENTER_LED.clone(),
-        left_ramp::HEX_CENTER_LED.clone(),
-        arc_ramp::HEX_CENTER_LED.clone(),
-        center_orbit::HEX_CENTER_LED.clone(),
-        lift_ramp::HEX_CENTER_LED.clone(),
-        right_orbit::HEX_CENTER_LED.clone(),
+        &left_orbit::HEX_CENTER_LED,
+        &left_ramp::HEX_CENTER_LED,
+        &arc_ramp::HEX_CENTER_LED,
+        &center_orbit::HEX_CENTER_LED,
+        &lift_ramp::HEX_CENTER_LED,
+        &right_orbit::HEX_CENTER_LED,
       ]),
       ColorSequence::solid(Rgba::white()),
     )
@@ -37,12 +37,12 @@ impl HexTest {
     let pattern = ColorSequence::fade(Rgba::blue(), Rgba::yellow()).generate(3);
     LedProgram1d::fixed(
       Q::any_of(vec![
-        left_orbit::HEX_LINE_LEDS.clone(),
-        left_ramp::HEX_LINE_LEDS.clone(),
-        arc_ramp::HEX_LINE_LEDS.clone(),
-        center_orbit::HEX_LINE_LEDS.clone(),
-        lift_ramp::HEX_LINE_LEDS.clone(),
-        right_orbit::HEX_LINE_LEDS.clone(),
+        &left_orbit::HEX_LINE_LEDS,
+        &left_ramp::HEX_LINE_LEDS,
+        &arc_ramp::HEX_LINE_LEDS,
+        &center_orbit::HEX_LINE_LEDS,
+        &lift_ramp::HEX_LINE_LEDS,
+        &right_orbit::HEX_LINE_LEDS,
       ]),
       ColorSequence::tile(pattern),
     )
@@ -53,12 +53,12 @@ impl HexTest {
     let pattern = ColorSequence::fade(Rgba::blue(), Rgba::red()).generate(6);
     LedProgram1d::fixed(
       Q::any_of(vec![
-        left_orbit::HEX_CIRCLE_LEDS.clone(),
-        left_ramp::HEX_CIRCLE_LEDS.clone(),
-        arc_ramp::HEX_CIRCLE_LEDS.clone(),
-        center_orbit::HEX_CIRCLE_LEDS.clone(),
-        lift_ramp::HEX_CIRCLE_LEDS.clone(),
-        right_orbit::HEX_CIRCLE_LEDS.clone(),
+        &left_orbit::HEX_CIRCLE_LEDS,
+        &left_ramp::HEX_CIRCLE_LEDS,
+        &arc_ramp::HEX_CIRCLE_LEDS,
+        &center_orbit::HEX_CIRCLE_LEDS,
+        &lift_ramp::HEX_CIRCLE_LEDS,
+        &right_orbit::HEX_CIRCLE_LEDS,
       ]),
       ColorSequence::tile(pattern),
     )

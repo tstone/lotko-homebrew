@@ -8,6 +8,7 @@ use crate::hardware::more_tags::ArcRamp;
 hardware_defs! {
   pub RAMP_OPTO: SwitchDefinition = SwitchDefinition::new("arc_opto")
     .inverted()
+    .debounce(Duration::from_millis(2))
     .tag(Playfield);
 
   /// detects when the ball has entered the arc subway

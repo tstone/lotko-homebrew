@@ -4,7 +4,7 @@ use std::sync::LazyLock;
 use frontbox::animation::*;
 use frontbox::prelude::tags::GeneralIllumination;
 use frontbox::prelude::*;
-use frontbox_turn_based::{GameEnded, GameManagementExt};
+use frontbox_turn_based::{GameEnded, GameManagementExt, PlayerTurnEnding};
 
 use crate::hardware::arc_ramp::{self, ArcRampHit, ArcRampSubwayHit};
 use crate::hardware::center_orbit;
@@ -41,8 +41,10 @@ impl HydroCoreSystem {
       gi_program: LedProgram1d::fixed(
         Q::tag::<GeneralIllumination>().at_z(1),
         ColorSequence::solid(Rgba::cyan().lighten(0.4)),
-      ),
-      arc_program: LedProgram1d::breathe(Q::tag::<ArcRamp>(), Rgba::cyan(), Cycle::Forever),
+      )
+      .stopped(),
+      arc_program: LedProgram1d::breathe(Q::tag::<ArcRamp>(), Rgba::cyan(), Cycle::Forever)
+        .stopped(),
       combo_hits: HashSet::new(),
     }
   }
@@ -97,8 +99,8 @@ impl HydroCoreSystem {
   fn start_combo(&mut self, shot: u8, ctx: &SystemContext) {
     let cue_id = ctx.cue(ComboTimeUp, Cue::Once(Duration::from_secs(20)));
     self.state = HydroCoreState::ComboShot(shot, cue_id);
+
     self.led_program.stop(ctx);
-    // BUG: this never comes on
     self.led_program = match shot {
       1 => Self::combo_hex_program(&*lift_ramp::HEX_CENTER_LED),
       2 => Self::combo_hex_program(&*arc_ramp::HEX_CENTER_LED),
@@ -160,10 +162,9 @@ impl HydroCoreSystem {
 
 impl System for HydroCoreSystem {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx
-      .expect::<ExclusiveModeManager>()
-      .current_mode()
-      .is_none()
+    let mode_manager = ctx.expect::<ExclusiveModeManager>();
+    mode_manager.current_mode().is_none()
+      || mode_manager.current_mode() == &Some(ExclusiveMode::HydroCore)
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
@@ -219,6 +220,14 @@ impl System for HydroCoreSystem {
       self.led_program.stop(ctx);
       self.gi_program.stop(ctx);
       self.arc_program.stop(ctx);
+    }
+
+    // If the plain drains, reset the combo
+    if event.is::<PlayerTurnEnding>()
+      && let HydroCoreState::ComboShot(_, cue_id) = self.state
+    {
+      log::info!("Resetting HydrCore combo because of drain");
+      self.advance_combo(1, cue_id, ctx);
     }
   }
 

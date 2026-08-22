@@ -25,9 +25,9 @@ pub static HEX_CENTER_LED: LazyLock<HardwareQuery> =
 
 pub static HEX_LINE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
   Q::names(vec![
-    HEX_LEDS.child(5).unwrap().name(),
-    HEX_LEDS.child(6).unwrap().name(),
     HEX_LEDS.child(2).unwrap().name(),
+    HEX_LEDS.child(6).unwrap().name(),
+    HEX_LEDS.child(5).unwrap().name(),
   ])
 });
 

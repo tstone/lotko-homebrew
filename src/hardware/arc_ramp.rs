@@ -32,12 +32,11 @@ hardware_defs! {
 pub static HEX_CENTER_LED: LazyLock<HardwareQuery> =
   LazyLock::new(|| HEX_LEDS.child(6).unwrap().q());
 
-// TODO: not sure of the exact indexes
 pub static HEX_LINE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
   Q::names(vec![
-    HEX_LEDS.child(1).unwrap().name(),
+    HEX_LEDS.child(3).unwrap().name(),
     HEX_LEDS.child(6).unwrap().name(),
-    HEX_LEDS.child(4).unwrap().name(),
+    HEX_LEDS.child(0).unwrap().name(),
   ])
 });
 

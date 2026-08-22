@@ -1,14 +1,19 @@
 use frontbox::prelude::*;
 
-use crate::hardware::{arc_ramp, center_orbit, left_orbit, left_ramp, lift_ramp, right_orbit};
+use crate::hardware::{
+  arc_ramp, cabinet::RIGHT_FLIPPER_SWITCH1, center_orbit, left_orbit, left_ramp, lift_ramp,
+  right_orbit,
+};
 
 pub struct HexTest {
   program: LedProgram1d,
+  state: State,
 }
 
 impl HexTest {
   pub fn new() -> Self {
     Self {
+      state: State::Center,
       program: Self::center_program(),
     }
   }
@@ -29,6 +34,7 @@ impl HexTest {
   }
 
   fn line_program() -> LedProgram1d {
+    let pattern = ColorSequence::fade(Rgba::blue(), Rgba::yellow()).generate(3);
     LedProgram1d::fixed(
       Q::any_of(vec![
         left_orbit::HEX_LINE_LEDS.clone(),
@@ -38,12 +44,13 @@ impl HexTest {
         lift_ramp::HEX_LINE_LEDS.clone(),
         right_orbit::HEX_LINE_LEDS.clone(),
       ]),
-      ColorSequence::fade(Rgba::yellow(), Rgba::blue()),
+      ColorSequence::tile(pattern),
     )
     .playing()
   }
 
   fn circle_program() -> LedProgram1d {
+    let pattern = ColorSequence::fade(Rgba::blue(), Rgba::red()).generate(6);
     LedProgram1d::fixed(
       Q::any_of(vec![
         left_orbit::HEX_CIRCLE_LEDS.clone(),
@@ -53,34 +60,44 @@ impl HexTest {
         lift_ramp::HEX_CIRCLE_LEDS.clone(),
         right_orbit::HEX_CIRCLE_LEDS.clone(),
       ]),
-      ColorSequence::fade(Rgba::yellow(), Rgba::blue()),
+      ColorSequence::tile(pattern),
     )
     .playing()
   }
 }
 
 impl System for HexTest {
-  fn on_spawn(&mut self, ctx: &SystemContext) {
-    ctx.cue(ToLine, Cue::Once(Duration::from_secs(6)));
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if let Some(event) = event.downcast_ref::<SwitchClosed>()
+      && event.switch.name == RIGHT_FLIPPER_SWITCH1.name
+    {
+      match self.state {
+        State::Center => {
+          self.program.stop(ctx);
+          self.program = Self::line_program();
+          self.state = State::Line;
+        }
+        State::Line => {
+          self.program.stop(ctx);
+          self.program = Self::circle_program();
+          self.state = State::Circle;
+        }
+        State::Circle => {
+          self.program.stop(ctx);
+          self.program = Self::center_program();
+          self.state = State::Center;
+        }
+      }
+    }
   }
 
-  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<ToCenter>() {
-      self.program = Self::center_program();
-      ctx.cue(ToLine, Cue::Once(Duration::from_secs(6)));
-    } else if event.is::<ToLine>() {
-      self.program = Self::line_program();
-      ctx.cue(ToCircle, Cue::Once(Duration::from_secs(6)));
-    } else if event.is::<ToCircle>() {
-      self.program = Self::circle_program();
-      ctx.cue(ToCenter, Cue::Once(Duration::from_secs(6)));
-    }
+  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
+    self.program.apply(delta, ctx);
   }
 }
 
-#[derive(serde::Serialize, Event)]
-struct ToCenter;
-#[derive(serde::Serialize, Event)]
-struct ToLine;
-#[derive(serde::Serialize, Event)]
-struct ToCircle;
+enum State {
+  Center,
+  Line,
+  Circle,
+}

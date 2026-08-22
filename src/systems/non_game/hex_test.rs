@@ -25,6 +25,7 @@ impl HexTest {
       ]),
       ColorSequence::solid(Rgba::white()),
     )
+    .playing()
   }
 
   fn line_program() -> LedProgram1d {
@@ -39,6 +40,7 @@ impl HexTest {
       ]),
       ColorSequence::fade(Rgba::yellow(), Rgba::blue()),
     )
+    .playing()
   }
 
   fn circle_program() -> LedProgram1d {
@@ -53,6 +55,7 @@ impl HexTest {
       ]),
       ColorSequence::fade(Rgba::yellow(), Rgba::blue()),
     )
+    .playing()
   }
 }
 

@@ -42,14 +42,13 @@ pub static HEX_LINE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
 });
 
 pub static HEX_CIRCLE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
-  // TODO: verify order
   Q::names(vec![
-    HEX_LEDS.child(0).unwrap().name(),
-    HEX_LEDS.child(1).unwrap().name(),
     HEX_LEDS.child(2).unwrap().name(),
-    HEX_LEDS.child(3).unwrap().name(),
-    HEX_LEDS.child(4).unwrap().name(),
+    HEX_LEDS.child(1).unwrap().name(),
+    HEX_LEDS.child(0).unwrap().name(),
     HEX_LEDS.child(5).unwrap().name(),
+    HEX_LEDS.child(4).unwrap().name(),
+    HEX_LEDS.child(3).unwrap().name(),
   ])
 });
 

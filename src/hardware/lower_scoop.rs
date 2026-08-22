@@ -80,7 +80,8 @@ impl LowerScoopSystem {
         ColorSequence::exact(vec![Rgba::white(), Rgba::default()]),
         ColorSequence::exact(vec![Rgba::default(), Rgba::white()]),
       ],
-    );
+    )
+    .stopped();
 
     Self {
       eject_program,

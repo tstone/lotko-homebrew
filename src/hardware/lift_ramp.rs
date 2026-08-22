@@ -1,3 +1,5 @@
+use std::sync::LazyLock;
+
 use frontbox::prelude::ActivationMode::VirtualSwitchOn;
 use frontbox::prelude::DeactivationMode::VirtualSwitchOff;
 use frontbox::prelude::DriverTriggerMode::VirtualSwitchTrue;
@@ -6,7 +8,6 @@ use frontbox::tags::*;
 use frontbox_turn_based::GameManager;
 use frontbox_turn_based::TurnState;
 
-use crate::hardware::ScoopBallEntered;
 use crate::hardware::more_tags::*;
 
 hardware_defs! {
@@ -76,9 +77,8 @@ hardware_defs! {
     .tag(Lane);
 }
 
-pub fn hex_center_led_q() -> HardwareQuery {
-  HEX_LEDS.child(6).unwrap().q()
-}
+pub static HEX_CENTER_LED: LazyLock<HardwareQuery> =
+  LazyLock::new(|| HEX_LEDS.child(6).unwrap().q());
 
 pub fn hex_line_leds_q() -> HardwareQuery {
   Q::names(vec![
@@ -176,11 +176,14 @@ impl System for LiftRampSystem {
     if event.is::<CloseRamp>() {
       log::info!("Lift ramp: Max time expired");
       self.lift_down(ctx.into());
-    } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
-      && event.switch.name == SCOOP_OPTO.name
-    {
-      log::info!("Ball entered lift ramp scoop");
-      ctx.emit(ScoopBallEntered(SCOOP_NAME));
+    } else if let Some(event) = event.downcast_ref::<SwitchClosed>() {
+      if event.switch.name == RAMP_OPTO.name {
+        log::info!("Lift ramp hit");
+        ctx.emit(LiftRampHit);
+      } else if event.switch.name == SCOOP_OPTO.name {
+        log::info!("Ball entered lift ramp scoop");
+        ctx.emit(LiftRampScoopBallEnter);
+      }
     }
   }
 
@@ -202,6 +205,12 @@ impl System for LiftRampSystem {
 
 #[derive(serde::Serialize, Event)]
 struct CloseRamp;
+
+#[derive(serde::Serialize, Event)]
+pub struct LiftRampHit;
+
+#[derive(serde::Serialize, Event)]
+pub struct LiftRampScoopBallEnter;
 
 #[derive(serde::Serialize, Event)]
 pub struct LiftRampUp;

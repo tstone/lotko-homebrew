@@ -1,3 +1,5 @@
+use std::sync::LazyLock;
+
 use frontbox::prelude::*;
 use frontbox::tags::*;
 
@@ -28,9 +30,8 @@ hardware_defs! {
     .tag(Lane);
 }
 
-pub fn hex_center_led_q() -> HardwareQuery {
-  HEX_LEDS.child(6).unwrap().q()
-}
+pub static HEX_CENTER_LED: LazyLock<HardwareQuery> =
+  LazyLock::new(|| HEX_LEDS.child(6).unwrap().q());
 
 pub fn hex_line_leds_q() -> HardwareQuery {
   Q::names(vec![

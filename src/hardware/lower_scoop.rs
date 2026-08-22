@@ -1,3 +1,5 @@
+use std::sync::LazyLock;
+
 use frontbox::animation::Curve;
 use frontbox::prelude::DriverTriggerMode::*;
 use frontbox::prelude::*;
@@ -5,8 +7,6 @@ use frontbox::tags::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
 
-use crate::hardware::ScoopBallEntered;
-use crate::hardware::ScoopBallExited;
 use crate::hardware::arc_ramp::SUBWAY_OPTO;
 use crate::hardware::more_tags::*;
 
@@ -51,14 +51,12 @@ hardware_defs! {
     .tag(Playfield);
 }
 
-pub fn bolts_q() -> HardwareQuery {
+pub static BOLTS_Q: LazyLock<HardwareQuery> = LazyLock::new(|| {
   Q::names(vec![
     LEFT_BOLT.names()[0].clone(),
     RIGHT_BOLT.names()[0].clone(),
   ])
-}
-
-pub const SCOOP_NAME: &'static str = "lower";
+});
 
 // -- System --
 
@@ -76,7 +74,7 @@ pub struct LowerScoopSystem {
 impl LowerScoopSystem {
   pub fn new() -> Self {
     let eject_program = LedProgram1d::tween(
-      bolts_q(),
+      &*BOLTS_Q,
       Duration::from_millis(750 / 4),
       Curve::Steps(2),
       Cycle::Times(4),
@@ -132,16 +130,17 @@ impl LowerScoopSystem {
     }
 
     self.ball_present = true;
-    ctx.emit(ScoopBallEntered(SCOOP_NAME));
 
     if self.mode == LowerScoopMode::AutoEject {
       self.eject(ctx.into());
+      ctx.emit(LowerScoopBallEnter { ejected: true });
+    } else {
+      ctx.emit(LowerScoopBallEnter { ejected: false });
     }
   }
 
-  fn on_ball_exit(&mut self, ctx: &SystemContext) {
+  fn on_ball_exit(&mut self, _ctx: &SystemContext) {
     self.ball_present = false;
-    ctx.emit(ScoopBallExited(SCOOP_NAME));
   }
 }
 
@@ -175,6 +174,11 @@ impl System for LowerScoopSystem {
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.eject_program.apply(delta, ctx);
   }
+}
+
+#[derive(serde::Serialize, Event)]
+pub struct LowerScoopBallEnter {
+  ejected: bool,
 }
 
 #[derive(serde::Serialize, Event)]

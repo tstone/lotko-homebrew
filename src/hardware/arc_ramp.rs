@@ -25,10 +25,11 @@ hardware_defs! {
     .tag(Lane);
 }
 
-static HEX_CENTER_LED_Q: LazyLock<HardwareQuery> = LazyLock::new(|| HEX_LEDS.child(6).unwrap().q());
+pub static HEX_CENTER_LED: LazyLock<HardwareQuery> =
+  LazyLock::new(|| HEX_LEDS.child(6).unwrap().q());
 
 // TODO: not sure of the exact indexes
-static HEX_LINE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
+pub static HEX_LINE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
   Q::names(vec![
     HEX_LEDS.child(1).unwrap().name(),
     HEX_LEDS.child(6).unwrap().name(),
@@ -36,7 +37,7 @@ static HEX_LINE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
   ])
 });
 
-static HEX_CIRCLE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
+pub static HEX_CIRCLE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
   Q::names(vec![
     HEX_LEDS.child(0).unwrap().name(),
     HEX_LEDS.child(1).unwrap().name(),
@@ -46,3 +47,25 @@ static HEX_CIRCLE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
     HEX_LEDS.child(5).unwrap().name(),
   ])
 });
+
+#[derive(Clone)]
+pub struct ArcRampSystem;
+
+impl ArcRampSystem {
+  pub fn new() -> Self {
+    Self
+  }
+}
+
+impl System for ArcRampSystem {
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if let Some(event) = event.downcast_ref::<SwitchClosed>()
+      && event.switch.name == RAMP_OPTO.name
+    {
+      ctx.emit(ArcRampHit);
+    }
+  }
+}
+
+#[derive(serde::Serialize, Event)]
+pub struct ArcRampHit;

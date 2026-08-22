@@ -16,8 +16,6 @@ pub mod menu;
 use hardware::*;
 
 use crate::hardware::cabinet::*;
-use crate::hardware::lift_ramp::LiftRampSystem;
-use crate::hardware::lower_scoop::LowerScoopSystem;
 use crate::hardware::trough::DRAIN_LED;
 use crate::menu::MENU;
 use crate::systems::dmd::*;
@@ -83,19 +81,23 @@ async fn main() {
       systems![
         BasicPoints::new(),
         // TODO: move hardware management to root level, but make only active when in game
-        LowerScoopSystem::new(),
-        LiftRampSystem::new(),
+        lower_scoop::LowerScoopSystem::new(),
+        lift_ramp::LiftRampSystem::new(),
         left_orbit::LeftOrbitSystem::new(),
         center_orbit::CenterOrbitSystem::new(),
         right_orbit::RightOrbitSystem::new(),
+        arc_ramp::ArcRampSystem::new(),
         drop_bank::DropBankSystem::new(),
+        // operation
         BallSaveSystem::new(Duration::from_secs(5)).effect(LedProgram1d::flash(
           DRAIN_LED.q(),
           ColorSequence::solid(Rgba::green()),
           Forever
         )),
-        CityManager::default(),
         PlayfieldIllumination::new(),
+        // modes
+        ExclusiveModeManager::new(),
+        HydroCoreSystem::new(),
       ],
       Q::tag::<tags::Playfield>(),
     ));

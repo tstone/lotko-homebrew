@@ -66,8 +66,7 @@ impl HydroCoreSystem {
       &*lower_scoop::BOLTS_Q,
       ColorSequence::solid(*MODE_COLOR),
       Cycle::Forever,
-    )
-    .playing();
+    );
   }
 
   fn to_startable(&mut self, _ctx: &SystemContext) {
@@ -144,7 +143,6 @@ impl HydroCoreSystem {
       (&*arc_ramp::HEX_CENTER_LED).at_z(1),
       ColorSequence::solid(Rgba::white()),
     )
-    .playing()
   }
 
   fn combo_hex_program<T: Contextual<LedIdentifications> + Send + Sync + 'static>(
@@ -157,7 +155,6 @@ impl HydroCoreSystem {
       Curve::EaseIn,
       Cycle::Forever,
     )
-    .playing()
   }
 }
 

@@ -64,8 +64,7 @@ impl AttractModeLedsSystem {
       |colors, to| {
         colors.fill.gradient_stops_mut().unwrap()[1] = GradientStop::new(1.0, to);
       },
-    )
-    .playing();
+    );
 
     (program, *colors[0], *colors[1])
   }

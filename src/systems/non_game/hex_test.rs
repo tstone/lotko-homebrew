@@ -20,7 +20,7 @@ impl HexTest {
 
   fn center_program() -> LedProgram1d {
     LedProgram1d::fixed(
-      Q::any_of(vec![
+      Q::any(vec![
         &left_orbit::HEX_CENTER_LED,
         &left_ramp::HEX_CENTER_LED,
         &arc_ramp::HEX_CENTER_LED,
@@ -30,13 +30,12 @@ impl HexTest {
       ]),
       ColorSequence::solid(Rgba::white()),
     )
-    .playing()
   }
 
   fn line_program() -> LedProgram1d {
     let pattern = ColorSequence::fade(Rgba::blue(), Rgba::yellow()).generate(3);
     LedProgram1d::fixed(
-      Q::any_of(vec![
+      Q::any(vec![
         &left_orbit::HEX_LINE_LEDS,
         &left_ramp::HEX_LINE_LEDS,
         &arc_ramp::HEX_LINE_LEDS,
@@ -46,13 +45,12 @@ impl HexTest {
       ]),
       ColorSequence::tile(pattern),
     )
-    .playing()
   }
 
   fn circle_program() -> LedProgram1d {
     let pattern = ColorSequence::fade(Rgba::blue(), Rgba::red()).generate(6);
     LedProgram1d::fixed(
-      Q::any_of(vec![
+      Q::any(vec![
         &left_orbit::HEX_CIRCLE_LEDS,
         &left_ramp::HEX_CIRCLE_LEDS,
         &arc_ramp::HEX_CIRCLE_LEDS,
@@ -62,7 +60,6 @@ impl HexTest {
       ]),
       ColorSequence::tile(pattern),
     )
-    .playing()
   }
 }
 

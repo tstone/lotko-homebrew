@@ -34,8 +34,7 @@ impl AttractModeDmdSystem {
         Curve::ElasticInOut,
         vec![Rgba::yellow(), Rgba::orange()],
         Cycle::Forever,
-      )
-      .playing(),
+      ),
       bio_spore: frames,
       last_scores: None,
       state: AttractDmdState::ordered()[0],
@@ -106,7 +105,6 @@ impl AttractModeDmdSystem {
       ],
       Cycle::Times(rand::random_range(1..=2)),
     )
-    .playing()
   }
 
   fn draw_last_score(&mut self, text: &'static str, score: u32) -> Container {

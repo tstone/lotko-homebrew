@@ -7,7 +7,7 @@ use frontbox::tags::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
 
-use crate::hardware::arc_ramp::SUBWAY_OPTO;
+use crate::hardware::arc_ramp::ArcRampSubwayHit;
 use crate::hardware::more_tags::*;
 
 hardware_defs! {
@@ -66,8 +66,6 @@ pub const LOWER_SCOOP_EJECT_SND: &'static str = "lower_scoop_eject";
 pub struct LowerScoopSystem {
   eject_program: LedProgram1d,
   subway_entry: bool,
-  mode: LowerScoopMode,
-  ball_present: bool,
   handle: SystemHandle,
 }
 
@@ -87,14 +85,8 @@ impl LowerScoopSystem {
     Self {
       eject_program,
       subway_entry: false,
-      mode: LowerScoopMode::AutoEject,
-      ball_present: false,
       handle: SystemHandle::default(),
     }
-  }
-
-  pub fn ball_present(&self) -> bool {
-    self.ball_present
   }
 
   pub fn eject(&mut self, ctx: &ServiceContext) {
@@ -111,36 +103,21 @@ impl LowerScoopSystem {
     self.eject_program.stop(ctx);
   }
 
-  pub fn set_mode(&mut self, mode: LowerScoopMode, ctx: &ServiceContext) {
-    self.mode = mode;
-
-    // If mode was updated to auto-eject and there is a ball present, eject it
-    if self.mode == LowerScoopMode::AutoEject && self.ball_present {
-      self.eject(ctx);
-    }
-  }
-
   fn on_ball_enter(&mut self, ctx: &SystemContext) {
     log::info!("Ball entered lower scoop");
+
+    let event = LowerScoopBallEnter {
+      subway_entry: self.subway_entry,
+    };
 
     // If the player gets the ball into the scoop without using the subway, it gives points
     if !self.subway_entry {
       ctx.add_points(500);
-      self.subway_entry = false;
     }
 
-    self.ball_present = true;
-
-    if self.mode == LowerScoopMode::AutoEject {
-      self.eject(ctx.into());
-      ctx.emit(LowerScoopBallEnter { ejected: true });
-    } else {
-      ctx.emit(LowerScoopBallEnter { ejected: false });
-    }
-  }
-
-  fn on_ball_exit(&mut self, _ctx: &SystemContext) {
-    self.ball_present = false;
+    self.subway_entry = false;
+    self.eject(ctx.into());
+    ctx.emit(event);
   }
 }
 
@@ -156,16 +133,12 @@ impl System for LowerScoopSystem {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if let Some(event) = event.downcast_ref::<SwitchClosed>() {
-      if event.switch.name == OPTO.name {
-        self.on_ball_enter(ctx);
-      } else if event.switch.name == SUBWAY_OPTO.name {
-        self.subway_entry = true;
-      }
-    } else if let Some(event) = event.downcast_ref::<SwitchOpened>()
+    if event.is::<ArcRampSubwayHit>() {
+      self.subway_entry = true;
+    } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && event.switch.name == OPTO.name
     {
-      self.on_ball_exit(ctx);
+      self.on_ball_enter(ctx);
     } else if event.is::<EjectLowerScoop>() {
       self.complete_eject(ctx);
     }
@@ -178,14 +151,8 @@ impl System for LowerScoopSystem {
 
 #[derive(serde::Serialize, Event)]
 pub struct LowerScoopBallEnter {
-  ejected: bool,
+  pub subway_entry: bool,
 }
 
 #[derive(serde::Serialize, Event)]
 struct EjectLowerScoop;
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum LowerScoopMode {
-  AutoEject,
-  ModeStart,
-}

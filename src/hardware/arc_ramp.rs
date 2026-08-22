@@ -63,13 +63,20 @@ impl ArcRampSystem {
 
 impl System for ArcRampSystem {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if let Some(event) = event.downcast_ref::<SwitchClosed>()
-      && event.switch.name == RAMP_OPTO.name
-    {
-      ctx.emit(ArcRampHit);
+    if let Some(event) = event.downcast_ref::<SwitchClosed>() {
+      if event.switch.name == RAMP_OPTO.name {
+        log::info!("Arc ramp hit");
+        ctx.emit(ArcRampHit);
+      } else if event.switch.name == SUBWAY_OPTO.name {
+        log::info!("Arc ramp subway entered");
+        ctx.emit(ArcRampSubwayHit);
+      }
     }
   }
 }
 
 #[derive(serde::Serialize, Event)]
 pub struct ArcRampHit;
+
+#[derive(serde::Serialize, Event)]
+pub struct ArcRampSubwayHit;

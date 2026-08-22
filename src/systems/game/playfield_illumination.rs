@@ -17,11 +17,5 @@ impl System for PlayfieldIllumination {
       &Q::tag::<GeneralIllumination>(),
       ColorSequence::solid(Rgba::white()),
     );
-
-    // set the arc ramp but let everything else take priority
-    ctx.declare_leds(
-      &arc_ramp::ARC_LEDS.q().at_z(-1),
-      ColorSequence::solid(Rgba::cyan()),
-    )
   }
 }

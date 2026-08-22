@@ -17,3 +17,6 @@ pub struct Circle;
 
 #[derive(Tag)]
 pub struct DropBank;
+
+#[derive(Tag)]
+pub struct ArcRamp;

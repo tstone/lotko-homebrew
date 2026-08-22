@@ -1,23 +1,33 @@
+use std::collections::HashSet;
 use std::sync::LazyLock;
 
 use frontbox::animation::*;
+use frontbox::prelude::tags::GeneralIllumination;
 use frontbox::prelude::*;
+use frontbox_turn_based::GameManagementExt;
 
 use crate::hardware::arc_ramp::{self, ArcRampHit};
 use crate::hardware::center_orbit;
 use crate::hardware::center_orbit::CenterOrbitHit;
 use crate::hardware::lift_ramp::{self, LiftRampHit};
 use crate::hardware::lower_scoop::{self, LowerScoopBallEnter};
+use crate::hardware::more_tags::ArcRamp;
 use crate::hardware::right_orbit;
 use crate::hardware::right_orbit::RightOrbitHit;
 use crate::systems::game::{ExclusiveMode, ExclusiveModeManager};
 
 static MODE_COLOR: LazyLock<Rgba<u8>> = LazyLock::new(|| Rgba::cyan());
+static QUAL_HIT_PTS: u32 = 5_000;
+static START_PTS: u32 = 10_000;
+static COMBO_BASE_PTS: u32 = 5_000;
 
 #[derive(Clone)]
 pub struct HydroCoreSystem {
   state: HydroCoreState,
   led_program: LedProgram1d,
+  gi_program: LedProgram1d,
+  arc_program: LedProgram1d,
+  combo_hits: HashSet<u8>,
 }
 
 impl HydroCoreSystem {
@@ -25,11 +35,20 @@ impl HydroCoreSystem {
     Self {
       state: HydroCoreState::Qualification(0),
       led_program: Self::qualification_program(),
+      gi_program: LedProgram1d::fixed(
+        Q::tag::<GeneralIllumination>().at_z(1),
+        ColorSequence::solid(Rgba::cyan().lighten(0.4)),
+      ),
+      arc_program: LedProgram1d::breathe(Q::tag::<ArcRamp>(), Rgba::cyan(), Cycle::Forever),
+      combo_hits: HashSet::new(),
     }
   }
 
   fn to_qualification(&mut self, ctx: &SystemContext) {
     // play SFX
+    self.combo_hits.clear();
+    self.arc_program.stop(ctx);
+    self.gi_program.stop(ctx);
     self.state = HydroCoreState::Qualification(0);
     self.led_program.stop(ctx);
     self.led_program = Self::qualification_program();
@@ -49,11 +68,17 @@ impl HydroCoreSystem {
   fn to_combo(&mut self, ctx: &SystemContext) {
     match ctx
       .expect::<ExclusiveModeManager>()
-      .take_exclusive(ExclusiveMode::HydroCore)
+      .take_exclusive(ExclusiveMode::HydroCore, ctx)
     {
       Ok(..) => {
-        // play SFX
-        self.start_combo(1, ctx)
+        if !matches!(self.state, HydroCoreState::ComboShot(..)) {
+          // play SFX
+          ctx.add_points(START_PTS);
+          self.arc_program.play();
+          self.gi_program.play();
+        }
+
+        self.start_combo(1, ctx);
       }
       _ => {}
     }
@@ -70,6 +95,12 @@ impl HydroCoreSystem {
   fn advance_combo(&mut self, current_combo: u8, cue_id: u64, ctx: &SystemContext) {
     // play SFX
     ctx.cancel_cue(cue_id);
+
+    // Points for combo only score the first time, not repeated times
+    if !self.combo_hits.contains(&current_combo) {
+      ctx.add_points(COMBO_BASE_PTS * current_combo as u32);
+      self.combo_hits.insert(current_combo);
+    }
 
     let next_shot = current_combo + 1;
     self.start_combo(next_shot, ctx);
@@ -129,6 +160,7 @@ impl System for HydroCoreSystem {
       && event.is::<ArcRampHit>()
     {
       hits += 1;
+      ctx.add_points(QUAL_HIT_PTS);
       if hits == 2 {
         self.to_startable(ctx);
       }

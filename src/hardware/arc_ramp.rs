@@ -3,6 +3,8 @@ use std::sync::LazyLock;
 use frontbox::prelude::*;
 use frontbox::tags::*;
 
+use crate::hardware::more_tags::ArcRamp;
+
 hardware_defs! {
   pub RAMP_OPTO: SwitchDefinition = SwitchDefinition::new("arc_opto")
     .inverted()
@@ -14,9 +16,11 @@ hardware_defs! {
     .tag(Playfield);
 
   pub SUBWAY_LEDS: LedDefinition = LedDefinition::multi("arc_subway", 11)
+    .tag(ArcRamp)
     .tag(Playfield);
 
   pub ARC_LEDS: LedDefinition = LedDefinition::strip("arc", 18)
+    .tag(ArcRamp)
     .tag(Playfield);
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi("arc_ramp_lane", 7)

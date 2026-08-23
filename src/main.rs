@@ -88,6 +88,7 @@ async fn main() {
         right_orbit::RightOrbitSystem::new(),
         arc_ramp::ArcRampSystem::new(),
         drop_bank::DropBankSystem::new(),
+        vspinner::VerticalSpinner::new(),
         // operation
         BallSaveSystem::new(Duration::from_secs(5)).effect(LedProgram1d::flash(
           DRAIN_LED.q(),
@@ -98,6 +99,7 @@ async fn main() {
         // modes
         ExclusiveModeManager::new(),
         HydroCoreQualification::new(),
+        NimbusPromenadeQualification::new(),
       ],
       Q::tag::<tags::Playfield>(),
     ));

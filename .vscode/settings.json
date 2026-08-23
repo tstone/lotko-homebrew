@@ -18,7 +18,8 @@
     "SIGISH",
     "SKYRAIL",
     "Startable",
-    "vgradient"
+    "vgradient",
+    "vspinner"
   ],
   "[rust]": {
     "editor.tabSize": 2,

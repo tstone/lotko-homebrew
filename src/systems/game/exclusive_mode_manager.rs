@@ -73,5 +73,6 @@ pub enum ExclusiveMode {
   HydroCore,
   SkyrailStation,
   MeridianBasins,
+  SporeCountMultiball,
   Wizard,
 }

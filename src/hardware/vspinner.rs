@@ -41,7 +41,7 @@ pub mod left_ray {
       .tag(Playfield);
   }
 
-  static Q: LazyLock<HardwareQuery> = LazyLock::new(|| {
+  pub static Q: LazyLock<HardwareQuery> = LazyLock::new(|| {
     Q::names(vec![
       LED1.names()[0].clone(),
       LED2.names()[0].clone(),
@@ -70,7 +70,7 @@ pub mod upper_right_ray {
       .tag(Playfield);
   }
 
-  static Q: LazyLock<HardwareQuery> = LazyLock::new(|| {
+  pub static Q: LazyLock<HardwareQuery> = LazyLock::new(|| {
     Q::names(vec![
       LED1.names()[0].clone(),
       LED2.names()[0].clone(),
@@ -98,7 +98,7 @@ pub mod lower_right_ray {
       .tag(Playfield);
   }
 
-  static Q: LazyLock<HardwareQuery> = LazyLock::new(|| {
+  pub static Q: LazyLock<HardwareQuery> = LazyLock::new(|| {
     Q::names(vec![
       LED1.names()[0].clone(),
       LED2.names()[0].clone(),
@@ -106,3 +106,25 @@ pub mod lower_right_ray {
     ])
   });
 }
+
+#[derive(Clone)]
+pub struct VerticalSpinner;
+
+impl VerticalSpinner {
+  pub fn new() -> Self {
+    Self
+  }
+}
+
+impl System for VerticalSpinner {
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if let Some(event) = event.downcast_ref::<SwitchClosed>()
+      && event.switch.name == OPTO.name
+    {
+      ctx.emit(VerticalSpinnerHit);
+    }
+  }
+}
+
+#[derive(serde::Serialize, Event)]
+pub struct VerticalSpinnerHit;

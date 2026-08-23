@@ -43,7 +43,7 @@ impl HydroCoreStartable {
       Curve::ExponentialOut,
       Cycle::Once,
       vec![
-        ColorSequence::fade(*MODE_COLOR, Rgba::default()).shuffle(rand::random()),
+        ColorSequence::solid(*MODE_COLOR),
         ColorSequence::solid(Rgba::default()),
       ],
     )

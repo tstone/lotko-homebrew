@@ -1,7 +1,6 @@
 use std::sync::LazyLock;
 
 use frontbox::animation::Curve;
-use frontbox::prelude::DriverTriggerMode::*;
 use frontbox::prelude::*;
 use frontbox::tags::*;
 use frontbox_sound::SoundSystemExt;
@@ -13,23 +12,15 @@ use crate::hardware::more_tags::*;
 hardware_defs! {
   pub COIL: DriverDefinition = DriverDefinition::new("lower_scoop")
     .tag(Playfield)
-    .mode(PulseKickMode {
-      trigger_mode: VirtualSwitchTrue,
-      initial_pwm_length: HardwareValue::config(
-        "Lower Scoop Touch Time",
-        "Duration by which the eject plunger is brought into contact with the ball, before full eject",
-        Duration::from_millis(7),
-        Ranges::duration(0, 100),
-      ),
-      initial_pwm_power: HardwareValue::fixed(
-        Power::THREE_QUARTERS,
-      ),
-      secondary_pwm_power: HardwareValue::Fixed(Power::ZERO),
-      secondary_pwm_length: HardwareValue::Fixed(Duration::ZERO),
-      kick_length: HardwareValue::config(
+    .mode(DelayedPulseMode {
+      trigger_mode: DriverTriggerMode::Switch("lower_scoop"),
+      delay_length: HardwareValue::fixed(Duration::from_millis(750)),
+      initial_full_power_length: HardwareValue::fixed(Duration::ZERO),
+      secondary_pwm_power: HardwareValue::Fixed(Power::FULL),
+      secondary_pwm_length: HardwareValue::config(
         "Lower Scoop Eject Time",
         "Duration that the plunger exert full power onto the ball (kick)",
-        Duration::from_millis(35),
+        Duration::from_millis(40),
         Ranges::duration(10, 300),
       ),
       ..Default::default()
@@ -37,7 +28,7 @@ hardware_defs! {
 
   pub OPTO: SwitchDefinition = SwitchDefinition::new("lower_scoop")
     .inverted()
-    .debounce(Duration::from_millis(25))
+    .debounce(Duration::from_millis(50))
     .tag(Playfield);
 
   pub LEFT_BOLT: LedDefinition = LedDefinition::single("scoop_bolt1")
@@ -92,19 +83,8 @@ impl LowerScoopSystem {
     }
   }
 
-  pub fn eject(&mut self, ctx: &ServiceContext) {
-    if !self.eject_pending {
-      let ctx = ctx.for_system(self.handle);
-      ctx.play_sfx(LOWER_SCOOP_EJECT_SND);
-      ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
-      self.eject_program.reset();
-      self.eject_program.play();
-      self.eject_pending = true;
-    }
-  }
-
   fn complete_eject(&mut self, ctx: &SystemContext) {
-    ctx.activate_driver(COIL.name, ActivationMode::Tap);
+    // ctx.activate_driver(COIL.name, ActivationMode::Tap);
     log::info!("Stopping LEDs after complete eject");
     self.eject_program.stop(ctx);
     self.eject_pending = false;
@@ -123,7 +103,14 @@ impl LowerScoopSystem {
     }
 
     self.subway_entry = false;
-    self.eject(ctx.into());
+    if !self.eject_pending {
+      ctx.play_sfx(LOWER_SCOOP_EJECT_SND);
+      ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
+      self.eject_program.reset();
+      self.eject_program.play();
+      self.eject_pending = true;
+    }
+
     ctx.emit(event);
   }
 }
@@ -137,9 +124,6 @@ impl System for LowerScoopSystem {
       log::debug!("Lower scoop is occupied. Ejecting.");
       self.complete_eject(ctx);
     }
-
-    // keep polling self to make sure a ball didn't fail eject
-    ctx.cue(CheckVacated, Cue::Once(Duration::from_millis(250)));
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
@@ -151,10 +135,6 @@ impl System for LowerScoopSystem {
       self.on_ball_enter(ctx);
     } else if event.is::<EjectLowerScoop>() {
       self.complete_eject(ctx);
-    } else if event.is::<CheckVacated>() {
-      if ctx.switches.is_closed(OPTO.name).unwrap_or(false) {
-        self.eject(ctx.into());
-      }
     }
   }
 

@@ -44,4 +44,5 @@ pub fn activate_playfield() -> ActivatePlayfieldSystem {
       pop_cluster::left::COIL.name,
       pop_cluster::left::SPOON_SWITCH.name,
     )
+    .driver(lower_scoop::COIL.name, lower_scoop::OPTO.name)
 }

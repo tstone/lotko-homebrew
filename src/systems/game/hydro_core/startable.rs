@@ -29,6 +29,7 @@ impl HydroCoreStartable {
   }
 
   fn attention_effect() -> LedProgram1d {
+    // TODO: rotate/animate the left third of the arc ramp
     LedProgram1d::flash(
       Q::any(vec![&*lower_scoop::BOLTS_Q, &*arc_ramp::HEX_CENTER_LED]),
       ColorSequence::solid(*MODE_COLOR),
@@ -39,41 +40,39 @@ impl HydroCoreStartable {
   fn hit_effect() -> LedProgram1d {
     LedProgram1d::tween(
       Q::tag::<tags::Playfield>().at_z(-1),
-      Duration::from_millis(500),
-      Curve::ExponentialOut,
+      Duration::from_millis(750),
+      Curve::EaseIn,
       Cycle::Once,
       vec![
         ColorSequence::solid(*MODE_COLOR),
         ColorSequence::solid(Rgba::default()),
       ],
     )
+    .stopped()
   }
 
-  fn attempt_start(&mut self, ctx: &SystemContext) {
+  fn start(&mut self, ctx: &SystemContext) {
     // Ensure that exclusive mode rights can be taken
     if let Ok(..) = ctx
       .expect::<ExclusiveModeManager>()
       .take_exclusive(ExclusiveMode::HydroCore, ctx)
     {
-      self.start(ctx);
+      log::info!("HydroCore: started");
+      self.state = Shutdown;
+      self.hit_effect.play();
+
+      ctx.add_points(hydro_core::points::START);
+    } else {
+      log::warn!("HydroCore: Could not take exclusive mode position");
     }
-  }
-
-  fn start(&mut self, ctx: &SystemContext) {
-    log::info!("HydroCore: started.");
-    self.hit_effect.play();
-    self.state = Shutdown;
-
-    ctx.add_points(hydro_core::points::START);
   }
 }
 
 impl System for HydroCoreStartable {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx
-      .expect::<ExclusiveModeManager>()
-      .current_mode()
-      .is_none()
+    let mode_manager = ctx.expect::<ExclusiveModeManager>();
+    let mode = mode_manager.current_mode();
+    mode.is_none() || mode == &Some(ExclusiveMode::HydroCore)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
@@ -85,6 +84,7 @@ impl System for HydroCoreStartable {
     self.hit_effect.apply(delta, ctx);
 
     if self.state == Shutdown && self.hit_effect.is_complete() {
+      log::info!("HydroCore: Transitioning into mode");
       self.attention_effect.stop(ctx);
       ctx.replace_self(HydroCoreMode::new());
     }
@@ -94,7 +94,7 @@ impl System for HydroCoreStartable {
     if event.is::<Resume>() {
       self.state = Startable;
     } else if event.is::<LowerScoopBallEnter>() && self.state == Startable {
-      self.attempt_start(ctx);
+      self.start(ctx);
     }
   }
 }

@@ -11,9 +11,9 @@ use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::more_tags::ArcRamp;
 use crate::hardware::right_orbit::RightOrbitHit;
 use crate::hardware::{arc_ramp, center_orbit, lift_ramp, right_orbit};
-use crate::systems::game::ExclusiveModeManager;
 use crate::systems::game::hydro_core::MODE_COLOR;
-use crate::systems::game::{ExclusiveMode, hydro_core};
+use crate::systems::game::{ExclusiveMode, HydroCoreStartable, hydro_core};
+use crate::systems::game::{ExclusiveModeManager, HydroCoreQualification};
 
 #[derive(Clone)]
 pub struct HydroCoreMode {
@@ -111,6 +111,11 @@ impl HydroCoreMode {
   fn advance_combo(&mut self, shot: u8, ctx: &SystemContext) {
     ctx.cancel_cue(self.cue_id);
 
+    if shot == 6 {
+      self.complete(ctx);
+      return;
+    }
+
     // Player only has a limited amount of time to make the next shot BUT
     // to avoid frustrating the player, keep making the combo duration longer as they fail attempts
     // (this results in less points but is still completable)
@@ -169,6 +174,14 @@ impl HydroCoreMode {
     // play SFX
     self.restart_combo(ctx);
   }
+
+  fn complete(&mut self, ctx: &SystemContext) {
+    // TODO: epic reaction effect
+    ctx
+      .expect::<ExclusiveModeManager>()
+      .release_exclusive(ExclusiveMode::HydroCore, ctx);
+    ctx.replace_self(HydroCoreQualification::new());
+  }
 }
 
 impl System for HydroCoreMode {
@@ -201,7 +214,7 @@ impl System for HydroCoreMode {
     } else if event.is::<ComboTimeUp>() {
       self.combo_time_up(ctx);
     } else if event.is::<PlayerTurnEnding>() {
-      self.restart_combo(ctx);
+      ctx.replace_self(HydroCoreStartable::new());
     }
   }
 }

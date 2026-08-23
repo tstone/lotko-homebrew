@@ -8,6 +8,10 @@ use frontbox_sound::SoundSystem;
 static MODE_MUSIC: LazyLock<HashMap<ExclusiveMode, PathBuf>> = LazyLock::new(|| {
   let mut map = HashMap::new();
   map.insert(
+    ExclusiveMode::None,
+    PathBuf::from("/userdata/home/armsom/music/colyn-rushing.mp3"),
+  );
+  map.insert(
     ExclusiveMode::HydroCore,
     PathBuf::from("/userdata/home/armsom/music/inzo-wonder.mp3"),
   );
@@ -40,28 +44,33 @@ impl ExclusiveModeManager {
       log::warn!("{}", msg);
       Err(msg)
     } else {
-      if let Some(path) = MODE_MUSIC.get(&mode) {
-        ctx
-          .expect::<SoundSystem>()
-          .crossfade_music(path, Duration::from_millis(1000));
-      }
-
+      Self::crossfade_music(&mode, ctx);
       self.exclusive_mode = Some(mode);
       Ok(())
+    }
+  }
+
+  pub fn release_exclusive(&mut self, mode: ExclusiveMode, ctx: &SystemContext) {
+    if self.exclusive_mode == Some(mode) {
+      self.exclusive_mode = None;
+      Self::crossfade_music(&ExclusiveMode::None, ctx);
+    }
+  }
+
+  fn crossfade_music(mode: &ExclusiveMode, ctx: &SystemContext) {
+    if let Some(path) = MODE_MUSIC.get(mode) {
+      ctx
+        .expect::<SoundSystem>()
+        .crossfade_music(path, Duration::from_millis(1000));
     }
   }
 }
 
 impl System for ExclusiveModeManager {
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    let path = self
-      .exclusive_mode
-      .as_ref()
-      .and_then(|mode| MODE_MUSIC.get(&mode))
-      .cloned()
-      .unwrap_or(PathBuf::from(
-        "/userdata/home/armsom/music/colyn-rushing.mp3",
-      ));
+    let path = MODE_MUSIC
+      .get(self.exclusive_mode.as_ref().unwrap_or(&ExclusiveMode::None))
+      .unwrap();
 
     ctx.expect::<SoundSystem>().play_music(path);
   }
@@ -75,4 +84,5 @@ pub enum ExclusiveMode {
   MeridianBasins,
   SporeCountMultiball,
   Wizard,
+  None,
 }

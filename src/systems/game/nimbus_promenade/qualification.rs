@@ -6,7 +6,7 @@ use frontbox_turn_based::GameManagementExt;
 use crate::hardware::vspinner::{self, VerticalSpinnerHit};
 use crate::systems::game::nimbus_promenade::{self, MODE_COLOR};
 
-const REQUIRED_HITS: u8 = 20; // 5 clicks per revolution * 4 revolutions
+const REQUIRED_HITS: u8 = 12;
 
 #[derive(Clone)]
 pub struct NimbusPromenadeQualification {
@@ -28,6 +28,7 @@ impl NimbusPromenadeQualification {
 
   fn hit_effect() -> LedProgram1d {
     // energy from the spinner goes outwards through the rays to the pops
+    let duration = Duration::from_millis(1000);
     LedProgram1d::timeline()
       .at(
         Duration::ZERO,
@@ -39,7 +40,7 @@ impl NimbusPromenadeQualification {
             Rgba::default(),
             Rgba::default(),
           ]),
-          Duration::from_millis(1500),
+          duration,
           Curve::Linear,
           Cycle::Once,
         ),
@@ -49,7 +50,7 @@ impl NimbusPromenadeQualification {
         LedProgram1d::rotating(
           &*vspinner::upper_right_ray::Q,
           ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-          Duration::from_millis(1500),
+          duration,
           Curve::Linear,
           Cycle::Once,
         ),
@@ -59,7 +60,7 @@ impl NimbusPromenadeQualification {
         LedProgram1d::rotating(
           &*vspinner::lower_right_ray::Q,
           ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-          Duration::from_millis(1500),
+          duration,
           Curve::Linear,
           Cycle::Once,
         ),
@@ -86,7 +87,7 @@ impl NimbusPromenadeQualification {
     self.hit_effect.play();
 
     self.progress_effect.stop(ctx);
-    self.progress_effect = Self::progress_effect(self.hits);
+    self.progress_effect = Self::progress_effect(self.hits / REQUIRED_HITS);
 
     if self.hits == REQUIRED_HITS {
       // TODO: play SFX

@@ -97,7 +97,7 @@ async fn main() {
         PlayfieldIllumination::new(),
         // modes
         ExclusiveModeManager::new(),
-        HydroCoreSystem::new(),
+        HydroCoreQualification::new(),
       ],
       Q::tag::<tags::Playfield>(),
     ));

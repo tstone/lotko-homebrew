@@ -17,3 +17,24 @@ hardware_defs! {
     .tag(Circle)
     .tag(Lane);
 }
+
+pub struct LeftOutlaneSystem;
+
+impl LeftOutlaneSystem {
+  pub fn new() -> Self {
+    Self
+  }
+}
+
+impl System for LeftOutlaneSystem {
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if let Some(event) = event.downcast_ref::<SwitchClosed>()
+      && event.switch.name == SWITCH.name
+    {
+      ctx.emit(LeftOutlaneRollover);
+    }
+  }
+}
+
+#[derive(serde::Serialize, Event)]
+pub struct LeftOutlaneRollover;

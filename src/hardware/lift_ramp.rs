@@ -57,11 +57,12 @@ hardware_defs! {
 
   pub SCOOP_OPTO: SwitchDefinition = SwitchDefinition::new("lift_ramp_scoop_opto")
     .inverted()
-    .debounce_close(Duration::from_millis(100))
+    .debounce_close(Duration::from_millis(10))
     .tag(Playfield);
 
   pub RAMP_OPTO: SwitchDefinition = SwitchDefinition::new("lift_ramp_opto")
     .inverted()
+    .debounce(Duration::from_millis(2))
     .tag(Playfield);
 
   pub BOLT_LED: LedDefinition = LedDefinition::single("lift_ramp_bolt")

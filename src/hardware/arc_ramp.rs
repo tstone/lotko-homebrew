@@ -1,5 +1,6 @@
 use std::sync::LazyLock;
 
+use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox::tags::*;
 
@@ -53,11 +54,25 @@ pub static HEX_CIRCLE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
 });
 
 #[derive(Clone)]
-pub struct ArcRampSystem;
+pub struct ArcRampSystem {
+  hit_program: LedProgram1d,
+}
 
 impl ArcRampSystem {
   pub fn new() -> Self {
-    Self
+    Self {
+      hit_program: LedProgram1d::tween(
+        ARC_LEDS.q().at_z(1),
+        Duration::from_millis(200),
+        Curve::EaseOut,
+        Cycle::Once,
+        vec![
+          ColorSequence::fade(Rgba::cyan(), Rgba([170, 133, 213, 255])),
+          ColorSequence::fade(Rgba::magenta(), Rgba([113, 45, 192, 255])),
+        ],
+      )
+      .stopped(),
+    }
   }
 }
 
@@ -66,12 +81,18 @@ impl System for ArcRampSystem {
     if let Some(event) = event.downcast_ref::<SwitchClosed>() {
       if event.switch.name == RAMP_OPTO.name {
         log::info!("Arc ramp hit");
+        self.hit_program.reset();
+        self.hit_program.play();
         ctx.emit(ArcRampHit);
       } else if event.switch.name == SUBWAY_OPTO.name {
         log::info!("Arc ramp subway entered");
         ctx.emit(ArcRampSubwayHit);
       }
     }
+  }
+
+  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
+    self.hit_program.apply(delta, ctx);
   }
 }
 

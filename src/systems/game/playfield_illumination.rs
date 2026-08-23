@@ -17,5 +17,9 @@ impl System for PlayfieldIllumination {
       &Q::tag::<GeneralIllumination>(),
       ColorSequence::solid(Rgba::white()),
     );
+    ctx.declare_leds(
+      &arc_ramp::ARC_LEDS.q().at_z(-1),
+      ColorSequence::tile(vec![Rgba::white(), Rgba::default()]),
+    )
   }
 }

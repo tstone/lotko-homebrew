@@ -4,6 +4,7 @@ use std::sync::LazyLock;
 use frontbox::animation::*;
 use frontbox::prelude::tags::GeneralIllumination;
 use frontbox::prelude::*;
+use frontbox::tags::Playfield;
 use frontbox_turn_based::{GameEnded, GameManagementExt, PlayerTurnEnding};
 
 use crate::hardware::arc_ramp::{self, ArcRampHit, ArcRampSubwayHit};
@@ -21,30 +22,40 @@ static QUAL_HIT_PTS: u32 = 5_000;
 static START_PTS: u32 = 10_000;
 static COMBO_BASE_PTS: u32 = 5_000;
 
+// TODO: starting a mode is bugged
+// TODO: use the arc to indicate when it needs to go into the subway (e.g. animating the left third of the arc)
+// TODO: split this into three modes, qualification, startable, combo
+
 #[derive(Clone)]
 pub struct HydroCoreSystem {
   state: HydroCoreState,
   led_program: LedProgram1d,
+  hit_effect: LedProgram1d,
   gi_program: LedProgram1d,
   arc_program: LedProgram1d,
   combo_hits: HashSet<u8>,
+  combo_attempts: u16,
 }
-
-// TODO: hit effects
-// TODO: arc glow/breathe?
 
 impl HydroCoreSystem {
   pub fn new() -> Self {
     Self {
       state: HydroCoreState::Qualification(0),
+      combo_attempts: 0,
       led_program: Self::qualification_program(),
+      hit_effect: Self::qualification_hit_program(),
       gi_program: LedProgram1d::fixed(
         Q::tag::<GeneralIllumination>().at_z(1),
         ColorSequence::solid(Rgba::cyan().lighten(0.4)),
       )
       .stopped(),
-      arc_program: LedProgram1d::breathe(Q::tag::<ArcRamp>(), Rgba::cyan(), Cycle::Forever)
-        .stopped(),
+      arc_program: LedProgram1d::breathe(
+        Q::tag::<ArcRamp>(),
+        Rgba::cyan(),
+        Duration::bpm(150),
+        Cycle::Forever,
+      )
+      .stopped(),
       combo_hits: HashSet::new(),
     }
   }
@@ -60,12 +71,26 @@ impl HydroCoreSystem {
     self.led_program = Self::qualification_program();
   }
 
+  fn qualification_hit(&mut self, hits: u8, ctx: &SystemContext) {
+    // play SFX
+    log::info!("HydroCore: qualifying hit ({})", hits);
+    ctx.add_points(QUAL_HIT_PTS);
+    self.hit_effect.play();
+
+    if hits >= 2 {
+      self.begin_startable(ctx);
+    } else {
+      self.state = HydroCoreState::PendingQualification(hits);
+      ctx.cue(ResumeQualification, Cue::Once(Duration::from_millis(1500)));
+    }
+  }
+
   fn begin_startable(&mut self, ctx: &SystemContext) {
     log::info!("HydroCore: Qualification complete");
     self.state = HydroCoreState::PendingStartable;
     self.led_program.stop(ctx);
     self.led_program = LedProgram1d::flash(
-      &*lower_scoop::BOLTS_Q,
+      Q::any(vec![&*lower_scoop::BOLTS_Q, &*arc_ramp::HEX_CENTER_LED]),
       ColorSequence::solid(*MODE_COLOR),
       Cycle::Forever,
     );
@@ -88,6 +113,17 @@ impl HydroCoreSystem {
           // play SFX
           self.arc_program.play();
           self.gi_program.play();
+
+          self.hit_effect = LedProgram1d::tween(
+            Q::tag::<Playfield>().at_z(-1),
+            Duration::from_millis(500),
+            Curve::ExponentialOut,
+            Cycle::Once,
+            vec![
+              ColorSequence::fade(*MODE_COLOR, Rgba::default()).shuffle(rand::random()),
+              ColorSequence::solid(Rgba::default()),
+            ],
+          )
         }
 
         self.start_combo(1, ctx);
@@ -97,7 +133,9 @@ impl HydroCoreSystem {
   }
 
   fn start_combo(&mut self, shot: u8, ctx: &SystemContext) {
-    let cue_id = ctx.cue(ComboTimeUp, Cue::Once(Duration::from_secs(20)));
+    // To avoid frustrating the player, keep making the combo duration longer as they fail attempts
+    let handicap = Duration::from_secs(3 * self.combo_attempts as u64);
+    let cue_id = ctx.cue(ComboTimeUp, Cue::Once(Duration::from_secs(20) + handicap));
     self.state = HydroCoreState::ComboShot(shot, cue_id);
 
     self.led_program.stop(ctx);
@@ -108,7 +146,10 @@ impl HydroCoreSystem {
       4 => Self::combo_hex_program(&*right_orbit::HEX_CENTER_LED),
       5 => Self::combo_hex_program(&*arc_ramp::HEX_CENTER_LED),
       _ => panic!("Cannot set program for unknown shot: {}", shot),
-    }
+    };
+
+    self.combo_attempts += 1;
+    log::debug!("Increased combo attempts to {}", self.combo_attempts);
   }
 
   fn advance_combo(&mut self, current_combo: u8, cue_id: u64, ctx: &SystemContext) {
@@ -116,6 +157,7 @@ impl HydroCoreSystem {
 
     // play SFX
     ctx.cancel_cue(cue_id);
+    self.hit_effect.reset(); // play hit effect again
 
     // Points for combo only score the first time, not repeated times
     if !self.combo_hits.contains(&current_combo) {
@@ -133,6 +175,9 @@ impl HydroCoreSystem {
   }
 
   fn complete(&mut self, cue_id: u64, ctx: &SystemContext) {
+    // Final score is up to 10M, reduced by number of attempts; Capped at at least 1M
+    ctx.add_points(10_000_000 / self.combo_attempts.min(10) as u32);
+
     log::info!("HydroCore: Complete. Resetting.");
 
     // play SFX
@@ -145,6 +190,31 @@ impl HydroCoreSystem {
       (&*arc_ramp::HEX_CENTER_LED).at_z(1),
       ColorSequence::solid(Rgba::white()),
     )
+  }
+
+  fn qualification_hit_program() -> LedProgram1d {
+    LedProgram1d::timeline()
+      .at(
+        Duration::ZERO,
+        LedProgram1d::rotating(
+          (&*arc_ramp::HEX_CIRCLE_LEDS).at_z(1),
+          ColorSequence::fade(Rgba::white(), Rgba::default()),
+          Duration::from_millis(500),
+          Curve::Linear,
+          Cycle::Once,
+        ),
+      )
+      .at(
+        Duration::ZERO,
+        LedProgram1d::rotating(
+          arc_ramp::ARC_LEDS.q().at_z(1),
+          ColorSequence::fade(Rgba::white(), Rgba::default()),
+          Duration::from_millis(500),
+          Curve::Linear,
+          Cycle::Once,
+        ),
+      )
+      .stopped()
   }
 
   fn combo_hex_program<T: Contextual<LedIdentifications> + Send + Sync + 'static>(
@@ -169,18 +239,18 @@ impl System for HydroCoreSystem {
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if let HydroCoreState::Qualification(mut hits) = self.state
-      && event.is::<ArcRampSubwayHit>()
+      && event.is::<ArcRampHit>()
     {
       hits += 1;
-      log::info!("HydroCore: qualifying hit ({})", hits);
-      ctx.add_points(QUAL_HIT_PTS);
-
-      if hits >= 2 {
-        self.begin_startable(ctx);
-      } else {
-        self.state = HydroCoreState::Qualification(hits);
-      }
+      self.qualification_hit(hits, ctx);
+    } else if event.is::<ResumeQualification>()
+      && let HydroCoreState::PendingQualification(hits) = self.state
+    {
+      self.state = HydroCoreState::Qualification(hits);
     } else if let Some(event) = event.downcast_ref::<LowerScoopBallEnter>() {
+      self.hit_effect.reset();
+      self.hit_effect.play();
+
       if self.state == HydroCoreState::PendingStartable {
         self.to_startable(ctx);
       } else if self.state == HydroCoreState::Startable {
@@ -196,7 +266,6 @@ impl System for HydroCoreSystem {
     } else if let HydroCoreState::ComboShot(1, cue_id) = self.state
       && event.is::<LiftRampHit>()
     {
-      log::info!("Lift ramp combo hit?");
       self.advance_combo(1, cue_id, ctx);
     } else if let HydroCoreState::ComboShot(2, cue_id) = self.state
       && event.is::<ArcRampHit>()
@@ -211,7 +280,7 @@ impl System for HydroCoreSystem {
     {
       self.advance_combo(4, cue_id, ctx);
     } else if let HydroCoreState::ComboShot(5, cue_id) = self.state
-      && event.is::<ArcRampHit>()
+      && event.is::<ArcRampSubwayHit>()
     {
       self.complete(cue_id, ctx);
     } else if event.is::<ComboTimeUp>() {
@@ -233,6 +302,7 @@ impl System for HydroCoreSystem {
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.led_program.apply(delta, ctx);
+    self.hit_effect.apply(delta, ctx);
 
     if matches!(self.state, HydroCoreState::ComboShot(..)) {
       self.gi_program.apply(delta, ctx);
@@ -243,11 +313,18 @@ impl System for HydroCoreSystem {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum HydroCoreState {
+  PendingQualification(u8),
   Qualification(u8),
   PendingStartable,
   Startable,
   ComboShot(u8, u64),
 }
+
+// Because of how the arc ramp is, the ball can go up (trigger) then come back down (trigger #2)
+// which incorrectly finishes qualification. Instead there's a wait period before the next
+// qualification shot can be hit again
+#[derive(serde::Serialize, Event)]
+struct ResumeQualification;
 
 #[derive(serde::Serialize, Event)]
 struct ComboTimeUp;

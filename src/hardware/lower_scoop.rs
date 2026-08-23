@@ -37,7 +37,7 @@ hardware_defs! {
 
   pub OPTO: SwitchDefinition = SwitchDefinition::new("lower_scoop")
     .inverted()
-    .debounce_close(Duration::from_millis(100))
+    .debounce(Duration::from_millis(25))
     .tag(Playfield);
 
   pub LEFT_BOLT: LedDefinition = LedDefinition::single("scoop_bolt1")
@@ -67,6 +67,7 @@ pub struct LowerScoopSystem {
   eject_program: LedProgram1d,
   subway_entry: bool,
   handle: SystemHandle,
+  eject_pending: bool,
 }
 
 impl LowerScoopSystem {
@@ -86,22 +87,27 @@ impl LowerScoopSystem {
     Self {
       eject_program,
       subway_entry: false,
+      eject_pending: false,
       handle: SystemHandle::default(),
     }
   }
 
   pub fn eject(&mut self, ctx: &ServiceContext) {
-    let ctx = ctx.for_system(self.handle);
-    ctx.play_sfx(LOWER_SCOOP_EJECT_SND);
-    ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
-    self.eject_program.reset();
-    self.eject_program.play();
+    if !self.eject_pending {
+      let ctx = ctx.for_system(self.handle);
+      ctx.play_sfx(LOWER_SCOOP_EJECT_SND);
+      ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
+      self.eject_program.reset();
+      self.eject_program.play();
+      self.eject_pending = true;
+    }
   }
 
   fn complete_eject(&mut self, ctx: &SystemContext) {
     ctx.activate_driver(COIL.name, ActivationMode::Tap);
     log::info!("Stopping LEDs after complete eject");
     self.eject_program.stop(ctx);
+    self.eject_pending = false;
   }
 
   fn on_ball_enter(&mut self, ctx: &SystemContext) {
@@ -131,6 +137,9 @@ impl System for LowerScoopSystem {
       log::debug!("Lower scoop is occupied. Ejecting.");
       self.complete_eject(ctx);
     }
+
+    // keep polling self to make sure a ball didn't fail eject
+    ctx.cue(CheckVacated, Cue::Once(Duration::from_millis(250)));
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
@@ -142,6 +151,10 @@ impl System for LowerScoopSystem {
       self.on_ball_enter(ctx);
     } else if event.is::<EjectLowerScoop>() {
       self.complete_eject(ctx);
+    } else if event.is::<CheckVacated>() {
+      if ctx.switches.is_closed(OPTO.name).unwrap_or(false) {
+        self.eject(ctx.into());
+      }
     }
   }
 
@@ -157,3 +170,6 @@ pub struct LowerScoopBallEnter {
 
 #[derive(serde::Serialize, Event)]
 struct EjectLowerScoop;
+
+#[derive(serde::Serialize, Event)]
+struct CheckVacated;

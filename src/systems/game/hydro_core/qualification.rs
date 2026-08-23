@@ -71,12 +71,6 @@ impl HydroCoreQualification {
 
     if self.hits == REQUIRED_HITS {
       self.state = Shutdown;
-    } else {
-      self.state = Cooldown;
-
-      // because on the arc ramp the ball can roll up then down again and double trigger qualification
-      // start a cooldown period to prevent this
-      ctx.cue(Resume, Cue::Once(Duration::from_millis(2500)));
     }
   }
 }
@@ -102,8 +96,6 @@ impl System for HydroCoreQualification {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<ArcRampHit>() && self.state == Qualifying {
       self.on_qualifying_hit(ctx);
-    } else if event.is::<Resume>() {
-      self.state = Qualifying;
     }
   }
 }
@@ -112,11 +104,6 @@ impl System for HydroCoreQualification {
 enum State {
   /// When qualifying shots are allowed
   Qualifying,
-  /// When qualifying shots are not allowed (on cooldown)
-  Cooldown,
   /// When qualifications have been met and the final animations need to play out
   Shutdown,
 }
-
-#[derive(serde::Serialize, Event)]
-struct Resume;

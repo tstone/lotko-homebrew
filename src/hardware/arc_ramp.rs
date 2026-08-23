@@ -4,6 +4,7 @@ use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox::tags::*;
 
+use crate::hardware::arc_ramp::State::*;
 use crate::hardware::more_tags::ArcRamp;
 
 hardware_defs! {
@@ -55,45 +56,46 @@ pub static HEX_CIRCLE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
 
 #[derive(Clone)]
 pub struct ArcRampSystem {
-  hit_program: LedProgram1d,
+  state: State,
 }
 
 impl ArcRampSystem {
   pub fn new() -> Self {
-    Self {
-      hit_program: LedProgram1d::tween(
-        ARC_LEDS.q().at_z(1),
-        Duration::from_millis(200),
-        Curve::EaseOut,
-        Cycle::Once,
-        vec![
-          ColorSequence::fade(Rgba::cyan(), Rgba([170, 133, 213, 255])),
-          ColorSequence::fade(Rgba::magenta(), Rgba([113, 45, 192, 255])),
-        ],
-      )
-      .stopped(),
-    }
+    Self { state: Listening }
+  }
+
+  fn on_ramp_hit(&mut self, ctx: &SystemContext) {
+    log::info!("Arc ramp hit");
+    ctx.emit(ArcRampHit);
+
+    // Because of the geometry and switch location on the arc ramp, the ball can easily roll up the ramp
+    // then roll back down immediately, triggering two hits. Avoid this by putting the system into a
+    // "cooldown" state after each hit. The ball will either go into the subway or fall into the wire form
+    // and by the time it exits the cooldown is complete. This avoids double triggering the hit event.
+    self.state = Cooldown;
+    ctx.cue(Resume, Cue::Once(Duration::from_millis(1500)));
   }
 }
 
 impl System for ArcRampSystem {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if let Some(event) = event.downcast_ref::<SwitchClosed>() {
-      if event.switch.name == RAMP_OPTO.name {
-        log::info!("Arc ramp hit");
-        self.hit_program.reset();
-        self.hit_program.play();
-        ctx.emit(ArcRampHit);
+      if event.switch.name == RAMP_OPTO.name && self.state == Listening {
+        self.on_ramp_hit(ctx);
       } else if event.switch.name == SUBWAY_OPTO.name {
         log::info!("Arc ramp subway entered");
         ctx.emit(ArcRampSubwayHit);
       }
+    } else if event.is::<Resume>() {
+      self.state = Listening;
     }
   }
+}
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.hit_program.apply(delta, ctx);
-  }
+#[derive(serde::Serialize, Event, Clone, PartialEq, Eq)]
+enum State {
+  Listening,
+  Cooldown,
 }
 
 #[derive(serde::Serialize, Event)]
@@ -101,3 +103,6 @@ pub struct ArcRampHit;
 
 #[derive(serde::Serialize, Event)]
 pub struct ArcRampSubwayHit;
+
+#[derive(serde::Serialize, Event)]
+struct Resume;

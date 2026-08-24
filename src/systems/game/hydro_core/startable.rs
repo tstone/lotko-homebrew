@@ -24,7 +24,7 @@ impl HydroCoreStartable {
     Self {
       attention_effect: Self::attention_effect(),
       hit_effect: Self::hit_effect(),
-      state: Cooldown,
+      state: Startable,
     }
   }
 
@@ -75,10 +75,6 @@ impl System for HydroCoreStartable {
     mode.is_none() || mode == &Some(ExclusiveMode::HydroCore)
   }
 
-  fn on_spawn(&mut self, ctx: &SystemContext) {
-    ctx.cue(Resume, Cue::Once(Duration::from_millis(1250)));
-  }
-
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
@@ -91,9 +87,7 @@ impl System for HydroCoreStartable {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<Resume>() {
-      self.state = Startable;
-    } else if event.is::<LowerScoopBallEnter>() && self.state == Startable {
+    if event.is::<LowerScoopBallEnter>() && self.state == Startable {
       self.start(ctx);
     }
   }
@@ -101,7 +95,6 @@ impl System for HydroCoreStartable {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum State {
-  Cooldown,
   Startable,
   Shutdown,
 }

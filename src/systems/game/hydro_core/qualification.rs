@@ -4,6 +4,8 @@ use frontbox_turn_based::GameManagementExt;
 
 use crate::hardware::arc_ramp;
 use crate::hardware::arc_ramp::ArcRampHit;
+use crate::hardware::lower_scoop::BallStatus;
+use crate::hardware::lower_scoop::LowerScoopSystem;
 use crate::systems::game::ExclusiveModeManager;
 use crate::systems::game::HydroCoreStartable;
 use crate::systems::game::hydro_core;
@@ -73,6 +75,20 @@ impl HydroCoreQualification {
       self.state = Shutdown;
     }
   }
+
+  fn attempt_shutdown(&self, ctx: &SystemContext) {
+    ctx.cue(AttemptShutdown, Cue::Once(Duration::from_millis(2500)));
+  }
+
+  fn shutdown(&mut self, ctx: &SystemContext) {
+    match ctx.expect::<LowerScoopSystem>().status(ctx.into()) {
+      BallStatus::NoBall => {
+        self.attention_effect.stop(ctx);
+        ctx.replace_self(HydroCoreStartable::new());
+      }
+      _ => self.attempt_shutdown(ctx),
+    }
+  }
 }
 
 impl System for HydroCoreQualification {
@@ -87,15 +103,16 @@ impl System for HydroCoreQualification {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
 
-    if self.state == Shutdown && self.hit_effect.is_complete() {
-      self.attention_effect.stop(ctx);
-      ctx.replace_self(HydroCoreStartable::new());
+    if self.hits == REQUIRED_HITS && self.hit_effect.is_complete() && self.state == Shutdown {
+      self.attempt_shutdown(ctx);
     }
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<ArcRampHit>() && self.state == Qualifying {
       self.on_qualifying_hit(ctx);
+    } else if event.is::<AttemptShutdown>() {
+      self.shutdown(ctx);
     }
   }
 }
@@ -107,3 +124,6 @@ enum State {
   /// When qualifications have been met and the final animations need to play out
   Shutdown,
 }
+
+#[derive(serde::Serialize, Event)]
+struct AttemptShutdown;

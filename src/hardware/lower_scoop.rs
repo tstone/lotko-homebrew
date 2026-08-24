@@ -12,15 +12,23 @@ use crate::hardware::more_tags::*;
 hardware_defs! {
   pub COIL: DriverDefinition = DriverDefinition::new("lower_scoop")
     .tag(Playfield)
-    .mode(DelayedPulseMode {
-      trigger_mode: DriverTriggerMode::Switch("lower_scoop"),
-      delay_length: HardwareValue::fixed(Duration::from_millis(750)),
-      initial_full_power_length: HardwareValue::fixed(Duration::ZERO),
-      secondary_pwm_power: HardwareValue::Fixed(Power::FULL),
-      secondary_pwm_length: HardwareValue::config(
+    .mode(PulseKickMode {
+      trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
+      initial_pwm_length: HardwareValue::config(
+        "Lower Scoop Touch Time",
+        "Duration by which the eject plunger is brought into contact with the ball, before full eject",
+        Duration::from_millis(7),
+        Ranges::duration(0, 100),
+      ),
+      initial_pwm_power: HardwareValue::fixed(
+        Power::THREE_QUARTERS,
+      ),
+      secondary_pwm_power: HardwareValue::Fixed(Power::ZERO),
+      secondary_pwm_length: HardwareValue::Fixed(Duration::ZERO),
+      kick_length: HardwareValue::config(
         "Lower Scoop Eject Time",
         "Duration that the plunger exert full power onto the ball (kick)",
-        Duration::from_millis(40),
+        Duration::from_millis(35),
         Ranges::duration(10, 300),
       ),
       ..Default::default()
@@ -83,11 +91,25 @@ impl LowerScoopSystem {
     }
   }
 
+  pub fn status(&self, ctx: &ServiceContext) -> BallStatus {
+    if self.subway_entry {
+      BallStatus::ExpectingBall
+    } else if ctx.switches.is_closed(OPTO.name).unwrap_or(false) {
+      BallStatus::BallPresent
+    } else {
+      BallStatus::NoBall
+    }
+  }
+
   fn complete_eject(&mut self, ctx: &SystemContext) {
-    // ctx.activate_driver(COIL.name, ActivationMode::Tap);
+    ctx.activate_driver(COIL.name, ActivationMode::Tap);
     log::info!("Stopping LEDs after complete eject");
     self.eject_program.stop(ctx);
     self.eject_pending = false;
+    ctx.expect::<Machine>().refresh_switch_state();
+
+    // There's some kind of voltage sag issue happening, so after eject check if it was actually ejected
+    ctx.cue(CheckVacated, Cue::Once(Duration::from_millis(250)));
   }
 
   fn on_ball_enter(&mut self, ctx: &SystemContext) {
@@ -135,6 +157,8 @@ impl System for LowerScoopSystem {
       self.on_ball_enter(ctx);
     } else if event.is::<EjectLowerScoop>() {
       self.complete_eject(ctx);
+    } else if event.is::<CheckVacated>() && ctx.switches.is_closed(OPTO.name).unwrap_or(false) {
+      self.complete_eject(ctx);
     }
   }
 
@@ -153,3 +177,9 @@ struct EjectLowerScoop;
 
 #[derive(serde::Serialize, Event)]
 struct CheckVacated;
+
+pub enum BallStatus {
+  NoBall,
+  ExpectingBall,
+  BallPresent,
+}

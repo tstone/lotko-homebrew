@@ -7,7 +7,7 @@ use crate::hardware::more_tags::*;
 hardware_defs! {
   pub OPTO: SwitchDefinition = SwitchDefinition::new("vspinner")
     .inverted()
-    .debounce(Duration::from_millis(12))
+    .debounce(Duration::from_millis(25))
     .tag(Playfield)
     .tag(Spinner);
 

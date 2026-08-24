@@ -73,6 +73,8 @@ async fn main() {
     app.system(AttractModeDmdSystem::new());
     app.system(GamePointsDmdSystem::new());
 
+    app.system(drop_bank::DropBankSystem::new());
+
     // game
     app.system(activate_playfield());
     app.system(EndOfBallSystem::new());
@@ -87,10 +89,9 @@ async fn main() {
         center_orbit::CenterOrbitSystem::new(),
         right_orbit::RightOrbitSystem::new(),
         arc_ramp::ArcRampSystem::new(),
-        drop_bank::DropBankSystem::new(),
         vspinner::VerticalSpinner::new(),
         // operation
-        BallSaveSystem::new(Duration::from_secs(5)).effect(LedProgram1d::flash(
+        BallSaveSystem::new(Duration::from_secs(8)).effect(LedProgram1d::flash(
           DRAIN_LED.q(),
           ColorSequence::solid(Rgba::green()),
           Forever

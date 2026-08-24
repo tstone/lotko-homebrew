@@ -30,7 +30,8 @@ pub mod right_flipper {
 
   hardware_defs! {
 
-    pub EOS_SWITCH: SwitchDefinition = SwitchDefinition::new("r_flipper_eos");
+    pub EOS_SWITCH: SwitchDefinition = SwitchDefinition::new("r_flipper_eos")
+      .debounce_close(Duration::from_millis(8));
 
     pub MAIN_COIL: DriverDefinition = DriverDefinition::new("r_flipper_main")
     .mode(FlipperMainDirectMode {

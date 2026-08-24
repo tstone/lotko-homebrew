@@ -16,7 +16,7 @@ impl System for BasicPoints {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if let Some(e) = event.downcast_ref::<SwitchClosed>() {
       if e.switch.has_tag::<Playfield>() {
-        ctx.expect::<GameManager>().add_points(10, ctx.into());
+        ctx.expect::<GameManager>().add_points(110, ctx.into());
       }
     }
   }

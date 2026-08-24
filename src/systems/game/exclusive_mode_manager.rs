@@ -74,6 +74,12 @@ impl System for ExclusiveModeManager {
 
     ctx.expect::<SoundSystem>().play_music(path);
   }
+
+  fn on_deactivate(&mut self, ctx: &SystemContext) {
+    ctx
+      .expect::<SoundSystem>()
+      .stop_music(Duration::from_millis(500));
+  }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

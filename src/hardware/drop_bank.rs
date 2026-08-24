@@ -1,6 +1,8 @@
 use frontbox::prelude::*;
 use frontbox::tags::*;
-use frontbox_turn_based::GameStarted;
+use frontbox_turn_based::ActivatedPlayfieldDrivers;
+use frontbox_turn_based::GameManager;
+use frontbox_turn_based::PlayerTurnBeginning;
 
 use crate::hardware::more_tags::DropBank;
 
@@ -12,7 +14,7 @@ hardware_defs! {
       initial_pwm_length: HardwareValue::config(
         "Drop Target Reset Duration",
         "Amount of time fire the coil to reset the bank",
-        Duration::from_millis(35),
+        Duration::from_millis(25),
         Ranges::duration(5, 100)
       ),
       initial_pwm_power: HardwareValue::config(
@@ -83,8 +85,11 @@ impl System for DropBankSystem {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    // TODO: can this "see" the game started event or does that happen before it's spawned?
-    if event.is::<GameStarted>() {
+    if event.is::<ActivatedPlayfieldDrivers>()
+      && let Some(game_state) = ctx.expect::<GameManager>().game_state()
+      && game_state.current_player_turn() == 0
+    {
+      log::info!("DropBank: Game started. Raising targets for player.");
       self.raise_targets(ctx.into());
     }
   }

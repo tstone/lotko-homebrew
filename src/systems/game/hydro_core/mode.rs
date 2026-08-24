@@ -175,7 +175,16 @@ impl HydroCoreMode {
     self.restart_combo(ctx);
   }
 
+  fn revert_to_startable(&mut self, ctx: &SystemContext) {
+    ctx
+      .expect::<ExclusiveModeManager>()
+      .release_exclusive(ExclusiveMode::HydroCore, ctx);
+    ctx.replace_self(HydroCoreStartable::new());
+  }
+
   fn complete(&mut self, ctx: &SystemContext) {
+    ctx.add_points(hydro_core::points::COMPLETION / self.combo_attempts.min(10) as u32);
+
     // TODO: epic reaction effect
     ctx
       .expect::<ExclusiveModeManager>()
@@ -214,7 +223,7 @@ impl System for HydroCoreMode {
     } else if event.is::<ComboTimeUp>() {
       self.combo_time_up(ctx);
     } else if event.is::<PlayerTurnEnding>() {
-      ctx.replace_self(HydroCoreStartable::new());
+      self.revert_to_startable(ctx);
     }
   }
 }

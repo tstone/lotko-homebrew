@@ -65,6 +65,7 @@ impl NimbusPromenadeQualification {
           Cycle::Once,
         ),
       )
+      .stopped()
   }
 
   fn progress_effect(count: u8) -> LedProgram1d {

@@ -1,5 +1,6 @@
 use frontbox::animation::*;
 use frontbox::prelude::*;
+use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
 
 use crate::hardware::arc_ramp;
@@ -10,6 +11,7 @@ use crate::systems::game::ExclusiveModeManager;
 use crate::systems::game::HydroCoreStartable;
 use crate::systems::game::hydro_core;
 use crate::systems::game::hydro_core::qualification::State::*;
+use crate::systems::sounds;
 
 const REQUIRED_HITS: u8 = 2;
 
@@ -72,6 +74,7 @@ impl HydroCoreQualification {
     self.hit_effect.play();
 
     if self.hits == REQUIRED_HITS {
+      ctx.play_sfx(sounds::HYDRO_CORE_ONLINE);
       self.state = Shutdown;
     }
   }

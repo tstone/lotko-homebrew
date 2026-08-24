@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use frontbox::animation::*;
 use frontbox::prelude::tags::{self, Playfield};
 use frontbox::prelude::*;
+use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::{GameManagementExt, PlayerTurnEnding};
 
 use crate::hardware::arc_ramp::{ArcRampHit, ArcRampSubwayHit};
@@ -14,6 +15,7 @@ use crate::hardware::{arc_ramp, center_orbit, lift_ramp, right_orbit};
 use crate::systems::game::hydro_core::MODE_COLOR;
 use crate::systems::game::{ExclusiveMode, HydroCoreStartable, hydro_core};
 use crate::systems::game::{ExclusiveModeManager, HydroCoreQualification};
+use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct HydroCoreMode {
@@ -111,9 +113,19 @@ impl HydroCoreMode {
   fn advance_combo(&mut self, shot: u8, ctx: &SystemContext) {
     ctx.cancel_cue(self.cue_id);
 
-    if shot == 6 {
-      self.complete(ctx);
-      return;
+    // sfx
+    match shot {
+      1 => ctx.play_sfx(sounds::HYDRO_CORE_FLUID_ROUTING_ACTIVE),
+      2 => ctx.play_sfx(sounds::rnd_lane_hit()),
+      3 => ctx.play_sfx(sounds::HYDRO_CORE_PRESSURE_RISING),
+      4 => ctx.play_sfx(sounds::rnd_lane_hit()),
+      5 => ctx.play_sfx(sounds::rnd_lane_hit()),
+      6 => {
+        ctx.play_sfx(sounds::HYDRO_CORE_PURGED);
+        self.complete(ctx);
+        return;
+      }
+      _ => {}
     }
 
     // Player only has a limited amount of time to make the next shot BUT

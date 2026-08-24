@@ -1,5 +1,6 @@
 use frontbox::animation::*;
 use frontbox::prelude::*;
+use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
 
 use crate::hardware::arc_ramp;
@@ -11,6 +12,7 @@ use crate::systems::game::HydroCoreMode;
 use crate::systems::game::hydro_core;
 use crate::systems::game::hydro_core::MODE_COLOR;
 use crate::systems::game::hydro_core::startable::State::*;
+use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct HydroCoreStartable {
@@ -61,6 +63,7 @@ impl HydroCoreStartable {
       self.state = Shutdown;
       self.hit_effect.play();
 
+      ctx.play_sfx(sounds::HYDRO_CORE_FOLLOW_THE_SURGE);
       ctx.add_points(hydro_core::points::START);
     } else {
       log::warn!("HydroCore: Could not take exclusive mode position");

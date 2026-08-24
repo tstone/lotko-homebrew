@@ -73,7 +73,15 @@ async fn main() {
     app.system(AttractModeDmdSystem::new());
     app.system(GamePointsDmdSystem::new());
 
+    // hardware ops
     app.system(drop_bank::DropBankSystem::new());
+    app.system(lower_scoop::LowerScoopSystem::new());
+    app.system(lift_ramp::LiftRampSystem::new());
+    app.system(left_orbit::LeftOrbitSystem::new());
+    app.system(center_orbit::CenterOrbitSystem::new());
+    app.system(right_orbit::RightOrbitSystem::new());
+    app.system(arc_ramp::ArcRampSystem::new());
+    app.system(vspinner::VerticalSpinner::new());
 
     // game
     app.system(activate_playfield());
@@ -82,14 +90,6 @@ async fn main() {
       4,
       systems![
         BasicPoints::new(),
-        // TODO: move hardware management to root level, but make only active when in game
-        lower_scoop::LowerScoopSystem::new(),
-        lift_ramp::LiftRampSystem::new(),
-        left_orbit::LeftOrbitSystem::new(),
-        center_orbit::CenterOrbitSystem::new(),
-        right_orbit::RightOrbitSystem::new(),
-        arc_ramp::ArcRampSystem::new(),
-        vspinner::VerticalSpinner::new(),
         // operation
         BallSaveSystem::new(Duration::from_secs(8)).effect(LedProgram1d::flash(
           DRAIN_LED.q(),

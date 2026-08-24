@@ -2,7 +2,6 @@ use frontbox::prelude::*;
 use frontbox::tags::*;
 use frontbox_turn_based::ActivatedPlayfieldDrivers;
 use frontbox_turn_based::GameManager;
-use frontbox_turn_based::PlayerTurnBeginning;
 
 use crate::hardware::more_tags::DropBank;
 
@@ -89,7 +88,7 @@ impl System for DropBankSystem {
       && let Some(game_state) = ctx.expect::<GameManager>().game_state()
       && game_state.current_player_turn() == 0
     {
-      log::info!("DropBank: Game started. Raising targets for player.");
+      log::info!("DropBank: Raising targets for player (game start)");
       self.raise_targets(ctx.into());
     }
   }

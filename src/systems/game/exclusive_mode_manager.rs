@@ -83,14 +83,6 @@ impl System for ExclusiveModeManager {
       .expect::<SoundSystem>()
       .stop_music(Duration::from_millis(500));
   }
-
-  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if let Some(PlayerTurnBeginning { turn, .. }) = event.downcast_ref::<PlayerTurnBeginning>()
-      && *turn == 0
-    {
-      ctx.play_sfx(sounds::RECLAIM_IT_ALL);
-    }
-  }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

@@ -3,7 +3,10 @@ use std::path::PathBuf;
 use std::sync::LazyLock;
 
 use frontbox::prelude::*;
-use frontbox_sound::SoundSystem;
+use frontbox_sound::{SoundSystem, SoundSystemExt};
+use frontbox_turn_based::{GameManager, PlayerTurnBeginning};
+
+use crate::systems::sounds;
 
 static MODE_MUSIC: LazyLock<HashMap<ExclusiveMode, PathBuf>> = LazyLock::new(|| {
   let mut map = HashMap::new();
@@ -79,6 +82,14 @@ impl System for ExclusiveModeManager {
     ctx
       .expect::<SoundSystem>()
       .stop_music(Duration::from_millis(500));
+  }
+
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if let Some(PlayerTurnBeginning { turn, .. }) = event.downcast_ref::<PlayerTurnBeginning>()
+      && *turn == 0
+    {
+      ctx.play_sfx(sounds::RECLAIM_IT_ALL);
+    }
   }
 }
 

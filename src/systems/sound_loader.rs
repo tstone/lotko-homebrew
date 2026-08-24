@@ -1,7 +1,8 @@
 use frontbox::prelude::*;
 use frontbox_sound::*;
 
-use crate::hardware::lower_scoop::LOWER_SCOOP_EJECT_SND;
+use crate::hardware::lower_scoop::LOWER_SCOOP_EJECT;
+use crate::systems::sounds::RECLAIM_IT_ALL;
 
 pub mod sounds {
   use std::sync::LazyLock;
@@ -13,6 +14,8 @@ pub mod sounds {
   pub const LANE_HIT3: &str = "lane_hit3";
   pub const LANE_HIT4: &str = "lane_hit4";
   pub const LANE_HIT_COMPLETE: &str = "lane_hit_complete";
+
+  pub const RECLAIM_IT_ALL: &str = "reclaim";
 
   pub const HYDRO_CORE_FLUID_ROUTING_ACTIVE: &str = "hc_fra";
   pub const HYDRO_CORE_FOLLOW_THE_SURGE: &str = "hc_fts";
@@ -28,6 +31,8 @@ pub mod sounds {
 }
 
 pub mod sounds_bytes {
+  pub static RECLAIM_IT_ALL: &[u8] = include_bytes!("../assets/sounds/reclaim-it-all.mp3");
+
   pub static LOWER_SCOOP_EJECT: &[u8] = include_bytes!("../assets/sounds/lower-scoop-exit.mp3");
   pub static LANE_HIT1: &[u8] = include_bytes!("../assets/sounds/lane-hit-rattle-1.mp3");
   pub static LANE_HIT2: &[u8] = include_bytes!("../assets/sounds/lane-hit-rattle-2.mp3");
@@ -50,7 +55,9 @@ impl System for SoundLoaderSystem {
   fn on_spawn(&mut self, ctx: &SystemContext) {
     let mut snd = ctx.expect::<SoundSystem>();
 
-    snd.preload_embedded(LOWER_SCOOP_EJECT_SND, sounds_bytes::LOWER_SCOOP_EJECT);
+    snd.preload_embedded(RECLAIM_IT_ALL, sounds_bytes::RECLAIM_IT_ALL);
+
+    snd.preload_embedded(LOWER_SCOOP_EJECT, sounds_bytes::LOWER_SCOOP_EJECT);
     snd.preload_embedded(sounds::LANE_HIT1, sounds_bytes::LANE_HIT1);
     snd.preload_embedded(sounds::LANE_HIT2, sounds_bytes::LANE_HIT2);
     snd.preload_embedded(sounds::LANE_HIT3, sounds_bytes::LANE_HIT3);

@@ -59,7 +59,7 @@ pub static BOLTS_Q: LazyLock<HardwareQuery> = LazyLock::new(|| {
 
 // -- System --
 
-pub const LOWER_SCOOP_EJECT_SND: &'static str = "lower_scoop_eject";
+pub const LOWER_SCOOP_EJECT: &'static str = "lower_scoop_eject";
 
 #[derive(Clone)]
 pub struct LowerScoopSystem {
@@ -126,7 +126,7 @@ impl LowerScoopSystem {
 
     self.subway_entry = false;
     if !self.eject_pending {
-      ctx.play_sfx(LOWER_SCOOP_EJECT_SND);
+      ctx.play_sfx(LOWER_SCOOP_EJECT);
       ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
       self.eject_program.reset();
       self.eject_program.play();

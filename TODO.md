@@ -1,3 +1,1 @@
-- Ball doesn't always trigger in-game when leaving the plunge lane; might need to set a short timer and if the ball leaves the plunge lane switch and doesn't come back soon(tm) then it's in-play instead of hitting a PF switch
-- Lower scoop eject sound stopped working
-- Lower scoop animation doesn't work the second time through
+- Bonus points based on the number of modes completed during a ball

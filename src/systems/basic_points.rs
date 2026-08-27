@@ -1,6 +1,6 @@
 use frontbox::prelude::*;
 use frontbox::tags::Playfield;
-use frontbox_turn_based::GameManager;
+use frontbox_turn_based::{GameManager, TurnState};
 
 /// A system to give a low amount of points just for the ball bouncing around
 #[derive(Debug, Clone)]
@@ -13,6 +13,14 @@ impl BasicPoints {
 }
 
 impl System for BasicPoints {
+  fn is_active(&self, ctx: &SystemContext) -> bool {
+    ctx
+      .expect::<GameManager>()
+      .game_state()
+      .map(|state| *state.current_player_turn_state() == TurnState::Active)
+      .unwrap_or(false)
+  }
+
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if let Some(e) = event.downcast_ref::<SwitchClosed>() {
       if e.switch.has_tag::<Playfield>() {

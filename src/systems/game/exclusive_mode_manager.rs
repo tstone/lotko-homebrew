@@ -3,10 +3,8 @@ use std::path::PathBuf;
 use std::sync::LazyLock;
 
 use frontbox::prelude::*;
-use frontbox_sound::{SoundSystem, SoundSystemExt};
-use frontbox_turn_based::{GameManager, PlayerTurnBeginning};
-
-use crate::systems::sounds;
+use frontbox_sound::SoundSystem;
+use frontbox_turn_based::{PlayerTurnBeginning, PlayerTurnEnding};
 
 static MODE_MUSIC: LazyLock<HashMap<ExclusiveMode, PathBuf>> = LazyLock::new(|| {
   let mut map = HashMap::new();
@@ -47,7 +45,7 @@ impl ExclusiveModeManager {
       log::warn!("{}", msg);
       Err(msg)
     } else {
-      Self::crossfade_music(&mode, ctx);
+      self.crossfade_mode_music(&mode, ctx);
       self.exclusive_mode = Some(mode);
       Ok(())
     }
@@ -56,11 +54,24 @@ impl ExclusiveModeManager {
   pub fn release_exclusive(&mut self, mode: ExclusiveMode, ctx: &SystemContext) {
     if self.exclusive_mode == Some(mode) {
       self.exclusive_mode = None;
-      Self::crossfade_music(&ExclusiveMode::None, ctx);
+      self.crossfade_mode_music(&ExclusiveMode::None, ctx);
     }
   }
 
-  fn crossfade_music(mode: &ExclusiveMode, ctx: &SystemContext) {
+  fn on_turn_starting(&self, ctx: &SystemContext) {
+    self.crossfade_mode_music(
+      self.current_mode().as_ref().unwrap_or(&ExclusiveMode::None),
+      ctx,
+    );
+  }
+
+  fn on_turn_ending(&self, ctx: &SystemContext) {
+    ctx
+      .expect::<SoundSystem>()
+      .stop_music(Duration::from_millis(500));
+  }
+
+  fn crossfade_mode_music(&self, mode: &ExclusiveMode, ctx: &SystemContext) {
     if let Some(path) = MODE_MUSIC.get(mode) {
       ctx
         .expect::<SoundSystem>()
@@ -70,20 +81,12 @@ impl ExclusiveModeManager {
 }
 
 impl System for ExclusiveModeManager {
-  fn on_reactivate(&mut self, ctx: &SystemContext) {
-    let path = MODE_MUSIC
-      .get(self.exclusive_mode.as_ref().unwrap_or(&ExclusiveMode::None))
-      .unwrap();
-
-    ctx
-      .expect::<SoundSystem>()
-      .play_music(path, Duration::from_millis(500));
-  }
-
-  fn on_deactivate(&mut self, ctx: &SystemContext) {
-    ctx
-      .expect::<SoundSystem>()
-      .stop_music(Duration::from_millis(500));
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if event.is::<PlayerTurnBeginning>() {
+      self.on_turn_starting(ctx);
+    } else if event.is::<PlayerTurnEnding>() {
+      self.on_turn_ending(ctx);
+    }
   }
 }
 

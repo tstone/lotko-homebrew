@@ -1,7 +1,7 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::color_sequence::{Anchor1d, Fill1dArea};
 use frontbox::prelude::*;
-use frontbox_turn_based::GameManagementExt;
+use frontbox_turn_based::{GameManagementExt, GameManager, TurnState};
 
 use crate::hardware::vspinner::{self, VerticalSpinnerHit};
 use crate::systems::game::nimbus_promenade::{self, MODE_COLOR};
@@ -94,13 +94,19 @@ impl NimbusPromenadeQualification {
       // TODO: play SFX
       ctx.add_points(nimbus_promenade::points::START);
       self.shutdown = true;
-    } else if self.hits % 5 == 0 {
-      // TODO: play SFX
     }
   }
 }
 
 impl System for NimbusPromenadeQualification {
+  fn is_active(&self, ctx: &SystemContext) -> bool {
+    ctx
+      .expect::<GameManager>()
+      .game_state()
+      .map(|state| *state.current_player_turn_state() == TurnState::Active)
+      .unwrap_or(false)
+  }
+
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<VerticalSpinnerHit>() {
       self.spinner_hit(ctx);

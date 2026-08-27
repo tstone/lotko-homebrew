@@ -191,7 +191,7 @@ impl HydroCoreMode {
     ctx
       .expect::<ExclusiveModeManager>()
       .release_exclusive(ExclusiveMode::HydroCore, ctx);
-    ctx.replace_self(HydroCoreStartable::new());
+    ctx.replace_self(HydroCoreStartable::new(Duration::ZERO));
   }
 
   fn complete(&mut self, ctx: &SystemContext) {

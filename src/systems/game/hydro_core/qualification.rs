@@ -5,19 +5,15 @@ use frontbox_turn_based::GameManagementExt;
 
 use crate::hardware::arc_ramp;
 use crate::hardware::arc_ramp::ArcRampHit;
-use crate::hardware::lower_scoop::BallStatus;
-use crate::hardware::lower_scoop::LowerScoopSystem;
 use crate::systems::game::ExclusiveModeManager;
 use crate::systems::game::HydroCoreStartable;
 use crate::systems::game::hydro_core;
-use crate::systems::game::hydro_core::qualification::State::*;
 use crate::systems::sounds;
 
 const REQUIRED_HITS: u8 = 2;
 
 #[derive(Clone)]
 pub struct HydroCoreQualification {
-  state: State,
   hits: u8,
   attention_effect: LedProgram1d,
   hit_effect: LedProgram1d,
@@ -26,7 +22,6 @@ pub struct HydroCoreQualification {
 impl HydroCoreQualification {
   pub fn new() -> Self {
     Self {
-      state: Qualifying,
       hits: 0,
       attention_effect: Self::attention_effect(),
       hit_effect: Self::hit_effect(),
@@ -75,22 +70,12 @@ impl HydroCoreQualification {
 
     if self.hits == REQUIRED_HITS {
       ctx.play_sfx(sounds::HYDRO_CORE_ONLINE);
-      self.state = Shutdown;
     }
-  }
-
-  fn attempt_shutdown(&self, ctx: &SystemContext) {
-    ctx.cue(AttemptShutdown, Cue::Once(Duration::from_millis(2500)));
   }
 
   fn shutdown(&mut self, ctx: &SystemContext) {
-    match ctx.expect::<LowerScoopSystem>().status(ctx.into()) {
-      BallStatus::NoBall => {
-        self.attention_effect.stop(ctx);
-        ctx.replace_self(HydroCoreStartable::new());
-      }
-      _ => self.attempt_shutdown(ctx),
-    }
+    self.attention_effect.stop(ctx);
+    ctx.replace_self(HydroCoreStartable::new(Duration::from_millis(2500)));
   }
 }
 
@@ -106,27 +91,14 @@ impl System for HydroCoreQualification {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
 
-    if self.hits == REQUIRED_HITS && self.hit_effect.is_complete() && self.state == Shutdown {
-      self.attempt_shutdown(ctx);
+    if self.hits == REQUIRED_HITS && self.hit_effect.is_complete() {
+      self.shutdown(ctx);
     }
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<ArcRampHit>() && self.state == Qualifying {
+    if event.is::<ArcRampHit>() {
       self.on_qualifying_hit(ctx);
-    } else if event.is::<AttemptShutdown>() {
-      self.shutdown(ctx);
     }
   }
 }
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum State {
-  /// When qualifying shots are allowed
-  Qualifying,
-  /// When qualifications have been met and the final animations need to play out
-  Shutdown,
-}
-
-#[derive(serde::Serialize, Event)]
-struct AttemptShutdown;

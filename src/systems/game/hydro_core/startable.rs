@@ -16,14 +16,16 @@ use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct HydroCoreStartable {
+  activation_delay: Duration,
   attention_effect: LedProgram1d,
   hit_effect: LedProgram1d,
   state: State,
 }
 
 impl HydroCoreStartable {
-  pub fn new() -> Self {
+  pub fn new(activation_delay: Duration) -> Self {
     Self {
+      activation_delay,
       attention_effect: Self::attention_effect(),
       hit_effect: Self::hit_effect(),
       state: Startable,
@@ -31,12 +33,15 @@ impl HydroCoreStartable {
   }
 
   fn attention_effect() -> LedProgram1d {
-    // TODO: rotate/animate the left third of the arc ramp
-    LedProgram1d::flash(
-      Q::any(vec![&*lower_scoop::BOLTS_Q, &*arc_ramp::HEX_CENTER_LED]),
-      ColorSequence::solid(*MODE_COLOR),
-      Cycle::Forever,
+    LedProgram1d::timeline().at(
+      Duration::ZERO,
+      LedProgram1d::flash(
+        &*lower_scoop::BOLTS_Q,
+        ColorSequence::solid(*MODE_COLOR),
+        Cycle::Forever,
+      ),
     )
+    // TODO: rotate/animate the left third of the arc ramp
   }
 
   fn hit_effect() -> LedProgram1d {
@@ -78,6 +83,13 @@ impl System for HydroCoreStartable {
     mode.is_none() || mode == &Some(ExclusiveMode::HydroCore)
   }
 
+  fn on_spawn(&mut self, ctx: &SystemContext) {
+    if self.activation_delay > Duration::ZERO {
+      self.state = Pending;
+      ctx.cue(Resume, Cue::Once(self.activation_delay));
+    }
+  }
+
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
@@ -92,12 +104,15 @@ impl System for HydroCoreStartable {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<LowerScoopBallEnter>() && self.state == Startable {
       self.start(ctx);
+    } else if event.is::<Resume>() && self.state == Pending {
+      self.state = Startable;
     }
   }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum State {
+  Pending,
   Startable,
   Shutdown,
 }

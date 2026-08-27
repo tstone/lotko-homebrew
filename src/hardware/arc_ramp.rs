@@ -1,6 +1,5 @@
 use std::sync::LazyLock;
 
-use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox::tags::*;
 

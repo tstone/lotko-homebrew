@@ -64,7 +64,7 @@ impl ExclusiveModeManager {
     if let Some(path) = MODE_MUSIC.get(mode) {
       ctx
         .expect::<SoundSystem>()
-        .crossfade_music(path, Duration::from_millis(1000));
+        .play_music(path, Duration::from_millis(1000));
     }
   }
 }
@@ -75,7 +75,9 @@ impl System for ExclusiveModeManager {
       .get(self.exclusive_mode.as_ref().unwrap_or(&ExclusiveMode::None))
       .unwrap();
 
-    ctx.expect::<SoundSystem>().play_music(path);
+    ctx
+      .expect::<SoundSystem>()
+      .play_music(path, Duration::from_millis(500));
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {

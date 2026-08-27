@@ -7,8 +7,7 @@ use crate::hardware::cabinet::*;
 
 pub fn game_startable() -> GameStartable {
   GameStartable::new()
-    // Disabled to reduce testing noise:
-    // .flash_lamp(start_button::LAMP_DRIVER.name)
+    .flash_lamp(start_button::LAMP_DRIVER.name)
     // animate action button
     .effect(LedProgram1d::tween(
       action_button::LED.q(),

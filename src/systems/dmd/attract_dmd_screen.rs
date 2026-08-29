@@ -1,15 +1,16 @@
 use std::sync::LazyLock;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum AttractDmdState {
+pub enum AttractDmdScreen {
   Spore,
   LastScores(usize),
   PressStart,
   NeonBluePinball,
+  FastFrontboxLogos,
 }
 
-impl AttractDmdState {
-  pub fn ordered() -> &'static Vec<AttractDmdState> {
+impl AttractDmdScreen {
+  pub fn ordered() -> &'static Vec<AttractDmdScreen> {
     &ATTRACT_DMD_STATES
   }
 
@@ -33,14 +34,15 @@ impl AttractDmdState {
   }
 }
 
-static ATTRACT_DMD_STATES: LazyLock<Vec<AttractDmdState>> = LazyLock::new(|| {
+static ATTRACT_DMD_STATES: LazyLock<Vec<AttractDmdScreen>> = LazyLock::new(|| {
   vec![
-    AttractDmdState::NeonBluePinball,
-    AttractDmdState::Spore,
-    AttractDmdState::LastScores(0),
-    AttractDmdState::LastScores(1),
-    AttractDmdState::PressStart,
-    AttractDmdState::LastScores(2),
-    AttractDmdState::LastScores(3),
+    AttractDmdScreen::NeonBluePinball,
+    AttractDmdScreen::Spore,
+    AttractDmdScreen::LastScores(0),
+    AttractDmdScreen::LastScores(1),
+    AttractDmdScreen::PressStart,
+    AttractDmdScreen::LastScores(2),
+    AttractDmdScreen::LastScores(3),
+    AttractDmdScreen::FastFrontboxLogos,
   ]
 });

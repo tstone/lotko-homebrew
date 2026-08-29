@@ -13,14 +13,18 @@ use frontbox_canvas::animation::Frame;
 use frontbox_turn_based::*;
 
 use crate::hardware::cabinet::{LEFT_FLIPPER_SWITCH1, RIGHT_FLIPPER_SWITCH1};
-use crate::systems::dmd::attract_dmd_state::AttractDmdState;
+use crate::systems::dmd::attract_dmd_screen::AttractDmdScreen;
+
+static LOGOS_IMG: &[u8] = include_bytes!("../../assets/dmd/fast-frontbox-logos.png");
+static TITLE_IMG: &[u8] = include_bytes!("../../assets/dmd/lotko.png");
+static NEON_BLUE_IMG: &[u8] = include_bytes!("../../assets/dmd/neon-blue.png");
 
 pub struct AttractModeDmdSystem {
   bio_spore: Vec<Frame>,
   spore_anim: Sequence<Duration, RgbaImage>,
   press_start_anim: Tween<Duration, Rgba<u8>>,
   last_scores: Option<Vec<(&'static str, u32)>>,
-  state: AttractDmdState,
+  state: AttractDmdScreen,
   cue_id: Option<u64>,
 }
 
@@ -37,15 +41,15 @@ impl AttractModeDmdSystem {
       ),
       bio_spore: frames,
       last_scores: None,
-      state: AttractDmdState::ordered()[0],
+      state: AttractDmdScreen::ordered()[0],
       cue_id: None,
     }
   }
 
   fn draw(&mut self, delta: Duration, ctx: &SystemContext) -> Container {
     match self.state {
-      AttractDmdState::Spore => self.draw_spore(delta),
-      AttractDmdState::LastScores(idx) => {
+      AttractDmdScreen::Spore => self.draw_spore(delta),
+      AttractDmdScreen::LastScores(idx) => {
         if let Some(scores) = &self.last_scores
           && let Some((text, score)) = scores.get(idx)
         {
@@ -55,8 +59,9 @@ impl AttractModeDmdSystem {
           self.draw(delta, ctx)
         }
       }
-      AttractDmdState::NeonBluePinball => self.draw_neon_blue_pinball(),
-      AttractDmdState::PressStart => {
+      AttractDmdScreen::FastFrontboxLogos => self.draw_img(LOGOS_IMG),
+      AttractDmdScreen::NeonBluePinball => self.draw_img(NEON_BLUE_IMG),
+      AttractDmdScreen::PressStart => {
         if let Some(game_manager) = ctx.get::<GameManager>()
           && game_manager.is_player_addable()
         {
@@ -137,6 +142,14 @@ impl AttractModeDmdSystem {
         .top_offset(10),
     );
 
+    window.add(StaticImage::from_bytes(LOGOS_IMG).default_position());
+
+    window
+  }
+
+  fn draw_img(&mut self, bytes: &[u8]) -> Container {
+    let mut window = Container::transparent();
+    window.add(StaticImage::from_bytes(bytes).default_position());
     window
   }
 
@@ -194,7 +207,7 @@ impl System for AttractModeDmdSystem {
     } else if let Some(GameEnded { scores }) = event.downcast_ref::<GameEnded>() {
       self.last_scores = Some(scores.clone());
       // jump to last scores so players can see what they finished with
-      self.state = AttractDmdState::LastScores(0);
+      self.state = AttractDmdScreen::LastScores(0);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>() {
       if event.switch.name == LEFT_FLIPPER_SWITCH1.name {
         self.state = self.state.prev();

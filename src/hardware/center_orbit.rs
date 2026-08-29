@@ -30,19 +30,18 @@ hardware_defs! {
     .tag(Lane);
 }
 
-pub static HEX_CENTER_LED: LazyLock<HardwareQuery> =
-  LazyLock::new(|| HEX_LEDS.child(6).unwrap().q());
+pub static HEX_CENTER_LED: LazyLock<LedQ> = LazyLock::new(|| HEX_LEDS.child(6).unwrap().q());
 
-pub static HEX_LINE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
-  Q::names(vec![
+pub static HEX_LINE_LEDS: LazyLock<LedQ> = LazyLock::new(|| {
+  LedQ::names(vec![
     HEX_LEDS.child(5).unwrap().name(),
     HEX_LEDS.child(6).unwrap().name(),
     HEX_LEDS.child(2).unwrap().name(),
   ])
 });
 
-pub static HEX_CIRCLE_LEDS: LazyLock<HardwareQuery> = LazyLock::new(|| {
-  Q::names(vec![
+pub static HEX_CIRCLE_LEDS: LazyLock<LedQ> = LazyLock::new(|| {
+  LedQ::names(vec![
     HEX_LEDS.child(2).unwrap().name(),
     HEX_LEDS.child(1).unwrap().name(),
     HEX_LEDS.child(0).unwrap().name(),

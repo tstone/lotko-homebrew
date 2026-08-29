@@ -77,7 +77,7 @@ impl HydroCoreMode {
       .at(
         Duration::ZERO,
         LedProgram1d::tween(
-          Q::tag::<Playfield>().at_z(-1),
+          LedQ::tag::<Playfield>().at_z(-1),
           Duration::from_millis(500),
           Curve::ExponentialOut,
           Cycle::Once,
@@ -91,14 +91,14 @@ impl HydroCoreMode {
 
   fn gi_effect() -> LedProgram1d {
     LedProgram1d::fixed(
-      Q::tag::<tags::GeneralIllumination>().at_z(1),
+      LedQ::tag::<tags::GeneralIllumination>().at_z(1),
       ColorSequence::solid(MODE_COLOR.lighten(0.4)),
     )
   }
 
   fn arc_effect() -> LedProgram1d {
     LedProgram1d::breathe(
-      Q::tag::<ArcRamp>(),
+      LedQ::tag::<ArcRamp>(),
       *MODE_COLOR,
       Duration::bpm(150), // sync with mode music
       Cycle::Forever,

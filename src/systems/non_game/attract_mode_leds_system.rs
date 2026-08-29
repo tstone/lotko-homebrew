@@ -45,7 +45,7 @@ impl AttractModeLedsSystem {
     let duration = Duration::from_secs(rand::random_range(6..=12));
 
     let program = LedProgram1d::rotating(
-      Q::tag::<Playfield>(),
+      LedQ::tag::<Playfield>(),
       ColorSequence::fade(from, to).shuffle(rand::random()),
       Duration::from_secs(36),
       Curve::Steps(12),

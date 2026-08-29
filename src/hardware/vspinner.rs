@@ -41,8 +41,8 @@ pub mod left_ray {
       .tag(Playfield);
   }
 
-  pub static Q: LazyLock<HardwareQuery> = LazyLock::new(|| {
-    Q::names(vec![
+  pub static Q: LazyLock<LedQ> = LazyLock::new(|| {
+    LedQ::names(vec![
       LED1.names()[0].clone(),
       LED2.names()[0].clone(),
       LED3.names()[0].clone(),
@@ -70,8 +70,8 @@ pub mod upper_right_ray {
       .tag(Playfield);
   }
 
-  pub static Q: LazyLock<HardwareQuery> = LazyLock::new(|| {
-    Q::names(vec![
+  pub static Q: LazyLock<LedQ> = LazyLock::new(|| {
+    LedQ::names(vec![
       LED1.names()[0].clone(),
       LED2.names()[0].clone(),
       LED3.names()[0].clone(),
@@ -98,8 +98,8 @@ pub mod lower_right_ray {
       .tag(Playfield);
   }
 
-  pub static Q: LazyLock<HardwareQuery> = LazyLock::new(|| {
-    Q::names(vec![
+  pub static Q: LazyLock<LedQ> = LazyLock::new(|| {
+    LedQ::names(vec![
       LED1.names()[0].clone(),
       LED2.names()[0].clone(),
       LED3.names()[0].clone(),

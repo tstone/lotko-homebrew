@@ -102,7 +102,7 @@ async fn main() {
         HydroCoreQualification::new(),
         NimbusPromenadeQualification::new(),
       ],
-      Q::tag::<tags::Playfield>(),
+      SwitchQ::tag::<tags::Playfield>(),
     ));
 
     // playfield

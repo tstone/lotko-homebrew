@@ -14,7 +14,7 @@ impl PlayfieldIllumination {
 impl System for PlayfieldIllumination {
   fn on_spawn(&mut self, ctx: &SystemContext) {
     ctx.declare_leds(
-      &Q::tag::<GeneralIllumination>(),
+      &LedQ::tag::<GeneralIllumination>(),
       ColorSequence::solid(Rgba::white()),
     );
     ctx.declare_leds(

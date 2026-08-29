@@ -50,8 +50,8 @@ hardware_defs! {
     .tag(Playfield);
 }
 
-pub static BOLTS_Q: LazyLock<HardwareQuery> = LazyLock::new(|| {
-  Q::names(vec![
+pub static BOLTS_Q: LazyLock<LedQ> = LazyLock::new(|| {
+  LedQ::names(vec![
     LEFT_BOLT.names()[0].clone(),
     RIGHT_BOLT.names()[0].clone(),
   ])

@@ -46,7 +46,7 @@ impl HydroCoreStartable {
 
   fn hit_effect() -> LedProgram1d {
     LedProgram1d::tween(
-      Q::tag::<tags::Playfield>().at_z(-1),
+      LedQ::tag::<tags::Playfield>().at_z(-1),
       Duration::from_millis(750),
       Curve::EaseIn,
       Cycle::Once,

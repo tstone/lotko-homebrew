@@ -97,6 +97,7 @@ async fn main() {
           Forever
         )),
         PlayfieldIllumination::new(),
+        SkillshotManager::new(),
         // modes
         ExclusiveModeManager::new(),
         HydroCoreQualification::new(),

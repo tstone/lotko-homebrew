@@ -4,6 +4,7 @@ use frontbox::prelude::*;
 use frontbox_turn_based::*;
 
 use crate::hardware::drop_bank;
+use crate::hardware::more_tags::DoesNotCancelSkillshot;
 use crate::hardware::right_pass_lane::RightPassLane;
 
 #[derive(Clone)]
@@ -91,11 +92,10 @@ impl System for DropBankSkillShot {
     } else if event.is::<Next>() {
       self.next(ctx);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
-      && (event.switch.has_tag::<Playfield>() && !event.switch.has_tag::<RightPassLane>())
+      && (event.switch.has_tag::<Playfield>() && !event.switch.has_tag::<DoesNotCancelSkillshot>())
       && let Some(game_state) = ctx.expect::<GameManager>().game_state()
       && game_state.current_player_turn_state() == &TurnState::Active
     {
-      // if any other switch that isn't the pass lane switches is hit, then this shot is no longer valid
       ctx.despawn_self();
     }
   }

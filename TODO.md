@@ -1,2 +1,3 @@
+- BUG: Sometimes the music doesn't stop on game end
 - Hydrcore mode hexes should flash faster as time runs out
 - Bonus points based on the number of modes completed during a ball

@@ -42,6 +42,14 @@ impl HydroCoreStartable {
           Cycle::Forever,
         ),
       )
+      .at(
+        Duration::ZERO,
+        LedProgram1d::flash(
+          &*arc_ramp::HEX_CENTER_LED,
+          ColorSequence::solid(*MODE_COLOR),
+          Cycle::Forever,
+        ),
+      )
       .at(Duration::ZERO, arc_ramp::into_subway_program(*MODE_COLOR))
   }
 

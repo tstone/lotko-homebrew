@@ -20,3 +20,6 @@ pub struct DropBank;
 
 #[derive(Tag)]
 pub struct ArcRamp;
+
+#[derive(Tag)]
+pub struct DoesNotCancelSkillshot;

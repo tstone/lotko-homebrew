@@ -156,7 +156,12 @@ impl HydroCoreMode {
         self.hit_effect = Self::attention_effect(&*right_orbit::HEX_CIRCLE_LEDS);
       }
       5 => {
-        self.attention_effect = arc_ramp::into_subway_program(*MODE_COLOR);
+        self.attention_effect = LedProgram1d::timeline()
+          .at(Duration::ZERO, arc_ramp::into_subway_program(*MODE_COLOR))
+          .at(
+            Duration::ZERO,
+            Self::attention_effect(&*arc_ramp::HEX_CIRCLE_LEDS),
+          );
         self.hit_effect = Self::attention_effect(&*arc_ramp::HEX_CIRCLE_LEDS);
       }
       _ => panic!("Cannot set program for unknown shot: {}", shot),

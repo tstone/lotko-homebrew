@@ -156,8 +156,7 @@ impl HydroCoreMode {
         self.hit_effect = Self::attention_effect(&*right_orbit::HEX_CIRCLE_LEDS);
       }
       5 => {
-        // TODO: this should have some kind of hinting around needing to make it in the subway
-        self.attention_effect = Self::attention_effect(&*arc_ramp::HEX_CENTER_LED);
+        self.attention_effect = arc_ramp::into_subway_program(*MODE_COLOR);
         self.hit_effect = Self::attention_effect(&*arc_ramp::HEX_CIRCLE_LEDS);
       }
       _ => panic!("Cannot set program for unknown shot: {}", shot),

@@ -1,5 +1,6 @@
 use std::sync::LazyLock;
 
+use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox::tags::*;
 
@@ -51,6 +52,16 @@ pub static HEX_CIRCLE_LEDS: LazyLock<LedQ> = LazyLock::new(|| {
     HEX_LEDS.child(4).unwrap().name(),
   ])
 });
+
+pub fn into_subway_program(color: Rgba<u8>) -> LedProgram1d {
+  LedProgram1d::rotating(
+    ARC_LEDS.q().range(0..6),
+    ColorSequence::exact(vec![color, color.darken(0.4)]),
+    Duration::from_millis(200),
+    Curve::EaseIn,
+    Cycle::Forever,
+  )
+}
 
 #[derive(Clone)]
 pub struct ArcRampSystem {

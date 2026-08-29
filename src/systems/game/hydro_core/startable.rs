@@ -33,15 +33,16 @@ impl HydroCoreStartable {
   }
 
   fn attention_effect() -> LedProgram1d {
-    LedProgram1d::timeline().at(
-      Duration::ZERO,
-      LedProgram1d::flash(
-        &*lower_scoop::BOLTS_Q,
-        ColorSequence::solid(*MODE_COLOR),
-        Cycle::Forever,
-      ),
-    )
-    // TODO: rotate/animate the left third of the arc ramp
+    LedProgram1d::timeline()
+      .at(
+        Duration::ZERO,
+        LedProgram1d::flash(
+          &*lower_scoop::BOLTS_Q,
+          ColorSequence::solid(*MODE_COLOR),
+          Cycle::Forever,
+        ),
+      )
+      .at(Duration::ZERO, arc_ramp::into_subway_program(*MODE_COLOR))
   }
 
   fn hit_effect() -> LedProgram1d {

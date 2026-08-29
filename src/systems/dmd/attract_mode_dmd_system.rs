@@ -130,23 +130,6 @@ impl AttractModeDmdSystem {
     window
   }
 
-  fn draw_neon_blue_pinball(&mut self) -> Container {
-    let mut window = Container::transparent();
-
-    // TODO: replace this with a graphic
-    window.add(
-      BOLD_PIXELS_10PX_REGULAR_FONT
-        .center_aligned("neon blue pinball", Rgba::cyan())
-        .recolor_fade(Rgba::cyan(), Rgba::blue(), 45.0)
-        .horizontal(Horizontal::Centered)
-        .top_offset(10),
-    );
-
-    window.add(StaticImage::from_bytes(LOGOS_IMG).default_position());
-
-    window
-  }
-
   fn draw_img(&mut self, bytes: &[u8]) -> Container {
     let mut window = Container::transparent();
     window.add(StaticImage::from_bytes(bytes).default_position());

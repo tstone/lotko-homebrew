@@ -1,2 +1,2 @@
+- Hydrcore mode hexes should flash faster as time runs out
 - Bonus points based on the number of modes completed during a ball
-- BUG: adding a second player kills the music

@@ -9,7 +9,7 @@ use crate::hardware::{pop_cluster, vspinner};
 #[derive(Clone)]
 pub struct LeftPopSkillShot {
   attention_effect: LedProgram1d,
-  hit_effect: LedProgram1d,
+  hit_effect: Option<LedProgram1d>,
   hit: bool,
 }
 
@@ -17,14 +17,14 @@ impl LeftPopSkillShot {
   pub fn new() -> Self {
     Self {
       attention_effect: Self::attention_effect(),
-      hit_effect: Self::hit_effect().stopped(),
+      hit_effect: None,
       hit: false,
     }
   }
 
   fn on_skill_shot(&mut self, ctx: &SystemContext) {
     self.hit = true;
-    self.hit_effect.play();
+    self.hit_effect = Some(Self::hit_effect());
 
     // TODO: play sfx
     ctx.add_points(150_000);
@@ -33,9 +33,14 @@ impl LeftPopSkillShot {
 
   fn attention_effect() -> LedProgram1d {
     LedProgram1d::rotating(
-      &*vspinner::left_ray::Q,
-      ColorSequence::exact(vec![Rgba::red()]),
-      Duration::from_millis(250),
+      vspinner::left_ray::Q.clone().reverse(),
+      ColorSequence::exact(vec![
+        Rgba::purple(),
+        Rgba::default(),
+        Rgba::default(),
+        Rgba::default(),
+      ]),
+      Duration::from_millis(750),
       Curve::Linear,
       Cycle::Forever,
     )
@@ -76,10 +81,13 @@ impl System for LeftPopSkillShot {
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
-    self.hit_effect.apply(delta, ctx);
 
-    if self.hit && self.hit_effect.is_complete() {
-      ctx.despawn_self();
+    if let Some(hit_effect) = self.hit_effect.as_mut() {
+      hit_effect.apply(delta, ctx);
+
+      if self.hit && hit_effect.is_complete() {
+        ctx.despawn_self();
+      }
     }
   }
 }

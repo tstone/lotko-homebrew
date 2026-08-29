@@ -128,11 +128,18 @@ impl HydroCoreMode {
       _ => {}
     }
 
+    // TODO: maybe don't make the last shot timed
+    // or give some kind of time bonus, like "get in as soon as you can"
+    let base_timeout = match shot {
+      5 => Duration::from_secs(40),
+      _ => Duration::from_secs(20),
+    };
     // Player only has a limited amount of time to make the next shot BUT
     // to avoid frustrating the player, keep making the combo duration longer as they fail attempts
     // (this results in less points but is still completable)
     let handicap = Duration::from_secs(3 * self.combo_attempts as u64);
-    self.cue_id = ctx.cue(ComboTimeUp, Cue::Once(Duration::from_secs(20) + handicap));
+    self.cue_id = ctx.cue(ComboTimeUp, Cue::Once(base_timeout + handicap));
+
     self.current_combo_shot = shot;
 
     self.attention_effect.stop(ctx);

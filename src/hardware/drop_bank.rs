@@ -82,14 +82,4 @@ impl System for DropBankSystem {
   fn on_spawn(&mut self, ctx: &SystemContext) {
     self.handle = *ctx.current_handle();
   }
-
-  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<ActivatedPlayfieldDrivers>()
-      && let Some(game_state) = ctx.expect::<GameManager>().game_state()
-      && game_state.current_player_turn() == 0
-    {
-      log::info!("DropBank: Raising targets for player (game start)");
-      self.raise_targets(ctx.into());
-    }
-  }
 }

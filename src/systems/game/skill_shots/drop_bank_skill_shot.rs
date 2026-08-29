@@ -5,13 +5,12 @@ use frontbox_turn_based::*;
 
 use crate::hardware::drop_bank;
 use crate::hardware::more_tags::DoesNotCancelSkillshot;
-use crate::hardware::right_pass_lane::RightPassLane;
 
 #[derive(Clone)]
 pub struct DropBankSkillShot {
   attention_effect: LedProgram1d,
   target: u8,
-  hit_effect: LedProgram1d,
+  hit_effect: Option<LedProgram1d>,
   hit: bool,
 }
 
@@ -20,14 +19,14 @@ impl DropBankSkillShot {
     Self {
       attention_effect: Self::attention_effect(drop_bank::TARGET1_LEDS.q()),
       target: 0,
-      hit_effect: Self::hit_effect().stopped(),
+      hit_effect: None,
       hit: false,
     }
   }
 
   fn on_skill_shot(&mut self, ctx: &SystemContext) {
     self.hit = true;
-    self.hit_effect.play();
+    self.hit_effect = Some(Self::hit_effect());
 
     // TODO: play sfx
     ctx.add_points(50_000);
@@ -69,11 +68,11 @@ impl DropBankSkillShot {
     self.attention_effect = match self.target {
       1 => Self::attention_effect(drop_bank::TARGET1_LEDS.q()),
       2 => Self::attention_effect(drop_bank::TARGET2_LEDS.q()),
-      3 => Self::attention_effect(drop_bank::TARGET1_LEDS.q()),
+      3 => Self::attention_effect(drop_bank::TARGET3_LEDS.q()),
       _ => panic!("Cannot switch to unknown target"),
     };
 
-    ctx.cue(Next, Cue::Once(Duration::from_millis(1000)));
+    ctx.cue(Next, Cue::Once(Duration::from_millis(1750)));
   }
 }
 
@@ -102,10 +101,13 @@ impl System for DropBankSkillShot {
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
-    self.hit_effect.apply(delta, ctx);
 
-    if self.hit && self.hit_effect.is_complete() {
-      ctx.despawn_self();
+    if let Some(hit_effect) = self.hit_effect.as_mut() {
+      hit_effect.apply(delta, ctx);
+
+      if self.hit && hit_effect.is_complete() {
+        ctx.despawn_self();
+      }
     }
   }
 }

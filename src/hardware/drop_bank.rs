@@ -1,9 +1,26 @@
+use crate::hardware::more_tags::DropBank;
 use frontbox::prelude::*;
 use frontbox::tags::*;
-use frontbox_turn_based::ActivatedPlayfieldDrivers;
-use frontbox_turn_based::GameManager;
 
-use crate::hardware::more_tags::DropBank;
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum DropBankTarget {
+  /// Nearest the player/closest to the pop
+  Target1,
+  /// Middle
+  Target2,
+  /// Farthest from the player/closest to the arc ramp
+  Target3,
+}
+
+impl DropBankTarget {
+  pub fn next(&self) -> Self {
+    match self {
+      Self::Target1 => Self::Target2,
+      Self::Target2 => Self::Target3,
+      Self::Target3 => Self::Target1,
+    }
+  }
+}
 
 hardware_defs! {
   pub COIL: DriverDefinition = DriverDefinition::new("drop")
@@ -57,6 +74,26 @@ hardware_defs! {
 
   pub PADDLE_LED: LedDefinition = LedDefinition::single("paddle")
     .tag(Playfield);
+}
+
+pub fn leds_for_target(target: DropBankTarget) -> &'static LedDefinition {
+  match target {
+    DropBankTarget::Target1 => &TARGET1_LEDS,
+    DropBankTarget::Target2 => &TARGET2_LEDS,
+    DropBankTarget::Target3 => &TARGET3_LEDS,
+  }
+}
+
+pub fn match_switch(switch: &Switch) -> Option<DropBankTarget> {
+  if switch.name == TARGET1.name {
+    Some(DropBankTarget::Target1)
+  } else if switch.name == TARGET2.name {
+    Some(DropBankTarget::Target2)
+  } else if switch.name == TARGET3.name {
+    Some(DropBankTarget::Target3)
+  } else {
+    None
+  }
 }
 
 #[derive(Clone)]

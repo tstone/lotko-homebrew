@@ -3,6 +3,12 @@ use frontbox::tags::*;
 
 use crate::hardware::more_tags::*;
 
+pub enum PopBumpers {
+  Left,
+  UpperRight,
+  LowerRight,
+}
+
 pub mod left {
   use super::*;
 

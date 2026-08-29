@@ -1,15 +1,17 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
+use frontbox_sound::*;
 use frontbox_turn_based::*;
 
-use crate::hardware::drop_bank;
+use crate::hardware::drop_bank::{self, DropBankTarget};
 use crate::hardware::more_tags::DoesNotCancelSkillshot;
+use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct DropBankSkillShot {
   attention_effect: LedProgram1d,
-  target: u8,
+  target: DropBankTarget,
   hit_effect: Option<LedProgram1d>,
   hit: bool,
 }
@@ -18,18 +20,24 @@ impl DropBankSkillShot {
   pub fn new() -> Self {
     Self {
       attention_effect: Self::attention_effect(drop_bank::TARGET1_LEDS.q()),
-      target: 0,
+      target: DropBankTarget::Target1,
       hit_effect: None,
       hit: false,
     }
   }
 
-  fn on_skill_shot(&mut self, ctx: &SystemContext) {
+  fn on_target_hit(&mut self, target: DropBankTarget, ctx: &SystemContext) {
     self.hit = true;
-    self.hit_effect = Some(Self::hit_effect());
 
-    // TODO: play sfx
-    ctx.add_points(50_000);
+    if target == self.target {
+      ctx.play_sfx(sounds::ARP_HIT1);
+      ctx.add_points(50_000);
+      self.hit_effect = Some(Self::hit_effect());
+    } else {
+      // consolation prize for still hitting the drop bank
+      ctx.add_points(5_000);
+    }
+
     ctx.despawn_self();
   }
 
@@ -58,19 +66,10 @@ impl DropBankSkillShot {
   }
 
   fn next(&mut self, ctx: &SystemContext) {
+    self.target = self.target.next();
+
     self.attention_effect.stop(ctx);
-
-    self.target += 1;
-    if self.target == 4 {
-      self.target = 1;
-    }
-
-    self.attention_effect = match self.target {
-      1 => Self::attention_effect(drop_bank::TARGET1_LEDS.q()),
-      2 => Self::attention_effect(drop_bank::TARGET2_LEDS.q()),
-      3 => Self::attention_effect(drop_bank::TARGET3_LEDS.q()),
-      _ => panic!("Cannot switch to unknown target"),
-    };
+    self.attention_effect = Self::attention_effect(drop_bank::leds_for_target(self.target).q());
 
     ctx.cue(Next, Cue::Once(Duration::from_millis(1750)));
   }
@@ -83,11 +82,9 @@ impl System for DropBankSkillShot {
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if let Some(event) = event.downcast_ref::<SwitchClosed>()
-      && ((event.switch.name == drop_bank::TARGET1.name && self.target == 1)
-        || (event.switch.name == drop_bank::TARGET2.name && self.target == 2)
-        || (event.switch.name == drop_bank::TARGET3.name && self.target == 3))
+      && let Some(target) = drop_bank::match_switch(&event.switch)
     {
-      self.on_skill_shot(ctx);
+      self.on_target_hit(target, ctx);
     } else if event.is::<Next>() {
       self.next(ctx);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()

@@ -13,6 +13,7 @@ pub mod sounds {
   pub const LANE_HIT3: &str = "lane_hit3";
   pub const LANE_HIT4: &str = "lane_hit4";
   pub const LANE_HIT_COMPLETE: &str = "lane_hit_complete";
+  pub const ARP_HIT1: &str = "arp_hit1";
 
   pub const HYDRO_CORE_FLUID_ROUTING_ACTIVE: &str = "hc_fra";
   pub const HYDRO_CORE_FOLLOW_THE_SURGE: &str = "hc_fts";
@@ -35,6 +36,8 @@ pub mod sounds_bytes {
   pub static LANE_HIT4: &[u8] = include_bytes!("../assets/sounds/lane-hit-rattle-4.mp3");
   pub static LANE_HIT_COMPLETE: &[u8] = include_bytes!("../assets/sounds/lane-hit-complete.mp3");
 
+  pub static ARP_HIT1: &[u8] = include_bytes!("../assets/sounds/arp-hit1.mp3");
+
   // Callum - Husky Trickster
   pub static HYDRO_CORE_FLUID_ROUTING_ACTIVE: &[u8] =
     include_bytes!("../assets/sounds/hydro-core/fluid-routing-active.mp3");
@@ -56,6 +59,8 @@ impl System for SoundLoaderSystem {
     snd.preload_embedded(sounds::LANE_HIT3, sounds_bytes::LANE_HIT3);
     snd.preload_embedded(sounds::LANE_HIT4, sounds_bytes::LANE_HIT4);
     snd.preload_embedded(sounds::LANE_HIT_COMPLETE, sounds_bytes::LANE_HIT_COMPLETE);
+
+    snd.preload_embedded(sounds::ARP_HIT1, sounds_bytes::ARP_HIT1);
 
     snd.preload_embedded(
       sounds::HYDRO_CORE_FLUID_ROUTING_ACTIVE,

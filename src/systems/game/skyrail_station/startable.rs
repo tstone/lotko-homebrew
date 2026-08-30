@@ -1,13 +1,13 @@
 use frontbox::prelude::*;
 
-use crate::systems::game::hydro_core::MODE_COLOR;
+use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::*;
 use crate::systems::sounds;
 
 #[derive(Clone)]
-pub struct HydroCoreStarter;
+pub struct SkyrailStationStarter;
 
-impl ExclusiveModeStarter for HydroCoreStarter {
+impl ExclusiveModeStarter for SkyrailStationStarter {
   const START_SND_KEY: &'static str = sounds::HYDRO_CORE_ONLINE;
   const MODE: ExclusiveMode = ExclusiveMode::HydroCore;
 
@@ -16,8 +16,8 @@ impl ExclusiveModeStarter for HydroCoreStarter {
   }
 
   fn on_start(ctx: &SystemContext) {
-    ctx.replace_self(HydroCoreMode::new());
+    // TODO: ctx.replace_self(HydroCoreMode::new());
   }
 }
 
-pub type HydroCoreStartable = LeftScoopStartable<HydroCoreStarter>;
+pub type SkyrailStationStartable = LiftRampStartable<SkyrailStationStarter>;

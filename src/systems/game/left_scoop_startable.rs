@@ -1,11 +1,15 @@
 use std::marker::PhantomData;
 
+use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
 
+use crate::hardware::arc_ramp;
+use crate::hardware::lower_scoop;
+use crate::hardware::lower_scoop::LowerScoopBallEnter;
 use crate::systems::game;
-use crate::systems::game::ExclusiveMode;
+use crate::systems::game::ExclusiveModeStarter;
 use crate::systems::game::ModeManager;
 use crate::systems::game::left_scoop_startable::State::*;
 
@@ -25,8 +29,8 @@ where
   pub fn new(activation_delay: Duration) -> Self {
     Self {
       activation_delay,
-      attention_effect: T::attention_effect(),
-      hit_effect: T::hit_effect(),
+      attention_effect: Self::attention_effect(),
+      hit_effect: Self::hit_effect(),
       state: Startable,
       _t: PhantomData,
     }
@@ -41,6 +45,44 @@ where
       ctx.play_sfx(T::START_SND_KEY);
       ctx.add_points(game::points::EXCL_START);
     }
+  }
+
+  fn attention_effect() -> LedProgram1d {
+    LedProgram1d::timeline()
+      .at(
+        Duration::ZERO,
+        LedProgram1d::flash(
+          &*lower_scoop::BOLTS_Q,
+          ColorSequence::solid(T::mode_color()),
+          Cycle::Forever,
+        ),
+      )
+      .at(
+        Duration::ZERO,
+        LedProgram1d::flash(
+          &*arc_ramp::HEX_CENTER_LED,
+          ColorSequence::solid(T::mode_color()),
+          Cycle::Forever,
+        ),
+      )
+      .at(
+        Duration::ZERO,
+        arc_ramp::into_subway_program(T::mode_color()),
+      )
+  }
+
+  fn hit_effect() -> LedProgram1d {
+    LedProgram1d::tween(
+      LedQ::tag::<tags::Playfield>().at_z(-1),
+      Duration::from_millis(750),
+      Curve::EaseIn,
+      Cycle::Once,
+      vec![
+        ColorSequence::solid(T::mode_color()),
+        ColorSequence::solid(Rgba::default()),
+      ],
+    )
+    .stopped()
   }
 }
 
@@ -72,7 +114,7 @@ where
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if self.state == Startable && T::is_startable_event(event) {
+    if self.state == Startable && event.is::<LowerScoopBallEnter>() {
       self.start(ctx);
     } else if event.is::<Resume>() && self.state == Pending {
       self.state = Startable;
@@ -89,13 +131,3 @@ enum State {
 
 #[derive(serde::Serialize, Event)]
 struct Resume;
-
-pub trait ExclusiveModeStarter: Send + Sync + 'static {
-  const START_SND_KEY: &'static str;
-  const MODE: ExclusiveMode;
-
-  fn is_startable_event(event: &dyn Event) -> bool;
-  fn hit_effect() -> LedProgram1d;
-  fn attention_effect() -> LedProgram1d;
-  fn on_start(ctx: &SystemContext);
-}

@@ -17,8 +17,7 @@ impl ExclusiveModeQualifier for SkyrailStationQualifier {
   }
 
   fn on_qualified(ctx: &SystemContext) {
-    // ctx.replace_self(SkyrailStationStartable::new(Duration::from_millis(2500)));
-    // TODO
+    ctx.replace_self(SkyrailStationStartable::new());
   }
 
   fn attention_effect() -> LedProgram1d {

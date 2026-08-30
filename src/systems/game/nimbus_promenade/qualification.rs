@@ -7,7 +7,7 @@ use crate::hardware::vspinner::{self, VerticalSpinnerHit};
 use crate::systems::game::NimbusPromenadeMode;
 use crate::systems::game::nimbus_promenade::{self, MODE_COLOR};
 
-const REQUIRED_HITS: u8 = 12;
+const REQUIRED_HITS: u8 = 20;
 
 #[derive(Clone)]
 pub struct NimbusPromenadeQualification {

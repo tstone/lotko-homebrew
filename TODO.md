@@ -1,3 +1,4 @@
 - BUG: Sometimes the music doesn't stop on game end
-- Hydrcore mode hexes should flash faster as time runs out
+- Hydrocore mode hexes should flash faster as time runs out
+- Change Nimbus to an exclusive mode -OR- nimbus starts a 2 ball multiball on completion?
 - Bonus points based on the number of modes completed during a ball

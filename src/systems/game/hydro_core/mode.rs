@@ -8,10 +8,11 @@ use frontbox_turn_based::{GameManagementExt, PlayerTurnEnding};
 
 use crate::hardware::arc_ramp::{ArcRampHit, ArcRampSubwayHit};
 use crate::hardware::center_orbit::CenterOrbitHit;
+use crate::hardware::left_orbit::LeftOrbitHit;
 use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::more_tags::ArcRamp;
 use crate::hardware::right_orbit::RightOrbitHit;
-use crate::hardware::{arc_ramp, center_orbit, lift_ramp, right_orbit};
+use crate::hardware::{arc_ramp, center_orbit, left_orbit, lift_ramp, right_orbit};
 use crate::systems::game::hydro_core::MODE_COLOR;
 use crate::systems::game::{self, ExclusiveMode, HydroCoreStartable};
 use crate::systems::game::{HydroCoreQualification, ModeManager};
@@ -128,13 +129,13 @@ impl HydroCoreMode {
       _ => {}
     }
 
-    if shot == 5 {
-    } else {
+    // last shot isn't timed
+    if shot < 5 {
       // Player only has a limited amount of time to make the next shot BUT
       // to avoid frustrating the player, keep making the combo duration longer as they fail attempts
       // (this results in less points but is still completable)
-      let handicap = Duration::from_secs(3 * self.combo_attempts as u64);
-      self.cue_id = ctx.cue(ComboTimeUp, Cue::Once(Duration::from_millis(20) + handicap));
+      let handicap = Duration::from_secs(5 * self.combo_attempts as u64);
+      self.cue_id = ctx.cue(ComboTimeUp, Cue::Once(Duration::from_millis(25) + handicap));
     }
 
     self.current_combo_shot = shot;
@@ -152,13 +153,17 @@ impl HydroCoreMode {
         self.hit_effect = Self::attention_effect(&*arc_ramp::HEX_CIRCLE_LEDS);
       }
       3 => {
+        self.attention_effect = Self::attention_effect(&*left_orbit::HEX_CENTER_LED);
+        self.hit_effect = Self::attention_effect(&*left_orbit::HEX_CIRCLE_LEDS);
+      }
+      4 => {
         self.attention_effect = Self::attention_effect(&*center_orbit::HEX_CENTER_LED);
         self.hit_effect = Self::attention_effect(&*center_orbit::HEX_CIRCLE_LEDS);
       }
-      4 => {
-        self.attention_effect = Self::attention_effect(&*right_orbit::HEX_CENTER_LED);
-        self.hit_effect = Self::attention_effect(&*right_orbit::HEX_CIRCLE_LEDS);
-      }
+      // 4 => {
+      //   self.attention_effect = Self::attention_effect(&*right_orbit::HEX_CENTER_LED);
+      //   self.hit_effect = Self::attention_effect(&*right_orbit::HEX_CIRCLE_LEDS);
+      // }
       5 => {
         self.attention_effect = LedProgram1d::timeline()
           .at(Duration::ZERO, arc_ramp::into_subway_program(*MODE_COLOR))
@@ -229,14 +234,16 @@ impl System for HydroCoreMode {
     self.arc_effect.apply(delta, ctx);
   }
 
+  // TODO: change order to lift ramp => arc ramp => left ramp => right orbit => center orbit to get to N spins (untimed)
+
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if self.current_combo_shot == 1 && event.is::<LiftRampHit>() {
       self.combo_hit(ctx);
     } else if self.current_combo_shot == 2 && event.is::<ArcRampHit>() {
       self.combo_hit(ctx);
-    } else if self.current_combo_shot == 3 && event.is::<CenterOrbitHit>() {
+    } else if self.current_combo_shot == 3 && event.is::<LeftOrbitHit>() {
       self.combo_hit(ctx);
-    } else if self.current_combo_shot == 4 && event.is::<RightOrbitHit>() {
+    } else if self.current_combo_shot == 4 && event.is::<CenterOrbitHit>() {
       self.combo_hit(ctx);
     } else if self.current_combo_shot == 5 && event.is::<ArcRampSubwayHit>() {
       self.combo_hit(ctx);

@@ -36,14 +36,14 @@ impl LeftPopSkillShot {
   fn attention_effect() -> LedProgram1d {
     LedProgram1d::multi(vec![
       LedProgram1d::rotating(
-        &*vspinner::left_ray::Q,
+        vspinner::left_ray::Q.clone().reverse(),
         ColorSequence::exact(vec![
           Rgba::purple(),
           Rgba::default(),
           Rgba::default(),
           Rgba::default(),
         ]),
-        Duration::from_millis(250),
+        Duration::from_millis(900),
         Curve::Linear,
         Cycle::Forever,
       ),

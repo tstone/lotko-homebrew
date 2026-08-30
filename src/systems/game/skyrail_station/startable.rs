@@ -8,15 +8,15 @@ use crate::systems::sounds;
 pub struct SkyrailStationStarter;
 
 impl ExclusiveModeStarter for SkyrailStationStarter {
-  const START_SND_KEY: &'static str = sounds::HYDRO_CORE_ONLINE;
-  const MODE: ExclusiveMode = ExclusiveMode::HydroCore;
+  const START_SND_KEY: &'static str = sounds::ARP_HIT1;
+  const MODE: ExclusiveMode = ExclusiveMode::SkyrailStation;
 
   fn mode_color() -> Rgba<u8> {
     *MODE_COLOR
   }
 
   fn on_start(ctx: &SystemContext) {
-    // TODO: ctx.replace_self(HydroCoreMode::new());
+    ctx.replace_self(SkyrailStationMode::new());
   }
 }
 

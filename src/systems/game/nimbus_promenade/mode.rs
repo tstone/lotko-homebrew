@@ -1,17 +1,16 @@
-use std::collections::HashMap;
-
 use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox_turn_based::{GameManagementExt, GameManager, TurnState};
 
 use crate::hardware::pop_cluster::{self, PopBumper};
 use crate::hardware::vspinner;
-use crate::systems::game::NimbusPromenadeQualification;
 use crate::systems::game::nimbus_promenade::MODE_COLOR;
+use crate::systems::game::{ModeManager, NimbusPromenadeQualification, NonExclusiveMode};
 
 pub struct NimbusPromenadeMode {
   attention_effect: LedProgram1d,
   hit_effect: Option<LedProgram1d>,
+  cycle_time: Duration,
   current_pop: PopBumper,
   hits: u8,
   complete: bool,
@@ -21,6 +20,7 @@ impl NimbusPromenadeMode {
   pub fn new() -> Self {
     Self {
       attention_effect: Self::attention_effect(&PopBumper::Left, 0),
+      cycle_time: Duration::from_millis(1500),
       hit_effect: None,
       current_pop: PopBumper::Left,
       hits: 0,
@@ -31,6 +31,7 @@ impl NimbusPromenadeMode {
   fn on_pop_hit(&mut self, pop: &PopBumper, ctx: &SystemContext) {
     if *pop == self.current_pop {
       ctx.add_points(15_000);
+
       self.hits += 1;
       self.hit_effect = Some(Self::hit_effect());
       self.advance(ctx);
@@ -42,13 +43,23 @@ impl NimbusPromenadeMode {
     };
     if self.hits == required_hits {
       self.complete(ctx);
+      ctx
+        .expect::<ModeManager>()
+        .complete_non_exclusive(NonExclusiveMode::NimbusPromenade);
     }
   }
 
   fn advance(&mut self, ctx: &SystemContext) {
-    self.current_pop = self.current_pop.next();
-    self.attention_effect.stop(ctx);
-    self.attention_effect = Self::attention_effect(&self.current_pop, self.hits);
+    if !self.complete {
+      if self.cycle_time > Duration::from_millis(500) {
+        self.cycle_time -= Duration::from_millis(250);
+      }
+      ctx.cue(Next, Cue::Once(self.cycle_time));
+
+      self.current_pop = self.current_pop.next();
+      self.attention_effect.stop(ctx);
+      self.attention_effect = Self::attention_effect(&self.current_pop, self.hits);
+    }
   }
 
   fn complete(&mut self, ctx: &SystemContext) {
@@ -101,6 +112,9 @@ impl System for NimbusPromenadeMode {
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
     ctx.cue(Next, Cue::Once(Duration::from_millis(1750)));
+    ctx
+      .expect::<ModeManager>()
+      .non_exclusive_active(NonExclusiveMode::NimbusPromenade);
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

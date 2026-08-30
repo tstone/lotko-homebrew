@@ -13,6 +13,7 @@ pub struct HydroCoreStarter;
 
 impl ExclusiveModeStarter for HydroCoreStarter {
   const START_SND_KEY: &'static str = sounds::HYDRO_CORE_ONLINE;
+  const MODE: ExclusiveMode = ExclusiveMode::HydroCore;
 
   fn is_startable_event(event: &dyn Event) -> bool {
     event.is::<LowerScoopBallEnter>()

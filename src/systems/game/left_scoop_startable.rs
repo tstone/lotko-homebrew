@@ -4,12 +4,10 @@ use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
 
-use crate::hardware::lower_scoop::LowerScoopBallEnter;
 use crate::systems::game;
 use crate::systems::game::ExclusiveMode;
 use crate::systems::game::ModeManager;
 use crate::systems::game::left_scoop_startable::State::*;
-use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct LeftScoopStartable<T: ExclusiveModeStarter + Clone> {
@@ -36,18 +34,12 @@ where
 
   fn start(&mut self, ctx: &SystemContext) {
     // Ensure that exclusive mode rights can be taken
-    if let Ok(..) = ctx
-      .expect::<ModeManager>()
-      .take_exclusive(ExclusiveMode::HydroCore, ctx)
-    {
-      log::info!("HydroCore: started");
+    if let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(T::MODE, ctx) {
       self.state = Shutdown;
       self.hit_effect.play();
 
       ctx.play_sfx(T::START_SND_KEY);
       ctx.add_points(game::points::EXCL_START);
-    } else {
-      log::warn!("HydroCore: Could not take exclusive mode position");
     }
   }
 }
@@ -59,7 +51,7 @@ where
   fn is_active(&self, ctx: &SystemContext) -> bool {
     let mode_manager = ctx.expect::<ModeManager>();
     let mode = mode_manager.current_mode();
-    mode.is_none() || mode == &Some(ExclusiveMode::HydroCore)
+    mode.is_none() || mode == &Some(T::MODE)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
@@ -74,14 +66,13 @@ where
     self.hit_effect.apply(delta, ctx);
 
     if self.state == Shutdown && self.hit_effect.is_complete() {
-      log::info!("HydroCore: Transitioning into mode");
       self.attention_effect.stop(ctx);
       T::on_start(ctx);
     }
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<LowerScoopBallEnter>() && self.state == Startable {
+    if self.state == Startable && T::is_startable_event(event) {
       self.start(ctx);
     } else if event.is::<Resume>() && self.state == Pending {
       self.state = Startable;
@@ -101,6 +92,7 @@ struct Resume;
 
 pub trait ExclusiveModeStarter: Send + Sync + 'static {
   const START_SND_KEY: &'static str;
+  const MODE: ExclusiveMode;
 
   fn is_startable_event(event: &dyn Event) -> bool;
   fn hit_effect() -> LedProgram1d;

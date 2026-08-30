@@ -4,6 +4,7 @@ use frontbox::prelude::*;
 use frontbox_turn_based::{GameManagementExt, GameManager, TurnState};
 
 use crate::hardware::vspinner::{self, VerticalSpinnerHit};
+use crate::systems::game::NimbusPromenadeMode;
 use crate::systems::game::nimbus_promenade::{self, MODE_COLOR};
 
 const REQUIRED_HITS: u8 = 12;
@@ -118,7 +119,7 @@ impl System for NimbusPromenadeQualification {
     self.progress_effect.apply(delta, ctx);
 
     if self.shutdown && self.hit_effect.is_complete() {
-      // TODO: transition to mode
+      ctx.replace_self(NimbusPromenadeMode::new());
     }
   }
 }

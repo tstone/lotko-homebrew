@@ -101,6 +101,7 @@ async fn main() {
         // modes
         ModeManager::new(),
         HydroCoreQualification::new(),
+        SkyrailStationQualification::new(),
         NimbusPromenadeQualification::new(),
       ],
       SwitchQ::tag::<tags::Playfield>(),

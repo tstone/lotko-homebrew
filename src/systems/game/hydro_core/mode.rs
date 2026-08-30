@@ -13,7 +13,7 @@ use crate::hardware::more_tags::ArcRamp;
 use crate::hardware::right_orbit::RightOrbitHit;
 use crate::hardware::{arc_ramp, center_orbit, lift_ramp, right_orbit};
 use crate::systems::game::hydro_core::MODE_COLOR;
-use crate::systems::game::{ExclusiveMode, HydroCoreStartable, hydro_core};
+use crate::systems::game::{self, ExclusiveMode, HydroCoreStartable, hydro_core};
 use crate::systems::game::{HydroCoreQualification, ModeManager};
 use crate::systems::sounds;
 
@@ -203,7 +203,7 @@ impl HydroCoreMode {
   }
 
   fn complete(&mut self, ctx: &SystemContext) {
-    ctx.add_points(hydro_core::points::COMPLETION / self.combo_attempts.min(10) as u32);
+    ctx.add_points(game::points::EXL_COMPLETION / self.combo_attempts.min(10) as u32);
 
     // TODO: epic reaction effect
     ctx

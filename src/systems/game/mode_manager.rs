@@ -18,6 +18,10 @@ static EXCL_MODE_MUSIC: LazyLock<HashMap<ExclusiveMode, PathBuf>> = LazyLock::ne
     ExclusiveMode::MeridianBasins,
     PathBuf::from("/userdata/home/armsom/music/wice-5omething.mp3"),
   );
+  map.insert(
+    ExclusiveMode::SkyrailStation,
+    PathBuf::from("/userdata/home/armsom/music/deadmau5-arguru2k19.mp3"),
+  );
   map
 });
 static NON_EXCL_MODE_MUSIC: LazyLock<HashMap<NonExclusiveMode, PathBuf>> = LazyLock::new(|| {

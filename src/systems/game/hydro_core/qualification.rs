@@ -1,31 +1,24 @@
 use frontbox::animation::*;
 use frontbox::prelude::*;
-use frontbox_sound::SoundSystemExt;
-use frontbox_turn_based::GameManagementExt;
 
 use crate::hardware::arc_ramp;
 use crate::hardware::arc_ramp::ArcRampHit;
-use crate::systems::game::HydroCoreStartable;
-use crate::systems::game::ModeManager;
-use crate::systems::game::hydro_core;
+use crate::systems::game::*;
 use crate::systems::sounds;
 
-const REQUIRED_HITS: u8 = 2;
-
 #[derive(Clone)]
-pub struct HydroCoreQualification {
-  hits: u8,
-  attention_effect: LedProgram1d,
-  hit_effect: LedProgram1d,
-}
+pub struct HydroCoreQualifier;
 
-impl HydroCoreQualification {
-  pub fn new() -> Self {
-    Self {
-      hits: 0,
-      attention_effect: Self::attention_effect(),
-      hit_effect: Self::hit_effect(),
-    }
+impl ExclusiveModeQualifier for HydroCoreQualifier {
+  const REQUIRED_HITS: u8 = 2;
+  const HIT_SND_KEY: &'static str = sounds::HYDRO_CORE_ONLINE;
+
+  fn is_qualifying_shot(event: &dyn Event) -> bool {
+    event.is::<ArcRampHit>()
+  }
+
+  fn on_qualified(ctx: &SystemContext) {
+    ctx.replace_self(HydroCoreStartable::new(Duration::from_millis(2500)));
   }
 
   fn attention_effect() -> LedProgram1d {
@@ -59,43 +52,6 @@ impl HydroCoreQualification {
       )
       .stopped()
   }
-
-  fn on_qualifying_hit(&mut self, ctx: &SystemContext) {
-    self.hits += 1;
-    log::info!("HydroCore: Qualifying hit ({})", self.hits);
-
-    ctx.add_points(hydro_core::points::QUAL_HIT);
-    self.hit_effect.reset();
-    self.hit_effect.play();
-
-    if self.hits == REQUIRED_HITS {
-      ctx.play_sfx(sounds::HYDRO_CORE_ONLINE);
-    }
-  }
-
-  fn shutdown(&mut self, ctx: &SystemContext) {
-    self.attention_effect.stop(ctx);
-    ctx.replace_self(HydroCoreStartable::new(Duration::from_millis(2500)));
-  }
 }
 
-impl System for HydroCoreQualification {
-  fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.expect::<ModeManager>().current_mode().is_none()
-  }
-
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.attention_effect.apply(delta, ctx);
-    self.hit_effect.apply(delta, ctx);
-
-    if self.hits == REQUIRED_HITS && self.hit_effect.is_complete() {
-      self.shutdown(ctx);
-    }
-  }
-
-  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<ArcRampHit>() {
-      self.on_qualifying_hit(ctx);
-    }
-  }
-}
+pub type HydroCoreQualification = ExclusiveModeQualification<HydroCoreQualifier>;

@@ -10,7 +10,3 @@ pub use qualification::*;
 pub use startable::*;
 
 static MODE_COLOR: LazyLock<Rgba<u8>> = LazyLock::new(|| Rgba::cyan());
-
-mod points {
-  pub static COMBO_BASE: u32 = 150_000;
-}

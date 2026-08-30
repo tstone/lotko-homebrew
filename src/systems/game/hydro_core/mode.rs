@@ -13,7 +13,7 @@ use crate::hardware::more_tags::ArcRamp;
 use crate::hardware::right_orbit::RightOrbitHit;
 use crate::hardware::{arc_ramp, center_orbit, lift_ramp, right_orbit};
 use crate::systems::game::hydro_core::MODE_COLOR;
-use crate::systems::game::{self, ExclusiveMode, HydroCoreStartable, hydro_core};
+use crate::systems::game::{self, ExclusiveMode, HydroCoreStartable};
 use crate::systems::game::{HydroCoreQualification, ModeManager};
 use crate::systems::sounds;
 
@@ -183,7 +183,7 @@ impl HydroCoreMode {
 
     // Points for combo only score the first time, not repeated times
     if !self.combo_shots_seen.contains(&self.current_combo_shot) {
-      ctx.add_points(hydro_core::points::COMBO_BASE * self.current_combo_shot as u32);
+      ctx.add_points(game::points::EXL_MODE_HIT * self.current_combo_shot as u32);
       self.combo_shots_seen.insert(self.current_combo_shot - 1);
     }
   }
@@ -198,7 +198,7 @@ impl HydroCoreMode {
   fn revert_to_startable(&mut self, ctx: &SystemContext) {
     ctx
       .expect::<ModeManager>()
-      .release_exclusive(ExclusiveMode::HydroCore, ctx);
+      .release_exclusive(&ExclusiveMode::HydroCore, ctx);
     ctx.replace_self(HydroCoreStartable::new(Duration::ZERO));
   }
 
@@ -208,7 +208,7 @@ impl HydroCoreMode {
     // TODO: epic reaction effect
     ctx
       .expect::<ModeManager>()
-      .release_exclusive(ExclusiveMode::HydroCore, ctx);
+      .complete_exclusive(ExclusiveMode::HydroCore, ctx);
     ctx.replace_self(HydroCoreQualification::new());
   }
 }

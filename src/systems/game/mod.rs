@@ -29,4 +29,5 @@ mod points {
   pub static EXCL_QUAL_HIT: u32 = 50_250;
   pub static EXCL_START: u32 = 350_000;
   pub static EXL_COMPLETION: u32 = 50_000_000;
+  pub static EXL_MODE_HIT: u32 = 150_000;
 }

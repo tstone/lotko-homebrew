@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::LazyLock;
 
@@ -37,6 +37,8 @@ static NON_EXCL_MODE_MUSIC: LazyLock<HashMap<NonExclusiveMode, PathBuf>> = LazyL
 pub struct ModeManager {
   exclusive_mode: Option<ExclusiveMode>,
   music_priority: Vec<NonExclusiveMode>,
+  exclusive_completions: HashSet<ExclusiveMode>,
+  non_exclusive_completions: HashSet<NonExclusiveMode>,
 }
 
 impl ModeManager {
@@ -44,6 +46,8 @@ impl ModeManager {
     Self {
       exclusive_mode: None,
       music_priority: Vec::new(),
+      exclusive_completions: HashSet::new(),
+      non_exclusive_completions: HashSet::new(),
     }
   }
 
@@ -66,11 +70,25 @@ impl ModeManager {
     }
   }
 
-  pub fn release_exclusive(&mut self, mode: ExclusiveMode, ctx: &SystemContext) {
-    if self.exclusive_mode == Some(mode) {
+  pub fn complete_exclusive(&mut self, mode: ExclusiveMode, ctx: &SystemContext) {
+    self.release_exclusive(&mode, ctx);
+    self.exclusive_completions.insert(mode);
+  }
+
+  pub fn release_exclusive(&mut self, mode: &ExclusiveMode, ctx: &SystemContext) {
+    if self
+      .exclusive_mode
+      .as_ref()
+      .map(|m| m == mode)
+      .unwrap_or(false)
+    {
       self.exclusive_mode = None;
       self.crossfade_music(ctx);
     }
+  }
+
+  pub fn complete_non_exclusive(&mut self, mode: NonExclusiveMode) {
+    self.non_exclusive_completions.insert(mode);
   }
 
   fn on_turn_starting(&self, ctx: &SystemContext) {

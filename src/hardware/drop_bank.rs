@@ -2,7 +2,7 @@ use crate::hardware::more_tags::DropBank;
 use frontbox::prelude::*;
 use frontbox::tags::*;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum DropBankTarget {
   /// Nearest the player/closest to the pop
   Target1,
@@ -76,7 +76,7 @@ hardware_defs! {
     .tag(Playfield);
 }
 
-pub fn leds_for_target(target: DropBankTarget) -> &'static LedDefinition {
+pub fn leds_for_target(target: &DropBankTarget) -> &'static LedDefinition {
   match target {
     DropBankTarget::Target1 => &TARGET1_LEDS,
     DropBankTarget::Target2 => &TARGET2_LEDS,

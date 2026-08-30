@@ -6,28 +6,40 @@ use frontbox::prelude::*;
 use frontbox_sound::SoundSystem;
 use frontbox_turn_based::{PlayerTurnBeginning, PlayerTurnEnding};
 
-static MODE_MUSIC: LazyLock<HashMap<ExclusiveMode, PathBuf>> = LazyLock::new(|| {
+static DEFAULT_MUSIC: LazyLock<PathBuf> =
+  LazyLock::new(|| PathBuf::from("/userdata/home/armsom/music/colyn-rushing.mp3"));
+static EXCL_MODE_MUSIC: LazyLock<HashMap<ExclusiveMode, PathBuf>> = LazyLock::new(|| {
   let mut map = HashMap::new();
-  map.insert(
-    ExclusiveMode::None,
-    PathBuf::from("/userdata/home/armsom/music/colyn-rushing.mp3"),
-  );
   map.insert(
     ExclusiveMode::HydroCore,
     PathBuf::from("/userdata/home/armsom/music/inzo-wonder.mp3"),
+  );
+  map.insert(
+    ExclusiveMode::MeridianBasins,
+    PathBuf::from("/userdata/home/armsom/music/wice-5omething.mp3"),
+  );
+  map
+});
+static NON_EXCL_MODE_MUSIC: LazyLock<HashMap<NonExclusiveMode, PathBuf>> = LazyLock::new(|| {
+  let mut map = HashMap::new();
+  map.insert(
+    NonExclusiveMode::NimbusPromenade,
+    PathBuf::from("/userdata/home/armsom/music/hypixi-engage.mp3"),
   );
   map
 });
 
 #[derive(Clone)]
-pub struct ExclusiveModeManager {
+pub struct ModeManager {
   exclusive_mode: Option<ExclusiveMode>,
+  music_priority: Vec<NonExclusiveMode>,
 }
 
-impl ExclusiveModeManager {
+impl ModeManager {
   pub fn new() -> Self {
     Self {
       exclusive_mode: None,
+      music_priority: Vec::new(),
     }
   }
 
@@ -36,17 +48,16 @@ impl ExclusiveModeManager {
   }
 
   pub fn take_exclusive(&mut self, mode: ExclusiveMode, ctx: &SystemContext) -> Result<(), String> {
-    if self.exclusive_mode.is_some() {
+    if let Some(existing) = &self.exclusive_mode {
       let msg = format!(
-        "Cannot start {:?} because {:?} is already exclusive.",
-        mode,
-        self.exclusive_mode.as_ref().unwrap()
+        "Cannot start {:?} because {:?} already has exclusive.",
+        mode, existing
       );
       log::warn!("{}", msg);
       Err(msg)
     } else {
-      self.crossfade_mode_music(&mode, ctx);
       self.exclusive_mode = Some(mode);
+      self.crossfade_music(ctx);
       Ok(())
     }
   }
@@ -54,15 +65,12 @@ impl ExclusiveModeManager {
   pub fn release_exclusive(&mut self, mode: ExclusiveMode, ctx: &SystemContext) {
     if self.exclusive_mode == Some(mode) {
       self.exclusive_mode = None;
-      self.crossfade_mode_music(&ExclusiveMode::None, ctx);
+      self.crossfade_music(ctx);
     }
   }
 
   fn on_turn_starting(&self, ctx: &SystemContext) {
-    self.crossfade_mode_music(
-      self.current_mode().as_ref().unwrap_or(&ExclusiveMode::None),
-      ctx,
-    );
+    self.crossfade_music(ctx);
   }
 
   fn on_turn_ending(&self, ctx: &SystemContext) {
@@ -71,16 +79,20 @@ impl ExclusiveModeManager {
       .stop_music(Duration::from_millis(500));
   }
 
-  fn crossfade_mode_music(&self, mode: &ExclusiveMode, ctx: &SystemContext) {
-    if let Some(path) = MODE_MUSIC.get(mode) {
-      ctx
-        .expect::<SoundSystem>()
-        .play_music(path, Duration::from_millis(1000));
-    }
+  fn crossfade_music(&self, ctx: &SystemContext) {
+    let path = match (&self.exclusive_mode, self.music_priority.get(0)) {
+      (Some(mode), _) => EXCL_MODE_MUSIC.get(&mode),
+      (_, Some(mode)) => NON_EXCL_MODE_MUSIC.get(&mode),
+      (None, None) => Some(&*DEFAULT_MUSIC),
+    };
+    let path = path.unwrap_or(&*DEFAULT_MUSIC);
+    ctx
+      .expect::<SoundSystem>()
+      .play_music(path, Duration::from_millis(1000));
   }
 }
 
-impl System for ExclusiveModeManager {
+impl System for ModeManager {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<PlayerTurnBeginning>() {
       self.on_turn_starting(ctx);
@@ -98,5 +110,10 @@ pub enum ExclusiveMode {
   MeridianBasins,
   SporeCountMultiball,
   Wizard,
-  None,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum NonExclusiveMode {
+  NimbusPromenade,
+  ApexTerraces,
 }

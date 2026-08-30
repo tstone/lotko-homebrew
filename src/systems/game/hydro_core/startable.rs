@@ -7,7 +7,7 @@ use crate::hardware::arc_ramp;
 use crate::hardware::lower_scoop;
 use crate::hardware::lower_scoop::LowerScoopBallEnter;
 use crate::systems::game::ExclusiveMode;
-use crate::systems::game::ExclusiveModeManager;
+use crate::systems::game::ModeManager;
 use crate::systems::game::HydroCoreMode;
 use crate::systems::game::hydro_core;
 use crate::systems::game::hydro_core::MODE_COLOR;
@@ -70,7 +70,7 @@ impl HydroCoreStartable {
   fn start(&mut self, ctx: &SystemContext) {
     // Ensure that exclusive mode rights can be taken
     if let Ok(..) = ctx
-      .expect::<ExclusiveModeManager>()
+      .expect::<ModeManager>()
       .take_exclusive(ExclusiveMode::HydroCore, ctx)
     {
       log::info!("HydroCore: started");
@@ -87,7 +87,7 @@ impl HydroCoreStartable {
 
 impl System for HydroCoreStartable {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    let mode_manager = ctx.expect::<ExclusiveModeManager>();
+    let mode_manager = ctx.expect::<ModeManager>();
     let mode = mode_manager.current_mode();
     mode.is_none() || mode == &Some(ExclusiveMode::HydroCore)
   }

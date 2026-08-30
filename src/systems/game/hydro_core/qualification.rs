@@ -5,8 +5,8 @@ use frontbox_turn_based::GameManagementExt;
 
 use crate::hardware::arc_ramp;
 use crate::hardware::arc_ramp::ArcRampHit;
-use crate::systems::game::ExclusiveModeManager;
 use crate::systems::game::HydroCoreStartable;
+use crate::systems::game::ModeManager;
 use crate::systems::game::hydro_core;
 use crate::systems::sounds;
 
@@ -81,10 +81,7 @@ impl HydroCoreQualification {
 
 impl System for HydroCoreQualification {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx
-      .expect::<ExclusiveModeManager>()
-      .current_mode()
-      .is_none()
+    ctx.expect::<ModeManager>().current_mode().is_none()
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {

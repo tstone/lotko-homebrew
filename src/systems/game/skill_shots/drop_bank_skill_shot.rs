@@ -69,7 +69,7 @@ impl DropBankSkillShot {
     self.target = self.target.next();
 
     self.attention_effect.stop(ctx);
-    self.attention_effect = Self::attention_effect(drop_bank::leds_for_target(self.target).q());
+    self.attention_effect = Self::attention_effect(drop_bank::leds_for_target(&self.target).q());
 
     ctx.cue(Next, Cue::Once(Duration::from_millis(1750)));
   }

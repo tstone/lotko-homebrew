@@ -14,7 +14,7 @@ use crate::hardware::right_orbit::RightOrbitHit;
 use crate::hardware::{arc_ramp, center_orbit, lift_ramp, right_orbit};
 use crate::systems::game::hydro_core::MODE_COLOR;
 use crate::systems::game::{ExclusiveMode, HydroCoreStartable, hydro_core};
-use crate::systems::game::{ExclusiveModeManager, HydroCoreQualification};
+use crate::systems::game::{HydroCoreQualification, ModeManager};
 use crate::systems::sounds;
 
 #[derive(Clone)]
@@ -128,17 +128,14 @@ impl HydroCoreMode {
       _ => {}
     }
 
-    // TODO: maybe don't make the last shot timed
-    // or give some kind of time bonus, like "get in as soon as you can"
-    let base_timeout = match shot {
-      5 => Duration::from_secs(40),
-      _ => Duration::from_secs(20),
-    };
-    // Player only has a limited amount of time to make the next shot BUT
-    // to avoid frustrating the player, keep making the combo duration longer as they fail attempts
-    // (this results in less points but is still completable)
-    let handicap = Duration::from_secs(3 * self.combo_attempts as u64);
-    self.cue_id = ctx.cue(ComboTimeUp, Cue::Once(base_timeout + handicap));
+    if shot == 5 {
+    } else {
+      // Player only has a limited amount of time to make the next shot BUT
+      // to avoid frustrating the player, keep making the combo duration longer as they fail attempts
+      // (this results in less points but is still completable)
+      let handicap = Duration::from_secs(3 * self.combo_attempts as u64);
+      self.cue_id = ctx.cue(ComboTimeUp, Cue::Once(Duration::from_millis(20) + handicap));
+    }
 
     self.current_combo_shot = shot;
 
@@ -200,7 +197,7 @@ impl HydroCoreMode {
 
   fn revert_to_startable(&mut self, ctx: &SystemContext) {
     ctx
-      .expect::<ExclusiveModeManager>()
+      .expect::<ModeManager>()
       .release_exclusive(ExclusiveMode::HydroCore, ctx);
     ctx.replace_self(HydroCoreStartable::new(Duration::ZERO));
   }
@@ -210,7 +207,7 @@ impl HydroCoreMode {
 
     // TODO: epic reaction effect
     ctx
-      .expect::<ExclusiveModeManager>()
+      .expect::<ModeManager>()
       .release_exclusive(ExclusiveMode::HydroCore, ctx);
     ctx.replace_self(HydroCoreQualification::new());
   }
@@ -218,7 +215,7 @@ impl HydroCoreMode {
 
 impl System for HydroCoreMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.expect::<ExclusiveModeManager>().current_mode() == &Some(ExclusiveMode::HydroCore)
+    ctx.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::HydroCore)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {

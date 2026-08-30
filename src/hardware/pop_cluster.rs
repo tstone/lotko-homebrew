@@ -2,11 +2,23 @@ use frontbox::prelude::*;
 use frontbox::tags::*;
 
 use crate::hardware::more_tags::*;
+use crate::hardware::vspinner;
 
-pub enum PopBumpers {
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum PopBumper {
   Left,
   UpperRight,
   LowerRight,
+}
+
+impl PopBumper {
+  pub fn next(&self) -> Self {
+    match self {
+      Self::Left => Self::UpperRight,
+      Self::UpperRight => Self::LowerRight,
+      Self::LowerRight => Self::Left,
+    }
+  }
 }
 
 pub mod left {
@@ -100,5 +112,53 @@ pub mod lower_right {
       .tag(Insert)
       .tag(SmallArrow)
       .tag(Target);
+  }
+}
+
+pub fn led_for_pop(pop: &PopBumper) -> &'static LedDefinition {
+  match pop {
+    PopBumper::Left => &left::POP_LED,
+    PopBumper::UpperRight => &upper_right::POP_LED,
+    PopBumper::LowerRight => &lower_right::POP_LED,
+  }
+}
+
+pub fn target_led_for_pop(pop: &PopBumper) -> &'static LedDefinition {
+  match pop {
+    PopBumper::Left => &left::TARGET_LED,
+    PopBumper::UpperRight => &upper_right::TARGET_LED,
+    PopBumper::LowerRight => &lower_right::TARGET_LED,
+  }
+}
+
+pub fn led_ray_for_pop(pop: &PopBumper) -> &'static LedQ {
+  match pop {
+    PopBumper::Left => &vspinner::left_ray::Q,
+    PopBumper::UpperRight => &vspinner::upper_right_ray::Q,
+    PopBumper::LowerRight => &vspinner::lower_right_ray::Q,
+  }
+}
+
+pub fn match_switch(switch: &Switch) -> Option<PopBumper> {
+  if switch.name == left::SPOON_SWITCH.name {
+    Some(PopBumper::Left)
+  } else if switch.name == upper_right::SPOON_SWITCH.name {
+    Some(PopBumper::UpperRight)
+  } else if switch.name == lower_right::SPOON_SWITCH.name {
+    Some(PopBumper::LowerRight)
+  } else {
+    None
+  }
+}
+
+pub fn match_target_switch(switch: &Switch) -> Option<PopBumper> {
+  if switch.name == left::TARGET_SWITCH.name {
+    Some(PopBumper::Left)
+  } else if switch.name == upper_right::TARGET_SWITCH.name {
+    Some(PopBumper::UpperRight)
+  } else if switch.name == lower_right::TARGET_SWITCH.name {
+    Some(PopBumper::LowerRight)
+  } else {
+    None
   }
 }

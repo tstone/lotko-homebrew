@@ -99,7 +99,7 @@ async fn main() {
         PlayfieldIllumination::new(),
         SkillshotManager::new(),
         // modes
-        ExclusiveModeManager::new(),
+        ModeManager::new(),
         HydroCoreQualification::new(),
         NimbusPromenadeQualification::new(),
       ],

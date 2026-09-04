@@ -1,12 +1,10 @@
 mod mode;
 mod qualification;
-mod startable;
 
 use std::sync::LazyLock;
 
 use frontbox::prelude::*;
 pub use mode::*;
 pub use qualification::*;
-pub use startable::*;
 
-static MODE_COLOR: LazyLock<Rgba<u8>> = LazyLock::new(|| Rgba::cyan());
+pub static MODE_COLOR: LazyLock<Rgba<u8>> = LazyLock::new(|| Rgba::cyan());

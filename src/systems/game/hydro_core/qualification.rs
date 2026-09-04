@@ -18,7 +18,11 @@ impl ExclusiveModeQualifier for HydroCoreQualifier {
   }
 
   fn on_qualified(ctx: &SystemContext) {
-    ctx.replace_self(HydroCoreStartable::new(Duration::from_millis(2500)));
+    ctx.expect::<LeftScoopStartable>().make_startable(
+      ExclusiveMode::HydroCore,
+      Duration::from_millis(2500),
+      ctx.into(),
+    );
   }
 
   fn attention_effect() -> LedProgram1d {

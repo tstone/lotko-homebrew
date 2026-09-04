@@ -9,7 +9,7 @@ use crate::hardware::{arc_ramp, lift_ramp};
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
-  self, ExclusiveMode, ModeManager, SkyrailStationQualification, SkyrailStationStartable, points,
+  self, ExclusiveMode, LiftRampStartable, ModeManager, SkyrailStationQualification, points,
 };
 
 pub struct SkyrailStationMode {
@@ -132,7 +132,12 @@ impl SkyrailStationMode {
       .expect::<ModeManager>()
       .release_exclusive(&ExclusiveMode::SkyrailStation, ctx);
     self.ramp_down(ctx);
-    ctx.replace_self(SkyrailStationStartable::default());
+    ctx.expect::<LiftRampStartable>().make_startable(
+      ExclusiveMode::HydroCore,
+      Duration::ZERO,
+      ctx.into(),
+    );
+    ctx.despawn_self();
   }
 
   fn complete(&mut self, ctx: &SystemContext) {

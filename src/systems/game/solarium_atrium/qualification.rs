@@ -6,11 +6,11 @@ use frontbox::animation::*;
 use frontbox::prelude::*;
 
 #[derive(Clone)]
-pub struct SkyrailStationQualifier;
+pub struct SolariumAtriumQualifier;
 
-impl ExclusiveModeQualifier for SkyrailStationQualifier {
+impl ExclusiveModeQualifier for SolariumAtriumQualifier {
   const REQUIRED_HITS: u8 = 2;
-  const HIT_SND_KEY: &'static str = sounds::LANE_HIT2;
+  const HIT_SND_KEY: &'static str = sounds::LANE_HIT3;
 
   fn is_qualifying_shot(event: &dyn Event) -> bool {
     event.is::<LiftRampHit>()
@@ -44,4 +44,4 @@ impl ExclusiveModeQualifier for SkyrailStationQualifier {
   }
 }
 
-pub type SkyrailStationQualification = ExclusiveModeQualification<SkyrailStationQualifier>;
+pub type SolariumAtriumQualification = ExclusiveModeQualification<SolariumAtriumQualifier>;

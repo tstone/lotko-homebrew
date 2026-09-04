@@ -7,6 +7,7 @@ use frontbox_sound::SoundSystem;
 use frontbox_turn_based::{PlayerTurnBeginning, PlayerTurnEnding};
 
 use crate::hardware::city_map;
+use crate::systems::game::ExclusiveMode;
 
 static DEFAULT_MUSIC: LazyLock<PathBuf> =
   LazyLock::new(|| PathBuf::from("/userdata/home/armsom/music/colyn-rushing.mp3"));
@@ -70,6 +71,7 @@ impl ModeManager {
     } else {
       self.exclusive_mode = Some(mode);
       self.crossfade_music(ctx);
+      ctx.emit(ExclusiveModeStarted);
       Ok(())
     }
   }
@@ -89,6 +91,7 @@ impl ModeManager {
     {
       self.exclusive_mode = None;
       self.crossfade_music(ctx);
+      ctx.emit(ExclusiveModeEnded);
     }
   }
 
@@ -138,7 +141,7 @@ impl System for ModeManager {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
     if self.render {
       if self
         .non_exclusive_completions
@@ -186,17 +189,13 @@ impl System for ModeManager {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum ExclusiveMode {
-  SolariumAtrium,
-  HydroCore,
-  SkyrailStation,
-  MeridianBasins,
-  SporeCountMultiball,
-  Wizard,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum NonExclusiveMode {
   NimbusPromenade,
   ApexTerraces,
 }
+
+#[derive(serde::Serialize, Event)]
+pub struct ExclusiveModeStarted;
+
+#[derive(serde::Serialize, Event)]
+pub struct ExclusiveModeEnded;

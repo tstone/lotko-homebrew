@@ -1,7 +1,7 @@
 mod activate_playfield;
 mod end_of_ball;
+mod exclusive_mode;
 mod exclusive_mode_qualification;
-mod exclusive_mode_starter;
 mod hydro_core;
 mod left_scoop_startable;
 mod lift_ramp_startable;
@@ -14,8 +14,8 @@ mod solarium_atrium;
 
 pub use activate_playfield::*;
 pub use end_of_ball::*;
+pub use exclusive_mode::*;
 pub use exclusive_mode_qualification::*;
-pub use exclusive_mode_starter::*;
 pub use hydro_core::*;
 pub use left_scoop_startable::*;
 pub use lift_ramp_startable::*;

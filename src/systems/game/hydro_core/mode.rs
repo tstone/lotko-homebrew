@@ -11,10 +11,9 @@ use crate::hardware::center_orbit::CenterOrbitHit;
 use crate::hardware::left_orbit::LeftOrbitHit;
 use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::more_tags::ArcRamp;
-use crate::hardware::right_orbit::RightOrbitHit;
-use crate::hardware::{arc_ramp, center_orbit, left_orbit, lift_ramp, right_orbit};
+use crate::hardware::{arc_ramp, center_orbit, left_orbit, lift_ramp};
 use crate::systems::game::hydro_core::MODE_COLOR;
-use crate::systems::game::{self, ExclusiveMode, HydroCoreStartable};
+use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable};
 use crate::systems::game::{HydroCoreQualification, ModeManager};
 use crate::systems::sounds;
 
@@ -204,7 +203,12 @@ impl HydroCoreMode {
     ctx
       .expect::<ModeManager>()
       .release_exclusive(&ExclusiveMode::HydroCore, ctx);
-    ctx.replace_self(HydroCoreStartable::new(Duration::ZERO));
+    ctx.expect::<LeftScoopStartable>().make_startable(
+      ExclusiveMode::HydroCore,
+      Duration::ZERO,
+      ctx.into(),
+    );
+    ctx.despawn_self();
   }
 
   fn complete(&mut self, ctx: &SystemContext) {

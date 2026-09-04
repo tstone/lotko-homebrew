@@ -100,9 +100,12 @@ async fn main() {
         SkillshotManager::new(),
         // modes
         ModeManager::new(),
+        LeftScoopStartable::new(),
+        LiftRampStartable::new(),
         HydroCoreQualification::new(),
         SkyrailStationQualification::new(),
         NimbusPromenadeQualification::new(),
+        SolariumAtriumQualification::new(),
       ],
       SwitchQ::tag::<tags::Playfield>(),
     ));

@@ -1,4 +1,4 @@
-use std::marker::PhantomData;
+use std::collections::VecDeque;
 
 use frontbox::animation::Curve;
 use frontbox::prelude::*;
@@ -11,45 +11,44 @@ use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::lift_ramp::LiftRampScoopBallEnter;
 use crate::hardware::lift_ramp::LiftRampSystem;
 use crate::systems::game;
-use crate::systems::game::ExclusiveModeStarter;
+use crate::systems::game::ExclusiveMode;
+use crate::systems::game::ExclusiveModeEnded;
 use crate::systems::game::ModeManager;
+use crate::systems::game::StartableEffects;
 use crate::systems::game::lift_ramp_startable::State::*;
 
 #[derive(Clone)]
-pub struct LiftRampStartable<T: ExclusiveModeStarter + Clone> {
-  activation_delay: Duration,
-  attention_effect: LedProgram1d,
-  hit_effect: LedProgram1d,
+pub struct LiftRampStartable {
+  startable_modes: Vec<ExclusiveMode>,
+  effects: Option<StartableEffects>,
   state: State,
   ramp_up_duration: Duration,
   ramp_downs: u8,
   cue_id: Option<u64>,
-  _t: PhantomData<T>,
+  // if a current mode is already set, keep track of subsequent startable modes
+  additional_modes: VecDeque<ExclusiveMode>,
+  current_mode: Option<ExclusiveMode>,
+  handle: SystemHandle,
 }
 
-impl<T> Default for LiftRampStartable<T>
-where
-  T: ExclusiveModeStarter + Clone,
-{
+impl Default for LiftRampStartable {
   fn default() -> Self {
-    Self::new(Duration::ZERO)
+    Self::new()
   }
 }
 
-impl<T> LiftRampStartable<T>
-where
-  T: ExclusiveModeStarter + Clone,
-{
-  pub fn new(activation_delay: Duration) -> Self {
+impl LiftRampStartable {
+  pub fn new() -> Self {
     Self {
-      activation_delay,
-      attention_effect: Self::attention_effect_ramp_up(),
-      hit_effect: Self::hit_effect_ramp_up(),
+      startable_modes: Vec::new(),
+      effects: None,
       state: Pending,
       ramp_up_duration: Duration::from_secs(20),
       ramp_downs: 0,
       cue_id: None,
-      _t: PhantomData,
+      additional_modes: VecDeque::new(),
+      current_mode: None,
+      handle: SystemHandle::default(),
     }
   }
 
@@ -58,17 +57,51 @@ where
     self.ramp_up(ctx);
   }
 
+  pub fn make_startable(
+    &mut self,
+    mode: ExclusiveMode,
+    activation_delay: Duration,
+    ctx: &ServiceContext,
+  ) {
+    if self.current_mode.is_none() {
+      self.current_mode = Some(mode);
+      self.state = Startable;
+      self.ramp_up(&ctx.for_system(self.handle));
+
+      if activation_delay > Duration::ZERO {
+        self.state = Pending;
+        ctx
+          .for_system(self.handle)
+          .cue(Resume, Cue::Once(activation_delay));
+      }
+    } else {
+      self.additional_modes.push_back(mode);
+    }
+  }
+
+  fn advance_mode(&mut self) {
+    self.current_mode = None;
+    let next_mode = self.additional_modes.pop_front();
+
+    if let Some(next_mode) = next_mode {
+      self.current_mode = Some(next_mode);
+    }
+  }
+
   fn queue_start(&mut self, ctx: &SystemContext) {
     // Ensure that exclusive mode rights can be taken
-    if let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(T::MODE, ctx) {
+    if let Some(current) = self.current_mode
+      && let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(current, ctx)
+    {
+      if let Some(effects) = self.effects.as_mut() {
+        effects.hit_effect.play();
+      }
+
       let mut lift_ramp = ctx.expect::<LiftRampSystem>();
       lift_ramp.lift_down(ctx.into());
       lift_ramp.eject(ctx.into());
 
-      self.state = Shutdown;
-      self.hit_effect.play();
-
-      ctx.play_sfx(T::START_SND_KEY);
+      ctx.play_sfx(current.start_sound());
       ctx.add_points(game::points::EXCL_START);
     }
   }
@@ -79,11 +112,15 @@ where
     ctx.expect::<LiftRampSystem>().lift_up(ctx.into());
     self.cue_id = Some(ctx.cue(TimeOut, Cue::Once(self.ramp_up_duration)));
 
-    self.attention_effect.stop(ctx);
-    self.attention_effect = Self::attention_effect_ramp_up();
+    if let Some(effects) = self.effects.as_mut()
+      && let Some(mode) = self.current_mode.as_ref()
+    {
+      effects.attention_effect.stop(ctx);
+      effects.attention_effect = Self::attention_effect_ramp_up(mode);
 
-    self.hit_effect.stop(ctx);
-    self.hit_effect = Self::hit_effect_ramp_up();
+      effects.hit_effect.stop(ctx);
+      effects.hit_effect = Self::hit_effect_ramp_up(mode);
+    }
   }
 
   fn ramp_down(&mut self, ctx: &SystemContext) {
@@ -98,65 +135,71 @@ where
 
     ctx.expect::<LiftRampSystem>().lift_down(ctx.into());
 
-    self.attention_effect.stop(ctx);
-    self.attention_effect = Self::attention_effect_ramp_down();
+    if let Some(effects) = self.effects.as_mut()
+      && let Some(mode) = self.current_mode.as_ref()
+    {
+      effects.attention_effect.stop(ctx);
+      effects.attention_effect = Self::attention_effect_ramp_down(mode);
 
-    self.hit_effect.stop(ctx);
-    self.hit_effect = Self::hit_effect_ramp_down();
+      effects.hit_effect.stop(ctx);
+      effects.hit_effect = Self::hit_effect_ramp_down(mode);
+    }
   }
 
-  fn attention_effect_ramp_up() -> LedProgram1d {
-    LedProgram1d::flash(
-      lift_ramp::BOLT_LED.q(),
-      T::mode_color().into(),
-      Cycle::Forever,
-    )
+  fn attention_effect_ramp_up(mode: &ExclusiveMode) -> LedProgram1d {
+    LedProgram1d::flash(lift_ramp::BOLT_LED.q(), mode.color().into(), Cycle::Forever)
   }
 
-  fn attention_effect_ramp_down() -> LedProgram1d {
+  fn attention_effect_ramp_down(mode: &ExclusiveMode) -> LedProgram1d {
     LedProgram1d::flash(
       &*lift_ramp::HEX_CENTER_LED,
-      T::mode_color().into(),
+      mode.color().into(),
       Cycle::Forever,
     )
   }
 
-  fn hit_effect_ramp_up() -> LedProgram1d {
+  fn hit_effect_ramp_up(mode: &ExclusiveMode) -> LedProgram1d {
     LedProgram1d::tween(
       LedQ::tag::<tags::Playfield>().at_z(-1),
       Duration::from_millis(750),
       Curve::EaseIn,
       Cycle::Once,
       vec![
-        ColorSequence::solid(T::mode_color()),
+        ColorSequence::solid(mode.color()),
         ColorSequence::solid(Rgba::default()),
       ],
     )
     .stopped()
   }
 
-  fn hit_effect_ramp_down() -> LedProgram1d {
+  fn hit_effect_ramp_down(mode: &ExclusiveMode) -> LedProgram1d {
     LedProgram1d::tween(
       lift_ramp::HEX_LEDS.q().at_z(-1),
       Duration::from_millis(750),
       Curve::EaseIn,
       Cycle::Once,
       vec![
-        ColorSequence::solid(T::mode_color()),
+        ColorSequence::solid(mode.color()),
         ColorSequence::solid(Rgba::default()),
       ],
     )
   }
 }
 
-impl<T> System for LiftRampStartable<T>
-where
-  T: ExclusiveModeStarter + Clone,
-{
+impl System for LiftRampStartable {
   fn is_active(&self, ctx: &SystemContext) -> bool {
+    if self.state == Inactive {
+      return false;
+    }
+
     let mode_manager = ctx.expect::<ModeManager>();
     let mode = mode_manager.current_mode();
-    mode.is_none() || mode == &Some(T::MODE)
+
+    if let Some(current) = self.current_mode {
+      mode.is_none() || *mode == Some(current)
+    } else {
+      mode.is_none()
+    }
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
@@ -174,20 +217,23 @@ where
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    if self.activation_delay == Duration::ZERO {
-      self.begin(ctx);
-    } else {
-      ctx.cue(Start, Cue::Once(self.activation_delay));
-    }
+    self.handle = *ctx.current_handle();
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.attention_effect.apply(delta, ctx);
-    self.hit_effect.apply(delta, ctx);
+    if let Some(effects) = self.effects.as_mut() {
+      effects.attention_effect.apply(delta, ctx);
+      effects.hit_effect.apply(delta, ctx);
 
-    if self.state == Shutdown && self.hit_effect.is_complete() {
-      self.attention_effect.stop(ctx);
-      T::on_start(ctx);
+      if effects.hit_effect.is_complete()
+        && let Some(current) = self.current_mode
+      {
+        effects.attention_effect.stop(ctx);
+        effects.hit_effect.stop(ctx);
+        self.advance_mode();
+        current.start(ctx);
+        self.state = Inactive;
+      }
     }
   }
 
@@ -200,6 +246,8 @@ where
       self.ramp_down(ctx);
     } else if event.is::<Start>() {
       self.begin(ctx);
+    } else if event.is::<ExclusiveModeEnded>() {
+      self.state = Startable;
     }
   }
 }
@@ -209,11 +257,14 @@ enum State {
   Pending,
   Startable,
   RampDown,
-  Shutdown,
+  Inactive,
 }
 
 #[derive(serde::Serialize, Event)]
 struct Start;
+
+#[derive(serde::Serialize, Event)]
+struct Resume;
 
 #[derive(serde::Serialize, Event)]
 struct TimeOut;

@@ -1,6 +1,6 @@
 use frontbox::prelude::Cycle::Forever;
 use frontbox::prelude::*;
-use frontbox::provided::{AutoPlungerSystem, PlungeLaneSystem};
+use frontbox::provided::{AutoPlungerSystem, DoubleFlipSystem, PlungeLaneSystem};
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
 use frontbox_sound::SoundSystem;
@@ -82,6 +82,10 @@ async fn main() {
     app.system(right_orbit::RightOrbitSystem::new());
     app.system(arc_ramp::ArcRampSystem::new());
     app.system(vspinner::VerticalSpinner::new());
+    app.system(DoubleFlipSystem::new(
+      cabinet::LEFT_FLIPPER_SWITCH1.q(),
+      cabinet::RIGHT_FLIPPER_SWITCH1.q(),
+    ));
 
     // game
     app.system(activate_playfield());

@@ -1,6 +1,5 @@
+use crate::hardware::dome_ramp;
 use crate::hardware::dome_ramp::DomeRampHit;
-use crate::hardware::lift_ramp;
-use crate::hardware::lift_ramp::LiftRampHit;
 use crate::systems::game::*;
 use crate::systems::sounds;
 use frontbox::animation::*;
@@ -18,7 +17,7 @@ impl ExclusiveModeQualifier for SolariumAtriumQualifier {
   }
 
   fn on_qualified(ctx: &SystemContext) {
-    ctx.expect::<LiftRampStartable>().make_startable(
+    ctx.expect::<LeftScoopStartable>().make_startable(
       ExclusiveMode::SolariumAtrium,
       Duration::from_millis(300),
       ctx.into(),
@@ -28,20 +27,9 @@ impl ExclusiveModeQualifier for SolariumAtriumQualifier {
 
   fn attention_effect() -> LedProgram1d {
     LedProgram1d::fixed(
-      (&*lift_ramp::HEX_CENTER_LED).at_z(1),
+      (&*dome_ramp::HEX_CENTER_LED).at_z(1),
       ColorSequence::solid(Rgba::white()),
     )
-  }
-
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::rotating(
-      (&*lift_ramp::HEX_CIRCLE_LEDS).at_z(1),
-      ColorSequence::fade(Rgba::white(), Rgba::default()),
-      Duration::from_millis(500),
-      Curve::Linear,
-      Cycle::Once,
-    )
-    .stopped()
   }
 }
 

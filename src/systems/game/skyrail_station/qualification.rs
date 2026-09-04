@@ -31,17 +31,6 @@ impl ExclusiveModeQualifier for SkyrailStationQualifier {
       ColorSequence::solid(Rgba::white()),
     )
   }
-
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::rotating(
-      (&*lift_ramp::HEX_CIRCLE_LEDS).at_z(1),
-      ColorSequence::fade(Rgba::white(), Rgba::default()),
-      Duration::from_millis(500),
-      Curve::Linear,
-      Cycle::Once,
-    )
-    .stopped()
-  }
 }
 
 pub type SkyrailStationQualification = ExclusiveModeQualification<SkyrailStationQualifier>;

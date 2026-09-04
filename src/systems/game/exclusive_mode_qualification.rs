@@ -93,7 +93,6 @@ pub trait ExclusiveModeQualifier: Send + Sync + 'static {
   const HIT_SND_KEY: &'static str;
 
   fn is_qualifying_shot(event: &dyn Event) -> bool;
-  fn hit_effect() -> LedProgram1d;
   fn attention_effect() -> LedProgram1d;
   fn on_qualified(ctx: &SystemContext);
 }

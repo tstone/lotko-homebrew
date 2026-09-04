@@ -119,4 +119,24 @@ impl System for DropBankSystem {
   fn on_spawn(&mut self, ctx: &SystemContext) {
     self.handle = *ctx.current_handle();
   }
+
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if let Some(event) = event.downcast_ref::<SwitchClosed>() {
+      if event.switch.name == TARGET1.name {
+        ctx.emit(DropBankTargetHit(1));
+      } else if event.switch.name == TARGET2.name {
+        ctx.emit(DropBankTargetHit(2));
+      } else if event.switch.name == TARGET3.name {
+        ctx.emit(DropBankTargetHit(3));
+      } else if event.switch.name == PADDLE_SWITCH.name {
+        ctx.emit(DropBankPaddleHit);
+      }
+    }
+  }
 }
+
+#[derive(serde::Serialize, Event)]
+pub struct DropBankTargetHit(pub u8);
+
+#[derive(serde::Serialize, Event)]
+pub struct DropBankPaddleHit;

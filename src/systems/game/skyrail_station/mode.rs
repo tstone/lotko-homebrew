@@ -1,7 +1,7 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
-use frontbox_turn_based::{GameManagementExt, PlayerTurnEnding};
+use frontbox_turn_based::{GameManagementExt, PlayerTurnActive};
 
 use crate::hardware::drop_bank::{self, DropBankSystem, DropBankTargetHit};
 use crate::hardware::lift_ramp::{LiftRampHit, LiftRampScoopBallEnter, LiftRampSystem};
@@ -189,7 +189,7 @@ impl System for SkyrailStationMode {
       self.advance(ctx);
     } else if event.is::<DropBankTargetHit>() && self.state == HitTarget {
       self.advance(ctx);
-    } else if event.is::<PlayerTurnEnding>() {
+    } else if event.is::<PlayerTurnActive>() {
       self.revert_to_startable(ctx);
     }
   }

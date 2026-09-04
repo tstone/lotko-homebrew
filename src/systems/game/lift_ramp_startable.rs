@@ -56,17 +56,13 @@ impl LiftRampStartable {
   ) {
     match self.state {
       OpenForStarting => {
-        if activation_delay > Duration::ZERO {
-          log::info!("LiftRampStartable: Scheduling ramp lift for {:?}", mode);
-          self.state = WaitingForRampUp(mode);
+        log::info!("LiftRampStartable: Scheduling ramp lift for {:?}", mode);
+        self.state = WaitingForRampUp(mode);
+        self.cue_id = Some(
           ctx
             .for_system(self.handle)
-            .cue(RampUp, activation_delay.once());
-        } else {
-          log::info!("LiftRampStartable: Starting {:?}", mode);
-          self.state = Startable(mode);
-          self.ramp_up(&ctx.for_system(self.handle));
-        }
+            .cue(RampUp, activation_delay.once()),
+        );
       }
       _ => {
         log::info!("LiftRampStartable: Enqueuing {:?}", mode);
@@ -88,6 +84,7 @@ impl LiftRampStartable {
     if let Startable(mode) = self.state
       && let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(mode, ctx)
     {
+      log::info!("LiftRampStartable: Starting mode {:?}", mode);
       self.state = Starting(mode);
       self.effects.as_mut().unwrap().hit_effect.play();
 
@@ -108,9 +105,11 @@ impl LiftRampStartable {
   }
 
   fn ramp_up(&mut self, ctx: &SystemContext) {
+    log::info!("LiftRampStartable: Ramp up at state {:?}", self.state);
+
     self.clear_cue(ctx);
-    ctx.expect::<LiftRampSystem>().lift_up(ctx.into());
     self.cue_id = Some(ctx.cue(TimeOut, self.ramp_up_duration.once()));
+    ctx.expect::<LiftRampSystem>().lift_up(ctx.into());
 
     if let Some(effects) = self.effects.as_mut() {
       effects.attention_effect.stop(ctx);
@@ -128,14 +127,18 @@ impl LiftRampStartable {
   }
 
   fn ramp_down(&mut self, forced: bool, ctx: &SystemContext) {
+    log::info!("LiftRampStartable: Ramp down at state {:?}", self.state);
+
     if !forced {
       self.ramp_downs += 1;
       self.ramp_up_duration = self.ramp_up_duration + Duration::from_secs(5);
     }
 
     self.state = match self.state {
+      WaitingForRampUp(mode) => RampDown(mode),
       Startable(mode) => RampDown(mode),
       Starting(mode) => RampDown(mode),
+      RampDown(mode) => RampDown(mode),
       _ => OpenForStarting,
     };
 
@@ -206,6 +209,7 @@ impl System for LiftRampStartable {
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
+    log::info!("LiftRampStartable: Deactivating at state {:?}", self.state);
     ctx.deactivate_led_declarations();
     if matches!(&self.state, Startable(_)) {
       self.ramp_down(true, ctx);
@@ -213,6 +217,7 @@ impl System for LiftRampStartable {
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
+    log::info!("LiftRampStartable: Reactivating at state {:?}", self.state);
     ctx.activate_led_declarations();
     if let Startable(_) = self.state {
       self.ramp_up(ctx);
@@ -244,22 +249,22 @@ impl System for LiftRampStartable {
     if event.is::<LiftRampScoopBallEnter>() {
       self.start(ctx);
     } else if event.is::<LiftRampHit>()
-      && let RampDown(_) = self.state
+      && let RampDown(mode) = self.state
     {
       log::info!("LiftRampStartable: Lift ramp hit => ramp up");
+      self.state = Startable(mode);
       self.ramp_up(ctx);
     } else if event.is::<TimeOut>() {
       self.ramp_down(false, ctx);
     } else if event.is::<PlayerTurnEnding>() {
+      log::info!("LiftRampStartable: Player turn ending. Downing ramp.");
       self.ramp_down(true, ctx);
     } else if event.is::<RampUp>()
       && let WaitingForRampUp(mode) = self.state
     {
-      log::info!("LiftRampStartable: Starting {:?}", mode);
+      log::info!("LiftRampStartable: Transitioning to Startable {:?}", mode);
       self.state = Startable(mode);
       self.ramp_up(ctx);
-    } else if event.is::<ExclusiveModeEnded>() {
-      self.advance_mode();
     }
   }
 }

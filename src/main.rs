@@ -108,7 +108,7 @@ async fn main() {
         LiftRampStartable::new(),
         HydroCoreQualification::new(),
         SkyrailStationQualification::new(),
-        NimbusPromenadeQualification::new(),
+        // NimbusPromenadeQualification::new(),
         SolariumAtriumQualification::new(),
       ],
       SwitchQ::tag::<tags::Playfield>(),

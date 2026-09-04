@@ -71,7 +71,7 @@ impl ModeManager {
     } else {
       self.exclusive_mode = Some(mode);
       self.crossfade_music(ctx);
-      ctx.emit(ExclusiveModeStarted);
+      ctx.emit(ExclusiveModeStarted(mode.clone()));
       Ok(())
     }
   }
@@ -195,7 +195,7 @@ pub enum NonExclusiveMode {
 }
 
 #[derive(serde::Serialize, Event)]
-pub struct ExclusiveModeStarted;
+pub struct ExclusiveModeStarted(pub ExclusiveMode);
 
 #[derive(serde::Serialize, Event)]
 pub struct ExclusiveModeEnded;

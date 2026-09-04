@@ -1,12 +1,12 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
-use frontbox_turn_based::{GameManagementExt, PlayerTurnEnding};
+use frontbox_turn_based::{GameManagementExt, PlayerTurnBeginning};
 
 use crate::game::solarium_atrium::MODE_COLOR;
 use crate::hardware::arc_ramp::ArcRampHit;
 use crate::hardware::dome_ramp::DomeRampHit;
-use crate::hardware::{arc_ramp, lift_ramp};
+use crate::hardware::lift_ramp;
 use crate::systems::game::{
   self, ExclusiveMode, LeftScoopStartable, ModeManager, SolariumAtriumQualification,
 };
@@ -14,7 +14,6 @@ use crate::systems::game::{
 pub struct SolariumAtriumMode {
   attention_effect: LedProgram1d,
   hit_effect: LedProgram1d,
-  gi_effect: LedProgram1d,
   ramp_hits: u8,
   multiplier: f32,
 }
@@ -24,7 +23,6 @@ impl SolariumAtriumMode {
     Self {
       attention_effect: Self::attention_effect(),
       hit_effect: Self::hit_effect(),
-      gi_effect: Self::gi_effect(),
       ramp_hits: 0,
       multiplier: 1.0,
     }
@@ -51,18 +49,6 @@ impl SolariumAtriumMode {
       ],
     )
     .stopped()
-  }
-
-  fn gi_effect() -> LedProgram1d {
-    LedProgram1d::fixed(
-      LedQ::any(vec![
-        &LedQ::tag::<tags::GeneralIllumination>(),
-        &arc_ramp::ARC_LEDS.q(),
-        &arc_ramp::SUBWAY_LEDS.q(),
-      ])
-      .at_z(1),
-      ColorSequence::solid(MODE_COLOR.lighten(0.3)),
-    )
   }
 
   fn revert_to_startable(&mut self, ctx: &SystemContext) {
@@ -113,7 +99,7 @@ impl System for SolariumAtriumMode {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<PlayerTurnEnding>() {
+    if event.is::<PlayerTurnBeginning>() {
       self.revert_to_startable(ctx);
     } else if event.is::<ArcRampHit>() {
       self.add_multiple();
@@ -125,7 +111,6 @@ impl System for SolariumAtriumMode {
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
-    self.gi_effect.apply(delta, ctx);
 
     if self.hit_effect.is_complete() && self.is_complete() {
       self.complete(ctx);

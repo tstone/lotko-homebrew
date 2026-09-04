@@ -1,7 +1,5 @@
-- BUG: on 2nd game the GI lights don'tcome back on
-- BUG: Sometimes the music doesn't stop on game end
-- BUG: engage music has a huge amount of dead air at the start
-- Lift ramp scoop needs to make sure the ball exited
+- BUG: on 2nd game the GI lights don't come back on
+- BUG: Sometimes the music doesn't stop on game end -- sometimes it runs twice
 - Hydrocore mode hexes should flash faster as time runs out
 - Nimbus: hit each pop twice (6 total) => starts a 2 ball multiball on completion (need to move to 5/6 balls in trough)
 - Bonus points based on the number of modes completed during a ball

@@ -150,9 +150,15 @@ impl LiftRampSystem {
   }
 
   pub fn eject(&mut self, ctx: &ServiceContext) {
-    ctx
-      .for_system(self.handle)
-      .activate_driver(EJECT_COIL.name, ActivationMode::Tap);
+    let ctx = ctx.for_system(self.handle);
+    ctx.activate_driver(EJECT_COIL.name, ActivationMode::Tap);
+    ctx.cue(VerifyVacancy, Duration::from_millis(1200).once());
+  }
+
+  fn verify_vacancy(&mut self, ctx: &SystemContext) {
+    if ctx.switches.is_closed(SCOOP_OPTO.name).unwrap_or(false) {
+      self.eject(ctx.into());
+    }
   }
 }
 
@@ -181,6 +187,8 @@ impl System for LiftRampSystem {
         log::info!("Ball entered lift ramp scoop");
         ctx.emit(LiftRampScoopBallEnter);
       }
+    } else if event.is::<VerifyVacancy>() {
+      self.verify_vacancy(ctx);
     }
   }
 
@@ -211,5 +219,9 @@ pub struct LiftRampScoopBallEnter;
 
 #[derive(serde::Serialize, Event)]
 pub struct LiftRampUp;
+
 #[derive(serde::Serialize, Event)]
 pub struct LiftRampDown;
+
+#[derive(serde::Serialize, Event)]
+struct VerifyVacancy;

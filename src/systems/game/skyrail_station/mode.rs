@@ -15,7 +15,6 @@ use crate::systems::game::{
 pub struct SkyrailStationMode {
   attention_effect: LedProgram1d,
   hit_effect: LedProgram1d,
-  gi_effect: LedProgram1d,
   target_hits: u8,
   state: State,
   ramp_up: bool,
@@ -26,7 +25,6 @@ impl SkyrailStationMode {
     Self {
       attention_effect: Self::attention_effect_ramp(),
       hit_effect: Self::hit_effect(),
-      gi_effect: Self::gi_effect(),
       target_hits: 0,
       state: HitRamp,
       ramp_up: false,
@@ -76,18 +74,6 @@ impl SkyrailStationMode {
       ],
     )
     .stopped()
-  }
-
-  fn gi_effect() -> LedProgram1d {
-    LedProgram1d::fixed(
-      LedQ::any(vec![
-        &LedQ::tag::<tags::GeneralIllumination>(),
-        &arc_ramp::ARC_LEDS.q(),
-        &arc_ramp::SUBWAY_LEDS.q(),
-      ])
-      .at_z(1),
-      ColorSequence::solid(MODE_COLOR.lighten(0.3)),
-    )
   }
 
   fn advance(&mut self, ctx: &SystemContext) {
@@ -209,7 +195,6 @@ impl System for SkyrailStationMode {
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
-    self.gi_effect.apply(delta, ctx);
 
     if self.state == Shutdown && self.hit_effect.is_complete() {
       self.complete(ctx);

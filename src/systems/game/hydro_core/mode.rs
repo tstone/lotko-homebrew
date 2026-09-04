@@ -21,7 +21,6 @@ use crate::systems::sounds;
 pub struct HydroCoreMode {
   attention_effect: LedProgram1d,
   hit_effect: LedProgram1d,
-  gi_effect: LedProgram1d,
   arc_effect: LedProgram1d,
   current_combo_shot: u8,
   /// Track which shots have been made in the past
@@ -35,7 +34,6 @@ impl HydroCoreMode {
     Self {
       attention_effect: Self::attention_effect(&*lift_ramp::HEX_CENTER_LED),
       hit_effect: Self::hit_effect(&*lift_ramp::HEX_CENTER_LED),
-      gi_effect: Self::gi_effect(),
       arc_effect: Self::arc_effect(),
       current_combo_shot: 1,
       combo_shots_seen: HashSet::new(),
@@ -87,13 +85,6 @@ impl HydroCoreMode {
           ],
         ),
       )
-  }
-
-  fn gi_effect() -> LedProgram1d {
-    LedProgram1d::fixed(
-      LedQ::tag::<tags::GeneralIllumination>().at_z(1),
-      ColorSequence::solid(MODE_COLOR.lighten(0.4)),
-    )
   }
 
   fn arc_effect() -> LedProgram1d {
@@ -234,7 +225,6 @@ impl System for HydroCoreMode {
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
-    self.gi_effect.apply(delta, ctx);
     self.arc_effect.apply(delta, ctx);
   }
 

@@ -46,7 +46,7 @@ impl DropBankSkillShot {
   ) -> LedProgram1d {
     LedProgram1d::flash(
       target,
-      ColorSequence::fade(Rgba::red(), Rgba::blue()),
+      ColorSequence::fade(Rgba::purple(), Rgba::blue()),
       Cycle::Forever,
     )
   }

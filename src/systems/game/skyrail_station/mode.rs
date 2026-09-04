@@ -3,8 +3,8 @@ use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
 use frontbox_turn_based::{GameManagementExt, PlayerTurnEnding};
 
-use crate::hardware::drop_bank::{self, DropBankTargetHit};
-use crate::hardware::lift_ramp::{LiftRampHit, LiftRampSystem};
+use crate::hardware::drop_bank::{self, DropBankSystem, DropBankTargetHit};
+use crate::hardware::lift_ramp::{LiftRampHit, LiftRampScoopBallEnter, LiftRampSystem};
 use crate::hardware::{arc_ramp, lift_ramp};
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
@@ -43,16 +43,25 @@ impl SkyrailStationMode {
   }
 
   fn attention_effect_target() -> LedProgram1d {
-    LedProgram1d::pulse(
-      LedQ::any(vec![
-        &drop_bank::TARGET1_LEDS.q(),
-        &drop_bank::TARGET2_LEDS.q(),
-        &drop_bank::TARGET3_LEDS.q(),
-      ]),
-      *MODE_COLOR,
-      Duration::bpm(128),
-      Cycle::Forever,
-    )
+    LedProgram1d::multi(vec![
+      LedProgram1d::pulse(
+        LedQ::any(vec![
+          &drop_bank::TARGET1_LEDS.q(),
+          &drop_bank::TARGET2_LEDS.q(),
+          &drop_bank::TARGET3_LEDS.q(),
+        ]),
+        *MODE_COLOR,
+        Duration::bpm(128),
+        Cycle::Forever,
+      ),
+      LedProgram1d::rotating(
+        &*lift_ramp::HEX_LINE_LEDS,
+        ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
+        Duration::from_millis(250),
+        Curve::Linear,
+        Cycle::Forever,
+      ),
+    ])
   }
 
   fn hit_effect() -> LedProgram1d {
@@ -100,12 +109,17 @@ impl SkyrailStationMode {
           self.state = HitRamp;
           self.attention_effect = Self::attention_effect_ramp();
           self.ramp_down(ctx);
+          log::info!("SkyrailStation: hit target => ramp down");
         }
       }
       HitRamp => {
         log::info!("Skyrail: HitRamp");
         self.state = HitTarget;
-        self.ramp_up(ctx);
+        self.ramp_up(Duration::from_millis(250), ctx);
+        log::info!("SkyrailStation: hit ramp => ramp up");
+
+        ctx.expect::<DropBankSystem>().raise_targets(ctx.into());
+
         self.attention_effect.stop(ctx);
         self.attention_effect = Self::attention_effect_target();
       }
@@ -113,10 +127,14 @@ impl SkyrailStationMode {
     }
   }
 
-  fn ramp_up(&mut self, ctx: &SystemContext) {
+  fn ramp_up(&mut self, delay: Duration, ctx: &SystemContext) {
     if !self.ramp_up {
-      ctx.expect::<LiftRampSystem>().lift_up(ctx.into());
-      self.ramp_up = true;
+      if delay > Duration::ZERO {
+        ctx.cue(RampUp, delay.once());
+      } else {
+        ctx.expect::<LiftRampSystem>().lift_up(ctx.into());
+        self.ramp_up = true;
+      }
     }
   }
 
@@ -133,7 +151,7 @@ impl SkyrailStationMode {
       .release_exclusive(&ExclusiveMode::SkyrailStation, ctx);
     self.ramp_down(ctx);
     ctx.expect::<LiftRampStartable>().make_startable(
-      ExclusiveMode::HydroCore,
+      ExclusiveMode::SkyrailStation,
       Duration::ZERO,
       ctx.into(),
     );
@@ -162,7 +180,12 @@ impl System for SkyrailStationMode {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<LiftRampHit>() && self.state == HitRamp {
+    if event.is::<LiftRampScoopBallEnter>() {
+      ctx.add_points(500);
+      ctx.expect::<LiftRampSystem>().eject(ctx.into());
+    } else if event.is::<RampUp>() {
+      self.ramp_up(Duration::ZERO, ctx);
+    } else if event.is::<LiftRampHit>() && self.state == HitRamp {
       self.advance(ctx);
     } else if event.is::<DropBankTargetHit>() && self.state == HitTarget {
       self.advance(ctx);
@@ -201,3 +224,6 @@ enum State {
   Final,
   Shutdown,
 }
+
+#[derive(serde::Serialize, Event)]
+struct RampUp;

@@ -1,3 +1,4 @@
+- BUG: lift ramp startable is not restartable
 - BUG: Sometimes the music doesn't stop on game end
 - BUG: engage music has a huge amount of dead air at the start
 - Hydrocore mode hexes should flash faster as time runs out

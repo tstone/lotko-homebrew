@@ -58,6 +58,7 @@ hardware_defs! {
     .tag(Playfield);
 
   pub PADDLE_SWITCH: SwitchDefinition = SwitchDefinition::new("drop_paddle")
+    .debounce_close(Duration::from_millis(20))
     .tag(Playfield);
 
   pub TARGET1_LEDS: LedDefinition = LedDefinition::strip("target1", 4)

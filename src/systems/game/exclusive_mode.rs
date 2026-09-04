@@ -3,7 +3,7 @@ use frontbox::prelude::{Rgba, SystemContext};
 use crate::systems::game::{hydro_core, skyrail_station, solarium_atrium};
 use crate::systems::sound_loader;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize)]
 pub enum ExclusiveMode {
   SolariumAtrium,
   HydroCore,

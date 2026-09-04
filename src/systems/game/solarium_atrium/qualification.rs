@@ -1,3 +1,4 @@
+use crate::hardware::dome_ramp::DomeRampHit;
 use crate::hardware::lift_ramp;
 use crate::hardware::lift_ramp::LiftRampHit;
 use crate::systems::game::*;
@@ -13,12 +14,12 @@ impl ExclusiveModeQualifier for SolariumAtriumQualifier {
   const HIT_SND_KEY: &'static str = sounds::LANE_HIT3;
 
   fn is_qualifying_shot(event: &dyn Event) -> bool {
-    event.is::<LiftRampHit>()
+    event.is::<DomeRampHit>()
   }
 
   fn on_qualified(ctx: &SystemContext) {
     ctx.expect::<LiftRampStartable>().make_startable(
-      ExclusiveMode::HydroCore,
+      ExclusiveMode::SolariumAtrium,
       Duration::from_millis(300),
       ctx.into(),
     );

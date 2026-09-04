@@ -18,7 +18,7 @@ impl ExclusiveModeQualifier for SkyrailStationQualifier {
 
   fn on_qualified(ctx: &SystemContext) {
     ctx.expect::<LiftRampStartable>().make_startable(
-      ExclusiveMode::HydroCore,
+      ExclusiveMode::SkyrailStation,
       Duration::from_millis(300),
       ctx.into(),
     );

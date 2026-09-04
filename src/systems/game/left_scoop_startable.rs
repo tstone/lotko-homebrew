@@ -4,6 +4,7 @@ use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
+use frontbox_turn_based::PlayerTurnBeginning;
 
 use crate::hardware::arc_ramp;
 use crate::hardware::lower_scoop;
@@ -166,6 +167,9 @@ impl System for LeftScoopStartable {
     } else if event.is::<Resume>() && self.state == Pending {
       self.state = Startable;
     } else if event.is::<ExclusiveModeEnded>() {
+      self.current_mode = None;
+      self.state = Startable;
+    } else if event.is::<PlayerTurnBeginning>() {
       self.state = Startable;
     }
   }

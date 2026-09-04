@@ -1,12 +1,13 @@
 use std::marker::PhantomData;
 
+use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
 
+use crate::hardware::{arc_ramp, center_orbit, dome_ramp, left_orbit, lift_ramp, right_orbit};
 use crate::systems::game;
 use crate::systems::game::ModeManager;
-use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct ExclusiveModeQualification<T: ExclusiveModeQualifier + Clone> {
@@ -24,9 +25,28 @@ where
     Self {
       hits: 0,
       attention_effect: T::attention_effect(),
-      hit_effect: T::hit_effect(),
+      hit_effect: Self::hit_effect(),
       _t: PhantomData,
     }
+  }
+
+  fn hit_effect() -> LedProgram1d {
+    LedProgram1d::rotating(
+      LedQ::any(vec![
+        &left_orbit::HEX_LEDS.q(),
+        &dome_ramp::HEX_LEDS.q(),
+        &arc_ramp::HEX_LEDS.q(),
+        &center_orbit::HEX_LEDS.q(),
+        &lift_ramp::HEX_LEDS.q(),
+        &right_orbit::HEX_LEDS.q(),
+      ])
+      .at_z(1),
+      ColorSequence::fade(Rgba::white(), Rgba::default()),
+      Duration::from_millis(500),
+      Curve::Linear,
+      Cycle::Once,
+    )
+    .stopped()
   }
 
   fn on_qualifying_hit(&mut self, ctx: &SystemContext) {

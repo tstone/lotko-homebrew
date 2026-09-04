@@ -3,10 +3,10 @@ use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
 use frontbox_turn_based::{GameManagementExt, PlayerTurnEnding};
 
+use crate::game::solarium_atrium::MODE_COLOR;
 use crate::hardware::arc_ramp::ArcRampHit;
 use crate::hardware::dome_ramp::DomeRampHit;
 use crate::hardware::{arc_ramp, lift_ramp};
-use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::{
   self, ExclusiveMode, LeftScoopStartable, ModeManager, SolariumAtriumQualification,
 };
@@ -68,7 +68,7 @@ impl SolariumAtriumMode {
   fn revert_to_startable(&mut self, ctx: &SystemContext) {
     ctx
       .expect::<ModeManager>()
-      .release_exclusive(&ExclusiveMode::SkyrailStation, ctx);
+      .release_exclusive(&ExclusiveMode::SolariumAtrium, ctx);
     ctx.expect::<LeftScoopStartable>().make_startable(
       ExclusiveMode::SolariumAtrium,
       Duration::ZERO,
@@ -94,7 +94,7 @@ impl SolariumAtriumMode {
     // TODO: epic reaction effect
     ctx
       .expect::<ModeManager>()
-      .complete_exclusive(ExclusiveMode::SkyrailStation, ctx);
+      .complete_exclusive(ExclusiveMode::SolariumAtrium, ctx);
     ctx.replace_self(SolariumAtriumQualification::new());
   }
 
@@ -105,7 +105,7 @@ impl SolariumAtriumMode {
 
 impl System for SolariumAtriumMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::SkyrailStation)
+    ctx.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::SolariumAtrium)
   }
 
   fn on_spawn(&mut self, _ctx: &SystemContext) {

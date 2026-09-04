@@ -185,7 +185,7 @@ impl System for SkyrailStationMode {
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
-    // self.hit_effect.apply(delta, ctx);
+    self.hit_effect.apply(delta, ctx);
     self.gi_effect.apply(delta, ctx);
 
     if self.state == Shutdown && self.hit_effect.is_complete() {

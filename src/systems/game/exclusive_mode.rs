@@ -34,6 +34,7 @@ impl ExclusiveMode {
     match self {
       Self::HydroCore => ctx.spawn_system(hydro_core::HydroCoreMode::new()),
       Self::SkyrailStation => ctx.spawn_system(skyrail_station::SkyrailStationMode::new()),
+      Self::SolariumAtrium => ctx.spawn_system(solarium_atrium::SolariumAtriumMode::new()),
       _ => todo!(),
     }
   }

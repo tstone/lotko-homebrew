@@ -1,7 +1,7 @@
 use frontbox::prelude::*;
 
 use crate::hardware::{
-  arc_ramp, cabinet::RIGHT_FLIPPER_SWITCH1, center_orbit, left_orbit, left_ramp, lift_ramp,
+  arc_ramp, cabinet::RIGHT_FLIPPER_SWITCH1, center_orbit, left_orbit, dome_ramp, lift_ramp,
   right_orbit,
 };
 
@@ -22,7 +22,7 @@ impl HexTest {
     LedProgram1d::fixed(
       LedQ::any(vec![
         &left_orbit::HEX_CENTER_LED,
-        &left_ramp::HEX_CENTER_LED,
+        &dome_ramp::HEX_CENTER_LED,
         &arc_ramp::HEX_CENTER_LED,
         &center_orbit::HEX_CENTER_LED,
         &lift_ramp::HEX_CENTER_LED,
@@ -37,7 +37,7 @@ impl HexTest {
     LedProgram1d::fixed(
       LedQ::any(vec![
         &left_orbit::HEX_LINE_LEDS,
-        &left_ramp::HEX_LINE_LEDS,
+        &dome_ramp::HEX_LINE_LEDS,
         &arc_ramp::HEX_LINE_LEDS,
         &center_orbit::HEX_LINE_LEDS,
         &lift_ramp::HEX_LINE_LEDS,
@@ -52,7 +52,7 @@ impl HexTest {
     LedProgram1d::fixed(
       LedQ::any(vec![
         &left_orbit::HEX_CIRCLE_LEDS,
-        &left_ramp::HEX_CIRCLE_LEDS,
+        &dome_ramp::HEX_CIRCLE_LEDS,
         &arc_ramp::HEX_CIRCLE_LEDS,
         &center_orbit::HEX_CIRCLE_LEDS,
         &lift_ramp::HEX_CIRCLE_LEDS,

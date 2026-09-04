@@ -13,7 +13,7 @@ pub mod drop_bank;
 pub mod flashers;
 pub mod gi;
 pub mod left_orbit;
-pub mod left_ramp;
+pub mod dome_ramp;
 pub mod lift_ramp;
 pub mod lower_scoop;
 pub mod more_tags;

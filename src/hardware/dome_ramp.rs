@@ -9,7 +9,9 @@ const NAME: &'static str = "l_ramp";
 
 hardware_defs! {
 
-  pub OPTO: SwitchDefinition = SwitchDefinition::new(NAME);
+  pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
+    .tag(Ramp)
+    .tag(Playfield);
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME, 7)
     .tag(Playfield)
@@ -38,3 +40,24 @@ pub static HEX_CIRCLE_LEDS: LazyLock<LedQ> = LazyLock::new(|| {
     HEX_LEDS.child(3).unwrap().name(),
   ])
 });
+
+pub struct DomeRampSystem;
+
+impl DomeRampSystem {
+  pub fn new() -> Self {
+    Self
+  }
+}
+
+impl System for DomeRampSystem {
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if let Some(event) = event.downcast_ref::<SwitchClosed>()
+      && event.switch.name == SWITCH.name
+    {
+      ctx.emit(DomeRampHit);
+    }
+  }
+}
+
+#[derive(serde::Serialize, Event)]
+pub struct DomeRampHit;

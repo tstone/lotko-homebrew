@@ -87,7 +87,7 @@ pub fn exp_network() -> ExpNetwork {
         LedPort::ws2812().leds(vec![
           &pop_cluster::left::POP_LED,
           &pop_cluster::left::TARGET_LED,
-          &left_ramp::HEX_LEDS,
+          &dome_ramp::HEX_LEDS,
           &left_orbit::HEX_LEDS,
           &gi::LOWER_SCOOP_ABOVE,
           &arc_ramp::SUBWAY_LEDS,

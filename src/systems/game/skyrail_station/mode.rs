@@ -4,6 +4,7 @@ use frontbox::prelude::*;
 use frontbox_turn_based::{GameManagementExt, PlayerTurnActive};
 
 use crate::hardware::drop_bank::{self, DropBankSystem, DropBankTargetHit};
+use crate::hardware::flashers::FlashersSystem;
 use crate::hardware::lift_ramp::{LiftRampHit, LiftRampScoopBallEnter, LiftRampSystem};
 use crate::hardware::{arc_ramp, lift_ramp};
 use crate::systems::game::skyrail_station::MODE_COLOR;
@@ -79,6 +80,9 @@ impl SkyrailStationMode {
   fn advance(&mut self, ctx: &SystemContext) {
     ctx.add_points(points::EXL_MODE_HIT);
     self.hit_effect.play();
+    ctx
+      .expect::<FlashersSystem>()
+      .flash(3, ColorSequence::tile(vec![*MODE_COLOR, Rgba::default()]));
 
     match self.state {
       HitTarget => {

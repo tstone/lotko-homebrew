@@ -6,6 +6,7 @@ use frontbox_turn_based::{GameManagementExt, PlayerTurnBeginning};
 use crate::game::solarium_atrium::MODE_COLOR;
 use crate::hardware::arc_ramp::ArcRampHit;
 use crate::hardware::dome_ramp::DomeRampHit;
+use crate::hardware::flashers::FlashersSystem;
 use crate::hardware::lift_ramp;
 use crate::systems::game::{
   self, ExclusiveMode, LeftScoopStartable, ModeManager, SolariumAtriumQualification,
@@ -70,6 +71,10 @@ impl SolariumAtriumMode {
   fn ramp_hit(&mut self, ctx: &SystemContext) {
     self.ramp_hits += 1;
     self.hit_effect.play();
+    ctx
+      .expect::<FlashersSystem>()
+      .flash(3, ColorSequence::tile(vec![*MODE_COLOR, Rgba::default()]));
+
     ctx.add_points((game::points::EXL_MODE_HIT as f32 * self.multiplier) as u32);
     self.multiplier = 1.0;
   }

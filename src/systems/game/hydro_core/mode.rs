@@ -8,6 +8,7 @@ use frontbox_turn_based::{GameManagementExt, PlayerTurnEnding};
 
 use crate::hardware::arc_ramp::{ArcRampHit, ArcRampSubwayHit};
 use crate::hardware::center_orbit::CenterOrbitHit;
+use crate::hardware::flashers::FlashersSystem;
 use crate::hardware::left_orbit::LeftOrbitHit;
 use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::more_tags::ArcRamp;
@@ -175,6 +176,15 @@ impl HydroCoreMode {
     self.hit_effect.play();
 
     self.advance_combo(self.current_combo_shot + 1, ctx);
+    ctx.expect::<FlashersSystem>().rotate(
+      2,
+      ColorSequence::tile(vec![
+        *MODE_COLOR,
+        MODE_COLOR.lighten(0.35),
+        Rgba::default(),
+        Rgba::default(),
+      ]),
+    );
 
     // Points for combo only score the first time, not repeated times
     if !self.combo_shots_seen.contains(&self.current_combo_shot) {

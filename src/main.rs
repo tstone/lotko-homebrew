@@ -16,6 +16,7 @@ pub mod menu;
 use hardware::*;
 
 use crate::hardware::cabinet::*;
+use crate::hardware::flashers::FlashersSystem;
 use crate::hardware::trough::DRAIN_LED;
 use crate::menu::MENU;
 use crate::systems::dmd::*;
@@ -102,6 +103,7 @@ async fn main() {
         )),
         PlayfieldIllumination::new(),
         SkillshotManager::new(),
+        FlashersSystem::new(),
         // modes
         ModeManager::new(),
         LeftScoopStartable::new(),

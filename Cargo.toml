@@ -26,3 +26,9 @@ debug = 1
 
 [profile.dev.package."*"]
 opt-level = 3 # optimize all dependencies fully
+
+[profile.release]
+lto = true        # link-time optimization; slower builds, faster/smaller binary
+codegen-units = 1 # trade parallel compile time for better cross-crate inlining
+panic = "abort"   # skip unwinding machinery — smaller binary, faster panics
+strip = true      # strip debug symbols from the final binary

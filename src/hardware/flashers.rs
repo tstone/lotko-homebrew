@@ -16,7 +16,7 @@ hardware_defs! {
     .tag(Flasher);
 }
 
-static all_flashers: LazyLock<LedQ> =
+static ALL_FLASHERS: LazyLock<LedQ> =
   LazyLock::new(|| LedQ::any(vec![&LEFT_FLASHER.q(), &CENTER_FLASHER.q()]));
 
 #[derive(Clone)]
@@ -33,7 +33,7 @@ impl FlashersSystem {
 
   pub fn flash(&mut self, times: u32, colors: ColorSequence) {
     self.effects.push(LedProgram1d::flash(
-      &*all_flashers,
+      &*ALL_FLASHERS,
       colors,
       Cycle::Times(times),
     ));
@@ -41,7 +41,7 @@ impl FlashersSystem {
 
   pub fn rotate(&mut self, times: u32, colors: ColorSequence) {
     self.effects.push(LedProgram1d::rotating(
-      &*all_flashers,
+      &*ALL_FLASHERS,
       colors,
       Duration::from_millis(600),
       Curve::Linear,

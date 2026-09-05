@@ -4,6 +4,7 @@ use crate::hardware::arc_ramp;
 use crate::hardware::cabinet;
 use crate::hardware::captive_ball;
 use crate::hardware::center_orbit;
+use crate::hardware::dome_ramp;
 use crate::hardware::drop_bank;
 use crate::hardware::left_flipper;
 use crate::hardware::left_inlane;
@@ -92,6 +93,7 @@ pub fn io_network() -> IoNetwork {
       .wire_switch(7, &pop_cluster::upper_right::SPOON_SWITCH)
       .wire_switch(8, &arc_ramp::RAMP_OPTO)
       .wire_switch(9, &center_orbit::SPINNER_OPTO)
+      .wire_switch(10, &dome_ramp::SWITCH)
       .wire_switch(12, &right_orbit::SWITCH)
       .wire_switch(13, &arc_ramp::SUBWAY_OPTO)
       .wire_switch(14, &left_orbit::SWITCH)

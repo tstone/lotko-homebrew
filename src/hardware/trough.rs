@@ -25,8 +25,7 @@ pub fn system() -> TroughSystem {
     vec![
       SWITCH1.name,
       SWITCH2.name,
-      // Only using 3 balls for testing
-      // SWITCH3.name,
+      SWITCH3.name,
       // SWITCH4.name,
       // SWITCH5.name,
       // SWITCH6.name,

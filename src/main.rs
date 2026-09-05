@@ -1,3 +1,4 @@
+use frontbox::animation::Curve;
 use frontbox::prelude::Cycle::Forever;
 use frontbox::prelude::*;
 use frontbox::provided::{AutoPlungerSystem, DoubleFlipSystem, PlungeLaneSystem};
@@ -77,6 +78,7 @@ async fn main() {
     // hardware ops
     app.system(drop_bank::DropBankSystem::new());
     app.system(lower_scoop::LowerScoopSystem::new());
+    app.system(dome_ramp::DomeRampSystem::new());
     app.system(lift_ramp::LiftRampSystem::new());
     app.system(left_orbit::LeftOrbitSystem::new());
     app.system(center_orbit::CenterOrbitSystem::new());
@@ -118,10 +120,21 @@ async fn main() {
 
     // playfield
     app.system(trough::system());
-    app.system(PlungeLaneSystem::new(
-      plunge_lane::SWITCH.name,
-      Duration::from_millis(1200),
-    ));
+    app.system(
+      PlungeLaneSystem::new(plunge_lane::SWITCH.name, Duration::from_millis(1200))
+        .ball_present_effect(LedProgram1d::rotating(
+          plunge_lane::LED_STRIP.q(),
+          ColorSequence::exact(vec![
+            Rgba::purple(),
+            Rgba::purple().lighten(0.35),
+            Rgba::default(),
+            Rgba::default(),
+          ]),
+          Duration::from_millis(900),
+          Curve::Linear,
+          Cycle::Forever,
+        )),
+    );
     app.system(AutoPlungerSystem::new(plunge_lane::COIL.name));
     // TODO: action button plunge
   })

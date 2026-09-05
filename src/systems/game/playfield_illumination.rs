@@ -1,7 +1,7 @@
 use frontbox::{prelude::*, tags::GeneralIllumination};
 
 use crate::hardware::arc_ramp;
-use crate::systems::game::ExclusiveModeStarted;
+use crate::systems::game::{ExclusiveModeEnded, ExclusiveModeStarted};
 
 #[derive(Clone)]
 pub struct PlayfieldIllumination {
@@ -32,10 +32,12 @@ impl System for PlayfieldIllumination {
   fn on_event(&mut self, event: &dyn Event, _ctx: &SystemContext) {
     if let Some(ExclusiveModeStarted(mode)) = event.downcast_ref::<ExclusiveModeStarted>() {
       self.set_color(mode.color().lighten(0.4));
+    } else if event.is::<ExclusiveModeEnded>() {
+      self.clear_color();
     }
   }
 
-  fn on_render(&mut self, ctx: &SystemContext) {
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
     if self.update {
       ctx.declare_leds(
         &LedQ::tag::<GeneralIllumination>(),

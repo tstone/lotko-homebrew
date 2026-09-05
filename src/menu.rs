@@ -20,4 +20,6 @@ pub static MENU: LazyLock<MenuSection> = LazyLock::new(|| {
     .section(MenuSection::new("Game"))
     .section(MenuSection::new("Rules"))
     .section(MenuSection::new("Stats"))
+    .terminate()
+    .shutdown()
 });

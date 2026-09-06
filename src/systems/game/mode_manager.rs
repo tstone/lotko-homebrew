@@ -4,7 +4,7 @@ use std::sync::LazyLock;
 
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystem;
-use frontbox_turn_based::{PlayerTurnBeginning, PlayerTurnEnding};
+use frontbox_turn_based::PlayerTurnBeginning;
 
 use crate::hardware::city_map;
 use crate::systems::game::ExclusiveMode;
@@ -109,14 +109,14 @@ impl ModeManager {
     self.render = true;
   }
 
-  fn on_turn_starting(&self, ctx: &SystemContext) {
-    self.crossfade_music(ctx);
-  }
-
-  fn on_turn_ending(&self, ctx: &SystemContext) {
+  fn stop_music(&self, ctx: &SystemContext) {
     ctx
       .expect::<SoundSystem>()
       .stop_music(Duration::from_millis(500));
+  }
+
+  fn on_turn_starting(&self, ctx: &SystemContext) {
+    self.crossfade_music(ctx);
   }
 
   fn crossfade_music(&self, ctx: &SystemContext) {
@@ -136,8 +136,6 @@ impl System for ModeManager {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<PlayerTurnBeginning>() {
       self.on_turn_starting(ctx);
-    } else if event.is::<PlayerTurnEnding>() {
-      self.on_turn_ending(ctx);
     }
   }
 
@@ -185,6 +183,14 @@ impl System for ModeManager {
         ctx.declare_leds(&city_map::SOLARIUM_ATRIUMS.q(), Rgba::white().into());
       }
     }
+  }
+
+  fn on_deactivate(&mut self, ctx: &SystemContext) {
+    self.stop_music(ctx);
+  }
+
+  fn on_despawn(&mut self, ctx: &SystemContext) {
+    self.stop_music(ctx);
   }
 }
 

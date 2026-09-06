@@ -38,18 +38,18 @@ hardware_defs! {
       initial_pwm_length: HardwareValue::config(
         "Rear Scoop Touch Time",
         "Duration by which the eject plunger is brought into contact with the ball, before full eject",
-        Duration::from_millis(7),
+        Duration::from_millis(2),
         Ranges::duration(0, 100),
       ),
       initial_pwm_power: HardwareValue::fixed(
-        Power::THREE_QUARTERS,
+        Power::HALF,
       ),
       secondary_pwm_power: HardwareValue::Fixed(Power::ZERO),
       secondary_pwm_length: HardwareValue::Fixed(Duration::ZERO),
       kick_length: HardwareValue::config(
         "Rear Scoop Eject Time",
         "Duration that the plunger exert full power onto the ball (kick)",
-        Duration::from_millis(13),
+        Duration::from_millis(12),
         Ranges::duration(10, 100),
       ),
       ..Default::default()

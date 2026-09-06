@@ -94,6 +94,17 @@ impl SkyrailStationMode {
         if self.target_hits == 3 {
           log::info!("Skyrail: Final");
           self.state = Final;
+          self.ramp_down(ctx);
+          ctx.add_points(game::points::EXL_COMPLETION);
+
+          self.hit_effect.stop(ctx);
+          self.hit_effect = LedProgram1d::rotating(
+            LedQ::Every,
+            ColorSequence::fade(*MODE_COLOR, MODE_COLOR.lighten(0.5)),
+            Duration::from_millis(1200),
+            Curve::Linear,
+            Cycle::Times(5),
+          );
           return;
         } else {
           self.state = HitRamp;
@@ -149,10 +160,6 @@ impl SkyrailStationMode {
   }
 
   fn complete(&mut self, ctx: &SystemContext) {
-    self.ramp_down(ctx);
-    ctx.add_points(game::points::EXL_COMPLETION);
-
-    // TODO: epic reaction effect
     ctx
       .expect::<ModeManager>()
       .complete_exclusive(ExclusiveMode::SkyrailStation, ctx);
@@ -200,7 +207,7 @@ impl System for SkyrailStationMode {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
 
-    if self.state == Shutdown && self.hit_effect.is_complete() {
+    if self.state == Final && self.hit_effect.is_complete() {
       self.complete(ctx);
     }
   }
@@ -211,7 +218,6 @@ enum State {
   HitRamp,
   HitTarget,
   Final,
-  Shutdown,
 }
 
 #[derive(serde::Serialize, Event)]

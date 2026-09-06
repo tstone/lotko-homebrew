@@ -23,6 +23,7 @@ impl ExclusiveModeQualifier for HydroCoreQualifier {
       Duration::from_millis(2500),
       ctx.into(),
     );
+    ctx.despawn_self();
   }
 
   fn attention_effect() -> LedProgram1d {
@@ -30,6 +31,7 @@ impl ExclusiveModeQualifier for HydroCoreQualifier {
       (&*arc_ramp::HEX_CENTER_LED).at_z(1),
       ColorSequence::solid(Rgba::white()),
     )
-  }}
+  }
+}
 
 pub type HydroCoreQualification = ExclusiveModeQualification<HydroCoreQualifier>;

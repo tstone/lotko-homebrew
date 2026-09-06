@@ -15,6 +15,15 @@ pub mod sounds {
   pub const LANE_HIT_COMPLETE: &str = "lane_hit_complete";
   pub const ARP_HIT1: &str = "arp_hit1";
 
+  pub const HIT_ORGANIC1: &str = "target_hit_organic1";
+  pub const HIT_ORGANIC_LOW1: &str = "target_hit_organic_down1";
+  pub const HIT_ORGANIC2: &str = "target_hit_organic2";
+  pub const HIT_ORGANIC_LOW2: &str = "target_hit_organic_down2";
+  pub const HIT_ORGANIC3: &str = "target_hit_organic3";
+  pub const HIT_ORGANIC_LOW3: &str = "target_hit_organic_down3";
+  pub const HIT_ORGANIC4: &str = "target_hit_organic4";
+  pub const HIT_ORGANIC_LOW4: &str = "target_hit_organic_down4";
+
   pub const HYDRO_CORE_FLUID_ROUTING_ACTIVE: &str = "hc_fra";
   pub const HYDRO_CORE_FOLLOW_THE_SURGE: &str = "hc_fts";
   pub const HYDRO_CORE_ONLINE: &str = "hc_online";
@@ -35,6 +44,19 @@ pub mod sounds_bytes {
   pub static LANE_HIT3: &[u8] = include_bytes!("../assets/sounds/lane-hit-rattle-3.mp3");
   pub static LANE_HIT4: &[u8] = include_bytes!("../assets/sounds/lane-hit-rattle-4.mp3");
   pub static LANE_HIT_COMPLETE: &[u8] = include_bytes!("../assets/sounds/lane-hit-complete.mp3");
+
+  pub static HIT_ORGANIC1: &[u8] = include_bytes!("../assets/sounds/target-hit-organic-1.mp3");
+  pub static HIT_ORGANIC2: &[u8] = include_bytes!("../assets/sounds/target-hit-organic-2.mp3");
+  pub static HIT_ORGANIC3: &[u8] = include_bytes!("../assets/sounds/target-hit-organic-3.mp3");
+  pub static HIT_ORGANIC4: &[u8] = include_bytes!("../assets/sounds/target-hit-organic-4.mp3");
+  pub static HIT_ORGANIC_LOW1: &[u8] =
+    include_bytes!("../assets/sounds/target-hit-organic-1-dwn-oct.mp3");
+  pub static HIT_ORGANIC_LOW2: &[u8] =
+    include_bytes!("../assets/sounds/target-hit-organic-2-dwn-oct.mp3");
+  pub static HIT_ORGANIC_LOW3: &[u8] =
+    include_bytes!("../assets/sounds/target-hit-organic-3-dwn-oct.mp3");
+  pub static HIT_ORGANIC_LOW4: &[u8] =
+    include_bytes!("../assets/sounds/target-hit-organic-4-dwn-oct.mp3");
 
   pub static ARP_HIT1: &[u8] = include_bytes!("../assets/sounds/arp-hit1.mp3");
 
@@ -59,6 +81,15 @@ impl System for SoundLoaderSystem {
     snd.preload_embedded(sounds::LANE_HIT3, sounds_bytes::LANE_HIT3);
     snd.preload_embedded(sounds::LANE_HIT4, sounds_bytes::LANE_HIT4);
     snd.preload_embedded(sounds::LANE_HIT_COMPLETE, sounds_bytes::LANE_HIT_COMPLETE);
+
+    snd.preload_embedded(sounds::HIT_ORGANIC1, sounds_bytes::HIT_ORGANIC1);
+    snd.preload_embedded(sounds::HIT_ORGANIC2, sounds_bytes::HIT_ORGANIC2);
+    snd.preload_embedded(sounds::HIT_ORGANIC3, sounds_bytes::HIT_ORGANIC3);
+    snd.preload_embedded(sounds::HIT_ORGANIC4, sounds_bytes::HIT_ORGANIC4);
+    snd.preload_embedded(sounds::HIT_ORGANIC_LOW1, sounds_bytes::HIT_ORGANIC_LOW1);
+    snd.preload_embedded(sounds::HIT_ORGANIC_LOW2, sounds_bytes::HIT_ORGANIC_LOW2);
+    snd.preload_embedded(sounds::HIT_ORGANIC_LOW3, sounds_bytes::HIT_ORGANIC_LOW3);
+    snd.preload_embedded(sounds::HIT_ORGANIC_LOW4, sounds_bytes::HIT_ORGANIC_LOW4);
 
     snd.preload_embedded(sounds::ARP_HIT1, sounds_bytes::ARP_HIT1);
 

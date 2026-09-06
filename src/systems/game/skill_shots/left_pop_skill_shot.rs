@@ -29,7 +29,7 @@ impl LeftPopSkillShot {
     self.hit_effect = Some(Self::hit_effect());
 
     ctx.play_sfx(sounds::ARP_HIT1);
-    ctx.add_points(150_000);
+    ctx.add_points(500_000);
     ctx.despawn_self();
   }
 
@@ -84,6 +84,10 @@ impl System for LeftPopSkillShot {
       && let Some(game_state) = ctx.expect::<GameManager>().game_state()
       && game_state.current_player_turn_state() == &TurnState::Active
     {
+      log::info!(
+        "LeftPopSkillShot: killed due to switch {}",
+        event.switch.name
+      );
       ctx.despawn_self();
     }
   }

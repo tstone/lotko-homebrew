@@ -12,7 +12,6 @@ use crate::hardware::lift_ramp::LiftRampScoopBallEnter;
 use crate::hardware::lift_ramp::LiftRampSystem;
 use crate::systems::game;
 use crate::systems::game::ExclusiveMode;
-use crate::systems::game::ExclusiveModeEnded;
 use crate::systems::game::ModeManager;
 use crate::systems::game::StartableEffects;
 use crate::systems::game::lift_ramp_startable::State::*;
@@ -277,7 +276,7 @@ enum State {
   WaitingForRampUp(ExclusiveMode),
   /// mode can be started (listening for ball in scoop)
   Startable(ExclusiveMode),
-  /// ball landed in scoope, waiting for hit animation to finish
+  /// ball landed in scoop, waiting for hit animation to finish
   Starting(ExclusiveMode),
   /// failed to start, hit ramp to open again
   RampDown(ExclusiveMode),

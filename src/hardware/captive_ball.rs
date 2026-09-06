@@ -8,8 +8,8 @@ hardware_defs! {
     .tag(Playfield);
 
   pub REST_SWITCH: SwitchDefinition = SwitchDefinition::new("cap_ball_rest")
-    .debounce(Duration::from_millis(10))
-    .tag(Playfield);
+    .debounce(Duration::from_millis(50))
+    .tag(DoesNotCancelSkillshot);
 
   pub LEFT_BOLT: LedDefinition = LedDefinition::single("l_cap_ball_bolt")
     .tag(Bolt)

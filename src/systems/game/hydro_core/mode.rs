@@ -151,10 +151,6 @@ impl HydroCoreMode {
         self.attention_effect = Self::attention_effect(&*center_orbit::HEX_CENTER_LED);
         self.hit_effect = Self::attention_effect(&*center_orbit::HEX_CIRCLE_LEDS);
       }
-      // 4 => {
-      //   self.attention_effect = Self::attention_effect(&*right_orbit::HEX_CENTER_LED);
-      //   self.hit_effect = Self::attention_effect(&*right_orbit::HEX_CIRCLE_LEDS);
-      // }
       5 => {
         self.attention_effect = LedProgram1d::timeline()
           .at(Duration::ZERO, arc_ramp::into_subway_program(*MODE_COLOR))
@@ -195,8 +191,7 @@ impl HydroCoreMode {
 
   fn combo_time_up(&mut self, ctx: &SystemContext) {
     log::info!("HydroCore: Combo time up!");
-
-    // play SFX
+    ctx.play_sfx(sounds::HIT_ORGANIC_LOW1);
     self.restart_combo(ctx);
   }
 
@@ -213,9 +208,17 @@ impl HydroCoreMode {
   }
 
   fn complete(&mut self, ctx: &SystemContext) {
-    ctx.add_points(game::points::EXL_COMPLETION / self.combo_attempts.min(10) as u32);
+    ctx.add_points(game::points::EXL_COMPLETION);
 
-    // TODO: epic reaction effect
+    self.hit_effect.stop(ctx);
+    self.hit_effect = LedProgram1d::rotating(
+      LedQ::Every,
+      ColorSequence::fade(*MODE_COLOR, MODE_COLOR.lighten(0.5)),
+      Duration::from_millis(1200),
+      Curve::Linear,
+      Cycle::Times(5),
+    );
+
     ctx
       .expect::<ModeManager>()
       .complete_exclusive(ExclusiveMode::HydroCore, ctx);

@@ -4,14 +4,12 @@ use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
-use frontbox_turn_based::PlayerTurnBeginning;
 
 use crate::hardware::arc_ramp;
 use crate::hardware::lower_scoop;
 use crate::hardware::lower_scoop::LowerScoopBallEnter;
 use crate::systems::game;
 use crate::systems::game::ExclusiveMode;
-use crate::systems::game::ExclusiveModeEnded;
 use crate::systems::game::ModeManager;
 use crate::systems::game::left_scoop_startable::State::*;
 
@@ -19,9 +17,9 @@ use crate::systems::game::left_scoop_startable::State::*;
 pub struct LeftScoopStartable {
   effects: Option<StartableEffects>,
   state: State,
+  cue_id: Option<u64>,
   // if a current mode is already set, keep track of subsequent startable modes
   additional_modes: VecDeque<ExclusiveMode>,
-  current_mode: Option<ExclusiveMode>,
   handle: SystemHandle,
 }
 
@@ -29,9 +27,9 @@ impl LeftScoopStartable {
   pub fn new() -> Self {
     Self {
       effects: None,
-      state: Startable,
+      state: OpenForStarting,
+      cue_id: None,
       additional_modes: VecDeque::new(),
-      current_mode: None,
       handle: SystemHandle::default(),
     }
   }
@@ -42,49 +40,65 @@ impl LeftScoopStartable {
     activation_delay: Duration,
     ctx: &ServiceContext,
   ) {
-    if self.current_mode.is_none() {
-      self.set_mode(mode);
-      self.state = Startable;
-
-      if activation_delay > Duration::ZERO {
-        self.state = Pending;
-        ctx
-          .for_system(self.handle)
-          .cue(Resume, Cue::Once(activation_delay));
+    match self.state {
+      OpenForStarting => {
+        log::info!("LeftScoopStartable: Scheduling startable for {:?}", mode);
+        self.state = Pending(mode);
+        // start effects now do it doesn't seem like a weird delay
+        self.effects = Some(StartableEffects {
+          hit_effect: Self::hit_effect(&mode),
+          attention_effect: Self::attention_effect(&mode),
+        });
+        self.cue_id = Some(
+          ctx
+            .for_system(self.handle)
+            .cue(BecomeStartable, activation_delay.once()),
+        );
       }
-    } else {
-      self.additional_modes.push_back(mode);
+      _ => {
+        log::info!("LeftScoopStartable: Enqueuing {:?}", mode);
+        self.additional_modes.push_back(mode);
+      }
     }
   }
 
-  fn set_mode(&mut self, mode: ExclusiveMode) {
-    self.current_mode = Some(mode);
-    self.effects = Some(StartableEffects {
-      hit_effect: Self::hit_effect(&mode),
-      attention_effect: Self::attention_effect(&mode),
-    });
+  fn transition_to_startable(&mut self, mode: ExclusiveMode) {
+    self.state = Startable(mode);
+
+    if self.effects.is_none() {
+      self.effects = Some(StartableEffects {
+        hit_effect: Self::hit_effect(&mode),
+        attention_effect: Self::attention_effect(&mode),
+      });
+    }
   }
 
   fn advance_mode(&mut self) {
-    self.current_mode = None;
-    let next_mode = self.additional_modes.pop_front();
-
-    if let Some(next_mode) = next_mode {
-      self.set_mode(next_mode);
+    if let Some(mode) = self.additional_modes.pop_front() {
+      self.transition_to_startable(mode);
+    } else {
+      self.state = OpenForStarting;
     }
   }
 
-  fn start_mode(&mut self, ctx: &SystemContext) {
+  fn start(&mut self, ctx: &SystemContext) {
     // Ensure that exclusive mode rights can be taken
-    if let Some(current) = self.current_mode
-      && let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(current, ctx)
+    if let Startable(mode) = self.state
+      && let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(mode, ctx)
     {
-      if let Some(effects) = self.effects.as_mut() {
-        effects.hit_effect.play();
-      }
+      log::info!("LiftRampStartable: Starting mode {:?}", mode);
+      self.state = Starting(mode);
+      self.effects.as_mut().unwrap().hit_effect.play();
 
-      ctx.play_sfx(current.start_sound());
+      ctx.play_sfx(mode.start_sound());
       ctx.add_points(game::points::EXCL_START);
+    }
+  }
+
+  fn clear_cue(&mut self, ctx: &SystemContext) {
+    if let Some(cue_id) = self.cue_id {
+      ctx.cancel_cue(cue_id);
+      self.cue_id = None;
     }
   }
 
@@ -126,17 +140,11 @@ impl LeftScoopStartable {
 
 impl System for LeftScoopStartable {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    if self.state == Inactive {
-      return false;
-    }
-
     let mode_manager = ctx.expect::<ModeManager>();
-    let mode = mode_manager.current_mode();
-
-    if let Some(current) = self.current_mode {
-      mode.is_none() || *mode == Some(current)
-    } else {
-      mode.is_none()
+    match (&self.state, mode_manager.current_mode()) {
+      (Starting(startable_mode), Some(active_mode)) => active_mode == startable_mode,
+      (_, Some(_)) => false,
+      _ => true,
     }
   }
 
@@ -150,27 +158,23 @@ impl System for LeftScoopStartable {
       effects.hit_effect.apply(delta, ctx);
 
       if effects.hit_effect.is_complete()
-        && let Some(current) = self.current_mode
+        && let Starting(mode) = self.state
       {
         effects.attention_effect.stop(ctx);
         effects.hit_effect.stop(ctx);
+        mode.start(ctx);
         self.advance_mode();
-        current.start(ctx);
-        self.state = Inactive;
       }
     }
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if self.state == Startable && event.is::<LowerScoopBallEnter>() {
-      self.start_mode(ctx);
-    } else if event.is::<Resume>() && self.state == Pending {
-      self.state = Startable;
-    } else if event.is::<ExclusiveModeEnded>() {
-      self.current_mode = None;
-      self.state = Startable;
-    } else if event.is::<PlayerTurnBeginning>() {
-      self.state = Startable;
+    if matches!(self.state, Startable(_)) && event.is::<LowerScoopBallEnter>() {
+      self.start(ctx);
+    } else if event.is::<BecomeStartable>()
+      && let Pending(mode) = self.state
+    {
+      self.transition_to_startable(mode);
     }
   }
 }
@@ -183,10 +187,14 @@ pub struct StartableEffects {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum State {
-  Pending,
-  Startable,
-  Inactive,
+  OpenForStarting,
+  /// waiting for the activation delay to transition into startable
+  Pending(ExclusiveMode),
+  /// mode can be started (listening for ball in scoop)
+  Startable(ExclusiveMode),
+  /// ball landed in scoop, waiting for hit animation to finish
+  Starting(ExclusiveMode),
 }
 
 #[derive(serde::Serialize, Event)]
-struct Resume;
+struct BecomeStartable;

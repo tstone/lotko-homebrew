@@ -10,6 +10,6 @@ pub use qualification::*;
 static MODE_COLOR: LazyLock<Rgba<u8>> = LazyLock::new(|| Rgba::magenta());
 
 mod points {
-  pub static QUAL_HIT: u32 = 1_000;
-  pub static START: u32 = 50_000;
+  pub static QUAL_HIT: u32 = 12_500;
+  pub static START: u32 = 100_000;
 }

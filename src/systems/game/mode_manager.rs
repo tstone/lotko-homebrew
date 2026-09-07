@@ -43,6 +43,7 @@ pub struct ModeManager {
   exclusive_completions: HashSet<ExclusiveMode>,
   non_exclusive_completions: HashSet<NonExclusiveMode>,
   render: bool,
+  default_music_playing: bool,
 }
 
 impl ModeManager {
@@ -53,6 +54,7 @@ impl ModeManager {
       exclusive_completions: HashSet::new(),
       non_exclusive_completions: HashSet::new(),
       render: false,
+      default_music_playing: true,
     }
   }
 
@@ -95,16 +97,20 @@ impl ModeManager {
     }
   }
 
-  pub fn non_exclusive_active(&mut self, mode: NonExclusiveMode) {
+  pub fn non_exclusive_active(&mut self, mode: NonExclusiveMode, ctx: &SystemContext) {
     self.music_priority.push(mode);
+    if self.default_music_playing {
+      self.crossfade_music(ctx);
+    }
   }
 
-  pub fn non_exclusive_inactive(&mut self, mode: &NonExclusiveMode) {
+  pub fn non_exclusive_inactive(&mut self, mode: &NonExclusiveMode, ctx: &SystemContext) {
     self.music_priority.retain(|m| m != mode);
+    self.crossfade_music(ctx);
   }
 
-  pub fn complete_non_exclusive(&mut self, mode: NonExclusiveMode) {
-    self.non_exclusive_inactive(&mode);
+  pub fn complete_non_exclusive(&mut self, mode: NonExclusiveMode, ctx: &SystemContext) {
+    self.non_exclusive_inactive(&mode, ctx);
     self.non_exclusive_completions.insert(mode);
     self.render = true;
   }
@@ -115,17 +121,25 @@ impl ModeManager {
       .stop_music(Duration::from_millis(500));
   }
 
-  fn on_turn_starting(&self, ctx: &SystemContext) {
+  fn on_turn_starting(&mut self, ctx: &SystemContext) {
     self.crossfade_music(ctx);
   }
 
-  fn crossfade_music(&self, ctx: &SystemContext) {
+  fn crossfade_music(&mut self, ctx: &SystemContext) {
     let path = match (&self.exclusive_mode, self.music_priority.get(0)) {
       (Some(mode), _) => EXCL_MODE_MUSIC.get(&mode),
       (_, Some(mode)) => NON_EXCL_MODE_MUSIC.get(&mode),
-      (None, None) => Some(&*DEFAULT_MUSIC),
+      (None, None) => {
+        self.default_music_playing = true;
+        Some(&*DEFAULT_MUSIC)
+      }
     };
-    let path = path.unwrap_or(&*DEFAULT_MUSIC);
+    let path = if let Some(path) = path {
+      path
+    } else {
+      self.default_music_playing = true;
+      &*DEFAULT_MUSIC
+    };
     ctx
       .expect::<SoundSystem>()
       .play_music(path, Duration::from_millis(1000));

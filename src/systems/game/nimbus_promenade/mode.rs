@@ -1,19 +1,22 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::*;
+use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::{GameManagementExt, GameManager, TurnState};
 
 use crate::hardware::pop_cluster::{self, PopBumper};
 use crate::hardware::vspinner;
 use crate::systems::game::nimbus_promenade::MODE_COLOR;
 use crate::systems::game::{ModeManager, NimbusPromenadeQualification, NonExclusiveMode};
+use crate::systems::sounds;
 
 pub struct NimbusPromenadeMode {
   attention_effect: LedProgram1d,
-  hit_effect: Option<LedProgram1d>,
+  hit_effect: LedProgram1d,
   cycle_time: Duration,
   current_pop: PopBumper,
   hits: u8,
   complete: bool,
+  cue_id: Option<u64>,
 }
 
 impl NimbusPromenadeMode {
@@ -21,40 +24,54 @@ impl NimbusPromenadeMode {
     Self {
       attention_effect: Self::attention_effect(&PopBumper::Left, 0),
       cycle_time: Duration::from_millis(1500),
-      hit_effect: None,
+      hit_effect: Self::hit_effect(),
       current_pop: PopBumper::Left,
       hits: 0,
       complete: false,
+      cue_id: None,
     }
   }
 
   fn on_pop_hit(&mut self, pop: &PopBumper, ctx: &SystemContext) {
-    if *pop == self.current_pop {
-      ctx.add_points(15_000);
-
-      self.hits += 1;
-      self.hit_effect = Some(Self::hit_effect());
-      self.advance(ctx);
+    if self.cycle_time > Duration::from_millis(600) {
+      self.cycle_time -= Duration::from_millis(200);
     }
 
-    let required_hits = match self.current_pop {
-      PopBumper::Left => 4,
-      _ => 3,
-    };
-    if self.hits == required_hits {
-      self.complete(ctx);
-      ctx
-        .expect::<ModeManager>()
-        .complete_non_exclusive(NonExclusiveMode::NimbusPromenade);
+    if *pop == self.current_pop {
+      ctx.add_points(50_000);
+
+      self.hits += 1;
+      self.hit_effect.reset();
+      self.hit_effect.play();
+      self.advance(ctx);
+
+      // check for compeltion
+      let required_hits = match self.current_pop {
+        PopBumper::Left => 4,
+        _ => 3,
+      };
+
+      if self.hits == required_hits {
+        self.complete(ctx);
+        ctx
+          .expect::<ModeManager>()
+          .complete_non_exclusive(NonExclusiveMode::NimbusPromenade, ctx);
+      }
+    }
+  }
+
+  fn clear_cue(&mut self, ctx: &SystemContext) {
+    if let Some(cue_id) = self.cue_id.as_mut() {
+      ctx.cancel_cue(*cue_id);
+      self.cue_id = None;
     }
   }
 
   fn advance(&mut self, ctx: &SystemContext) {
+    self.clear_cue(ctx);
+
     if !self.complete {
-      if self.cycle_time > Duration::from_millis(500) {
-        self.cycle_time -= Duration::from_millis(250);
-      }
-      ctx.cue(Next, Cue::Once(self.cycle_time));
+      self.cue_id = Some(ctx.cue(Next, Cue::Once(self.cycle_time)));
 
       self.current_pop = self.current_pop.next();
       self.attention_effect.stop(ctx);
@@ -64,7 +81,16 @@ impl NimbusPromenadeMode {
 
   fn complete(&mut self, ctx: &SystemContext) {
     // play sfx
-    ctx.add_points(5_000_000);
+    ctx.add_points(15_000_000);
+    ctx.play_sfx(sounds::LANE_HIT_COMPLETE);
+
+    self.hit_effect.stop(ctx);
+    self.hit_effect = LedProgram1d::flash(
+      LedQ::Every,
+      ColorSequence::fade(*MODE_COLOR, Rgba::red()),
+      Cycle::Times(2),
+    );
+
     self.complete = true;
   }
 
@@ -94,10 +120,11 @@ impl NimbusPromenadeMode {
         &vspinner::lower_right_ray::Q,
       ]),
       ColorSequence::fade(*MODE_COLOR, Rgba::white()),
-      Duration::from_millis(1250),
-      Curve::BounceInOut,
-      Cycle::Times(3),
+      Duration::from_millis(450),
+      Curve::EaseOut,
+      Cycle::Once,
     )
+    .stopped()
   }
 }
 
@@ -111,10 +138,10 @@ impl System for NimbusPromenadeMode {
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    ctx.cue(Next, Cue::Once(Duration::from_millis(1750)));
+    self.cue_id = Some(ctx.cue(Next, Cue::Once(Duration::from_millis(1750))));
     ctx
       .expect::<ModeManager>()
-      .non_exclusive_active(NonExclusiveMode::NimbusPromenade);
+      .non_exclusive_active(NonExclusiveMode::NimbusPromenade, ctx);
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
@@ -132,18 +159,10 @@ impl System for NimbusPromenadeMode {
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
 
-    if let Some(hit_effect) = self.hit_effect.as_mut() {
-      hit_effect.apply(delta, ctx);
-
-      if hit_effect.is_complete() {
-        hit_effect.stop(ctx);
-        self.hit_effect = None;
-
-        if self.complete {
-          ctx.replace_self(NimbusPromenadeQualification::new());
-        }
-      }
+    if self.hit_effect.is_complete() && self.complete {
+      ctx.replace_self(NimbusPromenadeQualification::new());
     }
+    self.hit_effect.apply(delta, ctx);
   }
 }
 

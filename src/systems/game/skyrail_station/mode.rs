@@ -5,8 +5,8 @@ use frontbox_turn_based::{GameManagementExt, PlayerTurnActive};
 
 use crate::hardware::drop_bank::{self, DropBankSystem, DropBankTargetHit};
 use crate::hardware::flashers::FlashersSystem;
+use crate::hardware::lift_ramp;
 use crate::hardware::lift_ramp::{LiftRampHit, LiftRampScoopBallEnter, LiftRampSystem};
-use crate::hardware::{arc_ramp, lift_ramp};
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{

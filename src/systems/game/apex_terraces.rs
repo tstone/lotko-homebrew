@@ -81,21 +81,23 @@ impl ApexTerracesMode {
   }
 
   fn jackpot_qualifications_met(&self) -> bool {
-    *self.hits.get(&Target::LowerSling).unwrap_or(&0) > 2
-      && *self.hits.get(&Target::Pop(PopBumper::Left)).unwrap_or(&0) > 2
+    *self.hits.get(&Target::LowerSling).unwrap_or(&0) > 0
+      && *self.hits.get(&Target::Pop(PopBumper::Left)).unwrap_or(&0) > 1
       && *self
         .hits
         .get(&Target::Pop(PopBumper::UpperRight))
         .unwrap_or(&0)
-        > 2
+        > 1
       && *self
         .hits
         .get(&Target::Pop(PopBumper::LowerRight))
         .unwrap_or(&0)
-        > 2
+        > 1
   }
 
   fn start_jackpot(&mut self, ctx: &SystemContext) {
+    log::info!("ApexTerraces: starting jackpot mode");
+
     ctx
       .expect::<ModeManager>()
       .non_exclusive_active(NonExclusiveMode::ApexTerraces, ctx);
@@ -163,6 +165,8 @@ impl ApexTerracesMode {
 impl System for ApexTerracesMode {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<JackpotOver>() {
+      log::info!("ApexTerraces: jackpot complete");
+
       ctx
         .expect::<ModeManager>()
         .complete_non_exclusive(NonExclusiveMode::ApexTerraces, ctx);

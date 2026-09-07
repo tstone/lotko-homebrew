@@ -95,13 +95,6 @@ impl LeftScoopStartable {
     }
   }
 
-  fn clear_cue(&mut self, ctx: &SystemContext) {
-    if let Some(cue_id) = self.cue_id {
-      ctx.cancel_cue(cue_id);
-      self.cue_id = None;
-    }
-  }
-
   fn attention_effect(mode: &ExclusiveMode) -> LedProgram1d {
     LedProgram1d::timeline()
       .at(

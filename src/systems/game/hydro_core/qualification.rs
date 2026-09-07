@@ -1,4 +1,3 @@
-use frontbox::animation::*;
 use frontbox::prelude::*;
 
 use crate::hardware::arc_ramp;

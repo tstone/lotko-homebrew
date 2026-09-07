@@ -4,7 +4,7 @@ use std::sync::LazyLock;
 
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystem;
-use frontbox_turn_based::PlayerTurnBeginning;
+use frontbox_turn_based::{PlayerTurnBeginning, PlayerTurnEnding};
 
 use crate::hardware::city_map;
 use crate::systems::game::ExclusiveMode;
@@ -136,6 +136,8 @@ impl System for ModeManager {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<PlayerTurnBeginning>() {
       self.on_turn_starting(ctx);
+    } else if event.is::<PlayerTurnEnding>() {
+      self.stop_music(ctx);
     }
   }
 
@@ -183,10 +185,6 @@ impl System for ModeManager {
         ctx.declare_leds(&city_map::SOLARIUM_ATRIUMS.q(), Rgba::white().into());
       }
     }
-  }
-
-  fn on_deactivate(&mut self, ctx: &SystemContext) {
-    self.stop_music(ctx);
   }
 
   fn on_despawn(&mut self, ctx: &SystemContext) {

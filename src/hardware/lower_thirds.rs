@@ -54,7 +54,7 @@ pub mod slingshots {
   use super::*;
 
   hardware_defs! {
-    pub LEFT_SWITCH: SwitchDefinition = SwitchDefinition::new("l_sling").debounce_close(Duration::from_millis(8));
+    pub LEFT_SWITCH: SwitchDefinition = SwitchDefinition::new("l_sling").debounce_close(Duration::from_millis(20));
     pub RIGHT_SWITCH: SwitchDefinition = SwitchDefinition::new("r_sling");
 
     // -- Coils --

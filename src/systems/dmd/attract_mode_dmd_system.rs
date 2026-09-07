@@ -188,6 +188,7 @@ impl System for AttractModeDmdSystem {
     if event.is::<NextScreen>() {
       self.state = self.state.next();
     } else if let Some(GameEnded { scores }) = event.downcast_ref::<GameEnded>() {
+      log::info!("AttractDmd: Game ended. Capturing scores.");
       self.last_scores = Some(scores.clone());
       // jump to last scores so players can see what they finished with
       self.state = AttractDmdScreen::LastScores(0);

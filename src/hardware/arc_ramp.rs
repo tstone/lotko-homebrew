@@ -55,7 +55,7 @@ pub static HEX_CIRCLE_LEDS: LazyLock<LedQ> = LazyLock::new(|| {
 
 pub fn into_subway_program(color: Rgba<u8>) -> LedProgram1d {
   LedProgram1d::rotating(
-    ARC_LEDS.q().range(0..6),
+    ARC_LEDS.q().range(0..6).reverse(),
     ColorSequence::exact(vec![color, color.darken(0.2), color.darken(0.4)]),
     Duration::from_millis(500),
     Curve::EaseIn,

@@ -54,7 +54,7 @@ pub mod slingshots {
   use super::*;
 
   hardware_defs! {
-    pub LEFT_SWITCH: SwitchDefinition = SwitchDefinition::new("l_sling").debounce_close(Duration::from_millis(20));
+    pub LEFT_SWITCH: SwitchDefinition = SwitchDefinition::new("l_sling").debounce_close(Duration::from_millis(15));
     pub RIGHT_SWITCH: SwitchDefinition = SwitchDefinition::new("r_sling");
 
     // -- Coils --
@@ -62,7 +62,7 @@ pub mod slingshots {
     pub LEFT_COIL: DriverDefinition = DriverDefinition::new("l_sling_coil")
       .mode(PulseMode {
         trigger_mode: DriverTriggerMode::Switch(LEFT_SWITCH.name),
-        initial_pwm_power: HardwareValue::config("Left Sling Power", "Power of the left slingshot", Power::HALF, Ranges::full_power()),
+        initial_pwm_power: HardwareValue::config("Left Sling Power", "Power of the left slingshot", Power::THREE_QUARTERS, Ranges::full_power()),
         ..Default::default()
       })
       .tag(Playfield);

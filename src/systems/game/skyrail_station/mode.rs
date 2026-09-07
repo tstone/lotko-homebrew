@@ -4,9 +4,9 @@ use frontbox::prelude::*;
 use frontbox_turn_based::{GameManagementExt, PlayerTurnActive};
 
 use crate::hardware::drop_bank::{self, DropBankSystem, DropBankTargetHit};
-use crate::hardware::flashers::FlashersSystem;
-use crate::hardware::lift_ramp;
+use crate::hardware::flashers::{self, FlashersSystem};
 use crate::hardware::lift_ramp::{LiftRampHit, LiftRampScoopBallEnter, LiftRampSystem};
+use crate::hardware::{backbox, lift_ramp};
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
@@ -16,6 +16,7 @@ use crate::systems::game::{
 pub struct SkyrailStationMode {
   attention_effect: LedProgram1d,
   hit_effect: LedProgram1d,
+  intensity_effect: LedProgram1d,
   target_hits: u8,
   state: State,
   ramp_up: bool,
@@ -26,6 +27,7 @@ impl SkyrailStationMode {
     Self {
       attention_effect: Self::attention_effect_ramp(),
       hit_effect: Self::hit_effect(),
+      intensity_effect: Self::intensity_effect(),
       target_hits: 0,
       state: HitRamp,
       ramp_up: false,
@@ -77,6 +79,36 @@ impl SkyrailStationMode {
     .stopped()
   }
 
+  fn intensity_effect() -> LedProgram1d {
+    LedProgram1d::multi(vec![
+      LedProgram1d::rotating(
+        LedQ::any(vec![
+          &flashers::LEFT_FLASHER.q(),
+          &flashers::CENTER_FLASHER.q(),
+        ]),
+        ColorSequence::exact(vec![Rgba::white(), Rgba::white().lighten(0.4)]),
+        Duration::from_millis(250),
+        Curve::Linear,
+        Cycle::Forever,
+      ),
+      LedProgram1d::rotating(
+        backbox::LEFT_SPEAKER_LEDS.q().reverse(),
+        ColorSequence::exact(vec![*MODE_COLOR, *MODE_COLOR, *MODE_COLOR, *MODE_COLOR]),
+        Duration::from_millis(250),
+        Curve::Linear,
+        Cycle::Forever,
+      ),
+      LedProgram1d::rotating(
+        backbox::LEFT_SPEAKER_LEDS.q().reverse(),
+        ColorSequence::exact(vec![*MODE_COLOR, *MODE_COLOR, *MODE_COLOR, *MODE_COLOR]),
+        Duration::from_millis(250),
+        Curve::Linear,
+        Cycle::Forever,
+      ),
+    ])
+    .stopped()
+  }
+
   fn advance(&mut self, ctx: &SystemContext) {
     ctx.add_points(points::EXL_MODE_HIT);
     self.hit_effect.play();
@@ -98,15 +130,36 @@ impl SkyrailStationMode {
           ctx.add_points(game::points::EXL_COMPLETION);
 
           self.hit_effect.stop(ctx);
-          self.hit_effect = LedProgram1d::rotating(
-            LedQ::Every,
-            ColorSequence::fade(*MODE_COLOR, MODE_COLOR.lighten(0.5)),
-            Duration::from_millis(1200),
-            Curve::Linear,
-            Cycle::Times(5),
-          );
+          self.hit_effect = LedProgram1d::timeline()
+            .at(
+              Duration::ZERO,
+              LedProgram1d::rotating(
+                LedQ::Every,
+                ColorSequence::fade(*MODE_COLOR, MODE_COLOR.lighten(0.5)),
+                Duration::from_millis(1200),
+                Curve::Linear,
+                Cycle::Times(3),
+              ),
+            )
+            .at(
+              Duration::from_millis(3600),
+              LedProgram1d::tween(
+                LedQ::Every,
+                Duration::from_millis(1250),
+                Curve::EaseIn,
+                Cycle::Once,
+                vec![
+                  ColorSequence::fade(*MODE_COLOR, MODE_COLOR.lighten(0.5)),
+                  ColorSequence::solid(Rgba::default()),
+                ],
+              ),
+            );
           return;
         } else {
+          if self.target_hits == 2 {
+            self.intensity_effect.play();
+          }
+
           self.state = HitRamp;
           self.attention_effect = Self::attention_effect_ramp();
           self.ramp_down(ctx);
@@ -206,6 +259,7 @@ impl System for SkyrailStationMode {
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
+    self.intensity_effect.apply(delta, ctx);
 
     if self.state == Final && self.hit_effect.is_complete() {
       self.complete(ctx);

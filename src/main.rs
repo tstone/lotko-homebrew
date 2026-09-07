@@ -110,10 +110,13 @@ async fn main() {
         ModeManager::new(),
         LeftScoopStartable::new(),
         LiftRampStartable::new(),
+        // exclusive
         HydroCoreQualification::new(),
         SkyrailStationQualification::new(),
+        // SolariumAtriumQualification::new(),
+        // non-exclusive
         NimbusPromenadeQualification::new(),
-        SolariumAtriumQualification::new(),
+        ApexTerracesMode::new(),
       ],
       SwitchQ::tag::<tags::Playfield>(),
     ));

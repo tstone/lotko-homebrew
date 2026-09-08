@@ -4,10 +4,8 @@ use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
-use frontbox_turn_based::PlayerTurnEnding;
 
 use crate::hardware::lift_ramp;
-use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::lift_ramp::LiftRampScoopBallEnter;
 use crate::hardware::lift_ramp::LiftRampSystem;
 use crate::systems::game;
@@ -20,8 +18,6 @@ use crate::systems::game::lift_ramp_startable::State::*;
 pub struct LiftRampStartable {
   effects: Option<StartableEffects>,
   state: State,
-  ramp_up_duration: Duration,
-  ramp_downs: u8,
   cue_id: Option<u64>,
   // if a current mode is already set, keep track of subsequent startable modes
   additional_modes: VecDeque<ExclusiveMode>,
@@ -39,8 +35,6 @@ impl LiftRampStartable {
     Self {
       effects: None,
       state: OpenForStarting,
-      ramp_up_duration: Duration::from_secs(20),
-      ramp_downs: 0,
       cue_id: None,
       additional_modes: VecDeque::new(),
       handle: SystemHandle::default(),
@@ -78,11 +72,9 @@ impl LiftRampStartable {
     }
   }
 
-  fn start(&mut self, ctx: &SystemContext) {
+  fn start(&mut self, mode: ExclusiveMode, ctx: &SystemContext) {
     // Ensure that exclusive mode rights can be taken
-    if let Startable(mode) = self.state
-      && let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(mode, ctx)
-    {
+    if let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(mode, ctx) {
       log::info!("LiftRampStartable: Starting mode {:?}", mode);
       self.state = Starting(mode);
       self.effects.as_mut().unwrap().hit_effect.play();
@@ -105,9 +97,7 @@ impl LiftRampStartable {
 
   fn ramp_up(&mut self, ctx: &SystemContext) {
     log::info!("LiftRampStartable: Ramp up at state {:?}", self.state);
-
     self.clear_cue(ctx);
-    self.cue_id = Some(ctx.cue(TimeOut, self.ramp_up_duration.once()));
     ctx.expect::<LiftRampSystem>().lift_up(ctx.into());
 
     if let Some(effects) = self.effects.as_mut() {
@@ -117,29 +107,16 @@ impl LiftRampStartable {
 
     if let Startable(mode) = self.state {
       self.effects = Some(StartableEffects {
-        attention_effect: Self::attention_effect_ramp_up(&mode),
-        hit_effect: Self::hit_effect_ramp_up(&mode),
+        attention_effect: Self::attention_effect(&mode),
+        hit_effect: Self::hit_effect(&mode),
       });
     } else {
       log::warn!("LiftRampStartable: lifting ramp up but mode is not startable so LEDs not set");
     }
   }
 
-  fn ramp_down(&mut self, forced: bool, ctx: &SystemContext) {
+  fn ramp_down(&mut self, ctx: &SystemContext) {
     log::info!("LiftRampStartable: Ramp down at state {:?}", self.state);
-
-    if !forced {
-      self.ramp_downs += 1;
-      self.ramp_up_duration = self.ramp_up_duration + Duration::from_secs(5);
-    }
-
-    self.state = match self.state {
-      WaitingForRampUp(mode) => RampDown(mode),
-      Startable(mode) => RampDown(mode),
-      Starting(mode) => RampDown(mode),
-      RampDown(mode) => RampDown(mode),
-      _ => OpenForStarting,
-    };
 
     self.clear_cue(ctx);
     ctx.expect::<LiftRampSystem>().lift_down(ctx.into());
@@ -148,28 +125,13 @@ impl LiftRampStartable {
       effects.attention_effect.stop(ctx);
       effects.hit_effect.stop(ctx);
     }
-
-    if !forced && let Startable(mode) = self.state {
-      self.effects = Some(StartableEffects {
-        attention_effect: Self::attention_effect_ramp_down(&mode),
-        hit_effect: Self::hit_effect_ramp_down(&mode),
-      });
-    }
   }
 
-  fn attention_effect_ramp_up(mode: &ExclusiveMode) -> LedProgram1d {
+  fn attention_effect(mode: &ExclusiveMode) -> LedProgram1d {
     LedProgram1d::flash(lift_ramp::BOLT_LED.q(), mode.color().into(), Cycle::Forever)
   }
 
-  fn attention_effect_ramp_down(mode: &ExclusiveMode) -> LedProgram1d {
-    LedProgram1d::flash(
-      &*lift_ramp::HEX_CENTER_LED,
-      mode.color().into(),
-      Cycle::Forever,
-    )
-  }
-
-  fn hit_effect_ramp_up(mode: &ExclusiveMode) -> LedProgram1d {
+  fn hit_effect(mode: &ExclusiveMode) -> LedProgram1d {
     LedProgram1d::tween(
       LedQ::tag::<tags::Playfield>().at_z(-1),
       Duration::from_millis(750),
@@ -181,19 +143,6 @@ impl LiftRampStartable {
       ],
     )
     .stopped()
-  }
-
-  fn hit_effect_ramp_down(mode: &ExclusiveMode) -> LedProgram1d {
-    LedProgram1d::tween(
-      lift_ramp::HEX_LEDS.q().at_z(-1),
-      Duration::from_millis(750),
-      Curve::EaseIn,
-      Cycle::Once,
-      vec![
-        ColorSequence::solid(mode.color()),
-        ColorSequence::solid(Rgba::default()),
-      ],
-    )
   }
 }
 
@@ -210,15 +159,19 @@ impl System for LiftRampStartable {
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     log::info!("LiftRampStartable: Deactivating at state {:?}", self.state);
     ctx.deactivate_led_declarations();
-    if matches!(&self.state, Startable(_)) {
-      self.ramp_down(true, ctx);
+
+    let is_ramp_up = ctx.expect::<LiftRampSystem>().is_lifted();
+    if is_ramp_up {
+      self.ramp_down(ctx);
     }
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
     log::info!("LiftRampStartable: Reactivating at state {:?}", self.state);
     ctx.activate_led_declarations();
-    if let Startable(_) = self.state {
+
+    let is_ramp_up = ctx.expect::<LiftRampSystem>().is_lifted();
+    if !is_ramp_up && let Startable(_) = self.state {
       self.ramp_up(ctx);
       log::info!("LiftRampStartable: Reactivate => ramp up");
     }
@@ -245,19 +198,10 @@ impl System for LiftRampStartable {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<LiftRampScoopBallEnter>() {
-      self.start(ctx);
-    } else if event.is::<LiftRampHit>()
-      && let RampDown(mode) = self.state
+    if event.is::<LiftRampScoopBallEnter>()
+      && let Startable(mode) = self.state
     {
-      log::info!("LiftRampStartable: Lift ramp hit => ramp up");
-      self.state = Startable(mode);
-      self.ramp_up(ctx);
-    } else if event.is::<TimeOut>() {
-      self.ramp_down(false, ctx);
-    } else if event.is::<PlayerTurnEnding>() {
-      log::info!("LiftRampStartable: Player turn ending. Downing ramp.");
-      self.ramp_down(true, ctx);
+      self.start(mode, ctx);
     } else if event.is::<RampUp>()
       && let WaitingForRampUp(mode) = self.state
     {
@@ -272,18 +216,13 @@ impl System for LiftRampStartable {
 enum State {
   /// no modes in queue
   OpenForStarting,
-  /// mode will be startable but ramp needs to come upfirst
+  /// mode will be startable but ramp needs to come up first
   WaitingForRampUp(ExclusiveMode),
   /// mode can be started (listening for ball in scoop)
   Startable(ExclusiveMode),
   /// ball landed in scoop, waiting for hit animation to finish
   Starting(ExclusiveMode),
-  /// failed to start, hit ramp to open again
-  RampDown(ExclusiveMode),
 }
 
 #[derive(serde::Serialize, Event)]
 struct RampUp;
-
-#[derive(serde::Serialize, Event)]
-struct TimeOut;

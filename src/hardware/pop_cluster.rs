@@ -36,7 +36,7 @@ pub mod left {
 
     pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("l_spoon").tag(Playfield);
     pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("l_target")
-      .debounce_close(Duration::from_millis(20))
+      .debounce_close(Duration::from_millis(50))
       .tag(Playfield);
 
     pub POP_LED: LedDefinition = LedDefinition::single("l_pop_led")

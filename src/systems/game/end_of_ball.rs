@@ -64,7 +64,7 @@ impl EndOfBallSystem {
 
 impl System for EndOfBallSystem {
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    ctx.register_interrupt::<GameEnded>(1);
+    // ctx.register_interrupt::<GameEnded>(1);
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

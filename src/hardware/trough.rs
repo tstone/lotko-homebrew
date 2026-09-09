@@ -26,9 +26,9 @@ pub fn system() -> TroughSystem {
       SWITCH1.name,
       SWITCH2.name,
       SWITCH3.name,
-      // SWITCH4.name,
-      // SWITCH5.name,
-      // SWITCH6.name,
+      SWITCH4.name,
+      SWITCH5.name,
+      SWITCH6.name,
     ],
   )
 }

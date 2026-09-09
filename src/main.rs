@@ -105,7 +105,7 @@ async fn main() {
         PlayfieldIllumination::new(),
         SkillshotManager::new(),
         FlashersSystem::new(),
-        MultiballSystem::new(Duration::from_secs(8), ball_save_effect),
+        MultiballSystem::new(Duration::from_secs(16), ball_save_effect),
         // modes
         ModeManager::new(),
         LeftScoopStartable::new(),

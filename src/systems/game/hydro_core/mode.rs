@@ -10,11 +10,12 @@ use frontbox_turn_based::{GameManagementExt, PlayerTurnEnding};
 use crate::hardware::arc_ramp::{ArcRampHit, ArcRampSubwayHit};
 use crate::hardware::backbox::{LEFT_SPEAKER_LEDS, RIGHT_SPEAKER_LEDS};
 use crate::hardware::center_orbit::CenterOrbitHit;
+use crate::hardware::dome_ramp::DomeRampHit;
 use crate::hardware::flashers::{self, FlashersSystem};
 use crate::hardware::left_orbit::LeftOrbitHit;
 use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::more_tags::ArcRamp;
-use crate::hardware::{arc_ramp, center_orbit, city_map, left_orbit, lift_ramp};
+use crate::hardware::{arc_ramp, center_orbit, city_map, dome_ramp, left_orbit, lift_ramp};
 use crate::systems::game::hydro_core::MODE_COLOR;
 use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable};
 use crate::systems::game::{HydroCoreQualification, ModeManager};
@@ -138,7 +139,7 @@ impl HydroCoreMode {
   }
 
   fn progress_effect(duration: Duration) -> LedProgram1d {
-    LedProgram1d::progress_time_accumulated(
+    LedProgram1d::progress_time_remaining(
       city_map::SPORE_COUNT_BAR.q().reverse(),
       ColorSequence::fade(Rgba::blue(), *MODE_COLOR),
       duration,
@@ -220,13 +221,8 @@ impl HydroCoreMode {
         self.intensity_effect.play();
       }
       5 => {
-        self.attention_effect = LedProgram1d::timeline()
-          .at(Duration::ZERO, arc_ramp::into_subway_program(*MODE_COLOR))
-          .at(
-            Duration::ZERO,
-            Self::attention_effect(&*arc_ramp::HEX_CIRCLE_LEDS),
-          );
-        self.hit_effect = Self::attention_effect(&*arc_ramp::HEX_CIRCLE_LEDS);
+        self.attention_effect = Self::attention_effect(&*dome_ramp::HEX_CENTER_LED);
+        self.hit_effect = Self::attention_effect(&*dome_ramp::HEX_CIRCLE_LEDS);
       }
       _ => panic!("Cannot set program for unknown shot: {}", shot),
     };
@@ -266,7 +262,7 @@ impl HydroCoreMode {
   fn revert_to_startable(&mut self, ctx: &SystemContext) {
     ctx
       .expect::<ModeManager>()
-      .release_exclusive(&ExclusiveMode::HydroCore, ctx);
+      .release_exclusive(&ExclusiveMode::HydroCore, ctx.into());
     ctx.expect::<LeftScoopStartable>().make_startable(
       ExclusiveMode::HydroCore,
       Duration::ZERO,
@@ -279,7 +275,7 @@ impl HydroCoreMode {
     ctx.add_points(game::points::EXL_COMPLETION);
     ctx
       .expect::<ModeManager>()
-      .complete_exclusive(ExclusiveMode::HydroCore, ctx);
+      .complete_exclusive(ExclusiveMode::HydroCore, ctx.into());
     ctx.replace_self(HydroCoreQualification::new());
   }
 }
@@ -319,7 +315,7 @@ impl System for HydroCoreMode {
       self.combo_hit(ctx);
     } else if self.current_combo_shot == 4 && event.is::<CenterOrbitHit>() {
       self.combo_hit(ctx);
-    } else if self.current_combo_shot == 5 && event.is::<ArcRampSubwayHit>() {
+    } else if self.current_combo_shot == 5 && event.is::<DomeRampHit>() {
       self.combo_hit(ctx);
     } else if event.is::<ComboTimeUp>() {
       self.combo_time_up(ctx);

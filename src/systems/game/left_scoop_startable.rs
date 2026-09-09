@@ -86,7 +86,7 @@ impl LeftScoopStartable {
   fn start(&mut self, ctx: &SystemContext) {
     // Ensure that exclusive mode rights can be taken
     if let Startable(mode) = self.state
-      && let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(mode, ctx)
+      && let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(mode, ctx.into())
     {
       log::info!("LiftRampStartable: Starting mode {:?}", mode);
       self.state = Starting(mode);

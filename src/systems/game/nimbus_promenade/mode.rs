@@ -35,7 +35,7 @@ impl NimbusPromenadeMode {
 
   fn on_pop_hit(&mut self, pop: &PopBumper, ctx: &SystemContext) {
     if self.cycle_time > Duration::from_millis(600) {
-      self.cycle_time -= Duration::from_millis(250);
+      self.cycle_time -= Duration::from_millis(350);
     }
 
     if *pop == self.current_pop {
@@ -56,7 +56,7 @@ impl NimbusPromenadeMode {
         self.complete(ctx);
         ctx
           .expect::<ModeManager>()
-          .complete_non_exclusive(NonExclusiveMode::NimbusPromenade, ctx);
+          .complete_non_exclusive(NonExclusiveMode::NimbusPromenade, ctx.into());
       }
     }
   }
@@ -142,7 +142,7 @@ impl System for NimbusPromenadeMode {
     self.cue_id = Some(ctx.cue(Next, Cue::Once(Duration::from_millis(1750))));
     ctx
       .expect::<ModeManager>()
-      .non_exclusive_active(NonExclusiveMode::NimbusPromenade, ctx);
+      .non_exclusive_active(NonExclusiveMode::NimbusPromenade, ctx.into());
     ctx.multiball_add_balls(1);
   }
 

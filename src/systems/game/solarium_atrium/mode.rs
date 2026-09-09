@@ -55,7 +55,7 @@ impl SolariumAtriumMode {
   fn revert_to_startable(&mut self, ctx: &SystemContext) {
     ctx
       .expect::<ModeManager>()
-      .release_exclusive(&ExclusiveMode::SolariumAtrium, ctx);
+      .release_exclusive(&ExclusiveMode::SolariumAtrium, ctx.into());
     ctx.expect::<LeftScoopStartable>().make_startable(
       ExclusiveMode::SolariumAtrium,
       Duration::ZERO,
@@ -85,7 +85,7 @@ impl SolariumAtriumMode {
     // TODO: epic reaction effect
     ctx
       .expect::<ModeManager>()
-      .complete_exclusive(ExclusiveMode::SolariumAtrium, ctx);
+      .complete_exclusive(ExclusiveMode::SolariumAtrium, ctx.into());
     ctx.replace_self(SolariumAtriumQualification::new());
   }
 

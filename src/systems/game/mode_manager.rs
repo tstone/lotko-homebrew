@@ -34,23 +34,23 @@ static NON_EXCL_MODE_MUSIC: LazyLock<HashMap<NonExclusiveMode, PathBuf>> = LazyL
 
 #[derive(Clone)]
 pub struct ModeManager {
+  handle: SystemHandle,
   exclusive_mode: Option<ExclusiveMode>,
   music_priority: Vec<NonExclusiveMode>,
   exclusive_completions: HashSet<ExclusiveMode>,
   non_exclusive_completions: HashSet<NonExclusiveMode>,
-  render: bool,
-  default_music_playing: bool,
+  current_music: Option<PathBuf>,
 }
 
 impl ModeManager {
   pub fn new() -> Self {
     Self {
+      handle: SystemHandle::default(),
       exclusive_mode: None,
       music_priority: Vec::new(),
       exclusive_completions: HashSet::new(),
       non_exclusive_completions: HashSet::new(),
-      render: false,
-      default_music_playing: true,
+      current_music: None,
     }
   }
 
@@ -58,7 +58,11 @@ impl ModeManager {
     &self.exclusive_mode
   }
 
-  pub fn take_exclusive(&mut self, mode: ExclusiveMode, ctx: &SystemContext) -> Result<(), String> {
+  pub fn take_exclusive(
+    &mut self,
+    mode: ExclusiveMode,
+    ctx: &ServiceContext,
+  ) -> Result<(), String> {
     if let Some(existing) = &self.exclusive_mode {
       let msg = format!(
         "Cannot start {:?} because {:?} already has exclusive.",
@@ -67,134 +71,192 @@ impl ModeManager {
       log::warn!("{}", msg);
       Err(msg)
     } else {
+      let ctx = &ctx.for_system(self.handle);
       self.exclusive_mode = Some(mode);
+      log::info!("ModeManager: taking exclusive (playing music)");
       self.crossfade_music(ctx);
       ctx.emit(ExclusiveModeStarted(mode.clone()));
       Ok(())
     }
   }
 
-  pub fn complete_exclusive(&mut self, mode: ExclusiveMode, ctx: &SystemContext) {
+  pub fn complete_exclusive(&mut self, mode: ExclusiveMode, ctx: &ServiceContext) {
+    log::info!("Modes: Exclusive completed {:?}", mode);
     self.release_exclusive(&mode, ctx);
     self.exclusive_completions.insert(mode);
-    self.render = true;
+    let ctx = &ctx.for_system(self.handle);
+    self.render_map(ctx);
   }
 
-  pub fn release_exclusive(&mut self, mode: &ExclusiveMode, ctx: &SystemContext) {
+  pub fn release_exclusive(&mut self, mode: &ExclusiveMode, ctx: &ServiceContext) {
     if self
       .exclusive_mode
       .as_ref()
       .map(|m| m == mode)
       .unwrap_or(false)
     {
+      let ctx = &ctx.for_system(self.handle);
       self.exclusive_mode = None;
+      log::info!("ModeManager: releasing_exclusive (playing music)");
       self.crossfade_music(ctx);
       ctx.emit(ExclusiveModeEnded);
     }
   }
 
-  pub fn non_exclusive_active(&mut self, mode: NonExclusiveMode, ctx: &SystemContext) {
-    self.music_priority.push(mode);
-    if self.default_music_playing {
+  pub fn non_exclusive_active(&mut self, mode: NonExclusiveMode, ctx: &ServiceContext) {
+    let ctx = &ctx.for_system(self.handle);
+    self.music_priority.push(mode.clone());
+    if self.is_default_music_playing() {
+      log::info!(
+        "ModeManager: non-exclusive active {:?} (playing music)",
+        mode
+      );
       self.crossfade_music(ctx);
     }
   }
 
-  pub fn non_exclusive_inactive(&mut self, mode: &NonExclusiveMode, ctx: &SystemContext) {
+  pub fn non_exclusive_inactive(&mut self, mode: &NonExclusiveMode, ctx: &ServiceContext) {
+    let ctx = &ctx.for_system(self.handle);
     self.music_priority.retain(|m| m != mode);
+    log::info!("ModeManager: non-exclusive inactive (playing music)");
     self.crossfade_music(ctx);
   }
 
-  pub fn complete_non_exclusive(&mut self, mode: NonExclusiveMode, ctx: &SystemContext) {
+  pub fn complete_non_exclusive(&mut self, mode: NonExclusiveMode, ctx: &ServiceContext) {
+    log::info!("Modes: Non-exclusive completed {:?}", mode);
     self.non_exclusive_inactive(&mode, ctx);
     self.non_exclusive_completions.insert(mode);
-    self.render = true;
+    let ctx = &ctx.for_system(self.handle);
+    self.render_map(ctx);
   }
 
-  fn stop_music(&self, ctx: &SystemContext) {
+  fn stop_music(&mut self, ctx: &SystemContext) {
     ctx
       .expect::<SoundSystem>()
       .stop_music(Duration::from_millis(500));
-  }
-
-  fn on_turn_starting(&mut self, ctx: &SystemContext) {
-    self.crossfade_music(ctx);
+    self.current_music = None;
   }
 
   fn crossfade_music(&mut self, ctx: &SystemContext) {
     let path = match (&self.exclusive_mode, self.music_priority.get(0)) {
       (Some(mode), _) => EXCL_MODE_MUSIC.get(&mode),
       (_, Some(mode)) => NON_EXCL_MODE_MUSIC.get(&mode),
-      (None, None) => {
-        self.default_music_playing = true;
-        Some(&*DEFAULT_MUSIC)
-      }
+      (None, None) => Some(&*DEFAULT_MUSIC),
     };
     let path = if let Some(path) = path {
       path
     } else {
-      self.default_music_playing = true;
       &*DEFAULT_MUSIC
     };
-    ctx
-      .expect::<SoundSystem>()
-      .play_music(path, Duration::from_millis(1000));
+
+    let already_playing_music = self
+      .current_music
+      .as_ref()
+      .map(|p| p == path)
+      .unwrap_or(false);
+
+    if !already_playing_music {
+      self.current_music = Some(path.clone());
+      ctx
+        .expect::<SoundSystem>()
+        .play_music(path, Duration::from_millis(750));
+    }
+  }
+
+  fn is_default_music_playing(&self) -> bool {
+    self
+      .current_music
+      .as_ref()
+      .map(|p| *p == *DEFAULT_MUSIC)
+      .unwrap_or(false)
+  }
+
+  fn is_exclusive_mode_complete(&self, mode: &ExclusiveMode) -> bool {
+    self.exclusive_completions.contains(mode)
+  }
+
+  fn is_non_exclusive_mode_complete(&self, mode: &NonExclusiveMode) -> bool {
+    self.non_exclusive_completions.contains(mode)
+  }
+
+  fn render_exclusive_mode<T: Contextual<LedIdentifications>>(
+    &self,
+    targets: &T,
+    mode: &ExclusiveMode,
+    ctx: &SystemContext,
+  ) {
+    let color: ColorSequence = if self.is_exclusive_mode_complete(mode) {
+      mode.color().into()
+    } else {
+      Rgba::default().into()
+    };
+    ctx.declare_leds(targets, color);
+  }
+
+  fn render_non_exclusive_mode<T: Contextual<LedIdentifications>>(
+    &self,
+    targets: &T,
+    mode: &NonExclusiveMode,
+    color: Rgba<u8>,
+    ctx: &SystemContext,
+  ) {
+    let color: ColorSequence = if self.is_non_exclusive_mode_complete(mode) {
+      color.into()
+    } else {
+      Rgba::default().into()
+    };
+    ctx.declare_leds(targets, color);
+  }
+
+  fn render_map(&self, ctx: &SystemContext) {
+    self.render_non_exclusive_mode(
+      &city_map::NIMBUS_PROMENADE.q(),
+      &NonExclusiveMode::NimbusPromenade,
+      Rgba::magenta(),
+      ctx,
+    );
+    self.render_non_exclusive_mode(
+      &city_map::APEX_TERRACES.q(),
+      &NonExclusiveMode::ApexTerraces,
+      Rgba::green(),
+      ctx,
+    );
+
+    self.render_exclusive_mode(&city_map::HYDRO_CORE.q(), &ExclusiveMode::HydroCore, ctx);
+    self.render_exclusive_mode(
+      &city_map::SKYRAIL_STATION.q(),
+      &ExclusiveMode::SkyrailStation,
+      ctx,
+    );
+    self.render_exclusive_mode(
+      &city_map::MERIDIAN_BASINS.q(),
+      &ExclusiveMode::MeridianBasins,
+      ctx,
+    );
+    self.render_exclusive_mode(
+      &city_map::SOLARIUM_ATRIUMS.q(),
+      &ExclusiveMode::SolariumAtrium,
+      ctx,
+    );
   }
 }
 
 impl System for ModeManager {
+  fn on_spawn(&mut self, ctx: &SystemContext) {
+    self.handle = *ctx.current_handle();
+  }
+
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<PlayerTurnBeginning>() {
-      self.on_turn_starting(ctx);
+      log::info!("ModeManager: turn starting (playing music)");
+      self.crossfade_music(ctx);
     } else if event.is::<PlayerTurnEnding>() {
       self.stop_music(ctx);
     }
   }
 
-  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
-    if self.render {
-      if self
-        .non_exclusive_completions
-        .contains(&NonExclusiveMode::NimbusPromenade)
-      {
-        ctx.declare_leds(&city_map::NIMBUS_PROMENADE.q(), Rgba::white().into());
-      }
-
-      if self
-        .non_exclusive_completions
-        .contains(&NonExclusiveMode::ApexTerraces)
-      {
-        ctx.declare_leds(&city_map::APEX_TERRACES.q(), Rgba::white().into());
-      }
-
-      if self
-        .exclusive_completions
-        .contains(&ExclusiveMode::HydroCore)
-      {
-        ctx.declare_leds(&city_map::HYDRO_CORE.q(), Rgba::white().into());
-      }
-
-      if self
-        .exclusive_completions
-        .contains(&ExclusiveMode::SkyrailStation)
-      {
-        ctx.declare_leds(&city_map::SKYRAIL_STATION.q(), Rgba::white().into());
-      }
-
-      if self
-        .exclusive_completions
-        .contains(&ExclusiveMode::MeridianBasins)
-      {
-        ctx.declare_leds(&city_map::MERIDIAN_BASINS.q(), Rgba::white().into());
-      }
-
-      if self
-        .exclusive_completions
-        .contains(&ExclusiveMode::SolariumAtrium)
-      {
-        ctx.declare_leds(&city_map::SOLARIUM_ATRIUMS.q(), Rgba::white().into());
-      }
-    }
+  fn on_reactivate(&mut self, ctx: &SystemContext) {
+    self.render_map(ctx);
   }
 
   fn on_despawn(&mut self, ctx: &SystemContext) {

@@ -100,7 +100,7 @@ impl ApexTerracesMode {
 
     ctx
       .expect::<ModeManager>()
-      .non_exclusive_active(NonExclusiveMode::ApexTerraces, ctx);
+      .non_exclusive_active(NonExclusiveMode::ApexTerraces, ctx.into());
 
     ctx.cue(JackpotOver, Duration::from_secs(45).once());
     self.jackpot_effect = Some(Self::jackpot_effect());
@@ -155,7 +155,6 @@ impl ApexTerracesMode {
 
     if self.jackpot_qualifications_met() {
       ctx.play_sfx(sounds::ARP_HIT1);
-      self.start_jackpot(ctx);
     } else {
       ctx.play_sfx(sounds::HIT_ORGANIC2);
     }
@@ -169,7 +168,7 @@ impl System for ApexTerracesMode {
 
       ctx
         .expect::<ModeManager>()
-        .complete_non_exclusive(NonExclusiveMode::ApexTerraces, ctx);
+        .complete_non_exclusive(NonExclusiveMode::ApexTerraces, ctx.into());
       ctx.replace_self(ApexTerracesMode::new()); // restart
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>() {
       let target_hit = if let Some(pop_hit) = match_target_switch(&event.switch) {

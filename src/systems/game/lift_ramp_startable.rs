@@ -5,7 +5,6 @@ use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
 use frontbox_turn_based::GameManager;
-use frontbox_turn_based::PlayerTurnActive;
 use frontbox_turn_based::TurnState;
 
 use crate::hardware::lift_ramp;
@@ -77,7 +76,7 @@ impl LiftRampStartable {
 
   fn start(&mut self, mode: ExclusiveMode, ctx: &SystemContext) {
     // Ensure that exclusive mode rights can be taken
-    if let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(mode, ctx) {
+    if let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(mode, ctx.into()) {
       log::info!("LiftRampStartable: Starting mode {:?}", mode);
       self.state = Starting(mode);
       self.effects.as_mut().unwrap().hit_effect.play();

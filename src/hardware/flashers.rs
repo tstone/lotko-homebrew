@@ -64,7 +64,10 @@ impl System for FlashersSystem {
     }
 
     effects_to_remove.iter().for_each(|idx| {
-      self.effects.remove(*idx);
+      // TODO: this shouldn't need a guard
+      if self.effects.get(*idx).is_some() {
+        self.effects.remove(*idx);
+      }
     });
   }
 }

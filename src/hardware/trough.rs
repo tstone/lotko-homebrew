@@ -28,7 +28,7 @@ pub fn system() -> TroughSystem {
       SWITCH3.name,
       SWITCH4.name,
       SWITCH5.name,
-      SWITCH6.name,
+      // SWITCH6.name, -- off by one ala opto
     ],
   )
 }

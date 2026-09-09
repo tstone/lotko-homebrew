@@ -1,6 +1,6 @@
-use frontbox::prelude::{Rgba, SystemContext};
+use frontbox::prelude::*;
 
-use crate::systems::game::{hydro_core, skyrail_station, solarium_atrium};
+use crate::systems::game::{hydro_core, meridian_basins, skyrail_station, solarium_atrium};
 use crate::systems::sound_loader;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize)]
@@ -9,7 +9,7 @@ pub enum ExclusiveMode {
   HydroCore,
   SkyrailStation,
   MeridianBasins,
-  SporeCountMultiball,
+  SporeMultiball,
   Wizard,
 }
 
@@ -26,7 +26,9 @@ impl ExclusiveMode {
       Self::HydroCore => *hydro_core::MODE_COLOR,
       Self::SkyrailStation => *skyrail_station::MODE_COLOR,
       Self::SolariumAtrium => *solarium_atrium::MODE_COLOR,
-      _ => todo!(),
+      Self::MeridianBasins => Rgba::orange(),
+      Self::SporeMultiball => Rgba::yellow(),
+      Self::Wizard => Rgba::red(),
     }
   }
 
@@ -35,7 +37,9 @@ impl ExclusiveMode {
       Self::HydroCore => ctx.spawn_system(hydro_core::HydroCoreMode::new()),
       Self::SkyrailStation => ctx.spawn_system(skyrail_station::SkyrailStationMode::new()),
       Self::SolariumAtrium => ctx.spawn_system(solarium_atrium::SolariumAtriumMode::new()),
-      _ => todo!(),
+      Self::MeridianBasins => ctx.spawn_system(meridian_basins::MeridianBasinsMode::new()),
+      Self::SporeMultiball => todo!(),
+      Self::Wizard => todo!(),
     }
   }
 }

@@ -7,7 +7,7 @@ use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::{GameManagementExt, PlayerTurnEnding};
 
-use crate::hardware::arc_ramp::{ArcRampHit, ArcRampSubwayHit};
+use crate::hardware::arc_ramp::ArcRampHit;
 use crate::hardware::backbox::{LEFT_SPEAKER_LEDS, RIGHT_SPEAKER_LEDS};
 use crate::hardware::center_orbit::CenterOrbitHit;
 use crate::hardware::dome_ramp::DomeRampHit;

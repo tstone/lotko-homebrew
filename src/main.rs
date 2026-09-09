@@ -114,6 +114,8 @@ async fn main() {
         HydroCoreQualification::new(),
         SkyrailStationQualification::new(),
         SolariumAtriumQualification::new(),
+        MeridianBasinsQualification::new(),
+        SporeMultiballQualification::new(),
         // non-exclusive
         NimbusPromenadeQualification::new(),
         ApexTerracesMode::new(),

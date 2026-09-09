@@ -7,7 +7,7 @@ use frontbox_turn_based::{GameManagementExt, PlayerTurnActive};
 use crate::hardware::drop_bank::{self, DropBankSystem, DropBankTargetHit};
 use crate::hardware::flashers::{self, FlashersSystem};
 use crate::hardware::lift_ramp::{LiftRampHit, LiftRampScoopBallEnter, LiftRampSystem};
-use crate::hardware::{backbox, lift_ramp};
+use crate::hardware::{backbox, city_map, lift_ramp};
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
@@ -18,7 +18,9 @@ pub struct SkyrailStationMode {
   attention_effect: LedProgram1d,
   hit_effect: LedProgram1d,
   intensity_effect: LedProgram1d,
+  progress_effect: LedProgram1d,
   target_hits: u8,
+  ramp_hits: u8,
   state: State,
   ramp_up: bool,
 }
@@ -29,7 +31,9 @@ impl SkyrailStationMode {
       attention_effect: Self::attention_effect_ramp(),
       hit_effect: Self::hit_effect(),
       intensity_effect: Self::intensity_effect(),
+      progress_effect: Self::progress_effect(0),
       target_hits: 0,
+      ramp_hits: 0,
       state: HitRamp,
       ramp_up: false,
     }
@@ -157,6 +161,13 @@ impl SkyrailStationMode {
     .stopped()
   }
 
+  fn progress_effect(hits: u8) -> LedProgram1d {
+    LedProgram1d::fixed(
+      city_map::SPORE_COUNT_BAR.q(),
+      ColorSequence::solid(*MODE_COLOR).padding_right(Extent::Relative(hits as f32 / 8 as f32)),
+    )
+  }
+
   fn advance(&mut self, ctx: &SystemContext) {
     ctx.add_points(points::EXL_MODE_HIT);
     self.hit_effect.play();
@@ -214,7 +225,9 @@ impl SkyrailStationMode {
       }
       HitRamp => {
         log::info!("Skyrail: HitRamp");
-        if self.target_hits == 2 {
+        self.ramp_hits += 1;
+
+        if self.ramp_hits == 3 {
           // on the final round all 3 targets must be hit with a 2 ball multiball
           ctx.multiball_add_balls(1);
           self.state = Final;
@@ -234,6 +247,8 @@ impl SkyrailStationMode {
       }
       _ => {}
     }
+
+    self.progress_effect = Self::progress_effect(self.target_hits + self.ramp_hits);
   }
 
   fn ramp_up(&mut self, delay: Duration, ctx: &SystemContext) {
@@ -315,6 +330,7 @@ impl System for SkyrailStationMode {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
     self.intensity_effect.apply(delta, ctx);
+    self.progress_effect.apply(delta, ctx);
 
     if self.state == Complete && self.hit_effect.is_complete() {
       self.complete(ctx);

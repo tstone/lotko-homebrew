@@ -1,7 +1,7 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::Cycle::Forever;
 use frontbox::prelude::*;
-use frontbox::provided::{AutoPlungerSystem, DoubleFlipSystem, PlungeLaneSystem};
+use frontbox::provided::{AutoPlungerSystem, DoubleFlipSystem, MultiballSystem, PlungeLaneSystem};
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
 use frontbox_sound::SoundSystem;
@@ -46,6 +46,9 @@ async fn main() {
   })
   .await
   .configure(|app| {
+    let ball_save_effect =
+      LedProgram1d::flash(DRAIN_LED.q(), ColorSequence::solid(Rgba::green()), Forever);
+
     app.tracer(WebTracer::new());
 
     // core
@@ -98,14 +101,11 @@ async fn main() {
       systems![
         BasicPoints::new(),
         // operation
-        BallSaveSystem::new(Duration::from_secs(8)).effect(LedProgram1d::flash(
-          DRAIN_LED.q(),
-          ColorSequence::solid(Rgba::green()),
-          Forever
-        )),
+        BallSaveSystem::new(Duration::from_secs(8)).effect(ball_save_effect.clone()),
         PlayfieldIllumination::new(),
         SkillshotManager::new(),
         FlashersSystem::new(),
+        MultiballSystem::new(Duration::from_secs(8), ball_save_effect),
         // modes
         ModeManager::new(),
         LeftScoopStartable::new(),
@@ -113,7 +113,7 @@ async fn main() {
         // exclusive
         HydroCoreQualification::new(),
         SkyrailStationQualification::new(),
-        // SolariumAtriumQualification::new(),
+        SolariumAtriumQualification::new(),
         // non-exclusive
         NimbusPromenadeQualification::new(),
         ApexTerracesMode::new(),

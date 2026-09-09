@@ -1,5 +1,6 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::*;
+use frontbox::provided::{MultiballExt, MultiballSystem};
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::{GameManagementExt, GameManager, TurnState};
 
@@ -45,7 +46,7 @@ impl NimbusPromenadeMode {
       self.hit_effect.play();
       self.advance(ctx);
 
-      // check for compeltion
+      // check for completion
       let required_hits = match self.current_pop {
         PopBumper::Left => 4,
         _ => 3,
@@ -142,6 +143,7 @@ impl System for NimbusPromenadeMode {
     ctx
       .expect::<ModeManager>()
       .non_exclusive_active(NonExclusiveMode::NimbusPromenade, ctx);
+    ctx.multiball_add_balls(1);
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

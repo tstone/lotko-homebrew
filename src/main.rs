@@ -3,6 +3,7 @@ use frontbox::prelude::Cycle::Forever;
 use frontbox::prelude::*;
 use frontbox::provided::{
   ActionButtonEject, AutoPlungerSystem, DoubleFlipSystem, MultiballSystem, PlungeLaneSystem,
+  QuitGameSystem,
 };
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
@@ -79,6 +80,10 @@ async fn main() {
     ));
     app.system(AttractModeDmdSystem::new());
     app.system(GamePointsDmdSystem::new());
+    app.system(QuitGameSystem::new(
+      cabinet::LEFT_FLIPPER_SWITCH1.name,
+      start_button::SWITCH.name,
+    ));
 
     // hardware ops
     app.system(drop_bank::DropBankSystem::new());

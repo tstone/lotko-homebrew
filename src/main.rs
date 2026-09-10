@@ -88,6 +88,7 @@ async fn main() {
     app.system(right_orbit::RightOrbitSystem::new());
     app.system(arc_ramp::ArcRampSystem::new());
     app.system(vspinner::VerticalSpinner::new());
+    app.system(captive_ball::CaptiveBallSystem::new());
     app.system(DoubleFlipSystem::new(
       cabinet::LEFT_FLIPPER_SWITCH1.q(),
       cabinet::RIGHT_FLIPPER_SWITCH1.q(),

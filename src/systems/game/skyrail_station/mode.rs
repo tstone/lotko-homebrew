@@ -163,11 +163,11 @@ impl SkyrailStationMode {
 
   fn progress_effect(hits: u8) -> LedProgram1d {
     LedProgram1d::fixed(
-      city_map::SPORE_COUNT_BAR.q(),
-      ColorSequence::solid(*MODE_COLOR).padding_right(Extent::Relative(hits as f32 / 8 as f32)),
+      city_map::SPORE_COUNT_BAR.q().reverse(),
+      ColorSequence::solid(*MODE_COLOR)
+        .padding_right(Extent::Relative(1.0 - (hits as f32 / 8 as f32))),
     )
   }
-
   fn advance(&mut self, ctx: &SystemContext) {
     ctx.add_points(points::EXL_MODE_HIT);
     self.hit_effect.play();

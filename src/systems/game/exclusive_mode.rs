@@ -23,9 +23,9 @@ impl ExclusiveMode {
 
   pub fn color(&self) -> Rgba<u8> {
     match self {
-      Self::HydroCore => *hydro_core::MODE_COLOR,
-      Self::SkyrailStation => *skyrail_station::MODE_COLOR,
-      Self::SolariumAtrium => *solarium_atrium::MODE_COLOR,
+      Self::HydroCore => Rgba::cyan(),
+      Self::SkyrailStation => Rgba::blue(),
+      Self::SolariumAtrium => Rgba::purple(),
       Self::MeridianBasins => Rgba::orange(),
       Self::SporeMultiball => Rgba::yellow(),
       Self::Wizard => Rgba::red(),

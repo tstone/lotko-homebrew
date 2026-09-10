@@ -4,13 +4,15 @@ use frontbox::prelude::*;
 use frontbox::tags::*;
 
 use crate::hardware::center_orbit::CenterOrbitHit;
+use crate::hardware::left_orbit::State::*;
 use crate::hardware::more_tags::*;
 
 const NAME: &'static str = "l_orbit";
 
 hardware_defs! {
+  pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
+    .debounce(Duration::from_millis(20));
 
-  pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME);
   pub UPPER_SWITCH: SwitchDefinition = SwitchDefinition::new("l_orbit_upper");
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME, 7)
@@ -43,49 +45,68 @@ pub static HEX_CIRCLE_LEDS: LazyLock<LedQ> = LazyLock::new(|| {
 
 #[derive(Clone)]
 pub struct LeftOrbitSystem {
-  skip_next: bool,
-  clear_cue_id: Option<u64>,
+  state: State,
 }
 
 impl LeftOrbitSystem {
   pub fn new() -> Self {
-    Self {
-      skip_next: false,
-      clear_cue_id: None,
+    Self { state: AwaitingHit }
+  }
+
+  fn reset(&mut self, ctx: &SystemContext) {
+    match self.state {
+      IgnoringCenterOrbit(cue_id) => {
+        ctx.cancel_cue(cue_id);
+        self.state = AwaitingHit;
+      }
+      LongDebouncing(cue_id) => {
+        ctx.cancel_cue(cue_id);
+        self.state = AwaitingHit;
+      }
+      AwaitingHit => {}
     }
   }
 
-  fn reset(&mut self) {
-    self.skip_next = false;
-    self.clear_cue_id = None;
+  fn transition_to_ignore_center_orbit(&mut self, ctx: &SystemContext) {
+    let cue_id = ctx.cue(Reset, Duration::from_millis(800).once());
+    self.state = IgnoringCenterOrbit(cue_id);
+  }
+
+  fn transition_to_long_debounce(&mut self, ctx: &SystemContext) {
+    let cue_id = ctx.cue(Reset, Duration::from_millis(250).once());
+    self.state = LongDebouncing(cue_id);
   }
 }
 
 impl System for LeftOrbitSystem {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<CenterOrbitHit>() {
-      self.skip_next = true;
-      // TODO: tune duration
-      self.clear_cue_id = Some(ctx.cue(ClearSkipNext, Cue::Once(Duration::from_millis(800))));
-    } else if event.is::<ClearSkipNext>() {
-      self.reset();
+      self.transition_to_ignore_center_orbit(ctx);
+    } else if event.is::<Reset>() {
+      self.reset(ctx);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && event.switch.name == SWITCH.name
+      && self.state == AwaitingHit
     {
-      if self.skip_next {
-        self.skip_next = false;
-      } else {
-        ctx.emit(LeftOrbitHit);
-      }
+      ctx.emit(LeftOrbitHit);
+      self.transition_to_long_debounce(ctx);
     }
   }
 
-  fn on_reactivate(&mut self, _ctx: &SystemContext) {
-    self.reset();
+  fn on_reactivate(&mut self, ctx: &SystemContext) {
+    self.reset(ctx);
   }
 }
 
 #[derive(serde::Serialize, Event)]
 pub struct LeftOrbitHit;
+
 #[derive(serde::Serialize, Event)]
-struct ClearSkipNext;
+struct Reset;
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+enum State {
+  AwaitingHit,
+  IgnoringCenterOrbit(u64),
+  LongDebouncing(u64),
+}

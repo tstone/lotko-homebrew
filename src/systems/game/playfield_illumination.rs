@@ -31,7 +31,7 @@ impl PlayfieldIllumination {
 impl System for PlayfieldIllumination {
   fn on_event(&mut self, event: &dyn Event, _ctx: &SystemContext) {
     if let Some(ExclusiveModeStarted(mode)) = event.downcast_ref::<ExclusiveModeStarted>() {
-      self.set_color(mode.color().lighten(0.4));
+      self.set_color(mode.color().lighten(0.35));
     } else if event.is::<ExclusiveModeEnded>() {
       self.clear_color();
     }

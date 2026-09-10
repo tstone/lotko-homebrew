@@ -1,6 +1,7 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
+use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::{GameManagementExt, PlayerTurnActive};
 
 use crate::game::solarium_atrium::MODE_COLOR;
@@ -12,6 +13,7 @@ use crate::hardware::{backbox, city_map};
 use crate::systems::game::{
   self, ExclusiveMode, LeftScoopStartable, ModeManager, SolariumAtriumQualification,
 };
+use crate::systems::sounds;
 
 static REQUIRED_HITS: u8 = 6;
 
@@ -28,7 +30,7 @@ impl SolariumAtriumMode {
   pub fn new() -> Self {
     Self {
       attention_effect: Self::attention_effect(),
-      hit_effect: Self::hit_effect(),
+      hit_effect: Self::hit_effect(2),
       intensity_effect: Self::intensity_effect(),
       progress_effect: Self::progress_effect(0),
       ramp_hits: 0,
@@ -49,16 +51,11 @@ impl SolariumAtriumMode {
     )
   }
 
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::tween(
+  fn hit_effect(flash_count: u32) -> LedProgram1d {
+    LedProgram1d::flash(
       LedQ::tag::<Playfield>().at_z(-1),
-      Duration::from_millis(600),
-      Curve::ExponentialOut,
-      Cycle::Once,
-      vec![
-        ColorSequence::fade(*MODE_COLOR, Rgba::default()).shuffle(rand::random()),
-        ColorSequence::solid(Rgba::default()),
-      ],
+      (*MODE_COLOR).into(),
+      Cycle::Times(flash_count),
     )
     .stopped()
   }
@@ -95,8 +92,9 @@ impl SolariumAtriumMode {
 
   fn progress_effect(hits: u8) -> LedProgram1d {
     LedProgram1d::fixed(
-      city_map::SPORE_COUNT_BAR.q(),
-      ColorSequence::solid(*MODE_COLOR).padding_right(Extent::Relative(hits as f32 / 8 as f32)),
+      city_map::SPORE_COUNT_BAR.q().reverse(),
+      ColorSequence::solid(*MODE_COLOR)
+        .padding_right(Extent::Relative(1.0 - (hits as f32 / REQUIRED_HITS as f32))),
     )
   }
 
@@ -114,7 +112,7 @@ impl SolariumAtriumMode {
 
   fn ramp_hit(&mut self, ramp_hit: Ramp, ctx: &SystemContext) {
     self.ramp_hits += 1;
-    self.hit_effect.play();
+    self.hit_effect.reset();
     ctx
       .expect::<FlashersSystem>()
       .flash(3, ColorSequence::tile(vec![*MODE_COLOR, Rgba::default()]));
@@ -126,12 +124,15 @@ impl SolariumAtriumMode {
     };
     ctx.add_points(points as u32);
 
-    if self.ramp_hits == 4 {
+    if self.ramp_hits == (REQUIRED_HITS - 2) {
       self.intensity_effect.play();
+    } else if self.ramp_hits == REQUIRED_HITS {
+      ctx.play_sfx(sounds::ARP_HIT1);
+      self.hit_effect = Self::hit_effect(4);
     }
+    self.hit_effect.play();
 
     self.last_ramp = Some(ramp_hit);
-
     self.progress_effect = Self::progress_effect(self.ramp_hits);
   }
 
@@ -176,10 +177,10 @@ impl System for SolariumAtriumMode {
       self.complete(ctx);
     }
 
+    self.progress_effect.apply(delta, ctx);
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
     self.intensity_effect.apply(delta, ctx);
-    self.progress_effect.apply(delta, ctx);
   }
 }
 

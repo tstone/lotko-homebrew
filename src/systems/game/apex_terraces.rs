@@ -12,7 +12,7 @@ use crate::{
   },
 };
 use frontbox::prelude::*;
-use frontbox_sound::SoundSystemExt;
+use frontbox_sound::*;
 use frontbox_turn_based::GameManagementExt;
 
 #[derive(Clone)]

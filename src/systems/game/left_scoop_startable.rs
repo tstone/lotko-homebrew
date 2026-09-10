@@ -102,7 +102,7 @@ impl LeftScoopStartable {
       .at(
         Duration::ZERO,
         LedProgram1d::flash(
-          &*lower_scoop::BOLTS_Q,
+          (&*lower_scoop::BOLTS_Q).at_z(1),
           ColorSequence::solid(mode.color()),
           Cycle::Forever,
         ),
@@ -110,7 +110,7 @@ impl LeftScoopStartable {
       .at(
         Duration::ZERO,
         LedProgram1d::flash(
-          &*arc_ramp::HEX_CENTER_LED,
+          (&*arc_ramp::HEX_CENTER_LED).at_z(2),
           ColorSequence::solid(mode.color()),
           Cycle::Forever,
         ),

@@ -19,6 +19,8 @@ use crate::systems::game::meridian_basins::MODE_COLOR;
 use crate::systems::game::{
   ExclusiveMode, LiftRampStartable, MeridianBasinsQualification, ModeManager,
 };
+use crate::systems::sounds;
+use frontbox_sound::*;
 
 static REQUIRED_HITS: u8 = 6;
 
@@ -40,7 +42,7 @@ impl MeridianBasinsMode {
     ];
     Self {
       attention_effect: Self::attention_effect(&initial),
-      hit_effect: Self::hit_effect(),
+      hit_effect: Self::hit_effect(2),
       intensity_effect: Self::intensity_effect(),
       progress_effect: Self::progress_effect(0),
       current_shots: initial,
@@ -60,16 +62,11 @@ impl MeridianBasinsMode {
     )
   }
 
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::tween(
+  fn hit_effect(flash_count: u32) -> LedProgram1d {
+    LedProgram1d::flash(
       LedQ::tag::<Playfield>().at_z(-1),
-      Duration::from_millis(600),
-      Curve::ExponentialOut,
-      Cycle::Once,
-      vec![
-        ColorSequence::fade(*MODE_COLOR, Rgba::default()).shuffle(rand::random()),
-        ColorSequence::solid(Rgba::default()),
-      ],
+      (*MODE_COLOR).into(),
+      Cycle::Times(flash_count),
     )
     .stopped()
   }
@@ -106,9 +103,9 @@ impl MeridianBasinsMode {
 
   fn progress_effect(hits: u8) -> LedProgram1d {
     LedProgram1d::fixed(
-      city_map::SPORE_COUNT_BAR.q(),
+      city_map::SPORE_COUNT_BAR.q().reverse(),
       ColorSequence::solid(*MODE_COLOR)
-        .padding_right(Extent::Relative(hits as f32 / REQUIRED_HITS as f32)),
+        .padding_right(Extent::Relative(1.0 - (hits as f32 / REQUIRED_HITS as f32))),
     )
   }
 
@@ -124,15 +121,21 @@ impl MeridianBasinsMode {
     ctx.despawn_self();
   }
 
-  fn on_shot_hit(&mut self, shot: ModeShots) {
+  fn on_shot_hit(&mut self, shot: ModeShots, ctx: &SystemContext) {
     if self.current_shots.contains(&shot) {
       self.hits += 1;
-      self.hit_effect.play();
       self.progress_effect = Self::progress_effect(self.hits);
+      log::info!("MeridianBasins: hits = {}", self.hits);
 
       if self.hits == 4 {
         self.intensity_effect.play();
+      } else if self.is_complete() {
+        log::info!("MeridianBasins: complete");
+        ctx.play_sfx(sounds::ARP_HIT1);
+        self.hit_effect = Self::hit_effect(4);
       }
+
+      self.hit_effect.play();
     }
   }
 
@@ -166,10 +169,11 @@ impl MeridianBasinsMode {
 
   fn wrap_shot_idx(idx: usize) -> usize {
     let len = ModeShots::ordered().len();
-    if idx == len {
-      Self::wrap_shot_idx(idx - len);
+    if idx >= len {
+      Self::wrap_shot_idx(idx - len)
+    } else {
+      idx
     }
-    idx
   }
 }
 
@@ -180,48 +184,48 @@ impl System for MeridianBasinsMode {
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
     log::info!("MeridianBasins mode started");
-    ctx.cue(NextSet, Duration::from_millis(1750).forever());
+    ctx.cue(NextSet, Duration::from_millis(2250).forever());
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<NextSet>() {
       self.advance(ctx);
     } else if event.is::<LeftOrbitHit>() {
-      self.on_shot_hit(ModeShots::LeftOrbit);
+      self.on_shot_hit(ModeShots::LeftOrbit, ctx);
     } else if event.is::<DomeRampHit>() {
-      self.on_shot_hit(ModeShots::DomeRamp);
+      self.on_shot_hit(ModeShots::DomeRamp, ctx);
     } else if event.is::<ArcRampHit>() {
-      self.on_shot_hit(ModeShots::ArcRamp);
+      self.on_shot_hit(ModeShots::ArcRamp, ctx);
     } else if event.is::<CenterOrbitHit>() {
-      self.on_shot_hit(ModeShots::CenterOrbit);
+      self.on_shot_hit(ModeShots::CenterOrbit, ctx);
     } else if event.is::<LiftRampHit>() {
-      self.on_shot_hit(ModeShots::LiftRamp);
+      self.on_shot_hit(ModeShots::LiftRamp, ctx);
     } else if event.is::<RightOrbitHit>() {
-      self.on_shot_hit(ModeShots::RightOrbit);
+      self.on_shot_hit(ModeShots::RightOrbit, ctx);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>() {
       if let Some(pop) = pop_cluster::match_switch(&event.switch) {
         match pop {
-          PopBumper::Left => self.on_shot_hit(ModeShots::LeftPop),
-          PopBumper::UpperRight => self.on_shot_hit(ModeShots::UpperRightPop),
-          PopBumper::LowerRight => self.on_shot_hit(ModeShots::LowerRightPop),
+          PopBumper::Left => self.on_shot_hit(ModeShots::LeftPop, ctx),
+          PopBumper::UpperRight => self.on_shot_hit(ModeShots::UpperRightPop, ctx),
+          PopBumper::LowerRight => self.on_shot_hit(ModeShots::LowerRightPop, ctx),
         }
       } else if event.switch.name == captive_ball::TARGET_SWITCH.name {
-        self.on_shot_hit(ModeShots::CaptiveBall)
+        self.on_shot_hit(ModeShots::CaptiveBall, ctx)
       }
-    } else if event.is::<PlayerTurnActive>() {
+    } else if event.is::<PlayerTurnBeginning>() {
       self.revert_to_startable(ctx);
     }
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
+    if self.is_complete() && self.hit_effect.is_complete() {
+      self.complete(ctx);
+    }
+
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
     self.intensity_effect.apply(delta, ctx);
     self.progress_effect.apply(delta, ctx);
-
-    if self.is_complete() && self.hit_effect.is_complete() {
-      self.complete(ctx);
-    }
   }
 }
 

@@ -12,10 +12,17 @@ use frontbox::prelude::*;
 pub struct MeridianBasinsQualifier;
 
 impl ExclusiveModeQualifier for MeridianBasinsQualifier {
-  const REQUIRED_HITS: u8 = 2;
+  const REQUIRED_HITS: u8 = 3;
   const HIT_SND_KEY: &'static str = sounds::LANE_HIT3;
 
   fn is_qualifying_shot(event: &dyn Event) -> bool {
+    log::info!(
+      "MeridianBasins qualification left orbit? {}, center orbit? {}, right orbit? {}",
+      event.is::<LeftOrbitHit>(),
+      event.is::<CenterOrbitHit>(),
+      event.is::<RightOrbitHit>()
+    );
+
     event.is::<LeftOrbitHit>() || event.is::<CenterOrbitHit>() || event.is::<RightOrbitHit>()
   }
 

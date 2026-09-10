@@ -29,7 +29,7 @@ impl SporeMultiballStartable {
         &captive_ball::LEFT_BOLT.q(),
         &captive_ball::RIGHT_BOLT.q(),
       ]),
-      ColorSequence::solid(Rgba::orange()),
+      ColorSequence::solid(Rgba::yellow()),
       Cycle::Forever,
     )
   }
@@ -47,7 +47,7 @@ impl SporeMultiballStartable {
           &lift_ramp::HEX_CIRCLE_LEDS,
           &right_orbit::HEX_CIRCLE_LEDS,
         ]),
-        ColorSequence::solid(Rgba::orange()),
+        ColorSequence::solid(Rgba::yellow()),
         Cycle::Times(3),
       ),
       LedProgram1d::rotating(
@@ -55,7 +55,7 @@ impl SporeMultiballStartable {
           &flashers::LEFT_FLASHER.q(),
           &flashers::CENTER_FLASHER.q(),
         ]),
-        ColorSequence::fade(Rgba::yellow(), Rgba::orange()),
+        ColorSequence::fade(Rgba::yellow(), Rgba::yellow()),
         Duration::from_millis(400),
         Curve::Linear,
         Cycle::Times(3),

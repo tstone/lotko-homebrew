@@ -168,6 +168,7 @@ impl SkyrailStationMode {
         .padding_right(Extent::Relative(1.0 - (hits as f32 / 8 as f32))),
     )
   }
+
   fn advance(&mut self, ctx: &SystemContext) {
     ctx.add_points(points::EXL_MODE_HIT);
     self.hit_effect.play();
@@ -318,12 +319,14 @@ impl System for SkyrailStationMode {
     if self.ramp_up {
       ctx.expect::<LiftRampSystem>().lift_up(ctx.into());
     }
+    ctx.activate_led_declarations();
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     if self.ramp_up {
       ctx.expect::<LiftRampSystem>().lift_down(ctx.into());
     }
+    ctx.deactivate_led_declarations();
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {

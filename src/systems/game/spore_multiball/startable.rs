@@ -1,10 +1,17 @@
 use frontbox::{animation::Curve, prelude::*};
+use frontbox_sound::SoundSystemExt;
+use frontbox_turn_based::{GameManager, TurnState};
 
 use crate::{
   hardware::{
-    arc_ramp, captive_ball, center_orbit, dome_ramp, flashers, left_orbit, lift_ramp, right_orbit,
+    arc_ramp,
+    captive_ball::{self, CaptiveBallHit},
+    center_orbit, dome_ramp, flashers, left_orbit, lift_ramp, right_orbit,
   },
-  systems::game::SporeMultiballMode,
+  systems::{
+    game::{ExclusiveMode, ModeManager, SporeMultiballMode},
+    sounds,
+  },
 };
 
 #[derive(Clone)]
@@ -66,13 +73,30 @@ impl SporeMultiballStartable {
 }
 
 impl System for SporeMultiballStartable {
-  fn on_event(&mut self, event: &dyn Event, _ctx: &SystemContext) {
-    if let Some(event) = event.downcast_ref::<SwitchClosed>()
-      && event.switch.name == captive_ball::TARGET_SWITCH.name
-      && !self.complete
-    {
-      self.complete = true;
-      self.hit_effect.play();
+  fn is_active(&self, ctx: &SystemContext) -> bool {
+    let game_manager = ctx.expect::<GameManager>();
+    let mode_manager = ctx.expect::<ModeManager>();
+    game_manager
+      .turn_state()
+      .map(|s| *s == TurnState::Active)
+      .unwrap_or(false)
+      && (mode_manager.current_mode().is_none()
+        || *mode_manager.current_mode() == Some(ExclusiveMode::SporeMultiball))
+  }
+
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if event.is::<CaptiveBallHit>() && !self.complete {
+      match ctx
+        .expect::<ModeManager>()
+        .take_exclusive(ExclusiveMode::SporeMultiball, ctx.into())
+      {
+        Ok(_) => {
+          self.complete = true;
+          self.hit_effect.play();
+          ctx.play_sfx(sounds::HIT_ORGANIC3);
+        }
+        _ => {}
+      }
     }
   }
 

@@ -13,7 +13,7 @@ use crate::{
 };
 use frontbox::prelude::*;
 use frontbox_sound::*;
-use frontbox_turn_based::GameManagementExt;
+use frontbox_turn_based::{GameManagementExt, GameManager, TurnState};
 
 #[derive(Clone)]
 pub struct ApexTerracesMode {
@@ -162,6 +162,14 @@ impl ApexTerracesMode {
 }
 
 impl System for ApexTerracesMode {
+  fn is_active(&self, ctx: &SystemContext) -> bool {
+    ctx
+      .expect::<GameManager>()
+      .game_state()
+      .map(|game| *game.current_player_turn_state() == TurnState::Active)
+      .unwrap_or(false)
+  }
+
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<JackpotOver>() {
       log::info!("ApexTerraces: jackpot complete");

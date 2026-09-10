@@ -1,20 +1,24 @@
 use frontbox::animation::*;
 use frontbox::prelude::*;
+use frontbox::provided::MultiballEnded;
+use frontbox::provided::MultiballExt;
+use frontbox::tags::Playfield;
+use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::*;
 
 use crate::hardware::arc_ramp::{self, ArcRampHit};
-use crate::hardware::backbox::{LEFT_SPEAKER_LEDS, RIGHT_SPEAKER_LEDS};
 use crate::hardware::captive_ball;
+use crate::hardware::captive_ball::CaptiveBallHit;
 use crate::hardware::center_orbit::{self, CenterOrbitHit};
 use crate::hardware::dome_ramp::{self, DomeRampHit};
-use crate::hardware::flashers::{self};
 use crate::hardware::left_orbit::{self, LeftOrbitHit};
 use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::right_orbit::RightOrbitHit;
 use crate::hardware::{city_map, lift_ramp, right_orbit};
 use crate::systems::game::ExclusiveMode;
 use crate::systems::game::ModeManager;
-use crate::systems::game::hydro_core::MODE_COLOR;
+use crate::systems::game::SporeMultiballQualification;
+use crate::systems::sounds;
 
 // TODO: super jackpot
 
@@ -37,7 +41,7 @@ impl SporeMultiballMode {
       hit_effect: Self::hit_effect(),
       super_jackpot_attention_effect: Self::super_jackpot_attention_effect(),
       super_jackpot_hit_effect: Self::super_jackpot_hit_effect(),
-      progress_effect: Self::hit_effect(), // TODO: handle progress until super jackpot
+      progress_effect: Self::progress_effect(0),
       hits: 0,
       super_jackpot_active: false,
       cue_id: None,
@@ -46,46 +50,40 @@ impl SporeMultiballMode {
 
   fn attention_effect() -> LedProgram1d {
     LedProgram1d::multi(vec![
-      LedProgram1d::rotating(
+      LedProgram1d::pulse(
         &*left_orbit::HEX_LINE_LEDS,
-        ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-        Duration::from_millis(500),
-        Curve::EaseOut,
+        Rgba::yellow(),
+        Duration::from_millis(350),
         Cycle::Forever,
       ),
-      LedProgram1d::rotating(
+      LedProgram1d::pulse(
         &*dome_ramp::HEX_LINE_LEDS,
-        ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-        Duration::from_millis(500),
-        Curve::EaseOut,
+        Rgba::yellow(),
+        Duration::from_millis(350),
         Cycle::Forever,
       ),
-      LedProgram1d::rotating(
+      LedProgram1d::pulse(
         &*arc_ramp::HEX_LINE_LEDS,
-        ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-        Duration::from_millis(500),
-        Curve::EaseOut,
+        Rgba::yellow(),
+        Duration::from_millis(350),
         Cycle::Forever,
       ),
-      LedProgram1d::rotating(
+      LedProgram1d::pulse(
         &*center_orbit::HEX_LINE_LEDS,
-        ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-        Duration::from_millis(500),
-        Curve::EaseOut,
+        Rgba::yellow(),
+        Duration::from_millis(350),
         Cycle::Forever,
       ),
-      LedProgram1d::rotating(
+      LedProgram1d::pulse(
         &*lift_ramp::HEX_LINE_LEDS,
-        ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-        Duration::from_millis(500),
-        Curve::EaseOut,
+        Rgba::yellow(),
+        Duration::from_millis(350),
         Cycle::Forever,
       ),
-      LedProgram1d::rotating(
+      LedProgram1d::pulse(
         &*right_orbit::HEX_LINE_LEDS,
-        ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-        Duration::from_millis(500),
-        Curve::EaseOut,
+        Rgba::yellow(),
+        Duration::from_millis(350),
         Cycle::Forever,
       ),
     ])
@@ -97,7 +95,7 @@ impl SporeMultiballMode {
         &captive_ball::LEFT_BOLT.q(),
         &captive_ball::RIGHT_BOLT.q(),
       ]),
-      ColorSequence::exact(vec![Rgba::yellow(), Rgba::default()]),
+      ColorSequence::exact(vec![Rgba::orange(), Rgba::default()]),
       Duration::from_millis(550),
       Curve::Linear,
       Cycle::Forever,
@@ -105,121 +103,29 @@ impl SporeMultiballMode {
     .stopped()
   }
 
-  fn intensity_effect() -> LedProgram1d {
-    LedProgram1d::multi(vec![
-      LedProgram1d::rotating(
-        LedQ::any(vec![
-          &flashers::LEFT_FLASHER.q(),
-          &flashers::CENTER_FLASHER.q(),
-        ]),
-        ColorSequence::exact(vec![Rgba::white(), Rgba::white().lighten(0.4)]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-      LedProgram1d::rotating(
-        LEFT_SPEAKER_LEDS.q(),
-        ColorSequence::exact(vec![*MODE_COLOR, *MODE_COLOR, *MODE_COLOR, *MODE_COLOR]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-      LedProgram1d::rotating(
-        RIGHT_SPEAKER_LEDS.q(),
-        ColorSequence::exact(vec![*MODE_COLOR, *MODE_COLOR, *MODE_COLOR, *MODE_COLOR]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-    ])
+  fn hit_effect() -> LedProgram1d {
+    LedProgram1d::flash(
+      LedQ::Every,
+      ColorSequence::fade(Rgba::yellow(), Rgba::default()),
+      Cycle::Times(2),
+    )
     .stopped()
   }
 
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::multi(vec![
-      LedProgram1d::flash(
-        &*left_orbit::HEX_CIRCLE_LEDS,
-        ColorSequence::solid(*MODE_COLOR),
-        Cycle::Forever,
-      ),
-      LedProgram1d::flash(
-        &*dome_ramp::HEX_CIRCLE_LEDS,
-        ColorSequence::solid(*MODE_COLOR),
-        Cycle::Forever,
-      ),
-      LedProgram1d::flash(
-        &*arc_ramp::HEX_CIRCLE_LEDS,
-        ColorSequence::solid(*MODE_COLOR),
-        Cycle::Forever,
-      ),
-      LedProgram1d::flash(
-        &*center_orbit::HEX_CIRCLE_LEDS,
-        ColorSequence::solid(*MODE_COLOR),
-        Cycle::Forever,
-      ),
-      LedProgram1d::flash(
-        &*lift_ramp::HEX_CIRCLE_LEDS,
-        ColorSequence::solid(*MODE_COLOR),
-        Cycle::Forever,
-      ),
-      LedProgram1d::flash(
-        &*right_orbit::HEX_CIRCLE_LEDS,
-        ColorSequence::solid(*MODE_COLOR),
-        Cycle::Forever,
-      ),
-    ])
-  }
-
   fn super_jackpot_hit_effect() -> LedProgram1d {
-    LedProgram1d::timeline()
-      .at(
-        Duration::ZERO,
-        LedProgram1d::flash(
-          LedQ::any(vec![
-            &captive_ball::LEFT_BOLT.q(),
-            &captive_ball::RIGHT_BOLT.q(),
-          ]),
-          ColorSequence::solid(Rgba::yellow()),
-          Cycle::Times(3),
-        ),
-      )
-      .at(
-        Duration::from_millis(185) * 3,
-        LedProgram1d::rotating(
-          LedQ::any(vec![
-            &captive_ball::LEFT_BOLT.q(),
-            &arc_ramp::HEX_LINE_LEDS,
-            &dome_ramp::HEX_LINE_LEDS,
-            &left_orbit::HEX_LINE_LEDS,
-          ]),
-          ColorSequence::exact(vec![Rgba::yellow()]),
-          Duration::from_millis(1500),
-          Curve::Linear,
-          Cycle::Once,
-        ),
-      )
-      .at(
-        Duration::from_millis(185) * 3,
-        LedProgram1d::rotating(
-          LedQ::any(vec![
-            &captive_ball::RIGHT_BOLT.q(),
-            &lift_ramp::HEX_LINE_LEDS,
-            &right_orbit::HEX_LINE_LEDS,
-          ]),
-          ColorSequence::exact(vec![Rgba::yellow()]),
-          Duration::from_millis(1500),
-          Curve::Linear,
-          Cycle::Once,
-        ),
-      )
+    LedProgram1d::flash(
+      LedQ::tag::<Playfield>(),
+      ColorSequence::solid(Rgba::orange()),
+      Cycle::Times(4),
+    )
+    .stopped()
   }
 
-  fn progress_effect(duration: Duration) -> LedProgram1d {
-    LedProgram1d::progress_time_remaining(
+  fn progress_effect(hits: u8) -> LedProgram1d {
+    LedProgram1d::fixed(
       city_map::SPORE_COUNT_BAR.q().reverse(),
-      ColorSequence::fade(Rgba::blue(), *MODE_COLOR),
-      duration,
-      Curve::Linear,
+      ColorSequence::solid(Rgba::yellow())
+        .padding_right(Extent::Relative(1.0 - (hits % 5) as f32 / 5.0)),
     )
   }
 
@@ -228,6 +134,7 @@ impl SporeMultiballMode {
     self.hit_effect.play();
     self.hits += 1;
     ctx.add_points(5_000_000);
+    ctx.play_sfx(sounds::rnd_lane_hit());
 
     // super jackpot
     if self.hits % 5 == 0 {
@@ -237,6 +144,8 @@ impl SporeMultiballMode {
 
   fn super_jackpot_hit(&mut self, ctx: &SystemContext) {
     ctx.add_points(25_000_000);
+    ctx.play_sfx(sounds::ARP_HIT1);
+    self.super_jackpot_hit_effect.reset();
     self.super_jackpot_hit_effect.play();
     self.end_super_jackpot(ctx);
   }
@@ -256,6 +165,13 @@ impl SporeMultiballMode {
     self.super_jackpot_active = false;
     self.super_jackpot_attention_effect.stop(ctx);
   }
+
+  fn shutdown(&mut self, ctx: &SystemContext) {
+    ctx
+      .expect::<ModeManager>()
+      .release_exclusive(&ExclusiveMode::SporeMultiball, ctx.into());
+    ctx.replace_self(SporeMultiballQualification::new());
+  }
 }
 
 impl System for SporeMultiballMode {
@@ -263,10 +179,15 @@ impl System for SporeMultiballMode {
     ctx.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::SporeMultiball)
   }
 
+  fn on_spawn(&mut self, ctx: &SystemContext) {
+    ctx.multiball_add_balls(2);
+  }
+
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
     self.progress_effect.apply(delta, ctx);
+    self.super_jackpot_hit_effect.apply(delta, ctx);
     self.super_jackpot_attention_effect.apply(delta, ctx);
   }
 
@@ -279,10 +200,12 @@ impl System for SporeMultiballMode {
       || event.is::<RightOrbitHit>()
     {
       self.jackpot_hit(ctx)
+    } else if event.is::<CaptiveBallHit>() && self.super_jackpot_active {
+      self.super_jackpot_hit(ctx);
     } else if event.is::<SuperJackpotOver>() && self.super_jackpot_active {
       self.end_super_jackpot(ctx);
-    } else if event.is::<PlayerTurnEnding>() {
-      ctx.despawn_self();
+    } else if event.is::<MultiballEnded>() || event.is::<PlayerTurnEnding>() {
+      self.shutdown(ctx);
     }
   }
 }

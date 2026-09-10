@@ -131,6 +131,7 @@ impl System for DropBankSystem {
         ctx.emit(DropBankTargetHit(3));
       } else if event.switch.name == PADDLE_SWITCH.name {
         ctx.emit(DropBankPaddleHit);
+        self.raise_targets(ctx.into());
       }
     }
   }

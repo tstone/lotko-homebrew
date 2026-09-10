@@ -68,8 +68,11 @@ impl System for EndOfBallSystem {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<PlayerTurnEnding>() {
+    if event.is::<Continue>() {
       self.on_end_of_ball(ctx);
+    } else if event.is::<PlayerTurnEnding>() {
+      // insert a slice delay to let hardware settle and final points come in
+      ctx.cue(Continue, Duration::from_millis(500).once());
     } else if let Some(event) = event.downcast_ref::<InitialsEntered>() {
       if let Some(first) = self.initials_needed.pop()
         && let Some(mut high_scores) = ctx.get::<HighScoresSystem>()
@@ -90,3 +93,6 @@ impl System for EndOfBallSystem {
     }
   }
 }
+
+#[derive(serde::Serialize, Event)]
+struct Continue;

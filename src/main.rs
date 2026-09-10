@@ -1,7 +1,9 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::Cycle::Forever;
 use frontbox::prelude::*;
-use frontbox::provided::{AutoPlungerSystem, DoubleFlipSystem, MultiballSystem, PlungeLaneSystem};
+use frontbox::provided::{
+  ActionButtonEject, AutoPlungerSystem, DoubleFlipSystem, MultiballSystem, PlungeLaneSystem,
+};
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
 use frontbox_sound::SoundSystem;
@@ -89,6 +91,32 @@ async fn main() {
     app.system(arc_ramp::ArcRampSystem::new());
     app.system(vspinner::VerticalSpinner::new());
     app.system(captive_ball::CaptiveBallSystem::new());
+    app.system(trough::system());
+    app.system(
+      PlungeLaneSystem::new(plunge_lane::SWITCH.name, Duration::from_millis(1200))
+        .ball_present_effect(LedProgram1d::rotating(
+          plunge_lane::LED_STRIP.q(),
+          ColorSequence::exact(vec![
+            Rgba::purple(),
+            Rgba::purple().lighten(0.35),
+            Rgba::default(),
+            Rgba::default(),
+          ]),
+          Duration::from_millis(900),
+          Curve::Linear,
+          Cycle::Forever,
+        )),
+    );
+    app.system(AutoPlungerSystem::new(plunge_lane::COIL.name));
+    app.system(ActionButtonEject::new(
+      action_button::SWITCH.q(),
+      LedProgram1d::pulse(
+        action_button::LED.q(),
+        Rgba::magenta(),
+        Duration::from_millis(1250),
+        Cycle::Forever,
+      ),
+    ));
     app.system(DoubleFlipSystem::new(
       cabinet::LEFT_FLIPPER_SWITCH1.q(),
       cabinet::RIGHT_FLIPPER_SWITCH1.q(),
@@ -123,26 +151,6 @@ async fn main() {
       ],
       SwitchQ::tag::<tags::Playfield>(),
     ));
-
-    // playfield
-    app.system(trough::system());
-    app.system(
-      PlungeLaneSystem::new(plunge_lane::SWITCH.name, Duration::from_millis(1200))
-        .ball_present_effect(LedProgram1d::rotating(
-          plunge_lane::LED_STRIP.q(),
-          ColorSequence::exact(vec![
-            Rgba::purple(),
-            Rgba::purple().lighten(0.35),
-            Rgba::default(),
-            Rgba::default(),
-          ]),
-          Duration::from_millis(900),
-          Curve::Linear,
-          Cycle::Forever,
-        )),
-    );
-    app.system(AutoPlungerSystem::new(plunge_lane::COIL.name));
-    // TODO: action button plunge
   })
   .run()
   .await;

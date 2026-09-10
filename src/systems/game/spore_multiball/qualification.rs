@@ -1,4 +1,4 @@
-use crate::hardware::captive_ball;
+use crate::hardware::captive_ball::CaptiveBallHit;
 use crate::hardware::gi;
 use crate::systems::game::*;
 use crate::systems::sounds;
@@ -8,17 +8,11 @@ use frontbox::prelude::*;
 pub struct SporeMultiballQualifier;
 
 impl ExclusiveModeQualifier for SporeMultiballQualifier {
-  const REQUIRED_HITS: u8 = 2;
+  const REQUIRED_HITS: u8 = 4;
   const HIT_SND_KEY: &'static str = sounds::LANE_HIT3;
 
   fn is_qualifying_shot(event: &dyn Event) -> bool {
-    if let Some(event) = event.downcast_ref::<SwitchClosed>()
-      && event.switch.name == captive_ball::TARGET_SWITCH.name
-    {
-      true
-    } else {
-      false
-    }
+    event.is::<CaptiveBallHit>()
   }
 
   fn on_qualified(ctx: &SystemContext) {

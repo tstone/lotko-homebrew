@@ -4,6 +4,7 @@ use frontbox::prelude::*;
 use frontbox_turn_based::*;
 
 use crate::hardware::arc_ramp::ArcRampHit;
+use crate::hardware::captive_ball::CaptiveBallHit;
 use crate::hardware::center_orbit::CenterOrbitHit;
 use crate::hardware::dome_ramp::DomeRampHit;
 use crate::hardware::left_orbit::LeftOrbitHit;
@@ -17,9 +18,9 @@ use crate::hardware::{
 use crate::hardware::{captive_ball, flashers};
 use crate::systems::game::meridian_basins::MODE_COLOR;
 use crate::systems::game::{
-  ExclusiveMode, LiftRampStartable, MeridianBasinsQualification, ModeManager,
+  ExclusiveMode, LiftRampStartable, MeridianBasinsQualification, ModeManager, points,
 };
-use crate::systems::sounds;
+use crate::systems::{sounds, sounds_bytes};
 use frontbox_sound::*;
 
 static REQUIRED_HITS: u8 = 6;
@@ -126,6 +127,8 @@ impl MeridianBasinsMode {
       self.hits += 1;
       self.progress_effect = Self::progress_effect(self.hits);
       log::info!("MeridianBasins: hits = {}", self.hits);
+      ctx.play_sfx(sounds::rnd_lane_hit());
+      ctx.add_points(points::EXL_MODE_HIT);
 
       if self.hits == 4 {
         self.intensity_effect.play();
@@ -133,6 +136,7 @@ impl MeridianBasinsMode {
         log::info!("MeridianBasins: complete");
         ctx.play_sfx(sounds::ARP_HIT1);
         self.hit_effect = Self::hit_effect(4);
+        ctx.add_points(points::EXL_COMPLETION);
       }
 
       self.hit_effect.play();
@@ -202,15 +206,15 @@ impl System for MeridianBasinsMode {
       self.on_shot_hit(ModeShots::LiftRamp, ctx);
     } else if event.is::<RightOrbitHit>() {
       self.on_shot_hit(ModeShots::RightOrbit, ctx);
-    } else if let Some(event) = event.downcast_ref::<SwitchClosed>() {
-      if let Some(pop) = pop_cluster::match_switch(&event.switch) {
-        match pop {
-          PopBumper::Left => self.on_shot_hit(ModeShots::LeftPop, ctx),
-          PopBumper::UpperRight => self.on_shot_hit(ModeShots::UpperRightPop, ctx),
-          PopBumper::LowerRight => self.on_shot_hit(ModeShots::LowerRightPop, ctx),
-        }
-      } else if event.switch.name == captive_ball::TARGET_SWITCH.name {
-        self.on_shot_hit(ModeShots::CaptiveBall, ctx)
+    } else if event.is::<CaptiveBallHit>() {
+      self.on_shot_hit(ModeShots::CaptiveBall, ctx)
+    } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
+      && let Some(pop) = pop_cluster::match_switch(&event.switch)
+    {
+      match pop {
+        PopBumper::Left => self.on_shot_hit(ModeShots::LeftPop, ctx),
+        PopBumper::UpperRight => self.on_shot_hit(ModeShots::UpperRightPop, ctx),
+        PopBumper::LowerRight => self.on_shot_hit(ModeShots::LowerRightPop, ctx),
       }
     } else if event.is::<PlayerTurnBeginning>() {
       self.revert_to_startable(ctx);

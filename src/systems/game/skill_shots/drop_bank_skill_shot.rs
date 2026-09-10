@@ -74,10 +74,11 @@ impl DropBankSkillShot {
   }
 
   fn next(&mut self, ctx: &SystemContext) {
-    self.enqueued_target = Some(self.current_target.next());
+    let next = self.current_target.next();
+
     self.attention_effect.stop(ctx);
-    self.attention_effect =
-      Self::attention_effect(drop_bank::leds_for_target(&self.current_target).q());
+    self.attention_effect = Self::attention_effect(drop_bank::leds_for_target(&next).q());
+    self.enqueued_target = Some(next);
 
     ctx.cue(NextTarget, Cue::Once(Duration::from_millis(1750)));
   }

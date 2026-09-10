@@ -58,9 +58,9 @@ pub fn exp_network() -> ExpNetwork {
       .wire_led_port(
         5,
         LedPort::ws2812().leds(vec![
-          &drop_bank::TARGET1_LEDS,
-          &drop_bank::TARGET2_LEDS,
           &drop_bank::TARGET3_LEDS,
+          &drop_bank::TARGET2_LEDS,
+          &drop_bank::TARGET1_LEDS,
         ]),
       )
       .wire_led_port(

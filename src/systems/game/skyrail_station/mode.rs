@@ -2,7 +2,7 @@ use frontbox::animation::Curve;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
 use frontbox::provided::MultiballExt;
-use frontbox_turn_based::{GameManagementExt, PlayerTurnActive};
+use frontbox_turn_based::{GameManagementExt, PlayerTurnBeginning};
 
 use crate::hardware::drop_bank::{self, DropBankSystem, DropBankTargetHit};
 use crate::hardware::flashers::{self, FlashersSystem};
@@ -310,7 +310,7 @@ impl System for SkyrailStationMode {
       self.advance(ctx);
     } else if event.is::<DropBankTargetHit>() && (self.state == HitTarget || self.state == Final) {
       self.advance(ctx);
-    } else if event.is::<PlayerTurnActive>() {
+    } else if event.is::<PlayerTurnBeginning>() {
       self.revert_to_startable(ctx);
     }
   }

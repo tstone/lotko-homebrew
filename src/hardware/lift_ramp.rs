@@ -27,7 +27,7 @@ hardware_defs! {
         Power::FULL,
         Ranges::full_power()
       ),
-      secondary_pwm_power: HardwareValue::fixed(Power::EIGHTH),
+      secondary_pwm_power: HardwareValue::fixed(Power::QUARTER),
       rest: HardwareValue::Fixed(Duration::from_millis(255)),
     });
 

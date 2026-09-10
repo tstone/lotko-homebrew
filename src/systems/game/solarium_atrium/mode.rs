@@ -2,7 +2,7 @@ use frontbox::animation::Curve;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
-use frontbox_turn_based::{GameManagementExt, PlayerTurnActive};
+use frontbox_turn_based::{GameManagementExt, PlayerTurnBeginning};
 
 use crate::game::solarium_atrium::MODE_COLOR;
 use crate::hardware::arc_ramp::{self, ArcRampHit};
@@ -161,7 +161,7 @@ impl System for SolariumAtriumMode {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<PlayerTurnActive>() {
+    if event.is::<PlayerTurnBeginning>() {
       self.revert_to_startable(ctx);
     } else if event.is::<DomeRampHit>() {
       self.ramp_hit(Ramp::DomeRamp, ctx);

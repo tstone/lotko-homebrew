@@ -15,9 +15,9 @@ pub enum DropBankTarget {
 impl DropBankTarget {
   pub fn next(&self) -> Self {
     match self {
-      Self::Target1 => Self::Target2,
-      Self::Target2 => Self::Target3,
-      Self::Target3 => Self::Target1,
+      Self::Target3 => Self::Target2,
+      Self::Target2 => Self::Target1,
+      Self::Target1 => Self::Target3,
     }
   }
 }

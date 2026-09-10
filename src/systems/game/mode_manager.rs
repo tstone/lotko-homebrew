@@ -25,6 +25,14 @@ static EXCL_MODE_MUSIC: LazyLock<HashMap<ExclusiveMode, PathBuf>> = LazyLock::ne
     ExclusiveMode::SolariumAtrium,
     PathBuf::from("/userdata/home/armsom/music/fehrplay-arcadia.mp3"),
   );
+  map.insert(
+    ExclusiveMode::MeridianBasins,
+    PathBuf::from("/userdata/home/armsom/music/glitch-mob-cant-kill-us.mp3"),
+  );
+  map.insert(
+    ExclusiveMode::SporeMultiball,
+    PathBuf::from("/userdata/home/armsom/music/rezmau5-infraliminal.mp3"),
+  );
   map
 });
 static NON_EXCL_MODE_MUSIC: LazyLock<HashMap<NonExclusiveMode, PathBuf>> = LazyLock::new(|| {

@@ -75,6 +75,7 @@ impl SkyrailStationMode {
         ColorSequence::fade(*MODE_COLOR, Rgba::default()).shuffle(rand::random()),
         ColorSequence::solid(Rgba::default()),
       ],
+      EndBehavior::Clear,
     )
     .stopped()
   }
@@ -152,6 +153,7 @@ impl SkyrailStationMode {
                   ColorSequence::fade(*MODE_COLOR, MODE_COLOR.lighten(0.5)),
                   ColorSequence::solid(Rgba::default()),
                 ],
+                EndBehavior::Clear,
               ),
             );
           return;

@@ -9,19 +9,15 @@ pub mod left_flipper {
     pub EOS_SWITCH: SwitchDefinition = SwitchDefinition::new("l_flipper_eos");
 
     pub MAIN_COIL: DriverDefinition = DriverDefinition::new("l_flipper_main")
-    .mode(FlipperMainDirectMode {
-        button_switch: cabinet::LEFT_FLIPPER_SWITCH1.name,
-        eos_switch: EOS_SWITCH.name,
-        initial_pwm_power: HardwareValue::config("Initial Power", "", Power::FULL, Ranges::full_power()),
-        secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::THREE_QUARTERS, Ranges::full_power()),
-        ..Default::default()
-      });
+      .mode(
+        DriverMode::flipper_main_direct(cabinet::LEFT_FLIPPER_SWITCH1.name, EOS_SWITCH.name)
+          .initial_pwm_power(HardwareValue::config("Initial Power", "", Power::FULL, Ranges::full_power()))
+          .secondary_pwm_power(HardwareValue::config("Secondary Power", "", Power::THREE_QUARTERS, Ranges::full_power()))
+          .build(),
+      );
 
     pub HOLD_COIL: DriverDefinition = DriverDefinition::new("l_flipper_hold")
-      .mode(FlipperHoldDirectMode {
-        button_switch: cabinet::LEFT_FLIPPER_SWITCH1.name,
-        ..Default::default()
-      });
+      .mode(DriverMode::flipper_hold_direct(cabinet::LEFT_FLIPPER_SWITCH1.name).build());
   }
 }
 
@@ -34,19 +30,15 @@ pub mod right_flipper {
       .debounce_close(Duration::from_millis(8));
 
     pub MAIN_COIL: DriverDefinition = DriverDefinition::new("r_flipper_main")
-    .mode(FlipperMainDirectMode {
-        button_switch: cabinet::RIGHT_FLIPPER_SWITCH1.name,
-        eos_switch: EOS_SWITCH.name,
-        initial_pwm_power: HardwareValue::config("Initial Power", "", Power::FULL, Ranges::full_power()),
-        secondary_pwm_power: HardwareValue::config("Secondary Power", "", Power::FULL, Ranges::full_power()),
-        ..Default::default()
-      });
+      .mode(
+        DriverMode::flipper_main_direct(cabinet::RIGHT_FLIPPER_SWITCH1.name, EOS_SWITCH.name)
+          .initial_pwm_power(HardwareValue::config("Initial Power", "", Power::FULL, Ranges::full_power()))
+          .secondary_pwm_power(HardwareValue::config("Secondary Power", "", Power::FULL, Ranges::full_power()))
+          .build(),
+      );
 
     pub HOLD_COIL: DriverDefinition = DriverDefinition::new("r_flipper_hold")
-      .mode(FlipperHoldDirectMode {
-        button_switch: cabinet::RIGHT_FLIPPER_SWITCH1.name,
-        ..Default::default()
-      });
+      .mode(DriverMode::flipper_hold_direct(cabinet::RIGHT_FLIPPER_SWITCH1.name).build());
   }
 }
 
@@ -60,19 +52,21 @@ pub mod slingshots {
     // -- Coils --
 
     pub LEFT_COIL: DriverDefinition = DriverDefinition::new("l_sling_coil")
-      .mode(PulseMode {
-        trigger_mode: DriverTriggerMode::Switch(LEFT_SWITCH.name),
-        initial_pwm_power: HardwareValue::config("Left Sling Power", "Power of the left slingshot", Power::THREE_QUARTERS, Ranges::full_power()),
-        ..Default::default()
-      })
+      .mode(
+        DriverMode::pulse()
+          .trigger_mode(DriverTriggerMode::Switch(LEFT_SWITCH.name))
+          .initial_pwm_power(HardwareValue::config("Left Sling Power", "Power of the left slingshot", Power::THREE_QUARTERS, Ranges::full_power()))
+          .build(),
+      )
       .tag(Playfield);
 
     pub RIGHT_COIL: DriverDefinition = DriverDefinition::new("r_sling_coil")
-      .mode(PulseMode {
-        trigger_mode: DriverTriggerMode::Switch(RIGHT_SWITCH.name),
-        initial_pwm_power: HardwareValue::config("Right Sling Power", "Power of the right slingshot", Power::THREE_QUARTERS, Ranges::full_power()),
-        ..Default::default()
-      })
+      .mode(
+        DriverMode::pulse()
+          .trigger_mode(DriverTriggerMode::Switch(RIGHT_SWITCH.name))
+          .initial_pwm_power(HardwareValue::config("Right Sling Power", "Power of the right slingshot", Power::THREE_QUARTERS, Ranges::full_power()))
+          .build(),
+      )
       .tag(Playfield);
 
     // -- Post LEDs --

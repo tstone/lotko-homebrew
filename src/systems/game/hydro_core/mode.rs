@@ -124,6 +124,7 @@ impl HydroCoreMode {
             ColorSequence::fade(*MODE_COLOR, Rgba::default()).shuffle(rand::random()),
             ColorSequence::solid(Rgba::default()),
           ],
+          EndBehavior::Clear,
         ),
       )
   }

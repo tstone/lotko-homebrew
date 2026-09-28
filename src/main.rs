@@ -2,11 +2,11 @@ use frontbox::animation::Curve;
 use frontbox::prelude::Cycle::Forever;
 use frontbox::prelude::*;
 use frontbox::provided::{AutoPlungerSystem, DoubleFlipSystem, MultiballSystem, PlungeLaneSystem};
+use frontbox_pin_console::WebTracer;
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
 use frontbox_sound::SoundSystem;
 use frontbox_turn_based::*;
-use frontbox_web_console::WebTracer;
 use std::io::Write;
 
 mod systems;
@@ -38,13 +38,17 @@ async fn main() {
     })
     .init();
 
-  App::boot(BootConfig {
+  App::new(BootConfig {
+    platform: Platform::Neuron {
+      io_net_port_path: "/dev/ttyACM0",
+      exp_port_path: "/dev/ttyACM1",
+      watchdog_interval: Duration::from_millis(1500),
+    },
     io_network: io_network(),
     exp_network: exp_network(),
     system_interval: Duration::from_millis(67),
     ..Default::default()
   })
-  .await
   .configure(|app| {
     let ball_save_effect =
       LedProgram1d::flash(DRAIN_LED.q(), ColorSequence::solid(Rgba::green()), Forever);
@@ -54,7 +58,7 @@ async fn main() {
     // core
     app.system(LedSystem::new());
     app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
-    app.system(OperatorConfig::new());
+    app.system(OperatorConfig::default());
     app.system(FreePlay::new(start_button::SWITCH.q()));
     app.system(SoundLoaderSystem::new());
     app.system(game_startable());

@@ -126,6 +126,7 @@ impl LeftScoopStartable {
         ColorSequence::solid(mode.color()),
         ColorSequence::solid(Rgba::default()),
       ],
+      EndBehavior::Clear,
     )
     .stopped()
   }

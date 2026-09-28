@@ -26,12 +26,13 @@ pub mod left {
 
   hardware_defs! {
     pub COIL: DriverDefinition = DriverDefinition::new("l_pop")
-      .mode(PulseMode {
-        trigger_mode: DriverTriggerMode::Switch(SPOON_SWITCH.name),
-        initial_pwm_power: HardwareValue::config("Left Pop Power", "Power of the left pop bumper", Power::FULL, Ranges::full_power()),
-        initial_pwm_length: HardwareValue::Fixed(Duration::from_millis(30)),
-        ..Default::default()
-      })
+      .mode(
+        DriverMode::pulse()
+          .trigger_mode(DriverTriggerMode::Switch(SPOON_SWITCH.name))
+          .initial_pwm_power(HardwareValue::config("Left Pop Power", "Power of the left pop bumper", Power::FULL, Ranges::full_power()))
+          .initial_pwm_length(HardwareValue::Fixed(Duration::from_millis(30)))
+          .build(),
+      )
       .tag(Playfield);
 
     pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("l_spoon").tag(Playfield);
@@ -58,12 +59,13 @@ pub mod upper_right {
 
   hardware_defs! {
     pub COIL: DriverDefinition = DriverDefinition::new("ur_pop")
-      .mode(PulseMode {
-        trigger_mode: DriverTriggerMode::Switch(SPOON_SWITCH.name),
-        initial_pwm_power: HardwareValue::config("Upper Right Pop Power", "Power of the upper right pop bumper", Power::FULL, Ranges::full_power()),
-        initial_pwm_length: HardwareValue::Fixed(Duration::from_millis(30)),
-        ..Default::default()
-      })
+      .mode(
+        DriverMode::pulse()
+          .trigger_mode(DriverTriggerMode::Switch(SPOON_SWITCH.name))
+          .initial_pwm_power(HardwareValue::config("Upper Right Pop Power", "Power of the upper right pop bumper", Power::FULL, Ranges::full_power()))
+          .initial_pwm_length(HardwareValue::Fixed(Duration::from_millis(30)))
+          .build(),
+      )
       .tag(Playfield);
 
     pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("ur_spoon")
@@ -92,12 +94,13 @@ pub mod lower_right {
 
   hardware_defs! {
     pub COIL: DriverDefinition = DriverDefinition::new("lr_pop")
-      .mode(PulseMode {
-        trigger_mode: DriverTriggerMode::Switch(SPOON_SWITCH.name),
-        initial_pwm_power: HardwareValue::config("Lower Right Pop Power", "Power of the lower right pop bumper", Power::FULL, Ranges::full_power()),
-        initial_pwm_length: HardwareValue::Fixed(Duration::from_millis(30)),
-        ..Default::default()
-      })
+      .mode(
+        DriverMode::pulse()
+          .trigger_mode(DriverTriggerMode::Switch(SPOON_SWITCH.name))
+          .initial_pwm_power(HardwareValue::config("Lower Right Pop Power", "Power of the lower right pop bumper", Power::FULL, Ranges::full_power()))
+          .initial_pwm_length(HardwareValue::Fixed(Duration::from_millis(30)))
+          .build(),
+      )
       .tag(Playfield);
 
     pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("lr_spoon").tag(Playfield);

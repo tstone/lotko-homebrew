@@ -12,27 +12,26 @@ use crate::hardware::more_tags::*;
 hardware_defs! {
   pub COIL: DriverDefinition = DriverDefinition::new("lower_scoop")
     .tag(Playfield)
-    .mode(PulseKickMode {
-      trigger_mode: DriverTriggerMode::VirtualSwitchTrue,
-      initial_pwm_length: HardwareValue::config(
-        "Lower Scoop Touch Time",
-        "Duration by which the eject plunger is brought into contact with the ball, before full eject",
-        Duration::from_millis(7),
-        Ranges::duration(0, 100),
-      ),
-      initial_pwm_power: HardwareValue::fixed(
-        Power::THREE_QUARTERS,
-      ),
-      secondary_pwm_power: HardwareValue::Fixed(Power::ZERO),
-      secondary_pwm_length: HardwareValue::Fixed(Duration::ZERO),
-      kick_length: HardwareValue::config(
-        "Lower Scoop Eject Time",
-        "Duration that the plunger exert full power onto the ball (kick)",
-        Duration::from_millis(35),
-        Ranges::duration(10, 300),
-      ),
-      ..Default::default()
-    });
+    .mode(
+      DriverMode::pulse_kick()
+        .trigger_mode(DriverTriggerMode::VirtualSwitchTrue)
+        .initial_pwm_length(HardwareValue::config(
+          "Lower Scoop Touch Time",
+          "Duration by which the eject plunger is brought into contact with the ball, before full eject",
+          Duration::from_millis(7),
+          Ranges::duration(0, 100),
+        ))
+        .initial_pwm_power(HardwareValue::fixed(Power::THREE_QUARTERS))
+        .secondary_pwm_power(HardwareValue::Fixed(Power::ZERO))
+        .secondary_pwm_length(HardwareValue::Fixed(Duration::ZERO))
+        .kick_length(HardwareValue::config(
+          "Lower Scoop Eject Time",
+          "Duration that the plunger exert full power onto the ball (kick)",
+          Duration::from_millis(35),
+          Ranges::duration(10, 300),
+        ))
+        .build(),
+    );
 
   pub OPTO: SwitchDefinition = SwitchDefinition::new("lower_scoop")
     .inverted()
@@ -80,6 +79,7 @@ impl LowerScoopSystem {
         ColorSequence::exact(vec![Rgba::white(), Rgba::default()]),
         ColorSequence::exact(vec![Rgba::default(), Rgba::white()]),
       ],
+      EndBehavior::Clear,
     )
     .stopped();
 
@@ -106,7 +106,7 @@ impl LowerScoopSystem {
     log::info!("Stopping LEDs after complete eject");
     self.eject_program.stop(ctx);
     self.eject_pending = false;
-    ctx.expect::<Machine>().refresh_switch_state();
+    ctx.expect::<MachineSystem>().refresh_switch_state();
 
     // There's some kind of voltage sag issue happening, so after eject check if it was actually ejected
     ctx.cue(CheckVacated, Cue::Once(Duration::from_millis(250)));

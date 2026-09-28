@@ -13,47 +13,48 @@ use crate::hardware::more_tags::*;
 hardware_defs! {
   pub RAMP_COIL: DriverDefinition = DriverDefinition::new("lift_ramp")
     .tag(Playfield)
-    .mode(PulseHoldMode {
-      trigger_mode: VirtualSwitchTrue,
-      initial_pwm_length: HardwareValue::config(
-        "Lift Ramp Kick Duration",
-        "Amount of time to initially kick the lift ramp open",
-        Duration::from_millis(22),
-        Ranges::duration(5, 100)
-      ),
-      initial_pwm_power: HardwareValue::config(
-        "Lift Ramp Kick Power",
-        "Power to use when initially kicking the lift ramp open",
-        Power::FULL,
-        Ranges::full_power()
-      ),
-      secondary_pwm_power: HardwareValue::fixed(Power::EIGHTH),
-      rest: HardwareValue::Fixed(Duration::from_millis(255)),
-    });
+    .mode(
+      DriverMode::pulse_hold()
+        .trigger_mode(VirtualSwitchTrue)
+        .initial_pwm_length(HardwareValue::config(
+          "Lift Ramp Kick Duration",
+          "Amount of time to initially kick the lift ramp open",
+          Duration::from_millis(22),
+          Ranges::duration(5, 100)
+        ))
+        .initial_pwm_power(HardwareValue::config(
+          "Lift Ramp Kick Power",
+          "Power to use when initially kicking the lift ramp open",
+          Power::FULL,
+          Ranges::full_power()
+        ))
+        .secondary_pwm_power(HardwareValue::fixed(Power::EIGHTH))
+        .rest(HardwareValue::Fixed(Duration::from_millis(255)))
+        .build(),
+    );
 
   pub EJECT_COIL: DriverDefinition = DriverDefinition::new("lift_ramp_eject")
     .tag(Playfield)
-    .mode(PulseKickMode {
-      trigger_mode: VirtualSwitchTrue,
-      initial_pwm_length: HardwareValue::config(
-        "Rear Scoop Touch Time",
-        "Duration by which the eject plunger is brought into contact with the ball, before full eject",
-        Duration::from_millis(2),
-        Ranges::duration(0, 100),
-      ),
-      initial_pwm_power: HardwareValue::fixed(
-        Power::HALF,
-      ),
-      secondary_pwm_power: HardwareValue::Fixed(Power::ZERO),
-      secondary_pwm_length: HardwareValue::Fixed(Duration::ZERO),
-      kick_length: HardwareValue::config(
-        "Rear Scoop Eject Time",
-        "Duration that the plunger exert full power onto the ball (kick)",
-        Duration::from_millis(12),
-        Ranges::duration(10, 100),
-      ),
-      ..Default::default()
-    });
+    .mode(
+      DriverMode::pulse_kick()
+        .trigger_mode(VirtualSwitchTrue)
+        .initial_pwm_length(HardwareValue::config(
+          "Rear Scoop Touch Time",
+          "Duration by which the eject plunger is brought into contact with the ball, before full eject",
+          Duration::from_millis(2),
+          Ranges::duration(0, 100),
+        ))
+        .initial_pwm_power(HardwareValue::fixed(Power::HALF))
+        .secondary_pwm_power(HardwareValue::Fixed(Power::ZERO))
+        .secondary_pwm_length(HardwareValue::Fixed(Duration::ZERO))
+        .kick_length(HardwareValue::config(
+          "Rear Scoop Eject Time",
+          "Duration that the plunger exert full power onto the ball (kick)",
+          Duration::from_millis(12),
+          Ranges::duration(10, 100),
+        ))
+        .build(),
+    );
 
   pub SCOOP_OPTO: SwitchDefinition = SwitchDefinition::new("lift_ramp_scoop_opto")
     .inverted()

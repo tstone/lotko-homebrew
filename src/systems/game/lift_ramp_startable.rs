@@ -141,6 +141,7 @@ impl LiftRampStartable {
         ColorSequence::solid(mode.color()),
         ColorSequence::solid(Rgba::default()),
       ],
+      EndBehavior::Clear,
     )
     .stopped()
   }

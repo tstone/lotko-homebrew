@@ -1,6 +1,6 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::*;
-use frontbox::provided::{MultiballExt, MultiballSystem};
+use frontbox::provided::MultiballExt;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::{GameManagementExt, GameManager, TurnState};
 
@@ -35,7 +35,7 @@ impl NimbusPromenadeMode {
 
   fn on_pop_hit(&mut self, pop: &PopBumper, ctx: &SystemContext) {
     if self.cycle_time > Duration::from_millis(600) {
-      self.cycle_time -= Duration::from_millis(200);
+      self.cycle_time -= Duration::from_millis(350);
     }
 
     if *pop == self.current_pop {
@@ -48,15 +48,15 @@ impl NimbusPromenadeMode {
 
       // check for completion
       let required_hits = match self.current_pop {
-        PopBumper::Left => 4,
-        _ => 3,
+        PopBumper::Left => 8,
+        _ => 6,
       };
 
       if self.hits == required_hits {
         self.complete(ctx);
         ctx
           .expect::<ModeManager>()
-          .complete_non_exclusive(NonExclusiveMode::NimbusPromenade, ctx);
+          .complete_non_exclusive(NonExclusiveMode::NimbusPromenade, ctx.into());
       }
     }
   }
@@ -102,7 +102,7 @@ impl NimbusPromenadeMode {
         &pop_cluster::target_led_for_pop(pop).q(),
         &pop_cluster::led_ray_for_pop(pop)
           .clone()
-          .take(hit_count as usize),
+          .take((hit_count / 2) as usize),
       ]),
       (*MODE_COLOR).into(),
       Duration::bpm(83),
@@ -142,7 +142,7 @@ impl System for NimbusPromenadeMode {
     self.cue_id = Some(ctx.cue(Next, Cue::Once(Duration::from_millis(1750))));
     ctx
       .expect::<ModeManager>()
-      .non_exclusive_active(NonExclusiveMode::NimbusPromenade, ctx);
+      .non_exclusive_active(NonExclusiveMode::NimbusPromenade, ctx.into());
     ctx.multiball_add_balls(1);
   }
 

@@ -4,6 +4,8 @@ use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use frontbox_turn_based::GameManagementExt;
+use frontbox_turn_based::GameManager;
+use frontbox_turn_based::TurnState;
 
 use crate::hardware::arc_ramp;
 use crate::hardware::lower_scoop;
@@ -84,7 +86,7 @@ impl LeftScoopStartable {
   fn start(&mut self, ctx: &SystemContext) {
     // Ensure that exclusive mode rights can be taken
     if let Startable(mode) = self.state
-      && let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(mode, ctx)
+      && let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(mode, ctx.into())
     {
       log::info!("LiftRampStartable: Starting mode {:?}", mode);
       self.state = Starting(mode);
@@ -100,7 +102,7 @@ impl LeftScoopStartable {
       .at(
         Duration::ZERO,
         LedProgram1d::flash(
-          &*lower_scoop::BOLTS_Q,
+          (&*lower_scoop::BOLTS_Q).at_z(1),
           ColorSequence::solid(mode.color()),
           Cycle::Forever,
         ),
@@ -108,7 +110,7 @@ impl LeftScoopStartable {
       .at(
         Duration::ZERO,
         LedProgram1d::flash(
-          &*arc_ramp::HEX_CENTER_LED,
+          (&*arc_ramp::HEX_CENTER_LED).at_z(2),
           ColorSequence::solid(mode.color()),
           Cycle::Forever,
         ),
@@ -134,12 +136,17 @@ impl LeftScoopStartable {
 
 impl System for LeftScoopStartable {
   fn is_active(&self, ctx: &SystemContext) -> bool {
+    let game_manager = ctx.expect::<GameManager>();
     let mode_manager = ctx.expect::<ModeManager>();
-    match (&self.state, mode_manager.current_mode()) {
-      (Starting(startable_mode), Some(active_mode)) => active_mode == startable_mode,
-      (_, Some(_)) => false,
-      _ => true,
-    }
+    game_manager
+      .turn_state()
+      .map(|s| *s == TurnState::Active)
+      .unwrap_or(false)
+      && match (&self.state, mode_manager.current_mode()) {
+        (Starting(startable_mode), Some(active_mode)) => active_mode == startable_mode,
+        (_, Some(_)) => false,
+        _ => true,
+      }
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {

@@ -99,7 +99,7 @@ impl NimbusPromenadeQualification {
     }
 
     if self.hits == REQUIRED_HITS {
-      ctx.play_sfx(sounds::HIT_ORGANIC3);
+      ctx.play_sfx(sounds::ARP_HIT1);
       ctx.add_points(nimbus_promenade::points::START);
       self.shutdown = true;
     }

@@ -1,7 +1,10 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::Cycle::Forever;
 use frontbox::prelude::*;
-use frontbox::provided::{AutoPlungerSystem, DoubleFlipSystem, MultiballSystem, PlungeLaneSystem};
+use frontbox::provided::{
+  ActionButtonEject, AutoPlungerSystem, DoubleFlipSystem, MultiballSystem, PlungeLaneSystem,
+  QuitGameSystem,
+};
 use frontbox_pin_console::WebTracer;
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
@@ -81,6 +84,10 @@ async fn main() {
     ));
     app.system(AttractModeDmdSystem::new());
     app.system(GamePointsDmdSystem::new());
+    app.system(QuitGameSystem::new(
+      cabinet::LEFT_FLIPPER_SWITCH1.name,
+      start_button::SWITCH.name,
+    ));
 
     // hardware ops
     app.system(drop_bank::DropBankSystem::new());
@@ -92,40 +99,7 @@ async fn main() {
     app.system(right_orbit::RightOrbitSystem::new());
     app.system(arc_ramp::ArcRampSystem::new());
     app.system(vspinner::VerticalSpinner::new());
-    app.system(DoubleFlipSystem::new(
-      cabinet::LEFT_FLIPPER_SWITCH1.q(),
-      cabinet::RIGHT_FLIPPER_SWITCH1.q(),
-    ));
-
-    // game
-    app.system(activate_playfield());
-    app.system(EndOfBallSystem::new());
-    app.system(GameManager::competitive(
-      4,
-      systems![
-        BasicPoints::new(),
-        // operation
-        BallSaveSystem::new(Duration::from_secs(8)).effect(ball_save_effect.clone()),
-        PlayfieldIllumination::new(),
-        SkillshotManager::new(),
-        FlashersSystem::new(),
-        MultiballSystem::new(Duration::from_secs(8), ball_save_effect),
-        // modes
-        ModeManager::new(),
-        LeftScoopStartable::new(),
-        LiftRampStartable::new(),
-        // exclusive
-        HydroCoreQualification::new(),
-        SkyrailStationQualification::new(),
-        SolariumAtriumQualification::new(),
-        // non-exclusive
-        NimbusPromenadeQualification::new(),
-        ApexTerracesMode::new(),
-      ],
-      SwitchQ::tag::<tags::Playfield>(),
-    ));
-
-    // playfield
+    app.system(captive_ball::CaptiveBallSystem::new());
     app.system(trough::system());
     app.system(
       PlungeLaneSystem::new(plunge_lane::SWITCH.name, Duration::from_millis(1200))
@@ -143,7 +117,49 @@ async fn main() {
         )),
     );
     app.system(AutoPlungerSystem::new(plunge_lane::COIL.name));
-    // TODO: action button plunge
+    app.system(ActionButtonEject::new(
+      action_button::SWITCH.q(),
+      LedProgram1d::pulse(
+        action_button::LED.q(),
+        Rgba::magenta(),
+        Duration::from_millis(1250),
+        Cycle::Forever,
+      ),
+    ));
+    app.system(DoubleFlipSystem::new(
+      cabinet::LEFT_FLIPPER_SWITCH1.q(),
+      cabinet::RIGHT_FLIPPER_SWITCH1.q(),
+    ));
+
+    // game
+    app.system(activate_playfield());
+    app.system(EndOfBallSystem::new());
+    app.system(GameManager::competitive(
+      4,
+      systems![
+        BasicPoints::new(),
+        // operation
+        BallSaveSystem::new(Duration::from_secs(8)).effect(ball_save_effect.clone()),
+        PlayfieldIllumination::new(),
+        SkillshotManager::new(),
+        FlashersSystem::new(),
+        MultiballSystem::new(Duration::from_secs(12), ball_save_effect),
+        // modes
+        ModeManager::new(),
+        LeftScoopStartable::new(),
+        LiftRampStartable::new(),
+        // exclusive
+        HydroCoreQualification::new(),
+        SkyrailStationQualification::new(),
+        SolariumAtriumQualification::new(),
+        MeridianBasinsQualification::new(),
+        SporeMultiballQualification::new(),
+        // non-exclusive
+        NimbusPromenadeQualification::new(),
+        ApexTerracesMode::new(),
+      ],
+      SwitchQ::tag::<tags::Playfield>(),
+    ));
   })
   .run()
   .await;

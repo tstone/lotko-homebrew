@@ -1,12 +1,13 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
-use frontbox_turn_based::{GameManagementExt, PlayerTurnActive};
+use frontbox::provided::MultiballExt;
+use frontbox_turn_based::{GameManagementExt, PlayerTurnBeginning};
 
 use crate::hardware::drop_bank::{self, DropBankSystem, DropBankTargetHit};
 use crate::hardware::flashers::{self, FlashersSystem};
 use crate::hardware::lift_ramp::{LiftRampHit, LiftRampScoopBallEnter, LiftRampSystem};
-use crate::hardware::{backbox, lift_ramp};
+use crate::hardware::{backbox, city_map, lift_ramp};
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
@@ -17,7 +18,9 @@ pub struct SkyrailStationMode {
   attention_effect: LedProgram1d,
   hit_effect: LedProgram1d,
   intensity_effect: LedProgram1d,
+  progress_effect: LedProgram1d,
   target_hits: u8,
+  ramp_hits: u8,
   state: State,
   ramp_up: bool,
 }
@@ -28,7 +31,9 @@ impl SkyrailStationMode {
       attention_effect: Self::attention_effect_ramp(),
       hit_effect: Self::hit_effect(),
       intensity_effect: Self::intensity_effect(),
+      progress_effect: Self::progress_effect(0),
       target_hits: 0,
+      ramp_hits: 0,
       state: HitRamp,
       ramp_up: false,
     }
@@ -45,14 +50,61 @@ impl SkyrailStationMode {
 
   fn attention_effect_target() -> LedProgram1d {
     LedProgram1d::multi(vec![
-      LedProgram1d::pulse(
+      LedProgram1d::flash(
         LedQ::any(vec![
-          &drop_bank::TARGET1_LEDS.q(),
-          &drop_bank::TARGET2_LEDS.q(),
-          &drop_bank::TARGET3_LEDS.q(),
+          &drop_bank::TARGET1_LEDS.q().skip(3).take(1),
+          &drop_bank::TARGET2_LEDS.q().skip(3).take(1),
+          &drop_bank::TARGET3_LEDS.q().skip(3).take(1),
         ]),
-        *MODE_COLOR,
-        Duration::bpm(128),
+        (*MODE_COLOR).into(),
+        Cycle::Forever,
+      ),
+      LedProgram1d::rotating(
+        &*lift_ramp::HEX_LINE_LEDS,
+        ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
+        Duration::from_millis(250),
+        Curve::Linear,
+        Cycle::Forever,
+      ),
+    ])
+  }
+
+  fn attention_effect_target_final() -> LedProgram1d {
+    LedProgram1d::multi(vec![
+      LedProgram1d::rotating(
+        drop_bank::TARGET1_LEDS.q(),
+        ColorSequence::exact(vec![
+          *MODE_COLOR,
+          Rgba::default(),
+          Rgba::default(),
+          Rgba::default(),
+        ]),
+        Duration::from_millis(250),
+        Curve::Linear,
+        Cycle::Forever,
+      ),
+      LedProgram1d::rotating(
+        drop_bank::TARGET2_LEDS.q(),
+        ColorSequence::exact(vec![
+          Rgba::default(),
+          *MODE_COLOR,
+          Rgba::default(),
+          Rgba::default(),
+        ]),
+        Duration::from_millis(250),
+        Curve::Linear,
+        Cycle::Forever,
+      ),
+      LedProgram1d::rotating(
+        drop_bank::TARGET3_LEDS.q(),
+        ColorSequence::exact(vec![
+          Rgba::default(),
+          Rgba::default(),
+          *MODE_COLOR,
+          Rgba::default(),
+        ]),
+        Duration::from_millis(250),
+        Curve::Linear,
         Cycle::Forever,
       ),
       LedProgram1d::rotating(
@@ -110,6 +162,14 @@ impl SkyrailStationMode {
     .stopped()
   }
 
+  fn progress_effect(hits: u8) -> LedProgram1d {
+    LedProgram1d::fixed(
+      city_map::SPORE_COUNT_BAR.q().reverse(),
+      ColorSequence::solid(*MODE_COLOR)
+        .padding_right(Extent::Relative(1.0 - (hits as f32 / 8 as f32))),
+    )
+  }
+
   fn advance(&mut self, ctx: &SystemContext) {
     ctx.add_points(points::EXL_MODE_HIT);
     self.hit_effect.play();
@@ -118,15 +178,13 @@ impl SkyrailStationMode {
       .flash(3, ColorSequence::tile(vec![*MODE_COLOR, Rgba::default()]));
 
     match self.state {
-      HitTarget => {
-        log::info!("Skyrail: HitTarget");
+      Final => {
         self.target_hits += 1;
-        self.attention_effect.stop(ctx);
+        log::info!("Skyrail: Final - target hits {}", self.target_hits);
 
         // check for completion
-        if self.target_hits == 3 {
-          log::info!("Skyrail: Final");
-          self.state = Final;
+        if self.target_hits == 5 {
+          self.state = Complete;
           self.ramp_down(ctx);
           ctx.add_points(game::points::EXL_COMPLETION);
 
@@ -157,30 +215,43 @@ impl SkyrailStationMode {
               ),
             );
           return;
-        } else {
-          if self.target_hits == 2 {
-            self.intensity_effect.play();
-          }
-
-          self.state = HitRamp;
-          self.attention_effect = Self::attention_effect_ramp();
-          self.ramp_down(ctx);
-          log::info!("SkyrailStation: hit target => ramp down");
         }
+      }
+      HitTarget => {
+        log::info!("Skyrail: HitTarget");
+        self.target_hits += 1;
+        self.state = HitRamp;
+        self.attention_effect.stop(ctx);
+        self.attention_effect = Self::attention_effect_ramp();
+        self.ramp_down(ctx);
+        log::info!("SkyrailStation: hit target => ramp down");
       }
       HitRamp => {
         log::info!("Skyrail: HitRamp");
-        self.state = HitTarget;
+        self.ramp_hits += 1;
+
+        if self.ramp_hits == 3 {
+          // on the final round all 3 targets must be hit with a 2 ball multiball
+          ctx.multiball_add_balls(1);
+          self.state = Final;
+          self.intensity_effect.play();
+          self.attention_effect.stop(ctx);
+          self.attention_effect = Self::attention_effect_target_final();
+        } else {
+          self.state = HitTarget;
+          self.attention_effect.stop(ctx);
+          self.attention_effect = Self::attention_effect_target();
+        }
+
         self.ramp_up(Duration::from_millis(250), ctx);
         log::info!("SkyrailStation: hit ramp => ramp up");
 
         ctx.expect::<DropBankSystem>().raise_targets(ctx.into());
-
-        self.attention_effect.stop(ctx);
-        self.attention_effect = Self::attention_effect_target();
       }
       _ => {}
     }
+
+    self.progress_effect = Self::progress_effect(self.target_hits + self.ramp_hits);
   }
 
   fn ramp_up(&mut self, delay: Duration, ctx: &SystemContext) {
@@ -204,7 +275,7 @@ impl SkyrailStationMode {
   fn revert_to_startable(&mut self, ctx: &SystemContext) {
     ctx
       .expect::<ModeManager>()
-      .release_exclusive(&ExclusiveMode::SkyrailStation, ctx);
+      .release_exclusive(&ExclusiveMode::SkyrailStation, ctx.into());
     self.ramp_down(ctx);
     ctx.expect::<LiftRampStartable>().make_startable(
       ExclusiveMode::SkyrailStation,
@@ -217,7 +288,7 @@ impl SkyrailStationMode {
   fn complete(&mut self, ctx: &SystemContext) {
     ctx
       .expect::<ModeManager>()
-      .complete_exclusive(ExclusiveMode::SkyrailStation, ctx);
+      .complete_exclusive(ExclusiveMode::SkyrailStation, ctx.into());
     ctx.replace_self(SkyrailStationQualification::new());
   }
 }
@@ -239,9 +310,9 @@ impl System for SkyrailStationMode {
       self.ramp_up(Duration::ZERO, ctx);
     } else if event.is::<LiftRampHit>() && self.state == HitRamp {
       self.advance(ctx);
-    } else if event.is::<DropBankTargetHit>() && self.state == HitTarget {
+    } else if event.is::<DropBankTargetHit>() && (self.state == HitTarget || self.state == Final) {
       self.advance(ctx);
-    } else if event.is::<PlayerTurnActive>() {
+    } else if event.is::<PlayerTurnBeginning>() {
       self.revert_to_startable(ctx);
     }
   }
@@ -250,20 +321,23 @@ impl System for SkyrailStationMode {
     if self.ramp_up {
       ctx.expect::<LiftRampSystem>().lift_up(ctx.into());
     }
+    ctx.activate_led_declarations();
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     if self.ramp_up {
       ctx.expect::<LiftRampSystem>().lift_down(ctx.into());
     }
+    ctx.deactivate_led_declarations();
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
     self.intensity_effect.apply(delta, ctx);
+    self.progress_effect.apply(delta, ctx);
 
-    if self.state == Final && self.hit_effect.is_complete() {
+    if self.state == Complete && self.hit_effect.is_complete() {
       self.complete(ctx);
     }
   }
@@ -274,6 +348,7 @@ enum State {
   HitRamp,
   HitTarget,
   Final,
+  Complete,
 }
 
 #[derive(serde::Serialize, Event)]

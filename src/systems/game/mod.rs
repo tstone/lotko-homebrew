@@ -6,12 +6,14 @@ mod exclusive_mode_qualification;
 mod hydro_core;
 mod left_scoop_startable;
 mod lift_ramp_startable;
+mod meridian_basins;
 mod mode_manager;
 mod nimbus_promenade;
 mod playfield_illumination;
 mod skill_shots;
 mod skyrail_station;
 mod solarium_atrium;
+mod spore_multiball;
 
 pub use activate_playfield::*;
 pub use apex_terraces::*;
@@ -21,12 +23,14 @@ pub use exclusive_mode_qualification::*;
 pub use hydro_core::*;
 pub use left_scoop_startable::*;
 pub use lift_ramp_startable::*;
+pub use meridian_basins::*;
 pub use mode_manager::*;
 pub use nimbus_promenade::*;
 pub use playfield_illumination::*;
 pub use skill_shots::*;
 pub use skyrail_station::*;
 pub use solarium_atrium::*;
+pub use spore_multiball::*;
 
 mod points {
   pub static EXCL_QUAL_HIT: u32 = 50_250;

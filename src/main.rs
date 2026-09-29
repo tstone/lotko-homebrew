@@ -29,6 +29,8 @@ use crate::systems::non_game::*;
 
 #[tokio::main]
 async fn main() {
+  let virtual_mode = std::env::var("VIRTUAL").is_ok();
+
   env_logger::Builder::from_default_env()
     .format(|buf, record| {
       writeln!(
@@ -42,10 +44,14 @@ async fn main() {
     .init();
 
   App::new(BootConfig {
-    platform: Platform::Neuron {
-      io_net_port_path: "/dev/ttyACM0",
-      exp_port_path: "/dev/ttyACM1",
-      watchdog_interval: Duration::from_millis(1500),
+    platform: if virtual_mode {
+      Platform::Virtual
+    } else {
+      Platform::Neuron {
+        io_net_port_path: "/dev/ttyACM0",
+        exp_port_path: "/dev/ttyACM1",
+        watchdog_interval: Duration::from_millis(1500),
+      }
     },
     io_network: io_network(),
     exp_network: exp_network(),
@@ -60,34 +66,36 @@ async fn main() {
 
     // core
     app.system(LedSystem::new());
-    app.system(SoundSystem::by_name("Sound Blaster").expect("Could not initialize SoundSystem"));
+    app.system(SoundSystem::by_name_or_default("Sound Blaster"));
     app.system(OperatorConfig::default());
     app.system(FreePlay::new(start_button::SWITCH.q()));
     app.system(SoundLoaderSystem::new());
     app.system(game_startable());
     app.system(AttractModeLedsSystem::new());
     app.system(StartupEject::new());
-
-    // dmd
-    let dmd = Pin2Dmd::connect(128, 32, PanelType::Rgb).unwrap();
-    app.system(DmdSystem::new(dmd));
-    app.system(DmdMenuSystem::new(
-      MenuSwitches {
-        back_btn: coin_door::MENU_GREEN_SWITCH.name,
-        select_btn: coin_door::MENU_BLACK_SWITCH.name,
-        inc_btn: coin_door::MENU_RED_R_SWITCH.name,
-        dec_btn: coin_door::MENU_RED_L_SWITCH.name,
-        coin_door: coin_door::OPEN_SWITCH.name,
-      },
-      &MENU,
-      DmdMenuTheme::default(),
-    ));
-    app.system(AttractModeDmdSystem::new());
-    app.system(GamePointsDmdSystem::new());
     app.system(QuitGameSystem::new(
       cabinet::LEFT_FLIPPER_SWITCH1.name,
       start_button::SWITCH.name,
     ));
+
+    // dmd
+    if !virtual_mode {
+      let dmd = Pin2Dmd::connect(128, 32, PanelType::Rgb).unwrap();
+      app.system(DmdSystem::new(dmd));
+      app.system(DmdMenuSystem::new(
+        MenuSwitches {
+          back_btn: coin_door::MENU_GREEN_SWITCH.name,
+          select_btn: coin_door::MENU_BLACK_SWITCH.name,
+          inc_btn: coin_door::MENU_RED_R_SWITCH.name,
+          dec_btn: coin_door::MENU_RED_L_SWITCH.name,
+          coin_door: coin_door::OPEN_SWITCH.name,
+        },
+        &MENU,
+        DmdMenuTheme::default(),
+      ));
+      app.system(AttractModeDmdSystem::new());
+      app.system(GamePointsDmdSystem::new());
+    }
 
     // hardware ops
     app.system(drop_bank::DropBankSystem::new());

@@ -2,6 +2,7 @@ use frontbox::prelude::*;
 use frontbox::tags::*;
 
 use crate::hardware::more_tags::*;
+use crate::hardware::planes;
 
 const NAME: &'static str = "l_inlane";
 
@@ -15,5 +16,6 @@ hardware_defs! {
     .tag(Playfield)
     .tag(Insert)
     .tag(Circle)
-    .tag(Target);
+    .tag(Target)
+    .location(Vec3::new(4.111, 34.613, 15.573));
 }

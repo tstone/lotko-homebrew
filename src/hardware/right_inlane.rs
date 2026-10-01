@@ -16,15 +16,18 @@ hardware_defs! {
     .tag(Playfield)
     .tag(Insert)
     .tag(Circle)
-    .tag(Lane);
+    .tag(Lane)
+    .location(Vec3::new(16.8, 33.771, 15.477));
 
   pub LANE_LED1: LedDefinition = LedDefinition::single("r_inlane_lane1")
     .channels(GRB)
     .tag(Playfield)
-    .tag(GeneralIllumination);
+    .tag(GeneralIllumination)
+    .location(Vec3::new(16.557, 38.719, 16.041));
 
   pub LANE_LED2: LedDefinition = LedDefinition::single("r_inlane_lane2")
     .channels(GRB)
     .tag(Playfield)
-    .tag(GeneralIllumination);
+    .tag(GeneralIllumination)
+    .location(Vec3::new(14.988, 39.845, 16.169));
 }

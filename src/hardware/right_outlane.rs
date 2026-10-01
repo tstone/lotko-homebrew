@@ -15,5 +15,6 @@ hardware_defs! {
     .tag(Playfield)
     .tag(Insert)
     .tag(Circle)
-    .tag(Lane);
+    .tag(Lane)
+    .location(Vec3::new(18.246, 33.772, 15.478));
 }

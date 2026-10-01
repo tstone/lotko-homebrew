@@ -43,7 +43,8 @@ hardware_defs! {
   pub CAPTIVE_BALL: LedDefinition = LedDefinition::single("captive_ball")
     .channels(GI_CHANNELS)
     .tag(Playfield)
-    .tag(GeneralIllumination);
+    .tag(GeneralIllumination)
+    .location(Vec3::new(10.06, 9.133, 12.67));
 
   pub LOWER_RIGHT_POP: LedDefinition = LedDefinition::single("lr_pop")
     .channels(GI_CHANNELS)

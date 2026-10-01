@@ -20,7 +20,8 @@ hardware_defs! {
     .tag(Playfield)
     .tag(Insert)
     .tag(SmallArrow)
-    .tag(Lane);
+    .tag(Lane)
+    .location(Vec3::new(20.12, 30.546, 15.11));
 }
 
 #[derive(Tag)]

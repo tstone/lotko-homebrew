@@ -7,7 +7,8 @@ use crate::hardware::{more_tags::*, planes};
 hardware_defs! {
   pub DRAIN_LED: LedDefinition = LedDefinition::single("drain")
     .tag(Circle)
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(9.143, 39.724, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub SWITCH1: SwitchDefinition = TroughSystem::switch_definition("trough_1")
     .location(Vec3::new(16.029, 41.306, 0.0).relative_to(&planes::PLAYFIELD));

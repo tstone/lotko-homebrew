@@ -18,12 +18,14 @@ hardware_defs! {
   pub LEFT_BOLT: LedDefinition = LedDefinition::single("l_cap_ball_bolt")
     .tag(Bolt)
     .tag(Insert)
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(9.724, 11.797, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub RIGHT_BOLT: LedDefinition = LedDefinition::single("r_cap_ball_bolt")
     .tag(Bolt)
     .tag(Insert)
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(10.509, 12.933, 0.0).relative_to(&planes::PLAYFIELD));
 }
 
 #[derive(Clone)]

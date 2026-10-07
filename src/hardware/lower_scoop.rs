@@ -41,15 +41,17 @@ hardware_defs! {
     .tag(Playfield)
     .location(Vec3::new(1.675, 25.596, 0.0).relative_to(&planes::PLAYFIELD));
 
-  pub LEFT_BOLT: LedDefinition = LedDefinition::single("scoop_bolt1")
+  pub LEFT_BOLT: LedDefinition = LedDefinition::single("scoop_bolt_l")
     .tag(Bolt)
     .tag(Insert)
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(2.393, 28.11, 0.0).relative_to(&planes::PLAYFIELD));
 
-  pub RIGHT_BOLT: LedDefinition = LedDefinition::single("scoop_bolt2")
+  pub RIGHT_BOLT: LedDefinition = LedDefinition::single("scoop_bolt_r")
     .tag(Bolt)
     .tag(Insert)
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(3.339, 27.357, 0.0).relative_to(&planes::PLAYFIELD));
 }
 
 pub static BOLTS_Q: LazyLock<LedQ> = LazyLock::new(|| {

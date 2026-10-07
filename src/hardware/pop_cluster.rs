@@ -49,13 +49,15 @@ pub mod left {
       .tag(Playfield)
       .tag(SmallArrow)
       .tag(Insert)
-      .tag(Target);
+      .tag(Target)
+      .location(Vec3::new(8.064, 21.215, 0.0).relative_to(&planes::PLAYFIELD));
 
     pub TARGET_LED: LedDefinition = LedDefinition::single("l_target_led")
       .tag(Playfield)
       .tag(Insert)
       .tag(SmallArrow)
-      .tag(Target);
+      .tag(Target)
+      .location(Vec3::new(6.955, 21.996, 0.0).relative_to(&planes::PLAYFIELD));
   }
 }
 
@@ -86,13 +88,15 @@ pub mod upper_right {
       .tag(Playfield)
       .tag(Insert)
       .tag(SmallArrow)
-      .tag(Target);
+      .tag(Target)
+      .location(Vec3::new(16.743, 15.376, 0.0).relative_to(&planes::PLAYFIELD));
 
     pub TARGET_LED: LedDefinition = LedDefinition::single("ur_target_led")
       .tag(Playfield)
       .tag(Insert)
       .tag(SmallArrow)
-      .tag(Target);
+      .tag(Target)
+      .location(Vec3::new(14.771, 14.393, 0.0).relative_to(&planes::PLAYFIELD));
   }
 }
 
@@ -122,13 +126,15 @@ pub mod lower_right {
       .tag(Playfield)
       .tag(Insert)
       .tag(SmallArrow)
-      .tag(Target);
+      .tag(Target)
+      .location(Vec3::new(14.376, 24.787, 0.0).relative_to(&planes::PLAYFIELD));
 
     pub TARGET_LED: LedDefinition = LedDefinition::single("lr_target_led")
       .tag(Playfield)
       .tag(Insert)
       .tag(SmallArrow)
-      .tag(Target);
+      .tag(Target)
+      .location(Vec3::new(14.446, 26.397, 0.0).relative_to(&planes::PLAYFIELD));
   }
 }
 

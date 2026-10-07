@@ -17,5 +17,6 @@ hardware_defs! {
     .tag(Playfield)
     .tag(Insert)
     .tag(Circle)
-    .tag(Target);
+    .tag(Target)
+    .location(Vec3::new(3.088, 31.606, 0.0).relative_to(&planes::PLAYFIELD));
 }

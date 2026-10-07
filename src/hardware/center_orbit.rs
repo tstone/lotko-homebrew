@@ -19,12 +19,13 @@ hardware_defs! {
     .debounce_close(Duration::from_millis(10))
     .tag(Spinner)
     .tag(Playfield)
-    .location(Vec3::new(12.683, 5.662, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(11.4, 5.354, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub SPINNER_LED: LedDefinition = LedDefinition::single("center_spinner")
     .tag(Circle)
     .tag(Insert)
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(12.69, 5.652, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME, 7)
     .tag(Playfield)

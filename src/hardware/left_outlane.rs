@@ -17,7 +17,8 @@ hardware_defs! {
     .tag(Playfield)
     .tag(Insert)
     .tag(Circle)
-    .tag(Lane);
+    .tag(Lane)
+    .location(Vec3::new(1.156, 30.715, 0.0).relative_to(&planes::PLAYFIELD));
 }
 
 pub struct LeftOutlaneSystem;

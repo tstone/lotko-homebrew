@@ -23,7 +23,8 @@ hardware_defs! {
     .tag(Playfield)
     .tag(Insert)
     .tag(SmallArrow)
-    .tag(Lane);
+    .tag(Lane)
+    .location(Vec3::new(19.099, 27.495, 0.0).relative_to(&planes::PLAYFIELD));
 }
 
 #[derive(Tag)]

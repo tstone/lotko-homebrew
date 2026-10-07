@@ -81,7 +81,8 @@ hardware_defs! {
     .tag(Playfield);
 
   pub PADDLE_LED: LedDefinition = LedDefinition::single("paddle")
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(6.194, 13.762, 0.0).relative_to(&planes::PLAYFIELD));
 }
 
 pub fn leds_for_target(target: &DropBankTarget) -> &'static LedDefinition {

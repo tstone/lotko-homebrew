@@ -75,7 +75,8 @@ hardware_defs! {
     .tag(Playfield)
     .tag(Insert)
     .tag(Bolt)
-    .tag(Lane);
+    .tag(Lane)
+    .location(Vec3::new(14.118, 10.827, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi("lift_ramp_lane", 7)
     .tag(Playfield)

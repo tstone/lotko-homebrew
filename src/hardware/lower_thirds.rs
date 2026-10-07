@@ -78,22 +78,22 @@ pub mod slingshots {
     // -- Post LEDs --
 
     /// Left Sling, left-most post
-    pub POST_LEDS1: LedDefinition = LedDefinition::multi("l_sling_left_post", 8)
+    pub POST_LEDS1: LedDefinition = LedDefinition::multi("l_sling_left_post").count(8)
       .tag(GeneralIllumination)
       .tag(Playfield);
 
     /// Left Sling, lower post
-    pub POST_LEDS2: LedDefinition = LedDefinition::multi("l_sling_lower_post", 8)
+    pub POST_LEDS2: LedDefinition = LedDefinition::multi("l_sling_lower_post").count(8)
       .tag(GeneralIllumination)
       .tag(Playfield);
 
     /// Right Sling, right-most post
-    pub POST_LEDS3: LedDefinition = LedDefinition::multi("r_sling_right_post", 8)
+    pub POST_LEDS3: LedDefinition = LedDefinition::multi("r_sling_right_post").count(8)
       .tag(GeneralIllumination)
       .tag(Playfield);
 
     /// Right Sling, lower post
-    pub POST_LEDS4: LedDefinition = LedDefinition::multi("r_sling_lower_post", 8)
+    pub POST_LEDS4: LedDefinition = LedDefinition::multi("r_sling_lower_post").count(8)
       .tag(GeneralIllumination)
       .tag(Playfield);
   }

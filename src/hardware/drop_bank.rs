@@ -68,15 +68,18 @@ hardware_defs! {
     .tag(Playfield)
     .location(Vec3::new(5.999, 12.225, 0.0).relative_to(&planes::PLAYFIELD));
 
-  pub TARGET1_LEDS: LedDefinition = LedDefinition::strip("target1", 4)
+  pub TARGET1_LEDS: LedDefinition = LedDefinition::multi("drop_target1")
+    .locations(LedLayout::strip(4, Vec3::new(8.139, 14.704, 0.0), 190.0f32.to_radians(), 0.25).relative_to(&planes::PLAYFIELD))
     .tag(Insert)
     .tag(Playfield);
 
-  pub TARGET2_LEDS: LedDefinition = LedDefinition::strip("target2", 4)
+  pub TARGET2_LEDS: LedDefinition = LedDefinition::multi("drop_target2")
+      .locations(LedLayout::strip(4, Vec3::new(8.275, 13.411, 0.0), 190.0f32.to_radians(), 0.25).relative_to(&planes::PLAYFIELD))
     .tag(Insert)
     .tag(Playfield);
 
-  pub TARGET3_LEDS: LedDefinition = LedDefinition::strip("target3", 4)
+  pub TARGET3_LEDS: LedDefinition = LedDefinition::multi("drop_target3")
+    .locations(LedLayout::strip(4, Vec3::new(8.357, 12.124, 0.0), 190.0f32.to_radians(), 0.25).relative_to(&planes::PLAYFIELD))
     .tag(Insert)
     .tag(Playfield);
 

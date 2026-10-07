@@ -21,18 +21,22 @@ hardware_defs! {
     .tag(Playfield)
     .location(Vec3::new(1.703, 7.966, 0.0).relative_to(&planes::PLAYFIELD));
 
-  pub SUBWAY_LEDS: LedDefinition = LedDefinition::multi("arc_subway", 11)
+  pub SUBWAY_LEDS: LedDefinition = LedDefinition::multi("arc_subway")
+    .locations(LedLayout::strip(11, Vec3::new(1.545, 15.809, -2.25), 76.0f32.to_radians(), 0.55).relative_to(&planes::PLAYFIELD))
     .tag(ArcRamp)
     .tag(Playfield);
 
-  pub ARC_LEDS: LedDefinition = LedDefinition::strip("arc", 18)
+  pub ARC_LEDS: LedDefinition = LedDefinition::multi("arc")
+    .locations(LedLayout::arc(18, Vec3::new(4.072, 0.059, 0.0), 3.5, 0.0, 180.0f32.to_radians(), LedLayoutDirection::CounterClockwise).relative_to(&planes::ARC_RAMP))
     .tag(ArcRamp)
     .tag(Playfield);
 
-  pub HEX_LEDS: LedDefinition = LedDefinition::multi("arc_ramp_lane", 7)
+  pub HEX_LEDS: LedDefinition = LedDefinition::multi("arc_ramp_lane")
     .tag(Playfield)
     .tag(Insert)
-    .tag(Lane);
+    .tag(Lane)
+    .locations(LedLayout::ring(6, Vec3::new(8.336, 10.633, 0.0), 0.5, 350.0f32.to_radians(), LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))
+    .locations([Vec3::new(8.336, 10.633, 0.0).relative_to(&planes::PLAYFIELD)]);
 }
 
 pub static HEX_CENTER_LED: LazyLock<LedQ> = LazyLock::new(|| HEX_LEDS.child(6).unwrap().q());

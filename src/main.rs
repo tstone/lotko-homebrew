@@ -65,6 +65,7 @@ async fn main() {
     app.tracer(
       WebTracer::new()
         .plane(console_plane!(planes::PLAYFIELD))
+        .plane(console_plane!(planes::ARC_RAMP))
         .plane(console_plane!(planes::BACKBOX_PANEL))
         .plane(console_plane!(planes::BACKBOARD))
         .plane(console_plane!(planes::CABINET_FRONT)),

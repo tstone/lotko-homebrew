@@ -18,7 +18,9 @@ hardware_defs! {
   pub UPPER_SWITCH: SwitchDefinition = SwitchDefinition::new("l_orbit_upper")
     .location(Vec3::new(15.015, 3.959, 0.0).relative_to(&planes::PLAYFIELD));
 
-  pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME, 7)
+  pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME)
+    .locations(LedLayout::ring(6, Vec3::new(3.507, 25.016, 0.0), 0.5, 340.0f32.to_radians(), LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))
+    .locations([Vec3::new(3.507, 25.016, 0.0).relative_to(&planes::PLAYFIELD)])
     .tag(Playfield)
     .tag(Insert)
     .tag(Hex)

@@ -4,14 +4,16 @@ use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox::tags::*;
 
-use crate::hardware::more_tags::*;
+use crate::hardware::planes;
 
 hardware_defs! {
-  pub LEFT_FLASHER: LedDefinition = LedDefinition::strip("l_flasher", 8)
+  pub LEFT_FLASHER: LedDefinition = LedDefinition::multi("l_flasher")
+    .locations(LedLayout::ring(8, Vec3::new(1.145, 23.0, 0.0), 0.375, 0.0, LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))
     .tag(Playfield)
     .tag(Flasher);
 
-  pub CENTER_FLASHER: LedDefinition = LedDefinition::strip("c_flasher", 8)
+  pub CENTER_FLASHER: LedDefinition = LedDefinition::multi("c_flasher")
+    .locations(LedLayout::ring(8, Vec3::new(9.56, 5.16, 0.0), 0.375, 0.0, LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))
     .tag(Playfield)
     .tag(Flasher);
 }

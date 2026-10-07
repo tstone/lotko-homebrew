@@ -14,7 +14,8 @@ hardware_defs! {
     .location(Vec3::new(13.869, 18.161, 0.0).relative_to(&planes::PLAYFIELD));
 
   // Circular ring under the verticals pinner
-  pub LEDS: LedDefinition = LedDefinition::multi("vspinner", 12)
+  pub LEDS: LedDefinition = LedDefinition::multi("vspinner")
+    .locations(LedLayout::ring(12, Vec3::new(13.869, 18.161, -0.5), 0.75, 33.0f32.to_radians(), LedLayoutDirection::CounterClockwise).relative_to(&planes::PLAYFIELD))
     .tag(Spinner)
     .tag(Playfield);
 }

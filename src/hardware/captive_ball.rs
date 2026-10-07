@@ -3,26 +3,27 @@ use frontbox::tags::*;
 
 use crate::hardware::captive_ball::State::*;
 use crate::hardware::more_tags::*;
+use crate::hardware::planes;
 
 hardware_defs! {
   pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("cap_ball_target")
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(10.311, 6.034, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub REST_SWITCH: SwitchDefinition = SwitchDefinition::new("cap_ball_rest")
     .debounce(Duration::from_millis(50))
-    .tag(DoesNotCancelSkillshot);
+    .tag(DoesNotCancelSkillshot)
+    .location(Vec3::new(10.304, 8.47, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub LEFT_BOLT: LedDefinition = LedDefinition::single("l_cap_ball_bolt")
     .tag(Bolt)
     .tag(Insert)
-    .tag(Playfield)
-    .location(Vec3::new(10.752, 14.946, 13.333));
+    .tag(Playfield);
 
   pub RIGHT_BOLT: LedDefinition = LedDefinition::single("r_cap_ball_bolt")
     .tag(Bolt)
     .tag(Insert)
-    .tag(Playfield)
-    .location(Vec3::new(11.505, 16.158, 13.471));
+    .tag(Playfield);
 }
 
 #[derive(Clone)]

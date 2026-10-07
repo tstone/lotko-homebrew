@@ -6,17 +6,20 @@ use frontbox::tags::*;
 
 use crate::hardware::arc_ramp::State::*;
 use crate::hardware::more_tags::ArcRamp;
+use crate::hardware::planes;
 
 hardware_defs! {
   pub RAMP_OPTO: SwitchDefinition = SwitchDefinition::new("arc_opto")
     .inverted()
     .debounce(Duration::from_millis(2))
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(7.607, 5.339, 0.0).relative_to(&planes::PLAYFIELD));
 
   /// detects when the ball has entered the arc subway
   pub SUBWAY_OPTO: SwitchDefinition = SwitchDefinition::new("arc_subway")
     .inverted()
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(1.703, 7.966, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub SUBWAY_LEDS: LedDefinition = LedDefinition::multi("arc_subway", 11)
     .tag(ArcRamp)

@@ -8,6 +8,7 @@ use frontbox_turn_based::GameManagementExt;
 
 use crate::hardware::arc_ramp::ArcRampSubwayHit;
 use crate::hardware::more_tags::*;
+use crate::hardware::planes;
 
 hardware_defs! {
   pub COIL: DriverDefinition = DriverDefinition::new("lower_scoop")
@@ -31,12 +32,14 @@ hardware_defs! {
           Ranges::duration(10, 300),
         ))
         .build(),
-    );
+    )
+    .location(Vec3::new(1.675, 25.596, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub OPTO: SwitchDefinition = SwitchDefinition::new("lower_scoop")
     .inverted()
     .debounce(Duration::from_millis(50))
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(1.675, 25.596, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub LEFT_BOLT: LedDefinition = LedDefinition::single("scoop_bolt1")
     .tag(Bolt)

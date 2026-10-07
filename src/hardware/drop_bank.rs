@@ -1,4 +1,5 @@
 use crate::hardware::more_tags::DropBank;
+use crate::hardware::planes;
 use frontbox::prelude::*;
 use frontbox::tags::*;
 
@@ -46,21 +47,25 @@ hardware_defs! {
   pub TARGET1: SwitchDefinition = SwitchDefinition::new("drop_target1")
     .inverted()
     .tag(DropBank)
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(6.47, 14.584, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub TARGET2: SwitchDefinition = SwitchDefinition::new("drop_target2")
     .inverted()
     .tag(DropBank)
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(6.663, 13.195, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub TARGET3: SwitchDefinition = SwitchDefinition::new("drop_target3")
     .inverted()
     .tag(DropBank)
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(6.717, 11.954, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub PADDLE_SWITCH: SwitchDefinition = SwitchDefinition::new("drop_paddle")
     .debounce_close(Duration::from_millis(20))
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(5.939, 13.077, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub TARGET1_LEDS: LedDefinition = LedDefinition::strip("target1", 4)
     .tag(Insert)

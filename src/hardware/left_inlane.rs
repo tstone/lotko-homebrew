@@ -10,12 +10,12 @@ hardware_defs! {
   pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
     .tag(Playfield)
     .tag(Circle)
-    .tag(Target);
+    .tag(Target)
+    .location(Vec3::new(2.233, 32.135, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub TARGET_LED: LedDefinition = LedDefinition::single(NAME)
     .tag(Playfield)
     .tag(Insert)
     .tag(Circle)
-    .tag(Target)
-    .location(Vec3::new(4.111, 34.613, 15.573));
+    .tag(Target);
 }

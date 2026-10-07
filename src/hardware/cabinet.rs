@@ -1,3 +1,4 @@
+use crate::hardware::planes;
 use frontbox::prelude::*;
 use frontbox::tags::*;
 
@@ -16,9 +17,13 @@ pub mod action_button {
   pub const NAME: &'static str = "action";
 
   hardware_defs! {
-    pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME);
+    pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
+      .tag(Cabinet)
+      .location(Vec3::new(11.0, 0.0, 0.0).relative_to(&planes::CABINET_FRONT));
+
     pub LED: LedDefinition = LedDefinition::single(NAME)
-      .tag(Cabinet);
+      .tag(Cabinet)
+      .location(Vec3::new(11.0, 0.0, 0.0).relative_to(&planes::CABINET_FRONT));
   }
 }
 
@@ -30,9 +35,12 @@ pub mod start_button {
 
   hardware_defs! {
     pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
-      .tag(Cabinet);
+      .tag(Cabinet)
+      .location(Vec3::new(2.25, 2.25, 0.0).relative_to(&planes::CABINET_FRONT));
 
-    pub LAMP_DRIVER: DriverDefinition = GameStartable::lamp_driver(NAME);
+    pub LAMP_DRIVER: DriverDefinition = GameStartable::lamp_driver(NAME)
+      .tag(Cabinet)
+      .location(Vec3::new(2.25, 2.25, 0.0).relative_to(&planes::CABINET_FRONT));
   }
 }
 
@@ -46,7 +54,9 @@ pub mod coin_door {
       .tag(Cabinet);
 
     /// The switch that detects if the door is opened or closed
-    pub OPEN_SWITCH: SwitchDefinition = SwitchDefinition::new("coin_door_open");
+    pub OPEN_SWITCH: SwitchDefinition = SwitchDefinition::new("coin_door_open")
+      .tag(Cabinet)
+      .location(Vec3::new(5.419, 11.767, 0.0).relative_to(&planes::CABINET_FRONT));
 
     pub MENU_BLACK_SWITCH: SwitchDefinition = SwitchDefinition::new("menu_black");
     pub MENU_RED_R_SWITCH: SwitchDefinition = SwitchDefinition::new("menu_red_r");

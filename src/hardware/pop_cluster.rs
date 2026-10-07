@@ -2,6 +2,7 @@ use frontbox::prelude::*;
 use frontbox::tags::*;
 
 use crate::hardware::more_tags::*;
+use crate::hardware::planes;
 use crate::hardware::vspinner;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -35,24 +36,26 @@ pub mod left {
       )
       .tag(Playfield);
 
-    pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("l_spoon").tag(Playfield);
+    pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("l_spoon")
+      .tag(Playfield)
+      .location(Vec3::new(6.838, 18.822, 0.0).relative_to(&planes::PLAYFIELD));
+
     pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("l_target")
       .debounce_close(Duration::from_millis(50))
-      .tag(Playfield);
+      .tag(Playfield)
+      .location(Vec3::new(6.416, 20.377, 0.0).relative_to(&planes::PLAYFIELD));
 
     pub POP_LED: LedDefinition = LedDefinition::single("l_pop_led")
       .tag(Playfield)
       .tag(SmallArrow)
       .tag(Insert)
-      .tag(Target)
-      .location(Vec3::new(9.077, 24.302, 14.399));
+      .tag(Target);
 
     pub TARGET_LED: LedDefinition = LedDefinition::single("l_target_led")
       .tag(Playfield)
       .tag(Insert)
       .tag(SmallArrow)
-      .tag(Target)
-      .location(Vec3::new(7.976, 25.143, 14.494));
+      .tag(Target);
   }
 }
 
@@ -72,24 +75,24 @@ pub mod upper_right {
 
     pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("ur_spoon")
       .debounce_close(Duration::from_millis(8))
-      .tag(Playfield);
+      .tag(Playfield)
+      .location(Vec3::new(16.676, 12.576, 0.0).relative_to(&planes::PLAYFIELD));
 
     pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("ur_target")
-      .tag(Playfield);
+      .tag(Playfield)
+      .location(Vec3::new(15.127, 12.698, 0.0).relative_to(&planes::PLAYFIELD));
 
     pub POP_LED: LedDefinition = LedDefinition::single("ur_pop_led")
       .tag(Playfield)
       .tag(Insert)
       .tag(SmallArrow)
-      .tag(Target)
-      .location(Vec3::new(17.771, 18.389, 13.725));
+      .tag(Target);
 
     pub TARGET_LED: LedDefinition = LedDefinition::single("ur_target_led")
       .tag(Playfield)
       .tag(Insert)
       .tag(SmallArrow)
-      .tag(Target)
-      .location(Vec3::new(15.767, 17.586, 13.633));
+      .tag(Target);
   }
 }
 
@@ -107,22 +110,25 @@ pub mod lower_right {
       )
       .tag(Playfield);
 
-    pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("lr_spoon").tag(Playfield);
-    pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("lr_target").tag(Playfield);
+    pub SPOON_SWITCH: SwitchDefinition = SwitchDefinition::new("lr_spoon")
+      .tag(Playfield)
+      .location(Vec3::new(16.93, 23.608, 0.0).relative_to(&planes::PLAYFIELD));
+
+    pub TARGET_SWITCH: SwitchDefinition = SwitchDefinition::new("lr_target")
+      .tag(Playfield)
+      .location(Vec3::new(15.99, 25.497, 0.0).relative_to(&planes::PLAYFIELD));
 
     pub POP_LED: LedDefinition = LedDefinition::single("lr_pop_led")
       .tag(Playfield)
       .tag(Insert)
       .tag(SmallArrow)
-      .tag(Target)
-      .location(Vec3::new(15.411, 27.876, 14.806));
+      .tag(Target);
 
     pub TARGET_LED: LedDefinition = LedDefinition::single("lr_target_led")
       .tag(Playfield)
       .tag(Insert)
       .tag(SmallArrow)
-      .tag(Target)
-      .location(Vec3::new(15.555, 29.429, 14.983));
+      .tag(Target);
   }
 }
 

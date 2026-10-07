@@ -4,6 +4,7 @@ use frontbox::prelude::*;
 use frontbox::tags::*;
 
 use crate::hardware::more_tags::Hex;
+use crate::hardware::planes;
 
 const NAME: &'static str = "l_ramp";
 
@@ -11,7 +12,8 @@ hardware_defs! {
 
   pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
     .tag(Ramp)
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(2.386, 17.349, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME, 7)
     .tag(Playfield)

@@ -3,13 +3,15 @@ use frontbox::tags::*;
 use std::sync::LazyLock;
 
 use crate::hardware::more_tags::*;
+use crate::hardware::planes;
 
 hardware_defs! {
   pub OPTO: SwitchDefinition = SwitchDefinition::new("vspinner")
     .inverted()
     .debounce(Duration::from_millis(25))
     .tag(Playfield)
-    .tag(Spinner);
+    .tag(Spinner)
+    .location(Vec3::new(13.869, 18.161, 0.0).relative_to(&planes::PLAYFIELD));
 
   // Circular ring under the verticals pinner
   pub LEDS: LedDefinition = LedDefinition::multi("vspinner", 12)

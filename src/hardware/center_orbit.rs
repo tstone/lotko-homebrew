@@ -4,19 +4,22 @@ use frontbox::prelude::*;
 use frontbox::tags::*;
 
 use crate::hardware::more_tags::*;
+use crate::hardware::planes;
 
 pub const NAME: &'static str = "center_orbit";
 
 hardware_defs! {
   pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
     .tag(Lane)
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(11.843, 3.715, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub SPINNER_OPTO: SwitchDefinition = SwitchDefinition::new("center_spinner")
     .inverted()
     .debounce_close(Duration::from_millis(10))
     .tag(Spinner)
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(12.683, 5.662, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub SPINNER_LED: LedDefinition = LedDefinition::single("center_spinner")
     .tag(Circle)

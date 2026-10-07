@@ -2,6 +2,7 @@ use frontbox::prelude::*;
 use frontbox::tags::*;
 
 use crate::hardware::more_tags::Circle;
+use crate::hardware::planes;
 
 const NAME: &'static str = "l_outlane";
 
@@ -9,14 +10,14 @@ hardware_defs! {
   pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
     .tag(Playfield)
     .tag(Circle)
-    .tag(Lane);
+    .tag(Lane)
+    .location(Vec3::new(1.204, 32.915, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub LED: LedDefinition = LedDefinition::single(NAME)
     .tag(Playfield)
     .tag(Insert)
     .tag(Circle)
-    .tag(Lane)
-    .location(Vec3::new(2.127, 33.75, 15.475));
+    .tag(Lane);
 }
 
 pub struct LeftOutlaneSystem;

@@ -4,6 +4,7 @@ use frontbox::prelude::*;
 use frontbox::tags::*;
 
 use crate::hardware::more_tags::*;
+use crate::hardware::planes;
 use crate::hardware::right_orbit::State::*;
 
 const NAME: &'static str = "r_orbit";
@@ -12,7 +13,8 @@ hardware_defs! {
 
   pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
     .debounce(Duration::from_millis(20))
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(15.572, 1.916, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME, 7)
     .tag(Playfield)

@@ -6,14 +6,17 @@ use frontbox::tags::*;
 use crate::hardware::center_orbit::CenterOrbitHit;
 use crate::hardware::left_orbit::State::*;
 use crate::hardware::more_tags::*;
+use crate::hardware::planes;
 
 const NAME: &'static str = "l_orbit";
 
 hardware_defs! {
   pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
-    .debounce(Duration::from_millis(20));
+    .debounce(Duration::from_millis(20))
+    .location(Vec3::new(1.486, 14.724, 0.0).relative_to(&planes::PLAYFIELD));
 
-  pub UPPER_SWITCH: SwitchDefinition = SwitchDefinition::new("l_orbit_upper");
+  pub UPPER_SWITCH: SwitchDefinition = SwitchDefinition::new("l_orbit_upper")
+    .location(Vec3::new(15.015, 3.959, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME, 7)
     .tag(Playfield)

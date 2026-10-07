@@ -5,13 +5,12 @@ use frontbox::provided::{
   ActionButtonEject, AutoPlungerSystem, DoubleFlipSystem, MultiballSystem, PlungeLaneSystem,
   QuitGameSystem,
 };
-use frontbox_pin_console::{ConsolePlane, WebTracer};
+use frontbox_pin_console::{WebTracer, console_plane};
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
 use frontbox_sound::SoundSystem;
 use frontbox_turn_based::*;
 use std::io::Write;
-use std::path::Path;
 
 mod systems;
 use systems::*;
@@ -65,12 +64,10 @@ async fn main() {
 
     app.tracer(
       WebTracer::new()
-        .plane(
-          ConsolePlane::new("Playfield", &*planes::PLAYFIELD)
-            .image(Path::new("src/assets/playfield.png")),
-        )
-        .plane(ConsolePlane::new("Backbox", &*planes::BACKBOX))
-        .plane(ConsolePlane::new("Backboard", &*planes::BACKBOARD)),
+        .plane(console_plane!(planes::PLAYFIELD))
+        .plane(console_plane!(planes::BACKBOX_PANEL))
+        .plane(console_plane!(planes::BACKBOARD))
+        .plane(console_plane!(planes::CABINET_FRONT)),
     );
 
     // core

@@ -9,6 +9,7 @@ use frontbox_turn_based::GameManager;
 use frontbox_turn_based::TurnState;
 
 use crate::hardware::more_tags::*;
+use crate::hardware::planes;
 
 hardware_defs! {
   pub RAMP_COIL: DriverDefinition = DriverDefinition::new("lift_ramp")
@@ -54,24 +55,26 @@ hardware_defs! {
           Ranges::duration(10, 100),
         ))
         .build(),
-    );
+    )
+    .location(Vec3::new(17.424, 1.428, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub SCOOP_OPTO: SwitchDefinition = SwitchDefinition::new("lift_ramp_scoop_opto")
     .inverted()
     .debounce_close(Duration::from_millis(10))
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(17.424, 1.428, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub RAMP_OPTO: SwitchDefinition = SwitchDefinition::new("lift_ramp_opto")
     .inverted()
     .debounce(Duration::from_millis(2))
-    .tag(Playfield);
+    .tag(Playfield)
+    .location(Vec3::new(12.945, 2.357, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub BOLT_LED: LedDefinition = LedDefinition::single("lift_ramp_bolt")
     .tag(Playfield)
     .tag(Insert)
     .tag(Bolt)
-    .tag(Lane)
-    .location(Vec3::new(15.142, 13.656, 13.186));
+    .tag(Lane);
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi("lift_ramp_lane", 7)
     .tag(Playfield)

@@ -43,11 +43,17 @@ pub mod right_flipper {
 }
 
 pub mod slingshots {
+  use crate::hardware::planes;
+
   use super::*;
 
   hardware_defs! {
-    pub LEFT_SWITCH: SwitchDefinition = SwitchDefinition::new("l_sling").debounce_close(Duration::from_millis(15));
-    pub RIGHT_SWITCH: SwitchDefinition = SwitchDefinition::new("r_sling");
+    pub LEFT_SWITCH: SwitchDefinition = SwitchDefinition::new("l_sling")
+      .debounce_close(Duration::from_millis(15))
+      .location(Vec3::new(3.49, 35.403, 0.0).relative_to(&planes::PLAYFIELD));
+
+    pub RIGHT_SWITCH: SwitchDefinition = SwitchDefinition::new("r_sling")
+      .location(Vec3::new(13.857, 33.802, 0.0).relative_to(&planes::PLAYFIELD));
 
     // -- Coils --
 

@@ -1,7 +1,7 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
-use frontbox_turn_based::*;
+use frontbox_pinball::*;
 
 use crate::hardware::arc_ramp::ArcRampHit;
 use crate::hardware::captive_ball::CaptiveBallHit;

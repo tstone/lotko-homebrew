@@ -1,6 +1,6 @@
 use frontbox::prelude::*;
-use frontbox::provided::{AutoPlungerSystem, PlungeLaneSystem};
 use frontbox::tags::*;
+use frontbox_pinball::{AutoPlungerSystem, PlungeLaneSystem};
 
 use crate::hardware::planes;
 

@@ -13,7 +13,7 @@ use crate::{
 };
 use frontbox::prelude::*;
 use frontbox_sound::*;
-use frontbox_turn_based::{GameManagementExt, GameManager, TurnState};
+use frontbox_pinball::{GameManagementExt, GameManager, TurnState};
 
 #[derive(Clone)]
 pub struct ApexTerracesMode {

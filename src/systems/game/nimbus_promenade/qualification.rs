@@ -2,7 +2,7 @@ use frontbox::animation::Curve;
 use frontbox::prelude::color_sequence::{Anchor1d, Fill1dArea};
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
-use frontbox_turn_based::{GameManagementExt, GameManager, TurnState};
+use frontbox_pinball::{GameManagementExt, GameManager, TurnState};
 
 use crate::hardware::vspinner::{self, VerticalSpinnerHit};
 use crate::systems::game::NimbusPromenadeMode;

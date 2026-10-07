@@ -1,5 +1,5 @@
 use crate::hardware::*;
-use frontbox_turn_based::ActivatePlayfieldSystem;
+use frontbox_pinball::ActivatePlayfieldSystem;
 
 pub fn activate_playfield() -> ActivatePlayfieldSystem {
   ActivatePlayfieldSystem::new()

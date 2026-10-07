@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use frontbox::animation::{Accumulator, Animation, Curve, Sequence, Tween};
 use frontbox::prelude::*;
 use frontbox_canvas::animation::Frame;
-use frontbox_turn_based::*;
+use frontbox_pinball::*;
 
 use crate::hardware::cabinet::{LEFT_FLIPPER_SWITCH1, RIGHT_FLIPPER_SWITCH1};
 use crate::systems::dmd::attract_dmd_screen::AttractDmdScreen;

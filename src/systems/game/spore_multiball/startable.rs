@@ -1,6 +1,6 @@
 use frontbox::{animation::Curve, prelude::*};
 use frontbox_sound::SoundSystemExt;
-use frontbox_turn_based::{GameManager, TurnState};
+use frontbox_pinball::{GameManager, TurnState};
 
 use crate::{
   hardware::{

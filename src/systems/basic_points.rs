@@ -1,6 +1,6 @@
 use frontbox::prelude::*;
 use frontbox::tags::Playfield;
-use frontbox_turn_based::{GameManager, TurnState};
+use frontbox_pinball::{GameManager, TurnState};
 
 /// A system to give a low amount of points just for the ball bouncing around
 #[derive(Debug, Clone)]

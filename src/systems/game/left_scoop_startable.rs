@@ -3,9 +3,9 @@ use std::collections::VecDeque;
 use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
-use frontbox_turn_based::GameManagementExt;
-use frontbox_turn_based::GameManager;
-use frontbox_turn_based::TurnState;
+use frontbox_pinball::GameManagementExt;
+use frontbox_pinball::GameManager;
+use frontbox_pinball::TurnState;
 
 use crate::hardware::arc_ramp;
 use crate::hardware::lower_scoop;

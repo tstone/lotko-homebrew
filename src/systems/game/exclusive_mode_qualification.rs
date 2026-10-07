@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
-use frontbox_turn_based::GameManagementExt;
+use frontbox_pinball::GameManagementExt;
 
 use crate::hardware::{arc_ramp, center_orbit, dome_ramp, left_orbit, lift_ramp, right_orbit};
 use crate::systems::game;

@@ -1,5 +1,5 @@
 use frontbox::prelude::*;
-use frontbox_turn_based::*;
+use frontbox_pinball::*;
 
 use crate::{
   hardware::drop_bank::DropBankSystem,

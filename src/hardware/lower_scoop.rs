@@ -4,7 +4,7 @@ use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox::tags::*;
 use frontbox_sound::SoundSystemExt;
-use frontbox_turn_based::GameManagementExt;
+use frontbox_pinball::GameManagementExt;
 
 use crate::hardware::arc_ramp::ArcRampSubwayHit;
 use crate::hardware::more_tags::*;
@@ -102,8 +102,6 @@ impl LowerScoopSystem {
     self.eject_program.stop(ctx);
     self.eject_pending = false;
     ctx.expect::<MachineSystem>().refresh_switch_state();
-
-    // There's some kind of voltage sag issue happening, so after eject check if it was actually ejected
     ctx.cue(CheckVacated, Cue::Once(Duration::from_millis(250)));
   }
 

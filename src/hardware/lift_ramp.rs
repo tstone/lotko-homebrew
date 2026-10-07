@@ -5,8 +5,8 @@ use frontbox::prelude::DeactivationMode::VirtualSwitchOff;
 use frontbox::prelude::DriverTriggerMode::VirtualSwitchTrue;
 use frontbox::prelude::*;
 use frontbox::tags::*;
-use frontbox_turn_based::GameManager;
-use frontbox_turn_based::TurnState;
+use frontbox_pinball::GameManager;
+use frontbox_pinball::TurnState;
 
 use crate::hardware::more_tags::*;
 use crate::hardware::planes;

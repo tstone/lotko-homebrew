@@ -2,7 +2,7 @@ use frontbox::animation::Curve;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
 use frontbox_sound::*;
-use frontbox_turn_based::*;
+use frontbox_pinball::*;
 
 use crate::hardware::drop_bank::{self, DropBankTarget};
 use crate::hardware::more_tags::DoesNotCancelSkillshot;

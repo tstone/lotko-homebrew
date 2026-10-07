@@ -29,7 +29,7 @@ pub mod action_button {
 
 pub mod start_button {
   use super::*;
-  use frontbox_turn_based::GameStartable;
+  use frontbox_pinball::GameStartable;
 
   pub const NAME: &'static str = "start";
 

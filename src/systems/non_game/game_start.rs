@@ -1,7 +1,7 @@
 use frontbox::animation::*;
 use frontbox::prelude::color_sequence::*;
 use frontbox::prelude::*;
-use frontbox_turn_based::*;
+use frontbox_pinball::*;
 
 use crate::hardware::cabinet::*;
 

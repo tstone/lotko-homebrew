@@ -1,7 +1,7 @@
 use frontbox::prelude::*;
 use frontbox_canvas::*;
 use frontbox_pin2dmd::*;
-use frontbox_turn_based::*;
+use frontbox_pinball::*;
 
 // TODO: this is probably generalizable enough to include in the pin2dmd package
 pub struct GamePointsDmdSystem {

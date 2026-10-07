@@ -4,7 +4,7 @@ use frontbox::animation::*;
 use frontbox::prelude::tags::*;
 use frontbox::prelude::*;
 use frontbox_pin2dmd::menu::DmdMenuSystem;
-use frontbox_turn_based::*;
+use frontbox_pinball::*;
 use rand::seq::IndexedRandom;
 
 static COLORS: LazyLock<Vec<Rgba<u8>>> = LazyLock::new(|| {

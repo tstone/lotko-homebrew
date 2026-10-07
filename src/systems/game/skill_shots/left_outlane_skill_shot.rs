@@ -1,6 +1,6 @@
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
-use frontbox_turn_based::{GameManagementExt, GameManager, TurnState};
+use frontbox_pinball::{GameManagementExt, GameManager, TurnState};
 
 use crate::hardware::left_outlane::{self, LeftOutlaneRollover};
 use crate::hardware::more_tags::DoesNotCancelSkillshot;

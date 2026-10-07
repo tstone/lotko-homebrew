@@ -5,7 +5,7 @@ use frontbox::animation::*;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
-use frontbox_turn_based::{GameManagementExt, PlayerTurnEnding};
+use frontbox_pinball::{GameManagementExt, PlayerTurnEnding};
 
 use crate::hardware::arc_ramp::ArcRampHit;
 use crate::hardware::backbox::{LEFT_SPEAKER_LEDS, RIGHT_SPEAKER_LEDS};

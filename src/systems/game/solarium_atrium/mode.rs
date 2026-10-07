@@ -2,7 +2,7 @@ use frontbox::animation::Curve;
 use frontbox::prelude::tags::*;
 use frontbox::prelude::*;
 use frontbox_sound::SoundSystemExt;
-use frontbox_turn_based::{GameManagementExt, PlayerTurnBeginning};
+use frontbox_pinball::{GameManagementExt, PlayerTurnBeginning};
 
 use crate::game::solarium_atrium::MODE_COLOR;
 use crate::hardware::arc_ramp::{self, ArcRampHit};

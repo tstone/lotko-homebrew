@@ -33,7 +33,7 @@ hardware_defs! {
         .rest(HardwareValue::Fixed(Duration::from_millis(255)))
         .build(),
     )
-    .location(Vec3::new(14.211, 5.726, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(14.211, 5.726, -1.0).relative_to(&planes::PLAYFIELD));
 
   pub EJECT_COIL: DriverDefinition = DriverDefinition::new("lift_ramp_eject")
     .tag(Playfield)
@@ -57,19 +57,19 @@ hardware_defs! {
         ))
         .build(),
     )
-    .location(Vec3::new(17.424, 1.428, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(17.424, 1.428, -2.5).relative_to(&planes::PLAYFIELD));
 
   pub SCOOP_OPTO: SwitchDefinition = SwitchDefinition::new("lift_ramp_scoop_opto")
     .inverted()
     .debounce_close(Duration::from_millis(10))
     .tag(Playfield)
-    .location(Vec3::new(17.424, 1.428, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(17.424, 1.428, -1.5).relative_to(&planes::PLAYFIELD));
 
   pub RAMP_OPTO: SwitchDefinition = SwitchDefinition::new("lift_ramp_opto")
     .inverted()
     .debounce(Duration::from_millis(2))
     .tag(Playfield)
-    .location(Vec3::new(12.945, 2.357, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(12.945, 2.357, 2.0).relative_to(&planes::PLAYFIELD));
 
   pub BOLT_LED: LedDefinition = LedDefinition::single("lift_ramp_bolt")
     .tag(Playfield)
@@ -124,10 +124,6 @@ impl LiftRampSystem {
       ball_present: false,
       handle: SystemHandle::default(),
     }
-  }
-
-  pub fn ball_present(&self) -> bool {
-    self.ball_present
   }
 
   pub fn is_lifted(&self) -> bool {

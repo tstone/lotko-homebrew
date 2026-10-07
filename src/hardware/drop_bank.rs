@@ -43,7 +43,7 @@ hardware_defs! {
         ))
         .build(),
     )
-    .location(Vec3::new(5.986, 13.096, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(5.986, 13.096, -2.0).relative_to(&planes::PLAYFIELD));
 
   pub TARGET1: SwitchDefinition = SwitchDefinition::new("drop_target1")
     .inverted()

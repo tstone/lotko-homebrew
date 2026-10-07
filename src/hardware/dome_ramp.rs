@@ -6,14 +6,14 @@ use frontbox::tags::*;
 use crate::hardware::more_tags::Hex;
 use crate::hardware::planes;
 
-const NAME: &'static str = "l_ramp";
+const NAME: &'static str = "dome_ramp";
 
 hardware_defs! {
 
   pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
     .tag(Ramp)
     .tag(Playfield)
-    .location(Vec3::new(2.386, 17.349, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(2.386, 17.349, 1.75).relative_to(&planes::PLAYFIELD));
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME)
     .locations(LedLayout::ring(6, Vec3::new(5.813, 23.201, 0.0), 0.5, 340.0f32.to_radians(), LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))

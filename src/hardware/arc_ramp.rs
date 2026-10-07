@@ -13,13 +13,13 @@ hardware_defs! {
     .inverted()
     .debounce(Duration::from_millis(2))
     .tag(Playfield)
-    .location(Vec3::new(7.607, 5.339, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(7.607, 5.339, 1.5).relative_to(&planes::PLAYFIELD));
 
   /// detects when the ball has entered the arc subway
   pub SUBWAY_OPTO: SwitchDefinition = SwitchDefinition::new("arc_subway")
     .inverted()
     .tag(Playfield)
-    .location(Vec3::new(1.703, 7.966, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(1.703, 7.966, -1.75).relative_to(&planes::PLAYFIELD));
 
   pub SUBWAY_LEDS: LedDefinition = LedDefinition::multi("arc_subway")
     .locations(LedLayout::strip(11, Vec3::new(1.545, 15.809, -2.25), 76.0f32.to_radians(), 0.55).relative_to(&planes::PLAYFIELD))

@@ -14,7 +14,7 @@ hardware_defs! {
   pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
     .debounce(Duration::from_millis(20))
     .tag(Playfield)
-    .location(Vec3::new(15.572, 1.916, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(15.572, 1.916, 1.0).relative_to(&planes::PLAYFIELD));
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME)
     .locations(LedLayout::ring(6, Vec3::new(18.031, 15.394, 0.0), 0.5, 12.0f32.to_radians(), LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))

@@ -33,13 +33,13 @@ hardware_defs! {
         ))
         .build(),
     )
-    .location(Vec3::new(1.675, 25.596, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(1.675, 25.596, -2.0).relative_to(&planes::PLAYFIELD));
 
   pub OPTO: SwitchDefinition = SwitchDefinition::new("lower_scoop")
     .inverted()
     .debounce(Duration::from_millis(50))
     .tag(Playfield)
-    .location(Vec3::new(1.675, 25.596, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(1.675, 25.596, -1.5).relative_to(&planes::PLAYFIELD));
 
   pub LEFT_BOLT: LedDefinition = LedDefinition::single("scoop_bolt_l")
     .tag(Bolt)
@@ -93,16 +93,6 @@ impl LowerScoopSystem {
       subway_entry: false,
       eject_pending: false,
       handle: SystemHandle::default(),
-    }
-  }
-
-  pub fn status(&self, ctx: &ServiceContext) -> BallStatus {
-    if self.subway_entry {
-      BallStatus::ExpectingBall
-    } else if ctx.switches.is_closed(OPTO.name).unwrap_or(false) {
-      BallStatus::BallPresent
-    } else {
-      BallStatus::NoBall
     }
   }
 
@@ -182,9 +172,3 @@ struct EjectLowerScoop;
 
 #[derive(serde::Serialize, Event)]
 struct CheckVacated;
-
-pub enum BallStatus {
-  NoBall,
-  ExpectingBall,
-  BallPresent,
-}

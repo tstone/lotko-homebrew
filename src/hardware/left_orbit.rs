@@ -13,7 +13,7 @@ const NAME: &'static str = "l_orbit";
 hardware_defs! {
   pub SWITCH: SwitchDefinition = SwitchDefinition::new(NAME)
     .debounce(Duration::from_millis(20))
-    .location(Vec3::new(1.486, 14.724, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(1.486, 14.724, 1.0).relative_to(&planes::PLAYFIELD));
 
   pub UPPER_SWITCH: SwitchDefinition = SwitchDefinition::new("l_orbit_upper")
     .location(Vec3::new(15.015, 3.959, 0.0).relative_to(&planes::PLAYFIELD));

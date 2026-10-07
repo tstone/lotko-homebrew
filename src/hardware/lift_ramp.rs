@@ -32,7 +32,8 @@ hardware_defs! {
         .secondary_pwm_power(HardwareValue::fixed(Power::QUARTER))
         .rest(HardwareValue::Fixed(Duration::from_millis(255)))
         .build(),
-    );
+    )
+    .location(Vec3::new(14.211, 5.726, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub EJECT_COIL: DriverDefinition = DriverDefinition::new("lift_ramp_eject")
     .tag(Playfield)

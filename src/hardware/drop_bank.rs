@@ -42,7 +42,8 @@ hardware_defs! {
           Ranges::full_power()
         ))
         .build(),
-    );
+    )
+    .location(Vec3::new(5.986, 13.096, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub TARGET1: SwitchDefinition = SwitchDefinition::new("drop_target1")
     .inverted()
@@ -65,7 +66,7 @@ hardware_defs! {
   pub PADDLE_SWITCH: SwitchDefinition = SwitchDefinition::new("drop_paddle")
     .debounce_close(Duration::from_millis(20))
     .tag(Playfield)
-    .location(Vec3::new(5.939, 13.077, 0.0).relative_to(&planes::PLAYFIELD));
+    .location(Vec3::new(5.999, 12.225, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub TARGET1_LEDS: LedDefinition = LedDefinition::strip("target1", 4)
     .tag(Insert)

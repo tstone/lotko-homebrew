@@ -27,7 +27,8 @@ hardware_defs! {
   pub SWITCH6: SwitchDefinition = TroughSystem::switch_definition("trough_6")
     .location(Vec3::new(12.436, 43.87, 0.0).relative_to(&planes::PLAYFIELD));
 
-  pub COIL: DriverDefinition = TroughSystem::eject_coil_definition("trough_coil");
+  pub COIL: DriverDefinition = TroughSystem::eject_coil_definition("trough_coil")
+    .location(Vec3::new(17.377, 40.193, 0.0).relative_to(&planes::PLAYFIELD));
 }
 
 pub fn system() -> TroughSystem {

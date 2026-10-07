@@ -26,7 +26,7 @@ use crate::hardware::vspinner;
 
 pub fn io_network() -> IoNetwork {
   IoNetwork::new(vec![
-    IoBoards::cabinet()
+    IoBoard::cabinet()
       // switches
       .wire_switch(11, &cabinet::coin_door::OPEN_SWITCH)
       .wire_switch(12, &cabinet::action_button::SWITCH)
@@ -43,7 +43,7 @@ pub fn io_network() -> IoNetwork {
       .wire_switch(23, &cabinet::RIGHT_FLIPPER_SWITCH2)
       // drivers
       .wire_driver(2, &cabinet::start_button::LAMP_DRIVER),
-    IoBoards::io_3208()
+    IoBoard::io_3208()
       // switches
       .wire_switch(0, &right_pass_lane::LOWER_SWITCH)
       .wire_switch(1, &right_pass_lane::UPPER_SWITCH)
@@ -81,7 +81,7 @@ pub fn io_network() -> IoNetwork {
       .wire_driver(5, &right_flipper::MAIN_COIL)
       .wire_driver(6, &right_flipper::HOLD_COIL)
       .wire_driver(7, &slingshots::RIGHT_COIL),
-    IoBoards::io_1616()
+    IoBoard::io_1616()
       // switches
       .wire_switch(0, &lift_ramp::RAMP_OPTO)
       .wire_switch(1, &lift_ramp::SCOOP_OPTO)

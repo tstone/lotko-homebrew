@@ -1,0 +1,343 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background: #1e1e22;
+  color: #e4e4e7;
+}
+
+.app {
+  display: flex;
+  height: 100%;
+}
+
+.sidebar {
+  background: #26262b;
+}
+
+/* Ark sets `overflow: hidden` inline on panels, so scrolling lives on an inner element. */
+.sidebar-content {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.sidebar-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.param-group {
+  margin-top: 16px;
+}
+
+.param-group-title {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #a1a1aa;
+}
+
+.param {
+  margin-bottom: 12px;
+}
+
+.param-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.param-value {
+  font-variant-numeric: tabular-nums;
+  color: #a1a1aa;
+  white-space: nowrap;
+}
+
+.slider-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 18px;
+}
+
+.slider-track {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: #3f3f46;
+}
+
+.slider-range {
+  height: 100%;
+  border-radius: inherit;
+  background: #6366f1;
+}
+
+.slider-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e4e4e7;
+  cursor: grab;
+}
+
+.slider-thumb:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.number-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #3f3f46;
+  border-radius: 4px;
+  background: #1e1e22;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.number-input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.button {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  background: #6366f1;
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #4f46e5;
+}
+
+.button:disabled {
+  background: #3f3f46;
+  color: #a1a1aa;
+  cursor: progress;
+}
+
+.button:focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 2px;
+}
+
+/* Ark sets `flex: 0 0 auto` inline, so the width must be explicit. */
+.resize-trigger {
+  width: 4px;
+  padding: 0;
+  border: none;
+  background: #3f3f46;
+  cursor: col-resize;
+}
+
+.resize-trigger:hover,
+.resize-trigger[data-dragging],
+.resize-trigger:focus-visible {
+  background: #6366f1;
+  outline: none;
+}
+
+.viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.viewport-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.viewport-status {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: calc(100% - 24px);
+  pointer-events: none;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgb(0 0 0 / 0.5);
+  color: #e4e4e7;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.status-badge.error {
+  background: rgb(127 29 29 / 0.85);
+  color: #fecaca;
+}
+
+.spinner {
+  width: 10px;
+  height: 10px;
+  border: 2px solid #52525b;
+  border-top-color: #a5b4fc;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.viewport-toolbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+/* Buttons that belong together, drawn as one joined strip. */
+.toggle-group {
+  display: flex;
+}
+
+.toggle-group > .toggle:not(:first-child) {
+  margin-left: -1px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.toggle-group > .toggle:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.toggle {
+  padding: 6px 10px;
+  border: 1px solid #3f3f46;
+  border-radius: 4px;
+  background: rgb(38 38 43 / 0.85);
+  color: #e4e4e7;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toggle:hover {
+  border-color: #52525b;
+}
+
+.toggle[aria-pressed='true'] {
+  border-color: #6366f1;
+  background: #6366f1;
+  color: #fff;
+}
+
+.toggle:focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 2px;
+}
+
+.viewport canvas {
+  display: block;
+}
+
+.button.secondary {
+  border: 1px solid #3f3f46;
+  background: transparent;
+  color: #e4e4e7;
+}
+
+.button.secondary:hover {
+  border-color: #52525b;
+  background: #2f2f35;
+}
+
+.button.secondary:disabled {
+  background: transparent;
+  color: #a1a1aa;
+}
+
+.link-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #a5b4fc;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+.reference-file {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.reference-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.hint {
+  margin: 12px 0 8px;
+  font-size: 12px;
+  color: #a1a1aa;
+}
+
+.error {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #f87171;
+}

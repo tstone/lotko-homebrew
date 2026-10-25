@@ -6,7 +6,9 @@ use frontbox_sound::SoundSystemExt;
 use crate::hardware::pop_cluster::{self, PopBumper};
 use crate::hardware::vspinner;
 use crate::systems::game::nimbus_promenade::MODE_COLOR;
-use crate::systems::game::{ModeManager, NimbusPromenadeQualification, NonExclusiveMode};
+use crate::systems::game::{
+  MULTIBALL_BALL_SAVE, ModeManager, NimbusPromenadeQualification, NonExclusiveMode,
+};
 use crate::systems::sounds;
 
 pub struct NimbusPromenadeMode {
@@ -17,6 +19,7 @@ pub struct NimbusPromenadeMode {
   hits: u8,
   complete: bool,
   cue_id: Option<u64>,
+  eject_id: Option<u64>,
 }
 
 impl NimbusPromenadeMode {
@@ -29,6 +32,7 @@ impl NimbusPromenadeMode {
       hits: 0,
       complete: false,
       cue_id: None,
+      eject_id: None,
     }
   }
 
@@ -142,12 +146,18 @@ impl System for NimbusPromenadeMode {
     ctx
       .expect::<ModeManager>()
       .non_exclusive_active(NonExclusiveMode::NimbusPromenade, ctx.into());
-    ctx.multiball_add_balls(1);
+    self.eject_id = ctx.eject_balls(1, Launch::Auto);
+    ctx.request_ball_save_until_released();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<Next>() {
       self.advance(ctx);
+    } else if let Some(EjectCompleted { id, .. }) = event.downcast_ref::<EjectCompleted>()
+      && Some(*id) == self.eject_id
+    {
+      // time the ball save from when the ball is in play
+      ctx.request_ball_save(MULTIBALL_BALL_SAVE);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>() {
       if let Some(pop) = pop_cluster::match_switch(&event.switch) {
         self.on_pop_hit(&pop, ctx);

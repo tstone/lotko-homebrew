@@ -13,9 +13,9 @@ use crate::hardware::left_orbit::{self, LeftOrbitHit};
 use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::right_orbit::RightOrbitHit;
 use crate::hardware::{city_map, lift_ramp, right_orbit};
-use crate::systems::game::ExclusiveMode;
 use crate::systems::game::ModeManager;
 use crate::systems::game::SporeMultiballQualification;
+use crate::systems::game::{ExclusiveMode, MULTIBALL_BALL_SAVE};
 use crate::systems::sounds;
 
 // TODO: super jackpot
@@ -30,6 +30,7 @@ pub struct SporeMultiballMode {
   hits: u8,
   super_jackpot_active: bool,
   cue_id: Option<u64>,
+  eject_id: Option<u64>,
 }
 
 impl SporeMultiballMode {
@@ -43,6 +44,7 @@ impl SporeMultiballMode {
       hits: 0,
       super_jackpot_active: false,
       cue_id: None,
+      eject_id: None,
     }
   }
 
@@ -178,7 +180,8 @@ impl System for SporeMultiballMode {
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    ctx.multiball_add_balls(2);
+    self.eject_id = ctx.eject_balls(2, Launch::Auto);
+    ctx.request_ball_save_until_released();
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
@@ -202,7 +205,16 @@ impl System for SporeMultiballMode {
       self.super_jackpot_hit(ctx);
     } else if event.is::<SuperJackpotOver>() && self.super_jackpot_active {
       self.end_super_jackpot(ctx);
-    } else if event.is::<MultiballEnded>() || event.is::<PlayerTurnEnding>() {
+    } else if let Some(EjectCompleted { id, .. }) = event.downcast_ref::<EjectCompleted>()
+      && Some(*id) == self.eject_id
+    {
+      // time the ball save from when the balls are in play
+      ctx.request_ball_save(MULTIBALL_BALL_SAVE);
+    } else if let Some(BallsExitedPlay { in_play, .. }) = event.downcast_ref::<BallsExitedPlay>()
+      && *in_play <= 1
+    {
+      self.shutdown(ctx);
+    } else if event.is::<PlayerTurnEnding>() {
       self.shutdown(ctx);
     }
   }

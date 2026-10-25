@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use std::sync::LazyLock;
 
 use frontbox::prelude::*;
-use frontbox_sound::SoundSystem;
 use frontbox_pinball::{PlayerTurnBeginning, PlayerTurnEnding};
+use frontbox_sound::SoundSystem;
 
 use crate::hardware::city_map;
 use crate::systems::game::ExclusiveMode;

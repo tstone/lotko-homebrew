@@ -1,8 +1,8 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
-use frontbox_sound::*;
 use frontbox_pinball::*;
+use frontbox_sound::*;
 
 use crate::hardware::more_tags::DoesNotCancelSkillshot;
 use crate::hardware::{pop_cluster, vspinner};

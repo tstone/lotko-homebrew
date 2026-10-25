@@ -10,7 +10,8 @@ use crate::hardware::{backbox, city_map, lift_ramp};
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
-  self, ExclusiveMode, LiftRampStartable, ModeManager, SkyrailStationQualification, points,
+  self, ExclusiveMode, LiftRampStartable, MULTIBALL_BALL_SAVE, ModeManager,
+  SkyrailStationQualification, points,
 };
 
 pub struct SkyrailStationMode {
@@ -22,6 +23,7 @@ pub struct SkyrailStationMode {
   ramp_hits: u8,
   state: State,
   ramp_up: bool,
+  eject_id: Option<u64>,
 }
 
 impl SkyrailStationMode {
@@ -35,6 +37,7 @@ impl SkyrailStationMode {
       ramp_hits: 0,
       state: HitRamp,
       ramp_up: false,
+      eject_id: None,
     }
   }
 
@@ -231,7 +234,8 @@ impl SkyrailStationMode {
 
         if self.ramp_hits == 3 {
           // on the final round all 3 targets must be hit with a 2 ball multiball
-          ctx.multiball_add_balls(1);
+          self.eject_id = ctx.eject_balls(1, Launch::Auto);
+          ctx.request_ball_save_until_released();
           self.state = Final;
           self.intensity_effect.play();
           self.attention_effect.stop(ctx);
@@ -311,6 +315,11 @@ impl System for SkyrailStationMode {
       self.advance(ctx);
     } else if event.is::<DropBankTargetHit>() && (self.state == HitTarget || self.state == Final) {
       self.advance(ctx);
+    } else if let Some(EjectCompleted { id, .. }) = event.downcast_ref::<EjectCompleted>()
+      && Some(*id) == self.eject_id
+    {
+      // time the ball save from when the ball is in play
+      ctx.request_ball_save(MULTIBALL_BALL_SAVE);
     } else if event.is::<PlayerTurnBeginning>() {
       self.revert_to_startable(ctx);
     }

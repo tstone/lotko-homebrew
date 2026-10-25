@@ -4,8 +4,8 @@ use std::sync::LazyLock;
 use frontbox::animation::*;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
-use frontbox_sound::SoundSystemExt;
 use frontbox_pinball::{GameManagementExt, PlayerTurnEnding};
+use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::arc_ramp::ArcRampHit;
 use crate::hardware::backbox::{LEFT_SPEAKER_LEDS, RIGHT_SPEAKER_LEDS};

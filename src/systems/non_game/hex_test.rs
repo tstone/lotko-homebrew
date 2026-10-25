@@ -1,7 +1,7 @@
 use frontbox::prelude::*;
 
 use crate::hardware::{
-  arc_ramp, cabinet::RIGHT_FLIPPER_SWITCH1, center_orbit, left_orbit, dome_ramp, lift_ramp,
+  arc_ramp, cabinet::RIGHT_FLIPPER_SWITCH1, center_orbit, dome_ramp, left_orbit, lift_ramp,
   right_orbit,
 };
 

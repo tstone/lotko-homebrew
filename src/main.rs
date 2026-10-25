@@ -112,32 +112,42 @@ async fn main() {
     app.system(arc_ramp::ArcRampSystem::new());
     app.system(vspinner::VerticalSpinner::new());
     app.system(captive_ball::CaptiveBallSystem::new());
-    app.system(trough::system());
     app.system(
-      PlungeLaneSystem::new(plunge_lane::SWITCH.name, Duration::from_millis(1200))
-        .ball_present_effect(LedProgram1d::rotating(
-          plunge_lane::LED_STRIP.q(),
-          ColorSequence::exact(vec![
-            Rgba::purple(),
-            Rgba::purple().lighten(0.35),
-            Rgba::default(),
-            Rgba::default(),
-          ]),
-          Duration::from_millis(900),
-          Curve::Linear,
-          Cycle::Forever,
-        )),
-    );
-    app.system(AutoPlungerSystem::new(plunge_lane::COIL.name));
-    app.system(ActionButtonEject::new(
-      action_button::SWITCH.q(),
-      LedProgram1d::pulse(
+      BallManager::standard(
+        [
+          trough::SWITCH1.name,
+          trough::SWITCH2.name,
+          trough::SWITCH3.name,
+          trough::SWITCH4.name,
+          trough::SWITCH5.name,
+          // trough::SWITCH6.name, -- off by one ala opto
+        ],
+        trough::COIL.name,
+      )
+      .plunge_lane(plunge_lane::SWITCH.name)
+      .re_enter_timeout(Duration::from_millis(1200))
+      .ball_present_effect(LedProgram1d::rotating(
+        plunge_lane::LED_STRIP.q(),
+        ColorSequence::exact(vec![
+          Rgba::purple(),
+          Rgba::purple().lighten(0.35),
+          Rgba::default(),
+          Rgba::default(),
+        ]),
+        Duration::from_millis(900),
+        Curve::Linear,
+        Cycle::Forever,
+      ))
+      .autoplunger(plunge_lane::COIL.name)
+      .launch_button(action_button::SWITCH.q())
+      .launch_ready_effect(LedProgram1d::pulse(
         action_button::LED.q(),
         Rgba::magenta(),
         Duration::from_millis(1250),
         Cycle::Forever,
-      ),
-    ));
+      ))
+      .build(),
+    );
     app.system(DoubleFlipSystem::new(
       cabinet::LEFT_FLIPPER_SWITCH1.q(),
       cabinet::RIGHT_FLIPPER_SWITCH1.q(),
@@ -151,11 +161,12 @@ async fn main() {
       systems![
         BasicPoints::new(),
         // operation
-        BallSaveSystem::new(Duration::from_secs(8)).effect(ball_save_effect.clone()),
+        BallSaveSystem::new()
+          .on_turn_start(Duration::from_secs(8))
+          .led_effect(ball_save_effect),
         PlayfieldIllumination::new(),
         SkillshotManager::new(),
         FlashersSystem::new(),
-        MultiballSystem::new(Duration::from_secs(12), ball_save_effect),
         // modes
         ModeManager::new(),
         LeftScoopStartable::new(),

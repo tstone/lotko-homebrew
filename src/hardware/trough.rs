@@ -31,17 +31,3 @@ hardware_defs! {
   pub COIL: DriverDefinition = TroughSystem::eject_coil_definition("trough_coil")
     .location(Vec3::new(17.377, 40.193, 0.0).relative_to(&planes::PLAYFIELD));
 }
-
-pub fn system() -> TroughSystem {
-  TroughSystem::new(
-    COIL.name,
-    vec![
-      SWITCH1.name,
-      SWITCH2.name,
-      SWITCH3.name,
-      SWITCH4.name,
-      SWITCH5.name,
-      // SWITCH6.name, -- off by one ala opto
-    ],
-  )
-}

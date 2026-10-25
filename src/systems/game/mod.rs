@@ -32,6 +32,9 @@ pub use skyrail_station::*;
 pub use solarium_atrium::*;
 pub use spore_multiball::*;
 
+/// How long a multiball saves drains once its balls are in play
+pub const MULTIBALL_BALL_SAVE: std::time::Duration = std::time::Duration::from_secs(12);
+
 mod points {
   pub static EXCL_QUAL_HIT: u32 = 50_250;
   pub static EXCL_START: u32 = 350_000;

@@ -1,7 +1,7 @@
 use frontbox::prelude::*;
 use frontbox_pin2dmd::{InitialsEntered, InitialsEntrySystem};
-use frontbox_sound::SoundSystem;
 use frontbox_pinball::{GameEnded, HighScoreSlot, HighScoresSystem};
+use frontbox_sound::SoundSystem;
 
 use crate::hardware::cabinet;
 use crate::{GameManager, PlayerTurnEnding, systems::sounds::LANE_HIT_COMPLETE};

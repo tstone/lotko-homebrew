@@ -35,7 +35,7 @@ impl AttractModeDmdSystem {
       spore_anim: Self::rnd_animation(&frames),
       press_start_anim: Tween::new(
         Duration::from_millis(250),
-        Curve::ElasticInOut,
+        Curve::EaseInOut,
         vec![Rgba::yellow(), Rgba::orange()],
         Cycle::Forever,
       ),

@@ -1,7 +1,6 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::Cycle::Forever;
 use frontbox::prelude::*;
-use frontbox::provided::QuitGameSystem;
 use frontbox_pin_console::{WebTracer, console_plane};
 use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
@@ -77,10 +76,10 @@ async fn main() {
     app.system(game_startable());
     app.system(AttractModeLedsSystem::new());
     app.system(StartupEject::new());
-    app.system(QuitGameSystem::new(
-      cabinet::LEFT_FLIPPER_SWITCH1.name,
-      start_button::SWITCH.name,
-    ));
+    app.system(quit_game_combo(vec![
+      &cabinet::LEFT_FLIPPER_SWITCH1,
+      &start_button::SWITCH,
+    ]));
 
     // dmd
     if !virtual_mode {
@@ -148,10 +147,6 @@ async fn main() {
       ))
       .build(),
     );
-    app.system(DoubleFlipSystem::new(
-      cabinet::LEFT_FLIPPER_SWITCH1.q(),
-      cabinet::RIGHT_FLIPPER_SWITCH1.q(),
-    ));
 
     // game
     app.system(activate_playfield());

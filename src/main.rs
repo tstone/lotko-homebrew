@@ -70,7 +70,6 @@ async fn main() {
     // core
     app.system(LedSystem::new());
     app.system(SoundSystem::by_name_or_default("Sound Blaster"));
-    app.system(OperatorConfig::default());
     app.system(FreePlay::new(start_button::SWITCH.q()));
     app.system(SoundLoaderSystem::new());
     app.system(game_startable());
@@ -149,7 +148,6 @@ async fn main() {
     );
 
     // game
-    app.system(activate_playfield());
     app.system(EndOfBallSystem::new());
     app.system(GameManager::competitive(
       4,
@@ -177,7 +175,8 @@ async fn main() {
         ApexTerracesMode::new(),
       ],
       SwitchQ::tag::<tags::Playfield>(),
-    ));
+    )
+    .playfield_drivers(DriverQ::tag::<tags::Playfield>()));
   })
   .run()
   .await;

@@ -36,7 +36,7 @@ hardware_defs! {
           Ranges::duration(5, 100)
         ))
         .initial_pwm_power(HardwareValue::config(
-          "Drop Target Return Duration",
+          "Drop Target Return Power",
           "Power to use when resetting the bank",
           Power::FULL,
           Ranges::full_power()

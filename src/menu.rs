@@ -7,15 +7,9 @@ pub static MENU: LazyLock<MenuSection> = LazyLock::new(|| {
   MenuSection::root()
     .section(
       MenuSection::new("Hardware")
-        .section(
-          MenuSection::new("Left Flipper")
-            .configs(left_flipper::MAIN_COIL.generalized_config_values()),
-        )
-        .section(
-          MenuSection::new("Right Flipper")
-            .configs(right_flipper::MAIN_COIL.generalized_config_values()),
-        )
-        .section(MenuSection::new("Trough").configs(trough::COIL.generalized_config_values())),
+        .section(MenuSection::new("Left Flipper").configs(left_flipper::MAIN_COIL.configs()))
+        .section(MenuSection::new("Right Flipper").configs(right_flipper::MAIN_COIL.configs()))
+        .section(MenuSection::new("Trough").configs(trough::COIL.configs())),
     )
     .section(MenuSection::new("Game"))
     .section(MenuSection::new("Rules"))

@@ -11,13 +11,15 @@ pub mod left_flipper {
     pub MAIN_COIL: DriverDefinition = DriverDefinition::new("l_flipper_main")
       .mode(
         DriverMode::flipper_main_direct(cabinet::LEFT_FLIPPER_SWITCH1.name, EOS_SWITCH.name)
-          .initial_pwm_power(HardwareValue::config("Initial Power", "", Power::FULL, Ranges::full_power()))
-          .secondary_pwm_power(HardwareValue::config("Secondary Power", "", Power::THREE_QUARTERS, Ranges::full_power()))
+          .initial_pwm_power(HardwareValue::config("Initial Power", "", Power::FULL, Ranges::full_power()).key("Left Flipper Initial Power"))
+          .secondary_pwm_power(HardwareValue::config("Secondary Power", "", Power::THREE_QUARTERS, Ranges::full_power()).key("Left Flipper Secondary Power"))
           .build(),
-      );
+      )
+      .tag(Playfield);
 
     pub HOLD_COIL: DriverDefinition = DriverDefinition::new("l_flipper_hold")
-      .mode(DriverMode::flipper_hold_direct(cabinet::LEFT_FLIPPER_SWITCH1.name).build());
+      .mode(DriverMode::flipper_hold_direct(cabinet::LEFT_FLIPPER_SWITCH1.name).build())
+      .tag(Playfield);
   }
 }
 
@@ -32,13 +34,15 @@ pub mod right_flipper {
     pub MAIN_COIL: DriverDefinition = DriverDefinition::new("r_flipper_main")
       .mode(
         DriverMode::flipper_main_direct(cabinet::RIGHT_FLIPPER_SWITCH1.name, EOS_SWITCH.name)
-          .initial_pwm_power(HardwareValue::config("Initial Power", "", Power::FULL, Ranges::full_power()))
-          .secondary_pwm_power(HardwareValue::config("Secondary Power", "", Power::FULL, Ranges::full_power()))
+          .initial_pwm_power(HardwareValue::config("Initial Power", "", Power::FULL, Ranges::full_power()).key("Right Flipper Initial Power"))
+          .secondary_pwm_power(HardwareValue::config("Secondary Power", "", Power::FULL, Ranges::full_power()).key("Right Flipper Secondary Power"))
           .build(),
-      );
+      )
+      .tag(Playfield);
 
     pub HOLD_COIL: DriverDefinition = DriverDefinition::new("r_flipper_hold")
-      .mode(DriverMode::flipper_hold_direct(cabinet::RIGHT_FLIPPER_SWITCH1.name).build());
+      .mode(DriverMode::flipper_hold_direct(cabinet::RIGHT_FLIPPER_SWITCH1.name).build())
+      .tag(Playfield);
   }
 }
 

@@ -1,4 +1,3 @@
-mod activate_playfield;
 mod apex_terraces;
 mod end_of_ball;
 mod exclusive_mode;
@@ -15,7 +14,6 @@ mod skyrail_station;
 mod solarium_atrium;
 mod spore_multiball;
 
-pub use activate_playfield::*;
 pub use apex_terraces::*;
 pub use end_of_ball::*;
 pub use exclusive_mode::*;

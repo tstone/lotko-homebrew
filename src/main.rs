@@ -155,7 +155,6 @@ async fn main() {
         BasicPoints::new(),
         // operation
         BallSaveSystem::new()
-          .on_turn_start(Duration::from_secs(8))
           .led_effect(ball_save_effect),
         PlayfieldIllumination::new(),
         SkillshotManager::new(),

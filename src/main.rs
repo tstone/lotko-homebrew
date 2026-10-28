@@ -52,6 +52,12 @@ async fn main() {
     io_network: io_network(),
     exp_network: exp_network(),
     system_interval: Duration::from_millis(67),
+    // fixed on the machine so release and debug builds share settings, wherever each was built
+    config_path: Some(if virtual_mode {
+      concat!(env!("CARGO_MANIFEST_DIR"), "/operator_config.toml").into()
+    } else {
+      "/userdata/home/armsom/operator_config.toml".into()
+    }),
     ..Default::default()
   })
   .configure(|app| {

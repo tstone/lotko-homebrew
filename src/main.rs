@@ -58,6 +58,11 @@ async fn main() {
     } else {
       "/userdata/home/armsom/operator_config.toml".into()
     }),
+    metrics_path: Some(if virtual_mode {
+      concat!(env!("CARGO_MANIFEST_DIR"), "/metrics.db").into()
+    } else {
+      "/userdata/home/armsom/metrics.db".into()
+    }),
     ..Default::default()
   })
   .configure(|app| {

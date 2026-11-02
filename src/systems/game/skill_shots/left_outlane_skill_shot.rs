@@ -1,6 +1,6 @@
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
-use frontbox_pinball::{GameManagementExt, GameManager, TurnState};
+use frontbox_pinball::{GameManagementExt, TurnPhase};
 
 use crate::hardware::left_outlane::{self, LeftOutlaneRollover};
 use crate::hardware::more_tags::DoesNotCancelSkillshot;
@@ -51,8 +51,7 @@ impl System for LeftOutlaneSkillShot {
       self.on_skill_shot(ctx);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && (event.switch.has_tag::<Playfield>() && !event.switch.has_tag::<DoesNotCancelSkillshot>())
-      && let Some(game_state) = ctx.expect::<GameManager>().game_state()
-      && game_state.current_player_turn_state() == &TurnState::Active
+      && ctx.in_state(TurnPhase::Active)
     {
       ctx.despawn_self();
     }

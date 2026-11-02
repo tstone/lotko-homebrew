@@ -4,7 +4,7 @@ use std::sync::LazyLock;
 use frontbox::animation::*;
 use frontbox::prelude::tags::Playfield;
 use frontbox::prelude::*;
-use frontbox_pinball::{GameManagementExt, PlayerTurnEnding};
+use frontbox_pinball::{GameManagementExt, TurnEnding};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::arc_ramp::ArcRampHit;
@@ -320,7 +320,7 @@ impl System for HydroCoreMode {
       self.combo_hit(ctx);
     } else if event.is::<ComboTimeUp>() {
       self.combo_time_up(ctx);
-    } else if event.is::<PlayerTurnEnding>() {
+    } else if event.is::<RoutineStarted<TurnEnding>>() {
       self.revert_to_startable(ctx);
     }
   }

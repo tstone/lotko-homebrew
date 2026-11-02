@@ -216,7 +216,7 @@ impl System for MeridianBasinsMode {
         PopBumper::UpperRight => self.on_shot_hit(ModeShots::UpperRightPop, ctx),
         PopBumper::LowerRight => self.on_shot_hit(ModeShots::LowerRightPop, ctx),
       }
-    } else if event.is::<PlayerTurnBeginning>() {
+    } else if event.is::<RoutineStarted<TurnStarting>>() {
       self.revert_to_startable(ctx);
     }
   }

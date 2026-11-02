@@ -1,5 +1,5 @@
 use frontbox::{animation::Curve, prelude::*};
-use frontbox_pinball::{GameManager, TurnState};
+use frontbox_pinball::TurnPhase;
 use frontbox_sound::SoundSystemExt;
 
 use crate::{
@@ -74,12 +74,8 @@ impl SporeMultiballStartable {
 
 impl System for SporeMultiballStartable {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    let game_manager = ctx.expect::<GameManager>();
     let mode_manager = ctx.expect::<ModeManager>();
-    game_manager
-      .turn_state()
-      .map(|s| *s == TurnState::Active)
-      .unwrap_or(false)
+    ctx.in_state(TurnPhase::Active)
       && (mode_manager.current_mode().is_none()
         || *mode_manager.current_mode() == Some(ExclusiveMode::SporeMultiball))
   }

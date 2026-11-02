@@ -1,7 +1,7 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::color_sequence::{Anchor1d, Fill1dArea};
 use frontbox::prelude::*;
-use frontbox_pinball::{GameManagementExt, GameManager, TurnState};
+use frontbox_pinball::{GameManagementExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::vspinner::{self, VerticalSpinnerHit};
@@ -108,11 +108,7 @@ impl NimbusPromenadeQualification {
 
 impl System for NimbusPromenadeQualification {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx
-      .expect::<GameManager>()
-      .game_state()
-      .map(|state| *state.current_player_turn_state() == TurnState::Active)
-      .unwrap_or(false)
+    ctx.in_state(TurnPhase::Active)
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

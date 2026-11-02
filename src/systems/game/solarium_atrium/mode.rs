@@ -1,7 +1,7 @@
 use frontbox::animation::Curve;
 use frontbox::prelude::tags::*;
 use frontbox::prelude::*;
-use frontbox_pinball::{GameManagementExt, PlayerTurnBeginning};
+use frontbox_pinball::{GameManagementExt, TurnStarting};
 use frontbox_sound::SoundSystemExt;
 
 use crate::game::solarium_atrium::MODE_COLOR;
@@ -161,7 +161,7 @@ impl System for SolariumAtriumMode {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<PlayerTurnBeginning>() {
+    if event.is::<RoutineStarted<TurnStarting>>() {
       self.revert_to_startable(ctx);
     } else if event.is::<DomeRampHit>() {
       self.ramp_hit(Ramp::DomeRamp, ctx);

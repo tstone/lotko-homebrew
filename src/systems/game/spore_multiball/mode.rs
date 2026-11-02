@@ -210,11 +210,13 @@ impl System for SporeMultiballMode {
     {
       // time the ball save from when the balls are in play
       ctx.request_ball_save(MULTIBALL_BALL_SAVE);
-    } else if let Some(BallsExitedPlay { in_play, .. }) = event.downcast_ref::<BallsExitedPlay>()
-      && *in_play <= 1
+    } else if let Some(done) = event.downcast_ref::<RoutineCompleted<BallDraining>>()
+      && done.completion == RoutineCompletion::AllSteps
+      && done.routine.in_play <= 1
     {
+      // a drain that wasn't saved left one ball or none
       self.shutdown(ctx);
-    } else if event.is::<PlayerTurnEnding>() {
+    } else if event.is::<RoutineStarted<TurnEnding>>() {
       self.shutdown(ctx);
     }
   }

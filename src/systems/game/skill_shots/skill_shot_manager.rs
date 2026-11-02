@@ -17,7 +17,7 @@ impl SkillshotManager {
 
 impl System for SkillshotManager {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<PlayerTurnBeginning>() {
+    if event.is::<RoutineStarted<TurnStarting>>() {
       if let Some(drop_bank) = ctx.get::<DropBankSystem>() {
         drop_bank.raise_targets(ctx.into());
       }

@@ -320,7 +320,7 @@ impl System for SkyrailStationMode {
     {
       // time the ball save from when the ball is in play
       ctx.request_ball_save(MULTIBALL_BALL_SAVE);
-    } else if event.is::<PlayerTurnBeginning>() {
+    } else if event.is::<RoutineStarted<TurnStarting>>() {
       self.revert_to_startable(ctx);
     }
   }

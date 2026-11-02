@@ -160,6 +160,9 @@ async fn main() {
 
     // game
     app.system(EndOfBallSystem::new());
+    app.routine::<TurnEnding>(routine![EndOfBallSystem]);
+    app.routine::<BallDraining>(routine![BallSaveSystem]);
+    app.routine::<GameEnding>(routine![EndOfBallSystem]);
     app.system(GameManager::competitive(
       4,
       systems![

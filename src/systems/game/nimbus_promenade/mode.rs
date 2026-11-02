@@ -134,11 +134,7 @@ impl NimbusPromenadeMode {
 
 impl System for NimbusPromenadeMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx
-      .expect::<GameManager>()
-      .game_state()
-      .map(|g| *g.current_player_turn_state() == TurnState::Active)
-      .unwrap_or(false)
+    ctx.in_state(TurnPhase::Active)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {

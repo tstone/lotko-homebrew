@@ -5,8 +5,7 @@ use frontbox::prelude::DeactivationMode::VirtualSwitchOff;
 use frontbox::prelude::DriverTriggerMode::VirtualSwitchTrue;
 use frontbox::prelude::*;
 use frontbox::tags::*;
-use frontbox_pinball::GameManager;
-use frontbox_pinball::TurnState;
+use frontbox_pinball::TurnPhase;
 
 use crate::hardware::more_tags::*;
 use crate::hardware::planes;
@@ -169,10 +168,7 @@ impl LiftRampSystem {
 
 impl System for LiftRampSystem {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx
-      .get::<GameManager>()
-      .map(|game| game.turn_state() == Some(&TurnState::Active))
-      .unwrap_or(false)
+    ctx.in_state(TurnPhase::Active)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {

@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use std::sync::LazyLock;
 
 use frontbox::prelude::*;
-use frontbox_pinball::{PlayerTurnBeginning, PlayerTurnEnding};
+use frontbox_pinball::{TurnEnding, TurnStarting};
 use frontbox_sound::SoundSystem;
 
 use crate::hardware::city_map;
@@ -259,10 +259,10 @@ impl System for ModeManager {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<PlayerTurnBeginning>() {
+    if event.is::<RoutineStarted<TurnStarting>>() {
       log::info!("ModeManager: turn starting (playing music)");
       self.crossfade_music(ctx);
-    } else if event.is::<PlayerTurnEnding>() {
+    } else if event.is::<RoutineStarted<TurnEnding>>() {
       self.stop_music(ctx);
     }
   }

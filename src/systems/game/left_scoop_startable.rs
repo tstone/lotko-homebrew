@@ -3,8 +3,7 @@ use std::collections::VecDeque;
 use frontbox::animation::Curve;
 use frontbox::prelude::*;
 use frontbox_pinball::GameManagementExt;
-use frontbox_pinball::GameManager;
-use frontbox_pinball::TurnState;
+use frontbox_pinball::TurnPhase;
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::arc_ramp;
@@ -136,12 +135,8 @@ impl LeftScoopStartable {
 
 impl System for LeftScoopStartable {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    let game_manager = ctx.expect::<GameManager>();
     let mode_manager = ctx.expect::<ModeManager>();
-    game_manager
-      .turn_state()
-      .map(|s| *s == TurnState::Active)
-      .unwrap_or(false)
+    ctx.in_state(TurnPhase::Active)
       && match (&self.state, mode_manager.current_mode()) {
         (Starting(startable_mode), Some(active_mode)) => active_mode == startable_mode,
         (_, Some(_)) => false,

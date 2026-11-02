@@ -81,8 +81,7 @@ impl System for LeftPopSkillShot {
       self.on_skill_shot(ctx);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && (event.switch.has_tag::<Playfield>() && !event.switch.has_tag::<DoesNotCancelSkillshot>())
-      && let Some(game_state) = ctx.expect::<GameManager>().game_state()
-      && game_state.current_player_turn_state() == &TurnState::Active
+      && ctx.in_state(TurnPhase::Active)
     {
       log::info!(
         "LeftPopSkillShot: killed due to switch {}",

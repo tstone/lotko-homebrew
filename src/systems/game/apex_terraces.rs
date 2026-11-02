@@ -12,7 +12,7 @@ use crate::{
   },
 };
 use frontbox::prelude::*;
-use frontbox_pinball::{GameManagementExt, GameManager, TurnState};
+use frontbox_pinball::{GameManagementExt, TurnPhase};
 use frontbox_sound::*;
 
 #[derive(Clone)]
@@ -163,11 +163,7 @@ impl ApexTerracesMode {
 
 impl System for ApexTerracesMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx
-      .expect::<GameManager>()
-      .game_state()
-      .map(|game| *game.current_player_turn_state() == TurnState::Active)
-      .unwrap_or(false)
+    ctx.in_state(TurnPhase::Active)
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

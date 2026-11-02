@@ -1,6 +1,6 @@
 use frontbox::prelude::*;
 use frontbox::tags::Playfield;
-use frontbox_pinball::{GameManager, TurnState};
+use frontbox_pinball::{GameManager, TurnPhase};
 
 /// A system to give a low amount of points just for the ball bouncing around
 #[derive(Debug, Clone)]
@@ -14,11 +14,7 @@ impl BasicPoints {
 
 impl System for BasicPoints {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx
-      .expect::<GameManager>()
-      .game_state()
-      .map(|state| *state.current_player_turn_state() == TurnState::Active)
-      .unwrap_or(false)
+    ctx.in_state(TurnPhase::Active)
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

@@ -18,7 +18,7 @@ use crate::hardware::more_tags::ArcRamp;
 use crate::hardware::{arc_ramp, center_orbit, city_map, dome_ramp, left_orbit, lift_ramp};
 use crate::systems::game::ModeManager;
 use crate::systems::game::hydro_core::MODE_COLOR;
-use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable};
+use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable, SporeApplied};
 use crate::systems::sounds;
 
 static BASE_SHOT_TIME: LazyLock<Duration> = LazyLock::new(|| Duration::from_secs(25));
@@ -237,6 +237,7 @@ impl HydroCoreMode {
     self.hit_effect.play();
 
     self.advance_combo(self.current_combo_shot + 1, ctx);
+    ctx.emit(SporeApplied);
     ctx.expect::<FlashersSystem>().rotate(
       2,
       ColorSequence::tile(vec![

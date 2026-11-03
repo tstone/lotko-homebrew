@@ -1,5 +1,6 @@
 use crate::hardware::planes;
 use frontbox::prelude::*;
+use frontbox::provided::SwitchComboSystem;
 use frontbox::tags::*;
 
 hardware_defs! {
@@ -11,6 +12,20 @@ hardware_defs! {
 
   pub TILT_BOB_SWITCH: SwitchDefinition = SwitchDefinition::new("tilt");
 }
+
+/// How close together both flipper buttons must be pressed to count as a double flip
+const DOUBLE_FLIP_WINDOW: Duration = Duration::from_millis(250);
+
+/// Emits `DoubleFlipped` when both flipper buttons are pressed together. Run one copy; anything that cares (e.g.
+/// skipping a display) watches for the event.
+pub fn double_flip_combo() -> SwitchComboSystem {
+  SwitchComboSystem::new(vec![&LEFT_FLIPPER_SWITCH1, &RIGHT_FLIPPER_SWITCH1])
+    .within(DOUBLE_FLIP_WINDOW)
+    .on_combo(|ctx| ctx.emit(DoubleFlipped))
+}
+
+#[derive(serde::Serialize, Event)]
+pub struct DoubleFlipped;
 
 pub mod action_button {
   use super::*;

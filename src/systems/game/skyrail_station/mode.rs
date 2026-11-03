@@ -10,7 +10,7 @@ use crate::hardware::{backbox, city_map, lift_ramp};
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
-  self, ExclusiveMode, LiftRampStartable, MULTIBALL_BALL_SAVE, ModeManager, points,
+  self, ExclusiveMode, LiftRampStartable, MULTIBALL_BALL_SAVE, ModeManager, SporeApplied, points,
 };
 
 pub struct SkyrailStationMode {
@@ -173,6 +173,7 @@ impl SkyrailStationMode {
 
   fn advance(&mut self, ctx: &SystemContext) {
     ctx.add_points(points::EXL_MODE_HIT);
+    ctx.emit(SporeApplied);
     self.hit_effect.play();
     ctx
       .expect::<FlashersSystem>()

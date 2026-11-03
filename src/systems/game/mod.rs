@@ -14,6 +14,7 @@ mod skill_shots;
 mod skyrail_station;
 mod solarium_atrium;
 mod spore_multiball;
+mod spores;
 
 pub use apex_terraces::*;
 pub use bonus::*;
@@ -31,9 +32,14 @@ pub use skill_shots::*;
 pub use skyrail_station::*;
 pub use solarium_atrium::*;
 pub use spore_multiball::*;
+pub use spores::*;
 
 /// How long a multiball saves drains once its balls are in play
 pub const MULTIBALL_BALL_SAVE: std::time::Duration = std::time::Duration::from_secs(12);
+
+/// A spore was applied to the city, which for now means a mode shot was made
+#[derive(serde::Serialize, frontbox::prelude::Event)]
+pub struct SporeApplied;
 
 mod points {
   pub static EXCL_QUAL_HIT: u32 = 50_250;
@@ -41,4 +47,5 @@ mod points {
   pub static EXL_COMPLETION: u32 = 50_000_000;
   pub static EXL_MODE_HIT: u32 = 150_000;
   pub static BONUS_PER_CITY_MODE: u32 = 5_000_000;
+  pub static BONUS_PER_SPORE: u32 = 15_000;
 }

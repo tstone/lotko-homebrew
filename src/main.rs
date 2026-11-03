@@ -11,6 +11,7 @@ use std::io::Write;
 mod systems;
 use systems::*;
 mod hardware;
+mod metrics;
 pub mod menu;
 
 use hardware::*;
@@ -90,6 +91,7 @@ async fn main() {
       &cabinet::LEFT_FLIPPER_SWITCH1,
       &start_button::SWITCH,
     ]));
+    app.system(cabinet::double_flip_combo());
 
     // dmd
     if !virtual_mode {
@@ -175,6 +177,7 @@ async fn main() {
         FlashersSystem::new(),
         // modes
         ModeManager::new(),
+        SporesSystem::new(),
         BonusSystem::new(),
         TurnEndScoreSystem::new(),
         LeftScoopStartable::new(),

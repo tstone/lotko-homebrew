@@ -10,7 +10,7 @@ use crate::hardware::dome_ramp::{self, DomeRampHit};
 use crate::hardware::flashers::{self, FlashersSystem};
 use crate::hardware::lift_ramp::{self, LiftRampHit};
 use crate::hardware::{backbox, city_map};
-use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable, ModeManager};
+use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable, ModeManager, SporeApplied};
 use crate::systems::sounds;
 
 static REQUIRED_HITS: u8 = 6;
@@ -121,6 +121,7 @@ impl SolariumAtriumMode {
       _ => game::points::EXL_MODE_HIT as f32,
     };
     ctx.add_points(points as u32);
+    ctx.emit(SporeApplied);
 
     if self.ramp_hits == (REQUIRED_HITS - 2) {
       self.intensity_effect.play();

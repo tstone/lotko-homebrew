@@ -17,7 +17,7 @@ use crate::hardware::{
 };
 use crate::hardware::{captive_ball, flashers};
 use crate::systems::game::meridian_basins::MODE_COLOR;
-use crate::systems::game::{ExclusiveMode, LiftRampStartable, ModeManager, points};
+use crate::systems::game::{ExclusiveMode, LiftRampStartable, ModeManager, SporeApplied, points};
 use crate::systems::{sounds, sounds_bytes};
 use frontbox_sound::*;
 
@@ -127,6 +127,7 @@ impl MeridianBasinsMode {
       log::info!("MeridianBasins: hits = {}", self.hits);
       ctx.play_sfx(sounds::rnd_lane_hit());
       ctx.add_points(points::EXL_MODE_HIT);
+      ctx.emit(SporeApplied);
 
       if self.hits == 4 {
         self.intensity_effect.play();

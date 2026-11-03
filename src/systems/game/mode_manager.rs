@@ -7,6 +7,7 @@ use frontbox_pinball::{TurnEnding, TurnStarting};
 use frontbox_sound::SoundSystem;
 
 use crate::hardware::city_map;
+use crate::metrics;
 use crate::systems::game::ExclusiveMode;
 
 static DEFAULT_MUSIC: LazyLock<PathBuf> =
@@ -55,8 +56,9 @@ pub struct ModeManager {
   /// Music only plays during a turn. Modes changing outside of one (e.g. releasing exclusive as the turn ends)
   /// update state without starting music.
   turn_active: bool,
-  /// Flashes the map insert of each active mode
-  active_effects: Vec<LedProgram1d>,
+  /// Flashes the map insert of each active mode. Each mode has its own flash, so an exclusive mode and any number of
+  /// non-exclusive modes can flash together.
+  map_flashes: HashMap<ActiveMode, LedProgram1d>,
 }
 
 impl ModeManager {
@@ -69,7 +71,7 @@ impl ModeManager {
       non_exclusive_completions: HashSet::new(),
       current_music: None,
       turn_active: false,
-      active_effects: Vec::new(),
+      map_flashes: HashMap::new(),
     }
   }
 
@@ -99,7 +101,7 @@ impl ModeManager {
       self.exclusive_mode = Some(mode);
       log::info!("ModeManager: taking exclusive (playing music)");
       self.crossfade_music(ctx);
-      self.render_active_modes(ctx);
+      self.flash_map_insert(ActiveMode::Exclusive(mode));
       ctx.emit(ExclusiveModeStarted(mode.clone()));
       Ok(())
     }
@@ -108,6 +110,8 @@ impl ModeManager {
   pub fn complete_exclusive(&mut self, mode: ExclusiveMode, ctx: &ServiceContext) {
     log::info!("Modes: Exclusive completed {:?}", mode);
     self.release_exclusive(&mode, ctx);
+    ctx.metrics.inc(&metrics::MODES_COMPLETED);
+    ctx.metrics.inc(metrics::exclusive_mode_completed(&mode));
     self.exclusive_completions.insert(mode);
     let ctx = &ctx.for_system(self.handle);
     self.render_map(ctx);
@@ -124,14 +128,16 @@ impl ModeManager {
       self.exclusive_mode = None;
       log::info!("ModeManager: releasing_exclusive (playing music)");
       self.crossfade_music(ctx);
-      self.render_active_modes(ctx);
+      self.stop_map_flash(&ActiveMode::Exclusive(*mode), ctx);
       ctx.emit(ExclusiveModeEnded);
     }
   }
 
   pub fn non_exclusive_active(&mut self, mode: NonExclusiveMode, ctx: &ServiceContext) {
     let ctx = &ctx.for_system(self.handle);
-    self.music_priority.push(mode.clone());
+    if !self.music_priority.contains(&mode) {
+      self.music_priority.push(mode.clone());
+    }
     if self.is_default_music_playing() {
       log::info!(
         "ModeManager: non-exclusive active {:?} (playing music)",
@@ -139,7 +145,7 @@ impl ModeManager {
       );
       self.crossfade_music(ctx);
     }
-    self.render_active_modes(ctx);
+    self.flash_map_insert(ActiveMode::NonExclusive(mode));
   }
 
   pub fn non_exclusive_inactive(&mut self, mode: &NonExclusiveMode, ctx: &ServiceContext) {
@@ -147,12 +153,16 @@ impl ModeManager {
     self.music_priority.retain(|m| m != mode);
     log::info!("ModeManager: non-exclusive inactive (playing music)");
     self.crossfade_music(ctx);
-    self.render_active_modes(ctx);
+    self.stop_map_flash(&ActiveMode::NonExclusive(mode.clone()), ctx);
   }
 
   pub fn complete_non_exclusive(&mut self, mode: NonExclusiveMode, ctx: &ServiceContext) {
     log::info!("Modes: Non-exclusive completed {:?}", mode);
     self.non_exclusive_inactive(&mode, ctx);
+    ctx.metrics.inc(&metrics::MODES_COMPLETED);
+    ctx
+      .metrics
+      .inc(metrics::non_exclusive_mode_completed(&mode));
     self.non_exclusive_completions.insert(mode);
     let ctx = &ctx.for_system(self.handle);
     self.render_map(ctx);
@@ -256,28 +266,20 @@ impl ModeManager {
     );
   }
 
-  /// Flashes each active mode's map insert over its completion color
-  fn render_active_modes(&mut self, ctx: &SystemContext) {
-    for effect in self.active_effects.iter_mut() {
-      effect.stop(ctx);
-    }
-
-    let exclusive = self
-      .exclusive_mode
-      .as_ref()
-      .and_then(|mode| exclusive_map_led(mode).map(|led| (led, mode.color())));
-    let non_exclusive = self
-      .music_priority
-      .iter()
-      .map(|mode| (mode.map_led(), mode.color()));
-
-    self.active_effects = exclusive
-      .into_iter()
-      .chain(non_exclusive)
-      .map(|(led, color)| {
+  /// Flashes a mode's map insert over its completion color, leaving any other mode's flash running
+  fn flash_map_insert(&mut self, mode: ActiveMode) {
+    if let Some(led) = mode.map_led() {
+      let color = mode.color();
+      self.map_flashes.entry(mode).or_insert_with(|| {
         LedProgram1d::flash(led.at_z(1), ColorSequence::solid(color), Cycle::Forever)
-      })
-      .collect();
+      });
+    }
+  }
+
+  fn stop_map_flash(&mut self, mode: &ActiveMode, ctx: &SystemContext) {
+    if let Some(mut flash) = self.map_flashes.remove(mode) {
+      flash.stop(ctx);
+    }
   }
 }
 
@@ -298,8 +300,8 @@ impl System for ModeManager {
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    for effect in self.active_effects.iter_mut() {
-      effect.apply(delta, ctx);
+    for flash in self.map_flashes.values_mut() {
+      flash.apply(delta, ctx);
     }
   }
 
@@ -334,14 +336,31 @@ impl NonExclusiveMode {
   }
 }
 
-/// The city map insert for an exclusive mode, if it has one
-fn exclusive_map_led(mode: &ExclusiveMode) -> Option<LedQ> {
-  match mode {
-    ExclusiveMode::HydroCore => Some(city_map::HYDRO_CORE.q()),
-    ExclusiveMode::SkyrailStation => Some(city_map::SKYRAIL_STATION.q()),
-    ExclusiveMode::MeridianBasins => Some(city_map::MERIDIAN_BASINS.q()),
-    ExclusiveMode::SolariumAtrium => Some(city_map::SOLARIUM_ATRIUMS.q()),
-    ExclusiveMode::SporeMultiball | ExclusiveMode::Wizard => None,
+/// A running mode, exclusive or not
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+enum ActiveMode {
+  Exclusive(ExclusiveMode),
+  NonExclusive(NonExclusiveMode),
+}
+
+impl ActiveMode {
+  fn color(&self) -> Rgba<u8> {
+    match self {
+      Self::Exclusive(mode) => mode.color(),
+      Self::NonExclusive(mode) => mode.color(),
+    }
+  }
+
+  /// The mode's city map insert, if it has one
+  fn map_led(&self) -> Option<LedQ> {
+    match self {
+      Self::Exclusive(ExclusiveMode::HydroCore) => Some(city_map::HYDRO_CORE.q()),
+      Self::Exclusive(ExclusiveMode::SkyrailStation) => Some(city_map::SKYRAIL_STATION.q()),
+      Self::Exclusive(ExclusiveMode::MeridianBasins) => Some(city_map::MERIDIAN_BASINS.q()),
+      Self::Exclusive(ExclusiveMode::SolariumAtrium) => Some(city_map::SOLARIUM_ATRIUMS.q()),
+      Self::Exclusive(ExclusiveMode::SporeMultiball | ExclusiveMode::Wizard) => None,
+      Self::NonExclusive(mode) => Some(mode.map_led()),
+    }
   }
 }
 

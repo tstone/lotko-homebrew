@@ -17,9 +17,7 @@ use crate::hardware::{
 };
 use crate::hardware::{captive_ball, flashers};
 use crate::systems::game::meridian_basins::MODE_COLOR;
-use crate::systems::game::{
-  ExclusiveMode, LiftRampStartable, MeridianBasinsQualification, ModeManager, points,
-};
+use crate::systems::game::{ExclusiveMode, LiftRampStartable, ModeManager, points};
 use crate::systems::{sounds, sounds_bytes};
 use frontbox_sound::*;
 
@@ -147,7 +145,8 @@ impl MeridianBasinsMode {
     ctx
       .expect::<ModeManager>()
       .complete_exclusive(ExclusiveMode::MeridianBasins, ctx.into());
-    ctx.replace_self(MeridianBasinsQualification::new());
+    // a city mode can only be completed once per game
+    ctx.despawn_self();
   }
 
   fn is_complete(&self) -> bool {

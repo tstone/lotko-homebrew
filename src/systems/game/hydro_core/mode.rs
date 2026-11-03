@@ -16,9 +16,9 @@ use crate::hardware::left_orbit::LeftOrbitHit;
 use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::more_tags::ArcRamp;
 use crate::hardware::{arc_ramp, center_orbit, city_map, dome_ramp, left_orbit, lift_ramp};
+use crate::systems::game::ModeManager;
 use crate::systems::game::hydro_core::MODE_COLOR;
 use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable};
-use crate::systems::game::{HydroCoreQualification, ModeManager};
 use crate::systems::sounds;
 
 static BASE_SHOT_TIME: LazyLock<Duration> = LazyLock::new(|| Duration::from_secs(25));
@@ -277,7 +277,8 @@ impl HydroCoreMode {
     ctx
       .expect::<ModeManager>()
       .complete_exclusive(ExclusiveMode::HydroCore, ctx.into());
-    ctx.replace_self(HydroCoreQualification::new());
+    // a city mode can only be completed once per game
+    ctx.despawn_self();
   }
 }
 

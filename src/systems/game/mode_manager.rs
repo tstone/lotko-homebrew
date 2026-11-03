@@ -70,6 +70,11 @@ impl ModeManager {
     &self.exclusive_mode
   }
 
+  /// The number of city modes completed this game, each lit on the city map
+  pub fn completed_city_mode_count(&self) -> usize {
+    self.exclusive_completions.len() + self.non_exclusive_completions.len()
+  }
+
   pub fn take_exclusive(
     &mut self,
     mode: ExclusiveMode,

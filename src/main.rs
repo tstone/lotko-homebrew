@@ -160,7 +160,7 @@ async fn main() {
 
     // game
     app.system(EndOfBallSystem::new());
-    app.routine::<TurnEnding>(routine![EndOfBallSystem]);
+    app.routine::<TurnEnding>(routine![EndOfBallSystem, BonusSystem, TurnEndScoreSystem]);
     app.routine::<BallDraining>(routine![BallSaveSystem]);
     app.routine::<GameEnding>(routine![EndOfBallSystem]);
     app.system(GameManager::competitive(
@@ -175,6 +175,8 @@ async fn main() {
         FlashersSystem::new(),
         // modes
         ModeManager::new(),
+        BonusSystem::new(),
+        TurnEndScoreSystem::new(),
         LeftScoopStartable::new(),
         LiftRampStartable::new(),
         // exclusive

@@ -10,8 +10,7 @@ use crate::hardware::{backbox, city_map, lift_ramp};
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
-  self, ExclusiveMode, LiftRampStartable, MULTIBALL_BALL_SAVE, ModeManager,
-  SkyrailStationQualification, points,
+  self, ExclusiveMode, LiftRampStartable, MULTIBALL_BALL_SAVE, ModeManager, points,
 };
 
 pub struct SkyrailStationMode {
@@ -292,7 +291,8 @@ impl SkyrailStationMode {
     ctx
       .expect::<ModeManager>()
       .complete_exclusive(ExclusiveMode::SkyrailStation, ctx.into());
-    ctx.replace_self(SkyrailStationQualification::new());
+    // a city mode can only be completed once per game
+    ctx.despawn_self();
   }
 }
 

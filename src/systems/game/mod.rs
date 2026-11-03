@@ -1,4 +1,5 @@
 mod apex_terraces;
+mod bonus;
 mod end_of_ball;
 mod exclusive_mode;
 mod exclusive_mode_qualification;
@@ -15,6 +16,7 @@ mod solarium_atrium;
 mod spore_multiball;
 
 pub use apex_terraces::*;
+pub use bonus::*;
 pub use end_of_ball::*;
 pub use exclusive_mode::*;
 pub use exclusive_mode_qualification::*;
@@ -38,4 +40,5 @@ mod points {
   pub static EXCL_START: u32 = 350_000;
   pub static EXL_COMPLETION: u32 = 50_000_000;
   pub static EXL_MODE_HIT: u32 = 150_000;
+  pub static BONUS_PER_CITY_MODE: u32 = 5_000_000;
 }

@@ -6,9 +6,7 @@ use frontbox_sound::SoundSystemExt;
 use crate::hardware::pop_cluster::{self, PopBumper};
 use crate::hardware::vspinner;
 use crate::systems::game::nimbus_promenade::MODE_COLOR;
-use crate::systems::game::{
-  MULTIBALL_BALL_SAVE, ModeManager, NimbusPromenadeQualification, NonExclusiveMode,
-};
+use crate::systems::game::{MULTIBALL_BALL_SAVE, ModeManager, NonExclusiveMode};
 use crate::systems::sounds;
 
 pub struct NimbusPromenadeMode {
@@ -167,7 +165,8 @@ impl System for NimbusPromenadeMode {
     self.attention_effect.apply(delta, ctx);
 
     if self.hit_effect.is_complete() && self.complete {
-      ctx.replace_self(NimbusPromenadeQualification::new());
+      // a city mode can only be completed once per game
+      ctx.despawn_self();
     }
     self.hit_effect.apply(delta, ctx);
   }

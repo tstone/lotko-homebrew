@@ -10,9 +10,7 @@ use crate::hardware::dome_ramp::{self, DomeRampHit};
 use crate::hardware::flashers::{self, FlashersSystem};
 use crate::hardware::lift_ramp::{self, LiftRampHit};
 use crate::hardware::{backbox, city_map};
-use crate::systems::game::{
-  self, ExclusiveMode, LeftScoopStartable, ModeManager, SolariumAtriumQualification,
-};
+use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable, ModeManager};
 use crate::systems::sounds;
 
 static REQUIRED_HITS: u8 = 6;
@@ -143,7 +141,8 @@ impl SolariumAtriumMode {
     ctx
       .expect::<ModeManager>()
       .complete_exclusive(ExclusiveMode::SolariumAtrium, ctx.into());
-    ctx.replace_self(SolariumAtriumQualification::new());
+    // a city mode can only be completed once per game
+    ctx.despawn_self();
   }
 
   fn is_complete(&self) -> bool {

@@ -173,7 +173,8 @@ impl System for ApexTerracesMode {
       ctx
         .expect::<ModeManager>()
         .complete_non_exclusive(NonExclusiveMode::ApexTerraces, ctx.into());
-      ctx.replace_self(ApexTerracesMode::new()); // restart
+      // a city mode can only be completed once per game
+      ctx.despawn_self();
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>() {
       let target_hit = if let Some(pop_hit) = match_target_switch(&event.switch) {
         Some(Target::Pop(pop_hit))

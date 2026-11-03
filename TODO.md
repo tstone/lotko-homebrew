@@ -2,6 +2,5 @@
 - BUG: Sometimes the music doesn't stop on game end -- sometimes it runs twice
 - Hydrocore mode hexes should flash faster as time runs out
 - Nimbus: hit each pop twice (6 total) => starts a 2 ball multiball on completion (need to move to 5/6 balls in trough)
-- Bonus points based on the number of modes completed during a ball
 - Mode active flashes on map
 - Nice to have: After completing a mode it can be attempted again, but harder

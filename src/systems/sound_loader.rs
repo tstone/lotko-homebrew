@@ -1,6 +1,7 @@
 use frontbox::prelude::*;
 use frontbox_sound::*;
 
+use crate::hardware::center_orbit::CENTER_SPINNER_CLANG;
 use crate::hardware::lower_scoop::LOWER_SCOOP_EJECT;
 
 pub mod sounds {
@@ -14,6 +15,9 @@ pub mod sounds {
   pub const LANE_HIT4: &str = "lane_hit4";
   pub const LANE_HIT_COMPLETE: &str = "lane_hit_complete";
   pub const ARP_HIT1: &str = "arp_hit1";
+  pub const EVOLUTION_COMPLETE: &str = "evolution_complete";
+  pub const COUNTING: &str = "counting";
+  pub const QUEST_COMPLETE: &str = "quest_complete";
 
   pub const HIT_ORGANIC1: &str = "target_hit_organic1";
   pub const HIT_ORGANIC_LOW1: &str = "target_hit_organic_down1";
@@ -34,6 +38,16 @@ pub mod sounds {
     LazyLock::new(|| vec![LANE_HIT1, LANE_HIT2, LANE_HIT3, LANE_HIT4]);
   pub fn rnd_lane_hit() -> &'static str {
     LANE_HITS.sample(&mut rand::rng(), 1).next().unwrap()
+  }
+
+  /// Organic hits that rise in pitch with progress, from 1 to 4; anything past 4 stays at the top
+  pub fn rising_organic_hit(step: u8) -> &'static str {
+    match step {
+      0 | 1 => HIT_ORGANIC1,
+      2 => HIT_ORGANIC2,
+      3 => HIT_ORGANIC3,
+      _ => HIT_ORGANIC4,
+    }
   }
 }
 
@@ -59,6 +73,13 @@ pub mod sounds_bytes {
     include_bytes!("../assets/sounds/target-hit-organic-4-dwn-oct.mp3");
 
   pub static ARP_HIT1: &[u8] = include_bytes!("../assets/sounds/arp-hit1.mp3");
+  pub static EVOLUTION_COMPLETE: &[u8] =
+    include_bytes!("../assets/sounds/freesound_gamestudio-evolution-complete-384926.mp3");
+  pub static COUNTING: &[u8] = include_bytes!("../assets/sounds/counting-518133.mp3");
+  pub static QUEST_COMPLETE: &[u8] =
+    include_bytes!("../assets/sounds/yodguard-quest-complete-1-540192.mp3");
+  pub static CENTER_SPINNER_CLANG: &[u8] =
+    include_bytes!("../assets/sounds/freesound_community-metal-clang-sound-81634.mp3");
 
   // Callum - Husky Trickster
   pub static HYDRO_CORE_FLUID_ROUTING_ACTIVE: &[u8] =
@@ -92,6 +113,10 @@ impl System for SoundLoaderSystem {
     snd.preload_embedded(sounds::HIT_ORGANIC_LOW4, sounds_bytes::HIT_ORGANIC_LOW4);
 
     snd.preload_embedded(sounds::ARP_HIT1, sounds_bytes::ARP_HIT1);
+    snd.preload_embedded(sounds::EVOLUTION_COMPLETE, sounds_bytes::EVOLUTION_COMPLETE);
+    snd.preload_embedded(sounds::COUNTING, sounds_bytes::COUNTING);
+    snd.preload_embedded(sounds::QUEST_COMPLETE, sounds_bytes::QUEST_COMPLETE);
+    snd.preload_embedded(CENTER_SPINNER_CLANG, sounds_bytes::CENTER_SPINNER_CLANG);
 
     snd.preload_embedded(
       sounds::HYDRO_CORE_FLUID_ROUTING_ACTIVE,

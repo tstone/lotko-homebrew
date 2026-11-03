@@ -2,8 +2,10 @@ use frontbox::prelude::*;
 use frontbox_canvas::*;
 use frontbox_pin2dmd::*;
 use frontbox_pinball::{GameManager, TurnEnding};
+use frontbox_sound::SoundSystemExt;
 
 use crate::systems::dmd::TURN_END_DMD_LAYER;
+use crate::systems::sounds;
 
 /// A participant in `TurnEnding`: shows the player's score for the turn that's ending on the DMD
 #[derive(Clone)]
@@ -30,6 +32,7 @@ impl TurnEndScoreSystem {
         Self::draw(turn_ending.current_player, score).default_position(),
       );
     }
+    ctx.play_sfx(sounds::QUEST_COMPLETE);
     ctx.cue(ScoreShown, Duration::from_secs(4).once());
   }
 

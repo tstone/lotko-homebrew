@@ -134,7 +134,8 @@ impl SporeMultiballMode {
     self.hit_effect.play();
     self.hits += 1;
     ctx.add_points(5_000_000);
-    ctx.play_sfx(sounds::rnd_lane_hit());
+    // rises toward the super jackpot that every 5th hit lights
+    ctx.play_sfx(sounds::rising_organic_hit((self.hits - 1) % 5 + 1));
 
     // super jackpot
     if self.hits % 5 == 0 {
@@ -204,6 +205,7 @@ impl System for SporeMultiballMode {
     } else if event.is::<CaptiveBallHit>() && self.super_jackpot_active {
       self.super_jackpot_hit(ctx);
     } else if event.is::<SuperJackpotOver>() && self.super_jackpot_active {
+      ctx.play_sfx(sounds::HIT_ORGANIC_LOW4);
       self.end_super_jackpot(ctx);
     } else if let Some(EjectCompleted { id, .. }) = event.downcast_ref::<EjectCompleted>()
       && Some(*id) == self.eject_id

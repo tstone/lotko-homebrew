@@ -2,6 +2,7 @@ use std::sync::LazyLock;
 
 use frontbox::prelude::*;
 use frontbox::tags::*;
+use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::more_tags::*;
 use crate::hardware::planes;
@@ -57,6 +58,8 @@ pub static HEX_CIRCLE_LEDS: LazyLock<LedQ> = LazyLock::new(|| {
   ])
 });
 
+pub const CENTER_SPINNER_CLANG: &'static str = "center_spinner_clang";
+
 #[derive(Clone)]
 pub struct CenterOrbitSystem;
 
@@ -68,13 +71,19 @@ impl CenterOrbitSystem {
 
 impl System for CenterOrbitSystem {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if let Some(event) = event.downcast_ref::<SwitchClosed>()
-      && event.switch.name == SWITCH.name
-    {
-      ctx.emit(CenterOrbitHit);
+    if let Some(event) = event.downcast_ref::<SwitchClosed>() {
+      if event.switch.name == SWITCH.name {
+        ctx.emit(CenterOrbitHit);
+      } else if event.switch.name == SPINNER_OPTO.name {
+        ctx.play_sfx(CENTER_SPINNER_CLANG);
+        ctx.emit(CenterSpinnerHit);
+      }
     }
   }
 }
 
 #[derive(serde::Serialize, Event)]
 pub struct CenterOrbitHit;
+
+#[derive(serde::Serialize, Event)]
+pub struct CenterSpinnerHit;

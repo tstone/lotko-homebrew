@@ -58,6 +58,9 @@ impl NimbusPromenadeMode {
         ctx
           .expect::<ModeManager>()
           .complete_non_exclusive(NonExclusiveMode::NimbusPromenade, ctx.into());
+      } else {
+        // rises every other hit to spread the four pitches across the mode
+        ctx.play_sfx(sounds::rising_organic_hit((self.hits + 1) / 2));
       }
     }
   }

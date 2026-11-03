@@ -28,7 +28,7 @@ impl BonusSystem {
     if let Some(mut dmd) = ctx.get::<DmdSystem>() {
       dmd.insert_layer(TURN_END_DMD_LAYER, Self::draw(bonus).default_position());
     }
-    ctx.cue(BonusShown, Duration::from_secs(4).once());
+    ctx.cue(BonusShown, Duration::from_secs(2).once());
   }
 
   fn draw(bonus: u32) -> Container {

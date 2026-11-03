@@ -33,7 +33,7 @@ impl TurnEndScoreSystem {
       );
     }
     ctx.play_sfx(sounds::QUEST_COMPLETE);
-    ctx.cue(ScoreShown, Duration::from_secs(4).once());
+    ctx.cue(ScoreShown, Duration::from_secs(2).once());
   }
 
   fn draw(player: u8, score: u32) -> Container {

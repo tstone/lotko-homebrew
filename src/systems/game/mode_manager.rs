@@ -52,6 +52,9 @@ pub struct ModeManager {
   exclusive_completions: HashSet<ExclusiveMode>,
   non_exclusive_completions: HashSet<NonExclusiveMode>,
   current_music: Option<PathBuf>,
+  /// Music only plays during a turn. Modes changing outside of one (e.g. releasing exclusive as the turn ends)
+  /// update state without starting music.
+  turn_active: bool,
 }
 
 impl ModeManager {
@@ -63,6 +66,7 @@ impl ModeManager {
       exclusive_completions: HashSet::new(),
       non_exclusive_completions: HashSet::new(),
       current_music: None,
+      turn_active: false,
     }
   }
 
@@ -155,6 +159,10 @@ impl ModeManager {
   }
 
   fn crossfade_music(&mut self, ctx: &SystemContext) {
+    if !self.turn_active {
+      return;
+    }
+
     let path = match (&self.exclusive_mode, self.music_priority.get(0)) {
       (Some(mode), _) => EXCL_MODE_MUSIC.get(&mode),
       (_, Some(mode)) => NON_EXCL_MODE_MUSIC.get(&mode),
@@ -266,8 +274,10 @@ impl System for ModeManager {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<RoutineStarted<TurnStarting>>() {
       log::info!("ModeManager: turn starting (playing music)");
+      self.turn_active = true;
       self.crossfade_music(ctx);
     } else if event.is::<RoutineStarted<TurnEnding>>() {
+      self.turn_active = false;
       self.stop_music(ctx);
     }
   }

@@ -48,7 +48,7 @@ hardware_defs! {
     .location(Vec3::new(12.311, 27.882, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub SPORE_COUNT_BAR: LedDefinition = LedDefinition::multi("spore_count")
-    .locations(LedLayout::strip(16, Vec3::new(7.141, 33.849, 0.0), 0.0, 0.25).relative_to(&planes::PLAYFIELD))
+    .locations(LedLayout::strip(16, Vec3::new(10.891, 33.849, 0.0), 180.0f32.to_radians(), 0.25).relative_to(&planes::PLAYFIELD))
     .tag(Playfield)
     .tag(CityMap);
 }

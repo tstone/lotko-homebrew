@@ -27,7 +27,7 @@ hardware_defs! {
     .tag(Playfield);
 
   pub ARC_LEDS: LedDefinition = LedDefinition::multi("arc")
-    .locations(LedLayout::arc(18, Vec3::new(4.072, 0.059, 0.0), 3.5, 0.0, 180.0f32.to_radians(), LedLayoutDirection::CounterClockwise).relative_to(&planes::ARC_RAMP))
+    .locations(LedLayout::arc(18, Vec3::new(4.072, 0.059, 0.0), 3.5, 180.0f32.to_radians(), 180.0f32.to_radians(), LedLayoutDirection::Clockwise).relative_to(&planes::ARC_RAMP))
     .tag(ArcRamp)
     .tag(Playfield);
 

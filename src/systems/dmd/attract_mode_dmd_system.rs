@@ -62,9 +62,7 @@ impl AttractModeDmdSystem {
       AttractDmdScreen::FastFrontboxLogos => self.draw_img(LOGOS_IMG),
       AttractDmdScreen::NeonBluePinball => self.draw_img(NEON_BLUE_IMG),
       AttractDmdScreen::PressStart => {
-        if let Some(game_manager) = ctx.get::<GameManager>()
-          && game_manager.is_player_addable()
-        {
+        if ctx.in_state(PlayerEntry::Open) {
           self.draw_press_start(delta)
         } else {
           self.state = self.state.next();
@@ -165,7 +163,7 @@ impl AttractModeDmdSystem {
 impl System for AttractModeDmdSystem {
   fn is_active(&self, ctx: &SystemContext) -> bool {
     // Either the game isn't running or the menu isn't active
-    !ctx.is_game_started()
+    ctx.in_state(GamePhase::None)
       && !ctx
         .get::<DmdMenuSystem>()
         .map(|menu| menu.is_active(ctx))
@@ -187,9 +185,9 @@ impl System for AttractModeDmdSystem {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<NextScreen>() {
       self.state = self.state.next();
-    } else if let Some(GameEnded { scores }) = event.downcast_ref::<GameEnded>() {
+    } else if let Some(done) = event.downcast_ref::<RoutineCompleted<GameEnding>>() {
       log::info!("AttractDmd: Game ended. Capturing scores.");
-      self.last_scores = Some(scores.clone());
+      self.last_scores = Some(done.routine.scores.clone());
       // jump to last scores so players can see what they finished with
       self.state = AttractDmdScreen::LastScores(0);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>() {

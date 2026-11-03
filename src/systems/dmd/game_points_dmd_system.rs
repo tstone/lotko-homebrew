@@ -92,7 +92,7 @@ impl GamePointsDmdSystem {
 
 impl System for GamePointsDmdSystem {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.is_game_started()
+    !ctx.in_state(GamePhase::None)
   }
 
   fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {

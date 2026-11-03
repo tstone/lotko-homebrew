@@ -73,7 +73,7 @@ impl AttractModeLedsSystem {
 impl System for AttractModeLedsSystem {
   fn is_active(&self, ctx: &SystemContext) -> bool {
     // TODO: should an LED system depend on a DMD system? this might need a generalized 'machine state' system
-    !ctx.is_game_started()
+    ctx.in_state(GamePhase::None)
       && !ctx
         .get::<DmdMenuSystem>()
         .map(|menu| menu.is_active(ctx))

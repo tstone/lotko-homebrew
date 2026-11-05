@@ -1,6 +1,6 @@
 use std::{path::PathBuf, sync::LazyLock};
 
-use frontbox_pin2dmd::*;
+use frontbox_dmd::*;
 
 pub static BOLD_10PX: LazyLock<SpriteSheetFont> = LazyLock::new(|| {
   SpriteSheetFontBuilder::new()

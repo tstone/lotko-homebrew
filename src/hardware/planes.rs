@@ -1,6 +1,6 @@
 use std::sync::LazyLock;
 
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
 
 pub static PLAYFIELD: LazyLock<ReferencePlane> = LazyLock::new(|| {
   ReferencePlane::new("Playfield")

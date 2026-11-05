@@ -1,8 +1,9 @@
 use std::sync::LazyLock;
 
-use frontbox::animation::Curve;
-use frontbox::prelude::*;
-use frontbox::tags::*;
+use frontbox_core::prelude::*;
+use frontbox_core::tags::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_led::prelude::*;
 
 use crate::hardware::arc_ramp::State::*;
 use crate::hardware::more_tags::ArcRamp;
@@ -89,7 +90,9 @@ impl ArcRampSystem {
     // "cooldown" state after each hit. The ball will either go into the subway or fall into the wire form
     // and by the time it exits the cooldown is complete. This avoids double triggering the hit event.
     self.state = Cooldown;
-    ctx.cue(Resume, Cue::Once(Duration::from_millis(1500)));
+    ctx
+      .cues
+      .start(Resume, Cue::Once(Duration::from_millis(1500)));
   }
 }
 

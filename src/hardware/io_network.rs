@@ -1,4 +1,4 @@
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
 
 use crate::hardware::arc_ramp;
 use crate::hardware::cabinet;

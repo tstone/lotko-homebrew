@@ -1,4 +1,5 @@
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_led::prelude::*;
 
 use crate::hardware::arc_ramp;
 use crate::hardware::arc_ramp::ArcRampHit;
@@ -17,12 +18,12 @@ impl ExclusiveModeQualifier for HydroCoreQualifier {
   }
 
   fn on_qualified(ctx: &SystemContext) {
-    ctx.expect::<LeftScoopStartable>().make_startable(
+    ctx.systems.expect::<LeftScoopStartable>().make_startable(
       ExclusiveMode::HydroCore,
       Duration::from_millis(2500),
       ctx.into(),
     );
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 
   fn attention_effect() -> LedProgram1d {

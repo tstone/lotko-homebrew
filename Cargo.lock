@@ -991,7 +991,24 @@ dependencies = [
 ]
 
 [[package]]
-name = "frontbox"
+name = "frontbox-console"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "frontbox-core",
+ "frontbox-metrics",
+ "frontbox-pinball",
+ "log",
+ "mime_guess",
+ "rust-embed",
+ "serde",
+ "serde_json",
+ "tokio",
+ "ts-rs",
+]
+
+[[package]]
+name = "frontbox-core"
 version = "0.1.0"
 dependencies = [
  "dyn-clone",
@@ -1002,14 +1019,11 @@ dependencies = [
  "futures-util",
  "glam 0.33.2",
  "humantime",
- "image",
  "indexmap 2.14.0",
  "itertools 0.14.0",
  "log",
  "num-traits",
- "palette",
  "priority-queue",
- "rand 0.10.2",
  "serde",
  "serde_json",
  "serde_with",
@@ -1022,22 +1036,52 @@ dependencies = [
 ]
 
 [[package]]
-name = "frontbox-canvas"
-version = "0.1.0"
-dependencies = [
- "frontbox",
- "glam 0.33.2",
- "image",
- "log",
-]
-
-[[package]]
 name = "frontbox-derive"
 version = "0.1.0"
 dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.117",
+]
+
+[[package]]
+name = "frontbox-dmd"
+version = "0.1.0"
+dependencies = [
+ "frontbox-core",
+ "frontbox-gfx",
+ "frontbox-sound",
+ "image",
+ "log",
+ "rand 0.10.2",
+ "rusb",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "frontbox-gfx"
+version = "0.1.0"
+dependencies = [
+ "dyn-clone",
+ "image",
+ "log",
+ "num-traits",
+ "palette",
+ "rand 0.10.2",
+]
+
+[[package]]
+name = "frontbox-led"
+version = "0.1.0"
+dependencies = [
+ "dyn-clone",
+ "fast-protocol",
+ "frontbox-core",
+ "frontbox-gfx",
+ "image",
+ "itertools 0.14.0",
+ "log",
 ]
 
 [[package]]
@@ -1054,43 +1098,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "frontbox-pin-console"
-version = "0.1.0"
-dependencies = [
- "axum",
- "frontbox",
- "frontbox-metrics",
- "frontbox-pinball",
- "log",
- "mime_guess",
- "rust-embed",
- "serde",
- "serde_json",
- "tokio",
- "ts-rs",
-]
-
-[[package]]
-name = "frontbox-pin2dmd"
-version = "0.1.0"
-dependencies = [
- "frontbox",
- "frontbox-canvas",
- "frontbox-sound",
- "image",
- "log",
- "rand 0.10.2",
- "rusb",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "frontbox-pinball"
 version = "0.1.0"
 dependencies = [
  "dyn-clone",
- "frontbox",
+ "frontbox-core",
+ "frontbox-led",
  "log",
  "serde",
  "serde_json",
@@ -1103,7 +1116,7 @@ version = "0.1.0"
 dependencies = [
  "cpal",
  "dyn-clone",
- "frontbox",
+ "frontbox-core",
  "kira",
  "log",
  "tokio",
@@ -1783,10 +1796,11 @@ version = "0.1.0"
 dependencies = [
  "dyn-clone",
  "env_logger",
- "frontbox",
- "frontbox-canvas",
- "frontbox-pin-console",
- "frontbox-pin2dmd",
+ "frontbox-console",
+ "frontbox-core",
+ "frontbox-dmd",
+ "frontbox-gfx",
+ "frontbox-led",
  "frontbox-pinball",
  "frontbox-sound",
  "image",
@@ -2223,7 +2237,6 @@ dependencies = [
  "palette_derive",
  "phf",
  "rand 0.8.7",
- "serde",
 ]
 
 [[package]]

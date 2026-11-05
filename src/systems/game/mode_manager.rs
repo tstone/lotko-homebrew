@@ -2,7 +2,8 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::LazyLock;
 
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_led::prelude::*;
 use frontbox_pinball::{TurnEnding, TurnStarting};
 use frontbox_sound::SoundSystem;
 
@@ -115,6 +116,9 @@ impl ModeManager {
     self.exclusive_completions.insert(mode);
     let ctx = &ctx.for_system(self.handle);
     self.render_map(ctx);
+    ctx.emit(CityModeCompleted {
+      completed: self.completed_city_mode_count(),
+    });
   }
 
   pub fn release_exclusive(&mut self, mode: &ExclusiveMode, ctx: &ServiceContext) {
@@ -166,10 +170,14 @@ impl ModeManager {
     self.non_exclusive_completions.insert(mode);
     let ctx = &ctx.for_system(self.handle);
     self.render_map(ctx);
+    ctx.emit(CityModeCompleted {
+      completed: self.completed_city_mode_count(),
+    });
   }
 
   fn stop_music(&mut self, ctx: &SystemContext) {
     ctx
+      .systems
       .expect::<SoundSystem>()
       .stop_music(Duration::from_millis(500));
     self.current_music = None;
@@ -200,6 +208,7 @@ impl ModeManager {
     if !already_playing_music {
       self.current_music = Some(path.clone());
       ctx
+        .systems
         .expect::<SoundSystem>()
         .play_music(path, Duration::from_millis(750));
     }
@@ -285,7 +294,7 @@ impl ModeManager {
 
 impl System for ModeManager {
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    self.handle = *ctx.current_handle();
+    self.handle = ctx.handle();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
@@ -369,3 +378,10 @@ pub struct ExclusiveModeStarted(pub ExclusiveMode);
 
 #[derive(serde::Serialize, Event)]
 pub struct ExclusiveModeEnded;
+
+/// A city mode (district) was completed
+#[derive(serde::Serialize, Event)]
+pub struct CityModeCompleted {
+  /// City modes completed this game, including this one
+  pub completed: usize,
+}

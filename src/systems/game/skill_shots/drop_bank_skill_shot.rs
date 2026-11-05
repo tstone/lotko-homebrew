@@ -1,6 +1,7 @@
-use frontbox::animation::Curve;
-use frontbox::prelude::tags::Playfield;
-use frontbox::prelude::*;
+use frontbox_core::prelude::tags::Playfield;
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::*;
 
@@ -52,7 +53,7 @@ impl DropBankSkillShot {
       // A ball hitting the lit target near its edge can drop the neighbouring target a few ms first, so give the lit
       // target a moment to drop too before calling it a miss
       self.grace_period = true;
-      ctx.cue(GracePeriodElapsed, Cue::Once(GRACE_PERIOD));
+      ctx.cues.start(GracePeriodElapsed, Cue::Once(GRACE_PERIOD));
     }
   }
 
@@ -60,7 +61,7 @@ impl DropBankSkillShot {
     log::info!("DropbankSkillShot: missed {:?}", self.current_target);
     // consolation prize for still hitting the drop bank
     ctx.add_points(50_000);
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 
   fn attention_effect<T: Contextual<LedIdentifications> + Send + Sync + 'static>(
@@ -94,7 +95,9 @@ impl DropBankSkillShot {
     self.attention_effect = Self::attention_effect(drop_bank::leds_for_target(&next).q());
     self.enqueued_target = Some(next);
 
-    ctx.cue(NextTarget, Cue::Once(Duration::from_millis(1750)));
+    ctx
+      .cues
+      .start(NextTarget, Cue::Once(Duration::from_millis(1750)));
   }
 }
 
@@ -121,9 +124,9 @@ impl System for DropBankSkillShot {
       self.next(ctx);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && (event.switch.has_tag::<Playfield>() && !event.switch.has_tag::<DoesNotCancelSkillshot>())
-      && ctx.in_state(TurnPhase::Active)
+      && ctx.states.is(TurnPhase::Active)
     {
-      ctx.despawn_self();
+      ctx.systems.despawn_self();
     }
   }
 
@@ -140,7 +143,7 @@ impl System for DropBankSkillShot {
 
     if let Some(hit_effect) = self.hit_effect.as_mut() {
       if self.hit && hit_effect.is_complete() {
-        ctx.despawn_self();
+        ctx.systems.despawn_self();
       }
 
       hit_effect.apply(delta, ctx);

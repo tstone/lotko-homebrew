@@ -1,7 +1,8 @@
 use std::marker::PhantomData;
 
-use frontbox::animation::Curve;
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_led::prelude::*;
 use frontbox_pinball::GameManagementExt;
 use frontbox_sound::SoundSystemExt;
 
@@ -70,7 +71,7 @@ where
   T: ExclusiveModeQualifier + Clone,
 {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.expect::<ModeManager>().current_mode().is_none()
+    ctx.systems.expect::<ModeManager>().current_mode().is_none()
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {

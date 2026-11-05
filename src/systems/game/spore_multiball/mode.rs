@@ -1,6 +1,7 @@
-use frontbox::animation::*;
-use frontbox::prelude::*;
-use frontbox::tags::Playfield;
+use frontbox_core::prelude::*;
+use frontbox_core::tags::Playfield;
+use frontbox_gfx::animation::*;
+use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystemExt;
 
@@ -154,9 +155,13 @@ impl SporeMultiballMode {
   fn start_super_jackpot(&mut self, ctx: &SystemContext) {
     // restart timer if another one is triggered
     if let Some(cue_id) = self.cue_id {
-      ctx.cancel_cue(cue_id);
+      ctx.cues.cancel(cue_id);
     }
-    self.cue_id = Some(ctx.cue(SuperJackpotOver, Duration::from_secs(20).once()));
+    self.cue_id = Some(
+      ctx
+        .cues
+        .start(SuperJackpotOver, Duration::from_secs(20).once()),
+    );
 
     self.super_jackpot_active = true;
     self.super_jackpot_attention_effect.play();
@@ -169,15 +174,16 @@ impl SporeMultiballMode {
 
   fn shutdown(&mut self, ctx: &SystemContext) {
     ctx
+      .systems
       .expect::<ModeManager>()
       .release_exclusive(&ExclusiveMode::SporeMultiball, ctx.into());
-    ctx.replace_self(SporeMultiballQualification::new());
+    ctx.systems.replace_self(SporeMultiballQualification::new());
   }
 }
 
 impl System for SporeMultiballMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::SporeMultiball)
+    ctx.systems.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::SporeMultiball)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {

@@ -1,4 +1,4 @@
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
 use frontbox_sound::*;
 
 use crate::hardware::center_orbit::CENTER_SPINNER_CLANG;
@@ -94,7 +94,7 @@ pub mod sounds_bytes {
 
 impl System for SoundLoaderSystem {
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    let mut snd = ctx.expect::<SoundSystem>();
+    let mut snd = ctx.systems.expect::<SoundSystem>();
 
     snd.preload_embedded(LOWER_SCOOP_EJECT, sounds_bytes::LOWER_SCOOP_EJECT);
     snd.preload_embedded(sounds::LANE_HIT1, sounds_bytes::LANE_HIT1);
@@ -134,7 +134,7 @@ impl System for SoundLoaderSystem {
     snd.preload_embedded(sounds::HYDRO_CORE_PURGED, sounds_bytes::HYDRO_CORE_PURGED);
 
     // We're done. Sounds will remain preloaded.
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 }
 

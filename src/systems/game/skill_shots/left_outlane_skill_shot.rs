@@ -1,5 +1,6 @@
-use frontbox::prelude::tags::Playfield;
-use frontbox::prelude::*;
+use frontbox_core::prelude::tags::Playfield;
+use frontbox_core::prelude::*;
+use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnPhase};
 
 use crate::hardware::left_outlane::{self, LeftOutlaneRollover};
@@ -28,7 +29,7 @@ impl LeftOutlaneSkillShot {
 
     // TODO: play sfx
     ctx.add_points(500_000);
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 
   fn hit_effect() -> LedProgram1d {
@@ -51,9 +52,9 @@ impl System for LeftOutlaneSkillShot {
       self.on_skill_shot(ctx);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && (event.switch.has_tag::<Playfield>() && !event.switch.has_tag::<DoesNotCancelSkillshot>())
-      && ctx.in_state(TurnPhase::Active)
+      && ctx.states.is(TurnPhase::Active)
     {
-      ctx.despawn_self();
+      ctx.systems.despawn_self();
     }
   }
 
@@ -61,7 +62,7 @@ impl System for LeftOutlaneSkillShot {
     self.hit_effect.apply(delta, ctx);
 
     if self.hit && self.hit_effect.is_complete() {
-      ctx.despawn_self();
+      ctx.systems.despawn_self();
     }
   }
 }

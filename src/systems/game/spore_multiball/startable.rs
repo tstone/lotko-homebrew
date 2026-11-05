@@ -1,4 +1,6 @@
-use frontbox::{animation::Curve, prelude::*};
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_led::prelude::*;
 use frontbox_pinball::TurnPhase;
 use frontbox_sound::SoundSystemExt;
 
@@ -74,8 +76,8 @@ impl SporeMultiballStartable {
 
 impl System for SporeMultiballStartable {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    let mode_manager = ctx.expect::<ModeManager>();
-    ctx.in_state(TurnPhase::Active)
+    let mode_manager = ctx.systems.expect::<ModeManager>();
+    ctx.states.is(TurnPhase::Active)
       && (mode_manager.current_mode().is_none()
         || *mode_manager.current_mode() == Some(ExclusiveMode::SporeMultiball))
   }
@@ -83,6 +85,7 @@ impl System for SporeMultiballStartable {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<CaptiveBallHit>() && !self.complete {
       match ctx
+        .systems
         .expect::<ModeManager>()
         .take_exclusive(ExclusiveMode::SporeMultiball, ctx.into())
       {
@@ -98,7 +101,7 @@ impl System for SporeMultiballStartable {
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     if self.complete && self.hit_effect.is_complete() {
-      ctx.replace_self(SporeMultiballMode::new());
+      ctx.systems.replace_self(SporeMultiballMode::new());
     }
 
     self.attention_effect.apply(delta, ctx);

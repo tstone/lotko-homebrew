@@ -2,8 +2,8 @@ use crate::hardware::lift_ramp;
 use crate::hardware::lift_ramp::LiftRampHit;
 use crate::systems::game::*;
 use crate::systems::sounds;
-use frontbox::animation::*;
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_led::prelude::*;
 
 #[derive(Clone)]
 pub struct SkyrailStationQualifier;
@@ -17,12 +17,12 @@ impl ExclusiveModeQualifier for SkyrailStationQualifier {
   }
 
   fn on_qualified(ctx: &SystemContext) {
-    ctx.expect::<LiftRampStartable>().make_startable(
+    ctx.systems.expect::<LiftRampStartable>().make_startable(
       ExclusiveMode::SkyrailStation,
       Duration::from_millis(300),
       ctx.into(),
     );
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 
   fn attention_effect() -> LedProgram1d {

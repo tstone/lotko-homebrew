@@ -11,7 +11,8 @@ use crate::{
     sounds,
   },
 };
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnPhase};
 use frontbox_sound::*;
 
@@ -97,7 +98,11 @@ impl ApexTerracesMode {
     self.cancel_lit_cue(ctx);
     self.lit = Target::ALL.into_iter().filter(|t| t != hit).collect();
     self.lit_warning = false;
-    self.lit_cue = Some(ctx.cue(LitTargetsWarned, (LIT_DURATION - LIT_WARNING).once()));
+    self.lit_cue = Some(
+      ctx
+        .cues
+        .start(LitTargetsWarned, (LIT_DURATION - LIT_WARNING).once()),
+    );
     self.render_targets(ctx);
   }
 
@@ -110,7 +115,7 @@ impl ApexTerracesMode {
 
   fn cancel_lit_cue(&mut self, ctx: &SystemContext) {
     if let Some(cue_id) = self.lit_cue.take() {
-      ctx.cancel_cue(cue_id);
+      ctx.cues.cancel(cue_id);
     }
   }
 
@@ -174,6 +179,7 @@ impl ApexTerracesMode {
     );
 
     ctx
+      .systems
       .expect::<ModeManager>()
       .non_exclusive_active(NonExclusiveMode::ApexTerraces, ctx.into());
   }
@@ -184,7 +190,7 @@ impl ApexTerracesMode {
       Phase::Charged => {
         log::info!("ApexTerraces: spinning started");
         self.phase = Phase::Spinning;
-        ctx.cue(SpinningCompleted, SPINNING_DURATION.once());
+        ctx.cues.start(SpinningCompleted, SPINNING_DURATION.once());
         ctx.add_points(points::SPIN);
       }
       Phase::Spinning => ctx.add_points(points::SPIN),
@@ -201,22 +207,23 @@ impl ApexTerracesMode {
     }
 
     ctx
+      .systems
       .expect::<ModeManager>()
       .complete_non_exclusive(NonExclusiveMode::ApexTerraces, ctx.into());
     // a city mode can only be completed once per game
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 }
 
 impl System for ApexTerracesMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.in_state(TurnPhase::Active)
+    ctx.states.is(TurnPhase::Active)
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<LitTargetsWarned>() {
       self.lit_warning = true;
-      self.lit_cue = Some(ctx.cue(LitTargetsTimedOut, LIT_WARNING.once()));
+      self.lit_cue = Some(ctx.cues.start(LitTargetsTimedOut, LIT_WARNING.once()));
       self.render_targets(ctx);
     } else if event.is::<LitTargetsTimedOut>() {
       self.lit_cue = None;

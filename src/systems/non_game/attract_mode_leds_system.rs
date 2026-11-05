@@ -1,9 +1,10 @@
 use std::sync::LazyLock;
 
-use frontbox::animation::*;
-use frontbox::prelude::tags::*;
-use frontbox::prelude::*;
-use frontbox_pin2dmd::menu::DmdMenuSystem;
+use frontbox_core::prelude::tags::*;
+use frontbox_core::prelude::*;
+use frontbox_dmd::menu::DmdMenuSystem;
+use frontbox_gfx::animation::*;
+use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use rand::seq::IndexedRandom;
 
@@ -73,8 +74,9 @@ impl AttractModeLedsSystem {
 impl System for AttractModeLedsSystem {
   fn is_active(&self, ctx: &SystemContext) -> bool {
     // TODO: should an LED system depend on a DMD system? this might need a generalized 'machine state' system
-    ctx.in_state(GamePhase::None)
+    ctx.states.is(GamePhase::None)
       && !ctx
+        .systems
         .get::<DmdMenuSystem>()
         .map(|menu| menu.is_active(ctx))
         .unwrap_or(false)

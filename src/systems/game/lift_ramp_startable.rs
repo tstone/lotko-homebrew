@@ -1,7 +1,8 @@
 use std::collections::VecDeque;
 
-use frontbox::animation::Curve;
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_led::prelude::*;
 use frontbox_pinball::GameManagementExt;
 use frontbox_pinball::TurnPhase;
 use frontbox_sound::SoundSystemExt;
@@ -55,7 +56,8 @@ impl LiftRampStartable {
         self.cue_id = Some(
           ctx
             .for_system(self.handle)
-            .cue(RampUp, activation_delay.once()),
+            .cues
+            .start(RampUp, activation_delay.once()),
         );
       }
       _ => {
@@ -75,12 +77,16 @@ impl LiftRampStartable {
 
   fn start(&mut self, mode: ExclusiveMode, ctx: &SystemContext) {
     // Ensure that exclusive mode rights can be taken
-    if let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(mode, ctx.into()) {
+    if let Ok(..) = ctx
+      .systems
+      .expect::<ModeManager>()
+      .take_exclusive(mode, ctx.into())
+    {
       log::info!("LiftRampStartable: Starting mode {:?}", mode);
       self.state = Starting(mode);
       self.effects.as_mut().unwrap().hit_effect.play();
 
-      let mut lift_ramp = ctx.expect::<LiftRampSystem>();
+      let mut lift_ramp = ctx.systems.expect::<LiftRampSystem>();
       lift_ramp.lift_down(ctx.into());
       lift_ramp.eject(ctx.into());
 
@@ -91,7 +97,7 @@ impl LiftRampStartable {
 
   fn clear_cue(&mut self, ctx: &SystemContext) {
     if let Some(cue_id) = self.cue_id {
-      ctx.cancel_cue(cue_id);
+      ctx.cues.cancel(cue_id);
       self.cue_id = None;
     }
   }
@@ -99,7 +105,7 @@ impl LiftRampStartable {
   fn ramp_up(&mut self, ctx: &SystemContext) {
     log::info!("LiftRampStartable: Ramp up at state {:?}", self.state);
     self.clear_cue(ctx);
-    ctx.expect::<LiftRampSystem>().lift_up(ctx.into());
+    ctx.systems.expect::<LiftRampSystem>().lift_up(ctx.into());
 
     if let Some(effects) = self.effects.as_mut() {
       effects.attention_effect.stop(ctx);
@@ -120,7 +126,7 @@ impl LiftRampStartable {
     log::info!("LiftRampStartable: Ramp down at state {:?}", self.state);
 
     self.clear_cue(ctx);
-    ctx.expect::<LiftRampSystem>().lift_down(ctx.into());
+    ctx.systems.expect::<LiftRampSystem>().lift_down(ctx.into());
 
     if let Some(effects) = self.effects.as_mut() {
       effects.attention_effect.stop(ctx);
@@ -150,8 +156,8 @@ impl LiftRampStartable {
 
 impl System for LiftRampStartable {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    let mode_manager = ctx.expect::<ModeManager>();
-    ctx.in_state(TurnPhase::Active)
+    let mode_manager = ctx.systems.expect::<ModeManager>();
+    ctx.states.is(TurnPhase::Active)
       && match (&self.state, mode_manager.current_mode()) {
         (Starting(startable_mode), Some(active_mode)) => active_mode == startable_mode,
         (_, Some(_)) => false,
@@ -163,7 +169,7 @@ impl System for LiftRampStartable {
     log::info!("LiftRampStartable: Deactivating at state {:?}", self.state);
     ctx.deactivate_led_declarations();
 
-    let is_ramp_up = ctx.expect::<LiftRampSystem>().is_lifted();
+    let is_ramp_up = ctx.systems.expect::<LiftRampSystem>().is_lifted();
     if is_ramp_up {
       self.ramp_down(ctx);
     }
@@ -173,7 +179,7 @@ impl System for LiftRampStartable {
     log::info!("LiftRampStartable: Reactivating at state {:?}", self.state);
     ctx.activate_led_declarations();
 
-    let is_ramp_up = ctx.expect::<LiftRampSystem>().is_lifted();
+    let is_ramp_up = ctx.systems.expect::<LiftRampSystem>().is_lifted();
     if !is_ramp_up && let Startable(_) = self.state {
       self.ramp_up(ctx);
       log::info!("LiftRampStartable: Reactivate => ramp up");
@@ -181,7 +187,7 @@ impl System for LiftRampStartable {
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    self.handle = *ctx.current_handle();
+    self.handle = ctx.handle();
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {

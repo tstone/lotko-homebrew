@@ -1,7 +1,7 @@
 use std::sync::LazyLock;
 
-use frontbox::prelude::*;
-use frontbox::tags::*;
+use frontbox_core::prelude::*;
+use frontbox_core::tags::*;
 
 use crate::hardware::center_orbit::CenterOrbitHit;
 use crate::hardware::left_orbit::State::*;
@@ -61,11 +61,11 @@ impl LeftOrbitSystem {
   fn reset(&mut self, ctx: &SystemContext) {
     match self.state {
       IgnoringCenterOrbit(cue_id) => {
-        ctx.cancel_cue(cue_id);
+        ctx.cues.cancel(cue_id);
         self.state = AwaitingHit;
       }
       LongDebouncing(cue_id) => {
-        ctx.cancel_cue(cue_id);
+        ctx.cues.cancel(cue_id);
         self.state = AwaitingHit;
       }
       AwaitingHit => {}
@@ -73,12 +73,12 @@ impl LeftOrbitSystem {
   }
 
   fn transition_to_ignore_center_orbit(&mut self, ctx: &SystemContext) {
-    let cue_id = ctx.cue(Reset, Duration::from_millis(800).once());
+    let cue_id = ctx.cues.start(Reset, Duration::from_millis(800).once());
     self.state = IgnoringCenterOrbit(cue_id);
   }
 
   fn transition_to_long_debounce(&mut self, ctx: &SystemContext) {
-    let cue_id = ctx.cue(Reset, Duration::from_millis(250).once());
+    let cue_id = ctx.cues.start(Reset, Duration::from_millis(250).once());
     self.state = LongDebouncing(cue_id);
   }
 }

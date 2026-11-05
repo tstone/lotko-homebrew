@@ -1,6 +1,6 @@
-use frontbox::led::LedChannels::GRB;
-use frontbox::prelude::*;
-use frontbox::tags::*;
+use frontbox_core::prelude::LedChannels::GRB;
+use frontbox_core::prelude::*;
+use frontbox_core::tags::*;
 
 use crate::hardware::more_tags::*;
 use crate::hardware::planes;

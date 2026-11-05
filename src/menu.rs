@@ -1,7 +1,7 @@
 use std::sync::LazyLock;
 
 use crate::hardware::*;
-use frontbox_pin2dmd::menu::*;
+use frontbox_dmd::menu::*;
 use frontbox_pinball::configs;
 
 pub static MENU: LazyLock<MenuSection> = LazyLock::new(|| {
@@ -39,6 +39,9 @@ pub static MENU: LazyLock<MenuSection> = LazyLock::new(|| {
     .section(MenuSection::new("Game").configs(vec![
       configs::TURN_COUNT.display(),
       configs::BALL_SAVE_TIME.display(),
+      configs::MAX_EXTRA_BALLS.display(),
+      configs::TILT_WARNINGS.display(),
+      configs::TILT_WARNINGS_PER_TURN.display(),
     ]))
     .section(MenuSection::new("Rules"))
     .section(MenuSection::new("Stats"))

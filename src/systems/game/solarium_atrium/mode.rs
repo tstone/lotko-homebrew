@@ -1,6 +1,7 @@
-use frontbox::animation::Curve;
-use frontbox::prelude::tags::*;
-use frontbox::prelude::*;
+use frontbox_core::prelude::tags::*;
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnStarting};
 use frontbox_sound::SoundSystemExt;
 
@@ -98,20 +99,22 @@ impl SolariumAtriumMode {
 
   fn revert_to_startable(&mut self, ctx: &SystemContext) {
     ctx
+      .systems
       .expect::<ModeManager>()
       .release_exclusive(&ExclusiveMode::SolariumAtrium, ctx.into());
-    ctx.expect::<LeftScoopStartable>().make_startable(
+    ctx.systems.expect::<LeftScoopStartable>().make_startable(
       ExclusiveMode::SolariumAtrium,
       Duration::ZERO,
       ctx.into(),
     );
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 
   fn ramp_hit(&mut self, ramp_hit: Ramp, ctx: &SystemContext) {
     self.ramp_hits += 1;
     self.hit_effect.reset();
     ctx
+      .systems
       .expect::<FlashersSystem>()
       .flash(3, ColorSequence::tile(vec![*MODE_COLOR, Rgba::default()]));
 
@@ -140,10 +143,11 @@ impl SolariumAtriumMode {
 
     // TODO: epic reaction effect
     ctx
+      .systems
       .expect::<ModeManager>()
       .complete_exclusive(ExclusiveMode::SolariumAtrium, ctx.into());
     // a city mode can only be completed once per game
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 
   fn is_complete(&self) -> bool {
@@ -153,7 +157,7 @@ impl SolariumAtriumMode {
 
 impl System for SolariumAtriumMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::SolariumAtrium)
+    ctx.systems.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::SolariumAtrium)
   }
 
   fn on_spawn(&mut self, _ctx: &SystemContext) {

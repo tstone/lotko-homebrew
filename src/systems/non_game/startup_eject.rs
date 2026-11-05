@@ -1,4 +1,4 @@
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
 
 use crate::hardware::{lift_ramp, lower_scoop};
 
@@ -18,7 +18,9 @@ impl System for StartupEject {
       .is_closed(lift_ramp::SCOOP_OPTO.name)
       .unwrap_or(false)
     {
-      ctx.activate_driver(lift_ramp::EJECT_COIL.name, ActivationMode::Tap);
+      ctx
+        .drivers
+        .activate(lift_ramp::EJECT_COIL.name, ActivationMode::Tap);
     }
 
     // lower scoop
@@ -27,9 +29,11 @@ impl System for StartupEject {
       .is_closed(lower_scoop::OPTO.name)
       .unwrap_or(false)
     {
-      ctx.activate_driver(lower_scoop::COIL.name, ActivationMode::Tap);
+      ctx
+        .drivers
+        .activate(lower_scoop::COIL.name, ActivationMode::Tap);
     }
 
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 }

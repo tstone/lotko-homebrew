@@ -1,10 +1,10 @@
 use std::sync::LazyLock;
 
-use frontbox::prelude::ActivationMode::VirtualSwitchOn;
-use frontbox::prelude::DeactivationMode::VirtualSwitchOff;
-use frontbox::prelude::DriverTriggerMode::VirtualSwitchTrue;
-use frontbox::prelude::*;
-use frontbox::tags::*;
+use frontbox_core::prelude::ActivationMode::VirtualSwitchOn;
+use frontbox_core::prelude::DeactivationMode::VirtualSwitchOff;
+use frontbox_core::prelude::DriverTriggerMode::VirtualSwitchTrue;
+use frontbox_core::prelude::*;
+use frontbox_core::tags::*;
 use frontbox_pinball::TurnPhase;
 
 use crate::hardware::more_tags::*;
@@ -133,7 +133,7 @@ impl LiftRampSystem {
     if !self.ramp_lifted {
       let ctx = ctx.for_system(self.handle);
       log::info!("Lifting ramp up.");
-      ctx.activate_driver(RAMP_COIL.name, VirtualSwitchOn);
+      ctx.drivers.activate(RAMP_COIL.name, VirtualSwitchOn);
       self.ramp_lifted = true;
       ctx.emit(LiftRampUp);
     }
@@ -144,10 +144,10 @@ impl LiftRampSystem {
       let ctx = ctx.for_system(self.handle);
       log::info!("Lifting ramp down.");
       self.ramp_lifted = false;
-      ctx.deactivate_driver(RAMP_COIL.name, VirtualSwitchOff);
+      ctx.drivers.deactivate(RAMP_COIL.name, VirtualSwitchOff);
       ctx.emit(LiftRampDown);
       if let Some(cue_id) = self.close_cue_id {
-        ctx.cancel_cue(cue_id);
+        ctx.cues.cancel(cue_id);
         self.close_cue_id = None;
       }
     }
@@ -155,8 +155,10 @@ impl LiftRampSystem {
 
   pub fn eject(&mut self, ctx: &ServiceContext) {
     let ctx = ctx.for_system(self.handle);
-    ctx.activate_driver(EJECT_COIL.name, ActivationMode::Tap);
-    ctx.cue(VerifyVacancy, Duration::from_millis(1200).once());
+    ctx.drivers.activate(EJECT_COIL.name, ActivationMode::Tap);
+    ctx
+      .cues
+      .start(VerifyVacancy, Duration::from_millis(1200).once());
   }
 
   fn verify_vacancy(&mut self, ctx: &SystemContext) {
@@ -168,11 +170,11 @@ impl LiftRampSystem {
 
 impl System for LiftRampSystem {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.in_state(TurnPhase::Active)
+    ctx.states.is(TurnPhase::Active)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    self.handle = *ctx.current_handle();
+    self.handle = ctx.handle();
     self.ball_present = ctx.switches.is_closed(SCOOP_OPTO.name).unwrap_or(false);
   }
 

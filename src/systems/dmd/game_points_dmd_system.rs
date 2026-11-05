@@ -1,6 +1,7 @@
-use frontbox::prelude::*;
-use frontbox_canvas::*;
-use frontbox_pin2dmd::*;
+use frontbox_core::prelude::*;
+use frontbox_dmd::*;
+use frontbox_gfx::canvas::*;
+use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
 // TODO: this is probably generalizable enough to include in the pin2dmd package
@@ -14,7 +15,7 @@ impl GamePointsDmdSystem {
   }
 
   fn draw(&self, ctx: &SystemContext) -> Container {
-    let game = ctx.get::<GameManager>().unwrap();
+    let game = ctx.systems.get::<GameManager>().unwrap();
     let game_state = game.game_state();
 
     match game_state {
@@ -92,12 +93,12 @@ impl GamePointsDmdSystem {
 
 impl System for GamePointsDmdSystem {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    !ctx.in_state(GamePhase::None)
+    !ctx.states.is(GamePhase::None)
   }
 
   fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
     if self.redraw
-      && let Some(mut dmd) = ctx.get::<DmdSystem>()
+      && let Some(mut dmd) = ctx.systems.get::<DmdSystem>()
     {
       dmd.insert_layer(0, self.draw(&ctx).default_position());
     }

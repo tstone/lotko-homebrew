@@ -1,6 +1,6 @@
 use crate::hardware::cabinet;
-use frontbox::prelude::*;
-use frontbox::tags::*;
+use frontbox_core::prelude::*;
+use frontbox_core::tags::*;
 
 pub mod left_flipper {
   use super::*;

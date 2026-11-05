@@ -1,4 +1,5 @@
-use frontbox::{prelude::*, tags::GeneralIllumination};
+use frontbox_core::{prelude::*, tags::GeneralIllumination};
+use frontbox_led::prelude::*;
 
 use crate::hardware::arc_ramp;
 use crate::systems::game::{ExclusiveModeEnded, ExclusiveModeStarted};

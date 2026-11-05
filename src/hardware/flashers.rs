@@ -1,8 +1,9 @@
 use std::sync::LazyLock;
 
-use frontbox::animation::Curve;
-use frontbox::prelude::*;
-use frontbox::tags::*;
+use frontbox_core::prelude::*;
+use frontbox_core::tags::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_led::prelude::*;
 
 use crate::hardware::planes;
 

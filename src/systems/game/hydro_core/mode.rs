@@ -1,9 +1,10 @@
 use std::collections::HashSet;
 use std::sync::LazyLock;
 
-use frontbox::animation::*;
-use frontbox::prelude::tags::Playfield;
-use frontbox::prelude::*;
+use frontbox_core::prelude::tags::Playfield;
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::*;
+use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnEnding};
 use frontbox_sound::SoundSystemExt;
 
@@ -156,7 +157,7 @@ impl HydroCoreMode {
 
   fn clear_cue(&mut self, ctx: &SystemContext) {
     if let Some(cue_id) = self.cue_id.as_ref() {
-      ctx.cancel_cue(*cue_id);
+      ctx.cues.cancel(*cue_id);
       self.cue_id = None;
     }
   }
@@ -198,7 +199,7 @@ impl HydroCoreMode {
         final_time
       );
       self.progress_effect = Some(Self::progress_effect(final_time));
-      self.cue_id = Some(ctx.cue(ComboTimeUp, final_time.once()));
+      self.cue_id = Some(ctx.cues.start(ComboTimeUp, final_time.once()));
     }
 
     self.current_combo_shot = shot;
@@ -238,7 +239,7 @@ impl HydroCoreMode {
 
     self.advance_combo(self.current_combo_shot + 1, ctx);
     ctx.emit(SporeApplied);
-    ctx.expect::<FlashersSystem>().rotate(
+    ctx.systems.expect::<FlashersSystem>().rotate(
       2,
       ColorSequence::tile(vec![
         *MODE_COLOR,
@@ -263,29 +264,31 @@ impl HydroCoreMode {
 
   fn revert_to_startable(&mut self, ctx: &SystemContext) {
     ctx
+      .systems
       .expect::<ModeManager>()
       .release_exclusive(&ExclusiveMode::HydroCore, ctx.into());
-    ctx.expect::<LeftScoopStartable>().make_startable(
+    ctx.systems.expect::<LeftScoopStartable>().make_startable(
       ExclusiveMode::HydroCore,
       Duration::ZERO,
       ctx.into(),
     );
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 
   fn complete(&mut self, ctx: &SystemContext) {
     ctx.add_points(game::points::EXL_COMPLETION);
     ctx
+      .systems
       .expect::<ModeManager>()
       .complete_exclusive(ExclusiveMode::HydroCore, ctx.into());
     // a city mode can only be completed once per game
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 }
 
 impl System for HydroCoreMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::HydroCore)
+    ctx.systems.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::HydroCore)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {

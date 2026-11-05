@@ -1,8 +1,8 @@
-//! Lotko's own metrics, alongside the ones `frontbox-pinball` records. See [`frontbox::metrics`] for how metrics work.
+//! Lotko's own metrics, alongside the ones `frontbox-pinball` records. See [`frontbox_core::metrics`] for how metrics work.
 
 use std::sync::LazyLock;
 
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
 
 use crate::systems::game::{ExclusiveMode, NonExclusiveMode};
 

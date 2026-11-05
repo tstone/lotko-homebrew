@@ -1,15 +1,16 @@
-use frontbox_canvas::{Container, Gif, Horizontal, Layer, StaticImage, Vertical};
-use frontbox_pin2dmd::menu::DmdMenuSystem;
-use frontbox_pin2dmd::{
+use frontbox_dmd::menu::DmdMenuSystem;
+use frontbox_dmd::{
   BOLD_PIXELS_10PX_REGULAR_FONT, DmdSystem, SIGI_BOLD_7PX_FONT, SIGI_REGULAR_5PX_FONT,
   TextFormatting,
 };
+use frontbox_gfx::canvas::{Container, Gif, Horizontal, Layer, StaticImage, Vertical};
 use image::RgbaImage;
 use std::path::PathBuf;
 
-use frontbox::animation::{Accumulator, Animation, Curve, Sequence, Tween};
-use frontbox::prelude::*;
-use frontbox_canvas::animation::Frame;
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::{Accumulator, Animation, Curve, Sequence, Tween};
+use frontbox_gfx::canvas::Frame;
+use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
 use crate::hardware::cabinet::{LEFT_FLIPPER_SWITCH1, RIGHT_FLIPPER_SWITCH1};
@@ -62,7 +63,7 @@ impl AttractModeDmdSystem {
       AttractDmdScreen::FastFrontboxLogos => self.draw_img(LOGOS_IMG),
       AttractDmdScreen::NeonBluePinball => self.draw_img(NEON_BLUE_IMG),
       AttractDmdScreen::PressStart => {
-        if ctx.in_state(PlayerEntry::Open) {
+        if ctx.states.is(PlayerEntry::Open) {
           self.draw_press_start(delta)
         } else {
           self.state = self.state.next();
@@ -150,12 +151,16 @@ impl AttractModeDmdSystem {
 
   fn cue_next(&mut self, ctx: &SystemContext) {
     self.cancel_cue(ctx);
-    self.cue_id = Some(ctx.cue(NextScreen, Cue::Forever(Duration::from_secs(6))));
+    self.cue_id = Some(
+      ctx
+        .cues
+        .start(NextScreen, Cue::Forever(Duration::from_secs(6))),
+    );
   }
 
   fn cancel_cue(&mut self, ctx: &SystemContext) {
     if let Some(cue_id) = self.cue_id {
-      ctx.cancel_cue(cue_id);
+      ctx.cues.cancel(cue_id);
     }
   }
 }
@@ -163,8 +168,9 @@ impl AttractModeDmdSystem {
 impl System for AttractModeDmdSystem {
   fn is_active(&self, ctx: &SystemContext) -> bool {
     // Either the game isn't running or the menu isn't active
-    ctx.in_state(GamePhase::None)
+    ctx.states.is(GamePhase::None)
       && !ctx
+        .systems
         .get::<DmdMenuSystem>()
         .map(|menu| menu.is_active(ctx))
         .unwrap_or(false)
@@ -202,7 +208,7 @@ impl System for AttractModeDmdSystem {
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if let Some(mut dmd) = ctx.get::<DmdSystem>() {
+    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
       let screen = self.draw(delta, ctx);
       dmd.insert_layer(0, screen.default_position());
     }

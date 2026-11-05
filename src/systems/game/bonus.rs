@@ -1,9 +1,10 @@
 use std::collections::VecDeque;
 
-use frontbox::prelude::*;
-use frontbox_canvas::*;
-use frontbox_pin2dmd::*;
-use frontbox_pinball::{GameManagementExt, TurnEnding};
+use frontbox_core::prelude::*;
+use frontbox_dmd::*;
+use frontbox_gfx::canvas::*;
+use frontbox_led::prelude::*;
+use frontbox_pinball::{GameManagementExt, TurnEndReason, TurnEnding};
 
 use crate::hardware::cabinet::DoubleFlipped;
 use crate::metrics;
@@ -14,7 +15,7 @@ use crate::systems::game::{ModeManager, SporesSystem, points};
 const SCREEN_DURATION: Duration = Duration::from_millis(1750);
 
 /// A participant in `TurnEnding`: awards the end-of-ball bonus, and shows its breakdown then its total on the DMD. A
-/// double flip skips the rest of the screens.
+/// double flip skips the rest of the screens. A tilted turn gets no bonus.
 #[derive(Clone)]
 pub struct BonusSystem {
   /// The screens still to show for the current bonus, each an amount over its label
@@ -32,8 +33,11 @@ impl BonusSystem {
   }
 
   fn on_turn_ending(&mut self, ctx: &SystemContext) {
-    let spores = ctx.expect::<SporesSystem>().count();
-    let completed = ctx.expect::<ModeManager>().completed_city_mode_count() as u32;
+    let spores = ctx.systems.expect::<SporesSystem>().count();
+    let completed = ctx
+      .systems
+      .expect::<ModeManager>()
+      .completed_city_mode_count() as u32;
     let bonus = spores * points::BONUS_PER_SPORE + completed * points::BONUS_PER_CITY_MODE;
     log::info!(
       "Bonus: {} spores applied, {} city modes completed, awarding {}",
@@ -64,17 +68,17 @@ impl BonusSystem {
   /// Shows the next screen, or once they've all been shown, completes this step of the turn ending
   fn show_next_screen(&mut self, ctx: &SystemContext) {
     if let Some((amount, label)) = self.screens.pop_front() {
-      if let Some(mut dmd) = ctx.get::<DmdSystem>() {
+      if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
         dmd.insert_layer(
           TURN_END_DMD_LAYER,
           Self::draw(amount, label).default_position(),
         );
       }
-      self.screen_cue = Some(ctx.cue(BonusScreenShown, SCREEN_DURATION.once()));
+      self.screen_cue = Some(ctx.cues.start(BonusScreenShown, SCREEN_DURATION.once()));
     } else {
       self.screen_cue = None;
       self.clear_screen(ctx);
-      ctx.complete_routine_step::<TurnEnding>();
+      ctx.routines.complete_step::<TurnEnding>();
     }
   }
 
@@ -83,7 +87,7 @@ impl BonusSystem {
     if let Some(cue_id) = self.screen_cue.take() {
       log::info!("Bonus: skipped");
       ctx.metrics.inc(&metrics::BONUS_SKIPPED);
-      ctx.cancel_cue(cue_id);
+      ctx.cues.cancel(cue_id);
       self.screens.clear();
       self.show_next_screen(ctx);
     }
@@ -105,7 +109,7 @@ impl BonusSystem {
   }
 
   fn clear_screen(&self, ctx: &SystemContext) {
-    if let Some(mut dmd) = ctx.get::<DmdSystem>() {
+    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
       dmd.remove_layer(TURN_END_DMD_LAYER);
     }
   }
@@ -113,8 +117,16 @@ impl BonusSystem {
 
 impl System for BonusSystem {
   fn on_routine(&mut self, routine: &dyn Event, ctx: &SystemContext) {
-    if routine.is::<TurnEnding>() {
-      self.on_turn_ending(ctx);
+    match routine.downcast_ref::<TurnEnding>() {
+      Some(TurnEnding {
+        reason: TurnEndReason::Tilted,
+        ..
+      }) => {
+        log::info!("Bonus: none, the turn was tilted");
+        ctx.routines.complete_step::<TurnEnding>();
+      }
+      Some(_) => self.on_turn_ending(ctx),
+      None => {}
     }
   }
 

@@ -1,6 +1,6 @@
 use crate::hardware::cabinet;
-use frontbox::prelude::*;
-use frontbox::tags::*;
+use frontbox_core::prelude::*;
+use frontbox_core::tags::*;
 
 hardware_defs! {
   pub EOS_SWITCH: SwitchDefinition = SwitchDefinition::new("u_flipper_eos");

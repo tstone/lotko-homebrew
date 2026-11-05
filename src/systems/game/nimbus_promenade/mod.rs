@@ -1,7 +1,7 @@
 mod mode;
 mod qualification;
 
-use frontbox::prelude::*;
+use frontbox_led::prelude::*;
 use std::sync::LazyLock;
 
 pub use mode::*;

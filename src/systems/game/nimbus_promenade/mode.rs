@@ -1,5 +1,6 @@
-use frontbox::animation::Curve;
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystemExt;
 
@@ -56,6 +57,7 @@ impl NimbusPromenadeMode {
       if self.hits == required_hits {
         self.complete(ctx);
         ctx
+          .systems
           .expect::<ModeManager>()
           .complete_non_exclusive(NonExclusiveMode::NimbusPromenade, ctx.into());
       } else {
@@ -67,7 +69,7 @@ impl NimbusPromenadeMode {
 
   fn clear_cue(&mut self, ctx: &SystemContext) {
     if let Some(cue_id) = self.cue_id.as_mut() {
-      ctx.cancel_cue(*cue_id);
+      ctx.cues.cancel(*cue_id);
       self.cue_id = None;
     }
   }
@@ -76,7 +78,7 @@ impl NimbusPromenadeMode {
     self.clear_cue(ctx);
 
     if !self.complete {
-      self.cue_id = Some(ctx.cue(Next, Cue::Once(self.cycle_time)));
+      self.cue_id = Some(ctx.cues.start(Next, Cue::Once(self.cycle_time)));
 
       self.current_pop = self.current_pop.next();
       self.attention_effect.stop(ctx);
@@ -135,12 +137,13 @@ impl NimbusPromenadeMode {
 
 impl System for NimbusPromenadeMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.in_state(TurnPhase::Active)
+    ctx.states.is(TurnPhase::Active)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    self.cue_id = Some(ctx.cue(Next, Cue::Once(Duration::from_millis(1750))));
+    self.cue_id = Some(ctx.cues.start(Next, Cue::Once(Duration::from_millis(1750))));
     ctx
+      .systems
       .expect::<ModeManager>()
       .non_exclusive_active(NonExclusiveMode::NimbusPromenade, ctx.into());
     self.eject_id = ctx.eject_balls(1, Launch::Auto);
@@ -169,7 +172,7 @@ impl System for NimbusPromenadeMode {
 
     if self.hit_effect.is_complete() && self.complete {
       // a city mode can only be completed once per game
-      ctx.despawn_self();
+      ctx.systems.despawn_self();
     }
     self.hit_effect.apply(delta, ctx);
   }

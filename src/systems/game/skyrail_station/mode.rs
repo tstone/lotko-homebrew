@@ -1,6 +1,7 @@
-use frontbox::animation::Curve;
-use frontbox::prelude::tags::Playfield;
-use frontbox::prelude::*;
+use frontbox_core::prelude::tags::Playfield;
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
 use crate::hardware::drop_bank::{self, DropBankSystem, DropBankTargetHit};
@@ -176,6 +177,7 @@ impl SkyrailStationMode {
     ctx.emit(SporeApplied);
     self.hit_effect.play();
     ctx
+      .systems
       .expect::<FlashersSystem>()
       .flash(3, ColorSequence::tile(vec![*MODE_COLOR, Rgba::default()]));
 
@@ -249,7 +251,10 @@ impl SkyrailStationMode {
         self.ramp_up(Duration::from_millis(250), ctx);
         log::info!("SkyrailStation: hit ramp => ramp up");
 
-        ctx.expect::<DropBankSystem>().raise_targets(ctx.into());
+        ctx
+          .systems
+          .expect::<DropBankSystem>()
+          .raise_targets(ctx.into());
       }
       _ => {}
     }
@@ -260,9 +265,9 @@ impl SkyrailStationMode {
   fn ramp_up(&mut self, delay: Duration, ctx: &SystemContext) {
     if !self.ramp_up {
       if delay > Duration::ZERO {
-        ctx.cue(RampUp, delay.once());
+        ctx.cues.start(RampUp, delay.once());
       } else {
-        ctx.expect::<LiftRampSystem>().lift_up(ctx.into());
+        ctx.systems.expect::<LiftRampSystem>().lift_up(ctx.into());
         self.ramp_up = true;
       }
     }
@@ -270,36 +275,38 @@ impl SkyrailStationMode {
 
   fn ramp_down(&mut self, ctx: &SystemContext) {
     if self.ramp_up {
-      ctx.expect::<LiftRampSystem>().lift_down(ctx.into());
+      ctx.systems.expect::<LiftRampSystem>().lift_down(ctx.into());
       self.ramp_up = false;
     }
   }
 
   fn revert_to_startable(&mut self, ctx: &SystemContext) {
     ctx
+      .systems
       .expect::<ModeManager>()
       .release_exclusive(&ExclusiveMode::SkyrailStation, ctx.into());
     self.ramp_down(ctx);
-    ctx.expect::<LiftRampStartable>().make_startable(
+    ctx.systems.expect::<LiftRampStartable>().make_startable(
       ExclusiveMode::SkyrailStation,
       Duration::ZERO,
       ctx.into(),
     );
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 
   fn complete(&mut self, ctx: &SystemContext) {
     ctx
+      .systems
       .expect::<ModeManager>()
       .complete_exclusive(ExclusiveMode::SkyrailStation, ctx.into());
     // a city mode can only be completed once per game
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 }
 
 impl System for SkyrailStationMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::SkyrailStation)
+    ctx.systems.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::SkyrailStation)
   }
 
   fn on_spawn(&mut self, _ctx: &SystemContext) {
@@ -309,7 +316,7 @@ impl System for SkyrailStationMode {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<LiftRampScoopBallEnter>() {
       ctx.add_points(500);
-      ctx.expect::<LiftRampSystem>().eject(ctx.into());
+      ctx.systems.expect::<LiftRampSystem>().eject(ctx.into());
     } else if event.is::<RampUp>() {
       self.ramp_up(Duration::ZERO, ctx);
     } else if event.is::<LiftRampHit>() && self.state == HitRamp {
@@ -328,14 +335,14 @@ impl System for SkyrailStationMode {
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
     if self.ramp_up {
-      ctx.expect::<LiftRampSystem>().lift_up(ctx.into());
+      ctx.systems.expect::<LiftRampSystem>().lift_up(ctx.into());
     }
     ctx.activate_led_declarations();
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     if self.ramp_up {
-      ctx.expect::<LiftRampSystem>().lift_down(ctx.into());
+      ctx.systems.expect::<LiftRampSystem>().lift_down(ctx.into());
     }
     ctx.deactivate_led_declarations();
   }

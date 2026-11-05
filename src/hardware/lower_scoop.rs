@@ -1,8 +1,9 @@
 use std::sync::LazyLock;
 
-use frontbox::animation::Curve;
-use frontbox::prelude::*;
-use frontbox::tags::*;
+use frontbox_core::prelude::*;
+use frontbox_core::tags::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_led::prelude::*;
 use frontbox_pinball::GameManagementExt;
 use frontbox_sound::SoundSystemExt;
 
@@ -97,12 +98,14 @@ impl LowerScoopSystem {
   }
 
   fn complete_eject(&mut self, ctx: &SystemContext) {
-    ctx.activate_driver(COIL.name, ActivationMode::Tap);
+    ctx.drivers.activate(COIL.name, ActivationMode::Tap);
     log::info!("Stopping LEDs after complete eject");
     self.eject_program.stop(ctx);
     self.eject_pending = false;
-    ctx.expect::<MachineSystem>().refresh_switch_state();
-    ctx.cue(CheckVacated, Cue::Once(Duration::from_millis(250)));
+    ctx.systems.expect::<MachineSystem>().refresh_switch_state();
+    ctx
+      .cues
+      .start(CheckVacated, Cue::Once(Duration::from_millis(250)));
   }
 
   fn on_ball_enter(&mut self, ctx: &SystemContext) {
@@ -120,7 +123,9 @@ impl LowerScoopSystem {
     self.subway_entry = false;
     if !self.eject_pending {
       ctx.play_sfx(LOWER_SCOOP_EJECT);
-      ctx.cue(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
+      ctx
+        .cues
+        .start(EjectLowerScoop, Cue::Once(Duration::from_millis(750)));
       self.eject_program.reset();
       self.eject_program.play();
       self.eject_pending = true;
@@ -132,7 +137,7 @@ impl LowerScoopSystem {
 
 impl System for LowerScoopSystem {
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    self.handle = *ctx.current_handle();
+    self.handle = ctx.handle();
 
     // check if there is a ball at startup and eject if so
     if ctx.switches.is_closed(OPTO.name).unwrap_or(false) {

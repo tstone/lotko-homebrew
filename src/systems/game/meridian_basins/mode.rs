@@ -1,6 +1,7 @@
-use frontbox::animation::Curve;
-use frontbox::prelude::tags::Playfield;
-use frontbox::prelude::*;
+use frontbox_core::prelude::tags::Playfield;
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
 use crate::hardware::arc_ramp::ArcRampHit;
@@ -110,14 +111,15 @@ impl MeridianBasinsMode {
 
   fn revert_to_startable(&mut self, ctx: &SystemContext) {
     ctx
+      .systems
       .expect::<ModeManager>()
       .release_exclusive(&ExclusiveMode::MeridianBasins, ctx.into());
-    ctx.expect::<LiftRampStartable>().make_startable(
+    ctx.systems.expect::<LiftRampStartable>().make_startable(
       ExclusiveMode::MeridianBasins,
       Duration::ZERO,
       ctx.into(),
     );
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 
   fn on_shot_hit(&mut self, shot: ModeShots, ctx: &SystemContext) {
@@ -144,10 +146,11 @@ impl MeridianBasinsMode {
 
   fn complete(&mut self, ctx: &SystemContext) {
     ctx
+      .systems
       .expect::<ModeManager>()
       .complete_exclusive(ExclusiveMode::MeridianBasins, ctx.into());
     // a city mode can only be completed once per game
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 
   fn is_complete(&self) -> bool {
@@ -183,12 +186,14 @@ impl MeridianBasinsMode {
 
 impl System for MeridianBasinsMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::MeridianBasins)
+    ctx.systems.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::MeridianBasins)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
     log::info!("MeridianBasins mode started");
-    ctx.cue(NextSet, Duration::from_millis(2250).forever());
+    ctx
+      .cues
+      .start(NextSet, Duration::from_millis(2250).forever());
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

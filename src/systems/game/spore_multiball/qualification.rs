@@ -2,7 +2,8 @@ use crate::hardware::captive_ball::CaptiveBallHit;
 use crate::hardware::gi;
 use crate::systems::game::*;
 use crate::systems::sounds;
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_led::prelude::*;
 
 #[derive(Clone)]
 pub struct SporeMultiballQualifier;
@@ -16,7 +17,7 @@ impl ExclusiveModeQualifier for SporeMultiballQualifier {
   }
 
   fn on_qualified(ctx: &SystemContext) {
-    ctx.replace_self(SporeMultiballStartable::new());
+    ctx.systems.replace_self(SporeMultiballStartable::new());
   }
 
   fn attention_effect() -> LedProgram1d {

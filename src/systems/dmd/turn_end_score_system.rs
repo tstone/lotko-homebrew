@@ -1,6 +1,7 @@
-use frontbox::prelude::*;
-use frontbox_canvas::*;
-use frontbox_pin2dmd::*;
+use frontbox_core::prelude::*;
+use frontbox_dmd::*;
+use frontbox_gfx::canvas::*;
+use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManager, TurnEnding};
 use frontbox_sound::SoundSystemExt;
 
@@ -18,6 +19,7 @@ impl TurnEndScoreSystem {
 
   fn on_turn_ending(&self, turn_ending: &TurnEnding, ctx: &SystemContext) {
     let score = ctx
+      .systems
       .get::<GameManager>()
       .and_then(|game| {
         game
@@ -26,14 +28,14 @@ impl TurnEndScoreSystem {
       })
       .unwrap_or(0);
 
-    if let Some(mut dmd) = ctx.get::<DmdSystem>() {
+    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
       dmd.insert_layer(
         TURN_END_DMD_LAYER,
         Self::draw(turn_ending.current_player, score).default_position(),
       );
     }
     ctx.play_sfx(sounds::QUEST_COMPLETE);
-    ctx.cue(ScoreShown, Duration::from_secs(2).once());
+    ctx.cues.start(ScoreShown, Duration::from_secs(2).once());
   }
 
   fn draw(player: u8, score: u32) -> Container {
@@ -55,7 +57,7 @@ impl TurnEndScoreSystem {
   }
 
   fn clear_screen(&self, ctx: &SystemContext) {
-    if let Some(mut dmd) = ctx.get::<DmdSystem>() {
+    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
       dmd.remove_layer(TURN_END_DMD_LAYER);
     }
   }
@@ -71,7 +73,7 @@ impl System for TurnEndScoreSystem {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<ScoreShown>() {
       self.clear_screen(ctx);
-      ctx.complete_routine_step::<TurnEnding>();
+      ctx.routines.complete_step::<TurnEnding>();
     }
   }
 

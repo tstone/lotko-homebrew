@@ -2,8 +2,8 @@ use crate::hardware::dome_ramp;
 use crate::hardware::dome_ramp::DomeRampHit;
 use crate::systems::game::*;
 use crate::systems::sounds;
-use frontbox::animation::*;
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_led::prelude::*;
 
 #[derive(Clone)]
 pub struct SolariumAtriumQualifier;
@@ -17,12 +17,12 @@ impl ExclusiveModeQualifier for SolariumAtriumQualifier {
   }
 
   fn on_qualified(ctx: &SystemContext) {
-    ctx.expect::<LeftScoopStartable>().make_startable(
+    ctx.systems.expect::<LeftScoopStartable>().make_startable(
       ExclusiveMode::SolariumAtrium,
       Duration::from_millis(300),
       ctx.into(),
     );
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 
   fn attention_effect() -> LedProgram1d {

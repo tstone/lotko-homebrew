@@ -1,7 +1,7 @@
 use crate::hardware::planes;
-use frontbox::prelude::*;
-use frontbox::provided::SwitchComboSystem;
-use frontbox::tags::*;
+use frontbox_core::prelude::*;
+use frontbox_core::provided::SwitchComboSystem;
+use frontbox_core::tags::*;
 
 hardware_defs! {
   pub LEFT_FLIPPER_SWITCH1: SwitchDefinition = SwitchDefinition::new("l_flipper1");

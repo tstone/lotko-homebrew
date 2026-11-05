@@ -1,6 +1,7 @@
-use frontbox::animation::*;
-use frontbox::prelude::color_sequence::*;
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::*;
+use frontbox_gfx::color_sequence::*;
+use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
 use crate::hardware::cabinet::*;

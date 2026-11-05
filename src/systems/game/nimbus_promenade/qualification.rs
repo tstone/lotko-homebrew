@@ -1,6 +1,7 @@
-use frontbox::animation::Curve;
-use frontbox::prelude::color_sequence::{Anchor1d, Fill1dArea};
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_gfx::color_sequence::{Anchor1d, Fill1dArea};
+use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
@@ -108,7 +109,7 @@ impl NimbusPromenadeQualification {
 
 impl System for NimbusPromenadeQualification {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.in_state(TurnPhase::Active)
+    ctx.states.is(TurnPhase::Active)
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
@@ -122,7 +123,7 @@ impl System for NimbusPromenadeQualification {
     self.progress_effect.apply(delta, ctx);
 
     if self.shutdown && self.hit_effect.is_complete() {
-      ctx.replace_self(NimbusPromenadeMode::new());
+      ctx.systems.replace_self(NimbusPromenadeMode::new());
     }
   }
 }

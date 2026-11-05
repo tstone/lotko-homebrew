@@ -1,7 +1,8 @@
 use std::collections::VecDeque;
 
-use frontbox::animation::Curve;
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_gfx::animation::Curve;
+use frontbox_led::prelude::*;
 use frontbox_pinball::GameManagementExt;
 use frontbox_pinball::TurnPhase;
 use frontbox_sound::SoundSystemExt;
@@ -53,7 +54,8 @@ impl LeftScoopStartable {
         self.cue_id = Some(
           ctx
             .for_system(self.handle)
-            .cue(BecomeStartable, activation_delay.once()),
+            .cues
+            .start(BecomeStartable, activation_delay.once()),
         );
       }
       _ => {
@@ -85,7 +87,10 @@ impl LeftScoopStartable {
   fn start(&mut self, ctx: &SystemContext) {
     // Ensure that exclusive mode rights can be taken
     if let Startable(mode) = self.state
-      && let Ok(..) = ctx.expect::<ModeManager>().take_exclusive(mode, ctx.into())
+      && let Ok(..) = ctx
+        .systems
+        .expect::<ModeManager>()
+        .take_exclusive(mode, ctx.into())
     {
       log::info!("LiftRampStartable: Starting mode {:?}", mode);
       self.state = Starting(mode);
@@ -135,8 +140,8 @@ impl LeftScoopStartable {
 
 impl System for LeftScoopStartable {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    let mode_manager = ctx.expect::<ModeManager>();
-    ctx.in_state(TurnPhase::Active)
+    let mode_manager = ctx.systems.expect::<ModeManager>();
+    ctx.states.is(TurnPhase::Active)
       && match (&self.state, mode_manager.current_mode()) {
         (Starting(startable_mode), Some(active_mode)) => active_mode == startable_mode,
         (_, Some(_)) => false,
@@ -145,7 +150,7 @@ impl System for LeftScoopStartable {
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    self.handle = *ctx.current_handle();
+    self.handle = ctx.handle();
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {

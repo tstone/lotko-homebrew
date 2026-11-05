@@ -1,7 +1,7 @@
 use crate::hardware::more_tags::DropBank;
 use crate::hardware::planes;
-use frontbox::prelude::*;
-use frontbox::tags::*;
+use frontbox_core::prelude::*;
+use frontbox_core::tags::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum DropBankTarget {
@@ -123,13 +123,14 @@ impl DropBankSystem {
   pub fn raise_targets(&self, ctx: &ServiceContext) {
     ctx
       .for_system(self.handle)
-      .activate_driver(COIL.name, ActivationMode::Tap);
+      .drivers
+      .activate(COIL.name, ActivationMode::Tap);
   }
 }
 
 impl System for DropBankSystem {
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    self.handle = *ctx.current_handle();
+    self.handle = ctx.handle();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

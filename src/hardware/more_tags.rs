@@ -1,4 +1,4 @@
-use frontbox::prelude::Tag;
+use frontbox_core::prelude::Tag;
 
 #[derive(Tag)]
 pub struct CityMap;

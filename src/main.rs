@@ -1,9 +1,10 @@
-use frontbox::animation::Curve;
-use frontbox::prelude::Cycle::Forever;
-use frontbox::prelude::*;
-use frontbox_pin_console::{WebTracer, console_plane};
-use frontbox_pin2dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
-use frontbox_pin2dmd::{DmdSystem, PanelType, Pin2Dmd};
+use frontbox_console::{WebTracer, console_plane};
+use frontbox_core::prelude::*;
+use frontbox_dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
+use frontbox_dmd::{DmdSystem, PanelType, Pin2Dmd};
+use frontbox_gfx::animation::Curve;
+use frontbox_gfx::animation::Cycle::Forever;
+use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystem;
 use std::io::Write;
@@ -11,8 +12,8 @@ use std::io::Write;
 mod systems;
 use systems::*;
 mod hardware;
-mod metrics;
 pub mod menu;
+mod metrics;
 
 use hardware::*;
 
@@ -161,40 +162,45 @@ async fn main() {
     );
 
     // game
-    app.system(EndOfBallSystem::new());
     app.routine::<TurnEnding>(routine![EndOfBallSystem, BonusSystem, TurnEndScoreSystem]);
     app.routine::<BallDraining>(routine![BallSaveSystem]);
     app.routine::<GameEnding>(routine![EndOfBallSystem]);
-    app.system(GameManager::competitive(
-      4,
-      systems![
-        BasicPoints::new(),
-        // operation
-        BallSaveSystem::new()
-          .led_effect(ball_save_effect),
-        PlayfieldIllumination::new(),
-        SkillshotManager::new(),
-        FlashersSystem::new(),
-        // modes
-        ModeManager::new(),
-        SporesSystem::new(),
-        BonusSystem::new(),
-        TurnEndScoreSystem::new(),
-        LeftScoopStartable::new(),
-        LiftRampStartable::new(),
-        // exclusive
-        HydroCoreQualification::new(),
-        SkyrailStationQualification::new(),
-        SolariumAtriumQualification::new(),
-        MeridianBasinsQualification::new(),
-        SporeMultiballQualification::new(),
-        // non-exclusive
-        NimbusPromenadeQualification::new(),
-        ApexTerracesMode::new(),
-      ],
-      SwitchQ::tag::<tags::Playfield>(),
-    )
-    .playfield_drivers(DriverQ::tag::<tags::Playfield>()));
+
+    app.system(EndOfBallSystem::new());
+    app.system(TiltPresenter::new());
+    app.system(
+      GameManager::competitive(
+        4,
+        systems![
+          BasicPoints::new(),
+          // operation
+          BallSaveSystem::new().led_effect(ball_save_effect),
+          TiltSystem::new(&cabinet::TILT_BOB_SWITCH),
+          ExtraBallSystem::new(),
+          PlayfieldIllumination::new(),
+          SkillshotManager::new(),
+          FlashersSystem::new(),
+          // modes
+          ModeManager::new(),
+          SporesSystem::new(),
+          BonusSystem::new(),
+          TurnEndScoreSystem::new(),
+          LeftScoopStartable::new(),
+          LiftRampStartable::new(),
+          // exclusive
+          HydroCoreQualification::new(),
+          SkyrailStationQualification::new(),
+          SolariumAtriumQualification::new(),
+          MeridianBasinsQualification::new(),
+          SporeMultiballQualification::new(),
+          // non-exclusive
+          NimbusPromenadeQualification::new(),
+          ApexTerracesMode::new(),
+        ],
+        SwitchQ::tag::<tags::Playfield>(),
+      )
+      .playfield_drivers(DriverQ::tag::<tags::Playfield>()),
+    );
   })
   .run()
   .await;

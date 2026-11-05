@@ -6,7 +6,8 @@ use crate::hardware::right_orbit;
 use crate::hardware::right_orbit::RightOrbitHit;
 use crate::systems::game::*;
 use crate::systems::sounds;
-use frontbox::prelude::*;
+use frontbox_core::prelude::*;
+use frontbox_led::prelude::*;
 
 #[derive(Clone)]
 pub struct MeridianBasinsQualifier;
@@ -20,12 +21,12 @@ impl ExclusiveModeQualifier for MeridianBasinsQualifier {
   }
 
   fn on_qualified(ctx: &SystemContext) {
-    ctx.expect::<LiftRampStartable>().make_startable(
+    ctx.systems.expect::<LiftRampStartable>().make_startable(
       ExclusiveMode::MeridianBasins,
       Duration::from_millis(300),
       ctx.into(),
     );
-    ctx.despawn_self();
+    ctx.systems.despawn_self();
   }
 
   fn attention_effect() -> LedProgram1d {

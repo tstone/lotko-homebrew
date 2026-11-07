@@ -16,7 +16,7 @@ macro_rules! led_scene {
   };
 }
 
-/// Plays a scene from `assets/leds` on the LEDs it says, or for a scene with a single target, on `$leds`
+/// Plays a scene from `assets/leds` on the LEDs it says, or for one whose layers are all on the same LEDs, on `$leds`
 macro_rules! led_playback {
   ($path:literal) => {
     $crate::led_scenes::playback($path, led_scene!($path), None)

@@ -1,249 +1,236 @@
-Led(
-  version: 1,
-  viewport: Sequence,
-  targets: Multiple({
-    "target1": (
-      leds: Names([
-        "___child::drop_target1::0",
-        "___child::drop_target1::1",
-        "___child::drop_target1::2",
-        "___child::drop_target1::3",
-      ]),
-    ),
-    "target2": (
-      leds: Names([
-        "___child::drop_target2::0",
-        "___child::drop_target2::1",
-        "___child::drop_target2::2",
-        "___child::drop_target2::3",
-      ]),
-    ),
-    "target3": (
-      leds: Names([
-        "___child::drop_target3::0",
-        "___child::drop_target3::1",
-        "___child::drop_target3::2",
-        "___child::drop_target3::3",
-      ]),
-    ),
-    "hex": (
-      leds: Names([
-        "___child::lift_ramp_lane::5",
-        "___child::lift_ramp_lane::6",
-        "___child::lift_ramp_lane::2",
-      ]),
-    ),
-  }),
-  composition: (
-    timing: (
-      duration: 0.25,
-      cycle: Forever,
-    ),
-    layers: [
-      (
-        name: "target1",
-        targets: [
-          "target1",
-        ],
-        fill: (
-          transform: [
-            Rotate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.25,
-                  value: 360.0,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(0, 0, 255, 255),
-              ),
-              (
-                at: 0.16666667,
-                color: Fixed(0, 0, 255, 255),
-              ),
-              (
-                at: 0.16666667,
-                color: Fixed(0, 0, 0, 0),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(0, 0, 0, 0),
-              ),
-            ],
-            space: Rgb,
-            style: Linear,
-          ),
-        ),
-      ),
-      (
-        name: "target2",
-        targets: [
-          "target2",
-        ],
-        fill: (
-          transform: [
-            Rotate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.25,
-                  value: 360.0,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(0, 0, 0, 0),
-              ),
-              (
-                at: 0.16666667,
-                color: Fixed(0, 0, 0, 0),
-              ),
-              (
-                at: 0.16666667,
-                color: Fixed(0, 0, 255, 255),
-              ),
-              (
-                at: 0.5,
-                color: Fixed(0, 0, 255, 255),
-              ),
-              (
-                at: 0.5,
-                color: Fixed(0, 0, 0, 0),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(0, 0, 0, 0),
-              ),
-            ],
-            space: Rgb,
-            style: Linear,
-          ),
-        ),
-      ),
-      (
-        name: "target3",
-        targets: [
-          "target3",
-        ],
-        fill: (
-          transform: [
-            Rotate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.25,
-                  value: 360.0,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(0, 0, 0, 0),
-              ),
-              (
-                at: 0.5,
-                color: Fixed(0, 0, 0, 0),
-              ),
-              (
-                at: 0.5,
-                color: Fixed(0, 0, 255, 255),
-              ),
-              (
-                at: 0.8333333,
-                color: Fixed(0, 0, 255, 255),
-              ),
-              (
-                at: 0.8333333,
-                color: Fixed(0, 0, 0, 0),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(0, 0, 0, 0),
-              ),
-            ],
-            space: Rgb,
-            style: Linear,
-          ),
-        ),
-      ),
-      (
-        name: "hex",
-        targets: [
-          "hex",
-        ],
-        fill: (
-          transform: [
-            Rotate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.25,
-                  value: 360.0,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(0, 0, 255, 255),
-              ),
-              (
-                at: 0.25,
-                color: Fixed(0, 0, 255, 255),
-              ),
-              (
-                at: 0.25,
-                color: Fixed(0, 0, 0, 0),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(0, 0, 0, 0),
-              ),
-            ],
-            space: Rgb,
-            style: Linear,
-          ),
-        ),
-      ),
-    ],
-  ),
+Led(
+  version: 1,
+  timing: (
+    duration: 0.25,
+    cycle: Forever,
+  ),
+  layers: [
+    (
+      leds: Names([
+        "___child::drop_target1::0",
+        "___child::drop_target1::1",
+        "___child::drop_target1::2",
+        "___child::drop_target1::3",
+      ]),
+      surface: Sequence,
+      layer: (
+        name: "target1",
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.25,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.16666667,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.16666667,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ),
+    (
+      leds: Names([
+        "___child::drop_target2::0",
+        "___child::drop_target2::1",
+        "___child::drop_target2::2",
+        "___child::drop_target2::3",
+      ]),
+      surface: Sequence,
+      layer: (
+        name: "target2",
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.25,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 0.16666667,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 0.16666667,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.5,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.5,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ),
+    (
+      leds: Names([
+        "___child::drop_target3::0",
+        "___child::drop_target3::1",
+        "___child::drop_target3::2",
+        "___child::drop_target3::3",
+      ]),
+      surface: Sequence,
+      layer: (
+        name: "target3",
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.25,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 0.5,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 0.5,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.8333333,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.8333333,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ),
+    (
+      leds: Names([
+        "___child::lift_ramp_lane::5",
+        "___child::lift_ramp_lane::6",
+        "___child::lift_ramp_lane::2",
+      ]),
+      surface: Sequence,
+      layer: (
+        name: "hex",
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.25,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.25,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.25,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ),
+  ],
 )

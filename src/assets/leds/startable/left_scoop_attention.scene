@@ -1,131 +1,120 @@
-Led(
-  version: 1,
-  viewport: Sequence,
-  targets: Multiple({
-    "bolts": (
-      leds: Names([
-        "___child::scoop_bolt_l::0",
-        "___child::scoop_bolt_r::0",
-      ]),
-      z: 1,
-    ),
-    "hex": (
-      leds: Names([
-        "___child::arc_ramp_lane::6",
-      ]),
-      z: 2,
-    ),
-    "subway": (
-      leds: Names([
-        "___child::arc::5",
-        "___child::arc::4",
-        "___child::arc::3",
-        "___child::arc::2",
-        "___child::arc::1",
-        "___child::arc::0",
-      ]),
-    ),
-  }),
-  composition: (
-    params: {
-      "color": Color(255, 255, 255, 255),
-    },
-    timing: (
-      duration: 1.5,
-      cycle: Forever,
-    ),
-    layers: [
-      (
-        name: "bolts",
-        targets: [
-          "bolts",
-        ],
-        fill: (
-          base: Solid(Param("color")),
-          adjust: [
-            Opacity(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.1875,
-                  value: 0.0,
-                  curve: EaseInOut,
-                ),
-              ],
-              cycle: Forever,
-            )),
-          ],
-        ),
-      ),
-      (
-        name: "hex",
-        targets: [
-          "hex",
-        ],
-        fill: (
-          base: Solid(Param("color")),
-          adjust: [
-            Opacity(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.1875,
-                  value: 0.0,
-                  curve: EaseInOut,
-                ),
-              ],
-              cycle: Forever,
-            )),
-          ],
-        ),
-      ),
-      (
-        name: "subway",
-        targets: [
-          "subway",
-        ],
-        fill: (
-          transform: [
-            Rotate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.5,
-                  value: 360.0,
-                  curve: EaseIn,
-                ),
-              ],
-              cycle: Forever,
-            )),
-          ],
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Param("color"),
-              ),
-              (
-                at: 0.5,
-                color: Fixed(0, 0, 0, 0),
-              ),
-            ],
-            space: Rgb,
-            style: Linear,
-          ),
-        ),
-      ),
-    ],
-  ),
+Led(
+  version: 1,
+  params: {
+    "color": Color(255, 255, 255, 255),
+  },
+  timing: (
+    duration: 1.5,
+    cycle: Forever,
+  ),
+  layers: [
+    (
+      leds: Names([
+        "___child::scoop_bolt_l::0",
+        "___child::scoop_bolt_r::0",
+      ]),
+      z: 1,
+      surface: Sequence,
+      layer: (
+        name: "bolts",
+        fill: (
+          base: Solid(Param("color")),
+          adjust: [
+            Opacity(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.1875,
+                  value: 0.0,
+                  curve: EaseInOut,
+                ),
+              ],
+              cycle: Forever,
+            )),
+          ],
+        ),
+      ),
+    ),
+    (
+      leds: Names([
+        "___child::arc_ramp_lane::6",
+      ]),
+      z: 2,
+      surface: Sequence,
+      layer: (
+        name: "hex",
+        fill: (
+          base: Solid(Param("color")),
+          adjust: [
+            Opacity(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.1875,
+                  value: 0.0,
+                  curve: EaseInOut,
+                ),
+              ],
+              cycle: Forever,
+            )),
+          ],
+        ),
+      ),
+    ),
+    (
+      leds: Names([
+        "___child::arc::5",
+        "___child::arc::4",
+        "___child::arc::3",
+        "___child::arc::2",
+        "___child::arc::1",
+        "___child::arc::0",
+      ]),
+      surface: Sequence,
+      layer: (
+        name: "subway",
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.5,
+                  value: 360.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Forever,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Param("color"),
+              ),
+              (
+                at: 0.5,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ),
+  ],
 )

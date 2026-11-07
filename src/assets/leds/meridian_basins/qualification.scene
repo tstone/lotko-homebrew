@@ -1,21 +1,19 @@
-Led(
-  version: 1,
-  viewport: Sequence,
-  targets: Single(
-    leds: Names([
-      "___child::l_orbit::6",
-      "___child::center_orbit::6",
-      "___child::r_orbit::6",
-    ]),
-    z: 1,
-  ),
-  composition: (
-    layers: [
-      (
-        fill: (
-          base: Solid(Fixed(255, 255, 255, 255)),
-        ),
-      ),
-    ],
-  ),
+Led(
+  version: 1,
+  layers: [
+    (
+      leds: Names([
+        "___child::l_orbit::6",
+        "___child::center_orbit::6",
+        "___child::r_orbit::6",
+      ]),
+      z: 1,
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+        ),
+      ),
+    ),
+  ],
 )

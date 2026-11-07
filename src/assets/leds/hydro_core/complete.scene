@@ -1,50 +1,48 @@
-Led(
-  version: 1,
-  viewport: Sequence,
-  targets: Single(
-    leds: Every,
-  ),
-  composition: (
-    timing: (
-      duration: 0.185,
-      cycle: Times(7),
-    ),
-    layers: [
-      (
-        fill: (
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(0, 255, 255, 255),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(0, 0, 255, 255),
-              ),
-            ],
-            space: Rgb,
-            style: Linear,
-          ),
-          adjust: [
-            Opacity(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.185,
-                  value: 0.0,
-                  curve: EaseInOut,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-        ),
-      ),
-    ],
-  ),
+Led(
+  version: 1,
+  timing: (
+    duration: 0.185,
+    cycle: Times(7),
+  ),
+  layers: [
+    (
+      leds: Every,
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(0, 255, 255, 255),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 255, 255),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+          adjust: [
+            Opacity(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.185,
+                  value: 0.0,
+                  curve: EaseInOut,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+      ),
+    ),
+  ],
 )

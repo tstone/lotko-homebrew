@@ -1,63 +1,61 @@
-Led(
-  version: 1,
-  viewport: Sequence,
-  targets: Single(
-    leds: Names([
-      "___child::drop_target1::0",
-      "___child::drop_target1::1",
-      "___child::drop_target1::2",
-      "___child::drop_target1::3",
-      "___child::drop_target2::0",
-      "___child::drop_target2::1",
-      "___child::drop_target2::2",
-      "___child::drop_target2::3",
-      "___child::drop_target3::0",
-      "___child::drop_target3::1",
-      "___child::drop_target3::2",
-      "___child::drop_target3::3",
-    ]),
-  ),
-  composition: (
-    timing: (
-      duration: 0.1,
-      cycle: Times(3),
-    ),
-    layers: [
-      (
-        fill: (
-          transform: [
-            Rotate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.1,
-                  value: 360.0,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(255, 0, 0, 255),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(0, 0, 255, 255),
-              ),
-            ],
-            space: Rgb,
-            style: Linear,
-          ),
-        ),
-      ),
-    ],
-  ),
+Led(
+  version: 1,
+  timing: (
+    duration: 0.1,
+    cycle: Times(3),
+  ),
+  layers: [
+    (
+      leds: Names([
+        "___child::drop_target1::0",
+        "___child::drop_target1::1",
+        "___child::drop_target1::2",
+        "___child::drop_target1::3",
+        "___child::drop_target2::0",
+        "___child::drop_target2::1",
+        "___child::drop_target2::2",
+        "___child::drop_target2::3",
+        "___child::drop_target3::0",
+        "___child::drop_target3::1",
+        "___child::drop_target3::2",
+        "___child::drop_target3::3",
+      ]),
+      surface: Sequence,
+      layer: (
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.1,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(255, 0, 0, 255),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 255, 255),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ),
+  ],
 )

@@ -1,45 +1,42 @@
-Led(
-  version: 1,
-  viewport: Area,
-  targets: Single(
-    leds: Every,
-    plane: "Playfield",
-  ),
-  composition: (
-    timing: (
-      duration: 1.25,
-      cycle: Times(4),
-    ),
-    layers: [
-      (
-        fill: (
-          base: Solid(Fixed(0, 255, 108, 255)),
-        ),
-        shape: (
-          transform: [
-            Scale(Fixed(1.0, 1.0)),
-            Translate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: (10.039, 42.203),
-                  curve: Linear,
-                ),
-                (
-                  at: 1.25,
-                  value: (10.045, 0.857),
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-          base: Rect(
-            width: Fixed(26.395),
-            height: Fixed(4.924),
-          ),
-        ),
-      ),
-    ],
-  ),
+Led(
+  version: 1,
+  timing: (
+    duration: 1.25,
+    cycle: Times(4),
+  ),
+  layers: [
+    (
+      leds: Tag("Playfield"),
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(0, 255, 108, 255)),
+        ),
+        shape: (
+          transform: [
+            Scale(Fixed(1.0, 1.0)),
+            Translate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: (10.039, 42.203),
+                  curve: Linear,
+                ),
+                (
+                  at: 1.25,
+                  value: (10.045, 0.857),
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Rect(
+            width: Fixed(26.395),
+            height: Fixed(4.924),
+          ),
+        ),
+      ),
+    ),
+  ],
 )

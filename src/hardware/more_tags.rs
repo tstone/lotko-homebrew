@@ -23,3 +23,6 @@ pub struct ArcRamp;
 
 #[derive(Tag)]
 pub struct DoesNotCancelSkillshot;
+
+#[derive(Tag)]
+pub struct Speaker;

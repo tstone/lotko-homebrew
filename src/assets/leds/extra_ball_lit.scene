@@ -1,76 +1,67 @@
-Led(
-  version: 1,
-  viewport: Sequence,
-  targets: Multiple({
-    "bolts": (
-      leds: Names([
-        "___child::scoop_bolt_l::0",
-        "___child::scoop_bolt_r::0",
-      ]),
-      z: 3,
-    ),
-    "drain": (
-      leds: Names([
-        "___child::drain::0",
-      ]),
-      z: 1,
-    ),
-  }),
-  composition: (
-    timing: (
-      duration: 1.0,
-      cycle: Forever,
-    ),
-    layers: [
-      (
-        name: "bolts",
-        targets: [
-          "bolts",
-        ],
-        fill: (
-          base: Solid(Fixed(255, 255, 255, 255)),
-          adjust: [
-            Opacity(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.2,
-                  value: 0.0,
-                  curve: EaseInOut,
-                ),
-              ],
-              cycle: Forever,
-            )),
-          ],
-        ),
-      ),
-      (
-        name: "drain",
-        targets: [
-          "drain",
-        ],
-        fill: (
-          base: Solid(Track(
-            keys: [
-              (
-                at: 0.0,
-                value: (255, 255, 255, 255),
-                curve: Linear,
-              ),
-              (
-                at: 1.0,
-                value: (178, 178, 178, 255),
-                curve: EaseInOut,
-              ),
-            ],
-            cycle: Forever,
-          )),
-        ),
-      ),
-    ],
-  ),
+Led(
+  version: 1,
+  timing: (
+    duration: 1.0,
+    cycle: Forever,
+  ),
+  layers: [
+    (
+      leds: Names([
+        "___child::scoop_bolt_l::0",
+        "___child::scoop_bolt_r::0",
+      ]),
+      z: 3,
+      surface: Sequence,
+      layer: (
+        name: "bolts",
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+          adjust: [
+            Opacity(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.2,
+                  value: 0.0,
+                  curve: EaseInOut,
+                ),
+              ],
+              cycle: Forever,
+            )),
+          ],
+        ),
+      ),
+    ),
+    (
+      leds: Names([
+        "___child::drain::0",
+      ]),
+      z: 1,
+      surface: Sequence,
+      layer: (
+        name: "drain",
+        fill: (
+          base: Solid(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: (255, 255, 255, 255),
+                curve: Linear,
+              ),
+              (
+                at: 1.0,
+                value: (178, 178, 178, 255),
+                curve: EaseInOut,
+              ),
+            ],
+            cycle: Forever,
+          )),
+        ),
+      ),
+    ),
+  ],
 )

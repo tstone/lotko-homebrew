@@ -1,177 +1,166 @@
-Led(
-  version: 1,
-  viewport: Sequence,
-  targets: Multiple({
-    "left_ray": (
-      leds: Names([
-        "___child::vs_left_ray1::0",
-        "___child::vs_left_ray2::0",
-        "___child::vs_left_ray3::0",
-        "___child::vs_left_ray4::0",
-      ]),
-    ),
-    "upper_right_ray": (
-      leds: Names([
-        "___child::vs_ur_ray1::0",
-        "___child::vs_ur_ray2::0",
-        "___child::vs_ur_ray3::0",
-      ]),
-    ),
-    "lower_right_ray": (
-      leds: Names([
-        "___child::vs_lr_ray1::0",
-        "___child::vs_lr_ray2::0",
-        "___child::vs_lr_ray3::0",
-      ]),
-    ),
-  }),
-  composition: (
-    timing: (
-      duration: 0.6,
-      cycle: Once,
-    ),
-    layers: [
-      (
-        name: "left_ray",
-        targets: [
-          "left_ray",
-        ],
-        fill: (
-          transform: [
-            Rotate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.6,
-                  value: 360.0,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(255, 0, 255, 255),
-              ),
-              (
-                at: 0.16666667,
-                color: Fixed(255, 0, 255, 255),
-              ),
-              (
-                at: 0.16666667,
-                color: Fixed(0, 0, 0, 0),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(0, 0, 0, 0),
-              ),
-            ],
-            space: Rgb,
-            style: Linear,
-          ),
-        ),
-      ),
-      (
-        name: "upper_right_ray",
-        targets: [
-          "upper_right_ray",
-        ],
-        fill: (
-          transform: [
-            Rotate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.6,
-                  value: 360.0,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(255, 0, 255, 255),
-              ),
-              (
-                at: 0.25,
-                color: Fixed(255, 0, 255, 255),
-              ),
-              (
-                at: 0.25,
-                color: Fixed(0, 0, 0, 0),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(0, 0, 0, 0),
-              ),
-            ],
-            space: Rgb,
-            style: Linear,
-          ),
-        ),
-      ),
-      (
-        name: "lower_right_ray",
-        targets: [
-          "lower_right_ray",
-        ],
-        fill: (
-          transform: [
-            Rotate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.6,
-                  value: 360.0,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(255, 0, 255, 255),
-              ),
-              (
-                at: 0.25,
-                color: Fixed(255, 0, 255, 255),
-              ),
-              (
-                at: 0.25,
-                color: Fixed(0, 0, 0, 0),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(0, 0, 0, 0),
-              ),
-            ],
-            space: Rgb,
-            style: Linear,
-          ),
-        ),
-      ),
-    ],
-  ),
+Led(
+  version: 1,
+  timing: (
+    duration: 0.6,
+    cycle: Once,
+  ),
+  layers: [
+    (
+      leds: Names([
+        "___child::vs_left_ray1::0",
+        "___child::vs_left_ray2::0",
+        "___child::vs_left_ray3::0",
+        "___child::vs_left_ray4::0",
+      ]),
+      surface: Sequence,
+      layer: (
+        name: "left_ray",
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.6,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(255, 0, 255, 255),
+              ),
+              (
+                at: 0.16666667,
+                color: Fixed(255, 0, 255, 255),
+              ),
+              (
+                at: 0.16666667,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ),
+    (
+      leds: Names([
+        "___child::vs_ur_ray1::0",
+        "___child::vs_ur_ray2::0",
+        "___child::vs_ur_ray3::0",
+      ]),
+      surface: Sequence,
+      layer: (
+        name: "upper_right_ray",
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.6,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(255, 0, 255, 255),
+              ),
+              (
+                at: 0.25,
+                color: Fixed(255, 0, 255, 255),
+              ),
+              (
+                at: 0.25,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ),
+    (
+      leds: Names([
+        "___child::vs_lr_ray1::0",
+        "___child::vs_lr_ray2::0",
+        "___child::vs_lr_ray3::0",
+      ]),
+      surface: Sequence,
+      layer: (
+        name: "lower_right_ray",
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.6,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(255, 0, 255, 255),
+              ),
+              (
+                at: 0.25,
+                color: Fixed(255, 0, 255, 255),
+              ),
+              (
+                at: 0.25,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ),
+  ],
 )

@@ -1,38 +1,36 @@
-Led(
-  version: 1,
-  viewport: Sequence,
-  targets: Single(
-    leds: Names([
-      "___child::dome_ramp::6",
-      "___child::arc_ramp_lane::6",
-      "___child::lift_ramp_lane::6",
-    ]),
-  ),
-  composition: (
-    timing: (
-      duration: 0.46875,
-      cycle: Forever,
-    ),
-    layers: [
-      (
-        fill: (
-          base: Solid(Track(
-            keys: [
-              (
-                at: 0.0,
-                value: (127, 0, 210, 255),
-                curve: Linear,
-              ),
-              (
-                at: 0.46875,
-                value: (34, 0, 57, 255),
-                curve: EaseInOut,
-              ),
-            ],
-            cycle: Once,
-          )),
-        ),
-      ),
-    ],
-  ),
+Led(
+  version: 1,
+  timing: (
+    duration: 0.46875,
+    cycle: Forever,
+  ),
+  layers: [
+    (
+      leds: Names([
+        "___child::dome_ramp::6",
+        "___child::arc_ramp_lane::6",
+        "___child::lift_ramp_lane::6",
+      ]),
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: (127, 0, 210, 255),
+                curve: Linear,
+              ),
+              (
+                at: 0.46875,
+                value: (34, 0, 57, 255),
+                curve: EaseInOut,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ),
+      ),
+    ),
+  ],
 )

@@ -1,42 +1,40 @@
-Led(
-  version: 1,
-  viewport: Sequence,
-  targets: Single(
-    leds: Names([
-      "___child::lift_ramp_bolt::0",
-    ]),
-  ),
-  composition: (
-    params: {
-      "color": Color(255, 255, 255, 255),
-    },
-    timing: (
-      duration: 0.185,
-      cycle: Forever,
-    ),
-    layers: [
-      (
-        fill: (
-          base: Solid(Param("color")),
-          adjust: [
-            Opacity(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.185,
-                  value: 0.0,
-                  curve: EaseInOut,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-        ),
-      ),
-    ],
-  ),
+Led(
+  version: 1,
+  params: {
+    "color": Color(255, 255, 255, 255),
+  },
+  timing: (
+    duration: 0.185,
+    cycle: Forever,
+  ),
+  layers: [
+    (
+      leds: Names([
+        "___child::lift_ramp_bolt::0",
+      ]),
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Param("color")),
+          adjust: [
+            Opacity(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.185,
+                  value: 0.0,
+                  curve: EaseInOut,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+      ),
+    ),
+  ],
 )

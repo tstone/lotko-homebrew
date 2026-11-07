@@ -1,72 +1,70 @@
-Led(
-  version: 1,
-  viewport: Sequence,
-  targets: Single(
-    leds: Every,
-  ),
-  composition: (
-    timing: (
-      duration: 4.85,
-      cycle: Once,
-    ),
-    layers: [
-      (
-        fill: (
-          transform: [
-            Rotate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 1.2,
-                  value: 360.0,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Times(3),
-            )),
-          ],
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(0, 0, 255, 255),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(255, 255, 255, 255),
-              ),
-            ],
-            space: Rgb,
-            style: Linear,
-          ),
-          adjust: [
-            Opacity(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 3.6,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 4.85,
-                  value: 0.0,
-                  curve: EaseIn,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-        ),
-      ),
-    ],
-  ),
+Led(
+  version: 1,
+  timing: (
+    duration: 4.85,
+    cycle: Once,
+  ),
+  layers: [
+    (
+      leds: Every,
+      surface: Sequence,
+      layer: (
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.2,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Times(3),
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(255, 255, 255, 255),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+          adjust: [
+            Opacity(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 4.85,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+      ),
+    ),
+  ],
 )

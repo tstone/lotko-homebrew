@@ -29,7 +29,7 @@ hardware_defs! {
     .location(Vec3::new(12.69, 5.652, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi(NAME)
-    .locations(LedLayout::ring(6, Vec3::new(11.772, 10.203, 0.0), 0.5, 10.0f32.to_radians(), LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))
+    .locations(LedLayout::ring(6, Vec3::new(11.772, 10.203, 0.0), 0.5, 40.0f32.to_radians(), LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))
     .locations([Vec3::new(11.772, 10.203, 0.0).relative_to(&planes::PLAYFIELD)])
     .tag(Playfield)
     .tag(Insert)

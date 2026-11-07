@@ -3,14 +3,9 @@ use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystemExt;
 
-use crate::hardware::arc_ramp::ArcRampHit;
 use crate::hardware::captive_ball::CaptiveBallHit;
-use crate::hardware::center_orbit::CenterOrbitHit;
 use crate::hardware::city_map;
-use crate::hardware::dome_ramp::DomeRampHit;
-use crate::hardware::left_orbit::LeftOrbitHit;
-use crate::hardware::lift_ramp::LiftRampHit;
-use crate::hardware::right_orbit::RightOrbitHit;
+use crate::hardware::main_shot::MainShotHit;
 use crate::systems::game::ModeManager;
 use crate::systems::game::SporeMultiballQualification;
 use crate::systems::game::{ExclusiveMode, MULTIBALL_BALL_SAVE};
@@ -136,13 +131,7 @@ impl System for SporeMultiballMode {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<LeftOrbitHit>()
-      || event.is::<DomeRampHit>()
-      || event.is::<ArcRampHit>()
-      || event.is::<CenterOrbitHit>()
-      || event.is::<LiftRampHit>()
-      || event.is::<RightOrbitHit>()
-    {
+    if event.is::<MainShotHit>() {
       self.jackpot_hit(ctx)
     } else if event.is::<CaptiveBallHit>() && self.super_jackpot_active {
       self.super_jackpot_hit(ctx);

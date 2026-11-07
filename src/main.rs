@@ -126,6 +126,7 @@ async fn main() {
     app.system(arc_ramp::ArcRampSystem::new());
     app.system(vspinner::VerticalSpinner::new());
     app.system(captive_ball::CaptiveBallSystem::new());
+    app.system(main_shot::ShotSystem::new());
     app.system(
       BallManager::standard(
         [

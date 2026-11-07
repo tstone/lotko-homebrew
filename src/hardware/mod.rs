@@ -16,6 +16,7 @@ pub mod gi;
 pub mod left_orbit;
 pub mod lift_ramp;
 pub mod lower_scoop;
+pub mod main_shot;
 pub mod more_tags;
 pub mod planes;
 pub mod plunge_lane;

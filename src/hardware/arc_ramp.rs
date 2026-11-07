@@ -34,7 +34,7 @@ hardware_defs! {
     .tag(Playfield)
     .tag(Insert)
     .tag(Lane)
-    .locations(LedLayout::ring(6, Vec3::new(8.336, 10.633, 0.0), 0.5, 350.0f32.to_radians(), LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))
+    .locations(LedLayout::ring(6, Vec3::new(8.336, 10.633, 0.0), 0.5, 80.0f32.to_radians(), LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))
     .locations([Vec3::new(8.336, 10.633, 0.0).relative_to(&planes::PLAYFIELD)]);
 }
 

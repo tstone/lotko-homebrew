@@ -6,18 +6,21 @@ use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnEnding};
 use frontbox_sound::SoundSystemExt;
 
-use crate::hardware::arc_ramp::ArcRampHit;
-use crate::hardware::center_orbit::CenterOrbitHit;
-use crate::hardware::dome_ramp::DomeRampHit;
 use crate::hardware::flashers::FlashersSystem;
-use crate::hardware::left_orbit::LeftOrbitHit;
-use crate::hardware::lift_ramp::LiftRampHit;
-use crate::hardware::{arc_ramp, center_orbit, dome_ramp, left_orbit, lift_ramp};
+use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::ModeManager;
 use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable, SporeApplied};
 use crate::systems::sounds;
 
 static BASE_SHOT_TIME: LazyLock<Duration> = LazyLock::new(|| Duration::from_secs(25));
+
+const COMBO: [MainShot; 5] = [
+  MainShot::LiftRamp,
+  MainShot::ArcRamp,
+  MainShot::LeftOrbit,
+  MainShot::CenterOrbit,
+  MainShot::DomeRamp,
+];
 
 #[derive(Clone)]
 pub struct HydroCoreMode {
@@ -37,7 +40,7 @@ pub struct HydroCoreMode {
 impl HydroCoreMode {
   pub fn new() -> Self {
     Self {
-      attention_effect: Self::attention_effect(&*lift_ramp::HEX_CENTER_LED),
+      attention_effect: Self::attention_effect(COMBO[0].hex_center()),
       hit_effect: Self::hit_effect(),
       arc_effect: Self::arc_effect(),
       intensity_effect: Self::intensity_effect(),
@@ -127,30 +130,13 @@ impl HydroCoreMode {
 
     self.current_combo_shot = shot;
 
-    match shot {
-      1 => {
-        self.attention_effect = Self::attention_effect(&*lift_ramp::HEX_CENTER_LED);
-        self.hit_effect = Self::attention_ring(&*lift_ramp::HEX_CIRCLE_LEDS);
-      }
-      2 => {
-        self.attention_effect = Self::attention_effect(&*arc_ramp::HEX_CENTER_LED);
-        self.hit_effect = Self::attention_ring(&*arc_ramp::HEX_CIRCLE_LEDS);
-      }
-      3 => {
-        self.attention_effect = Self::attention_effect(&*left_orbit::HEX_CENTER_LED);
-        self.hit_effect = Self::attention_ring(&*left_orbit::HEX_CIRCLE_LEDS);
-      }
-      4 => {
-        self.attention_effect = Self::attention_effect(&*center_orbit::HEX_CENTER_LED);
-        self.hit_effect = Self::attention_ring(&*center_orbit::HEX_CIRCLE_LEDS);
-        self.intensity_effect.play();
-      }
-      5 => {
-        self.attention_effect = Self::attention_effect(&*dome_ramp::HEX_CENTER_LED);
-        self.hit_effect = Self::attention_ring(&*dome_ramp::HEX_CIRCLE_LEDS);
-      }
-      _ => panic!("Cannot set program for unknown shot: {}", shot),
-    };
+    let target = COMBO[shot as usize - 1];
+    self.attention_effect = Self::attention_effect(target.hex_center());
+    self.hit_effect = Self::attention_ring(target.hex_ring());
+
+    if shot == 4 {
+      self.intensity_effect.play();
+    }
   }
 
   fn combo_hit(&mut self, ctx: &SystemContext) {
@@ -231,16 +217,10 @@ impl System for HydroCoreMode {
   // TODO: change order to lift ramp => arc ramp => left ramp => right orbit => center orbit to get to N spins (untimed)
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if self.current_combo_shot == 1 && event.is::<LiftRampHit>() {
-      self.combo_hit(ctx);
-    } else if self.current_combo_shot == 2 && event.is::<ArcRampHit>() {
-      self.combo_hit(ctx);
-    } else if self.current_combo_shot == 3 && event.is::<LeftOrbitHit>() {
-      self.combo_hit(ctx);
-    } else if self.current_combo_shot == 4 && event.is::<CenterOrbitHit>() {
-      self.combo_hit(ctx);
-    } else if self.current_combo_shot == 5 && event.is::<DomeRampHit>() {
-      self.combo_hit(ctx);
+    if let Some(hit) = event.downcast_ref::<MainShotHit>() {
+      if hit.shot == COMBO[self.current_combo_shot as usize - 1] {
+        self.combo_hit(ctx);
+      }
     } else if event.is::<ComboTimeUp>() {
       self.combo_time_up(ctx);
     } else if event.is::<RoutineStarted<TurnEnding>>() {

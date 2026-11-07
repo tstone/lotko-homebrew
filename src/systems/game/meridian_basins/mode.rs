@@ -2,18 +2,11 @@ use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
-use crate::hardware::arc_ramp::ArcRampHit;
 use crate::hardware::captive_ball;
 use crate::hardware::captive_ball::CaptiveBallHit;
-use crate::hardware::center_orbit::CenterOrbitHit;
-use crate::hardware::dome_ramp::DomeRampHit;
-use crate::hardware::left_orbit::LeftOrbitHit;
-use crate::hardware::lift_ramp::LiftRampHit;
+use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::hardware::pop_cluster::PopBumper;
-use crate::hardware::right_orbit::RightOrbitHit;
-use crate::hardware::{
-  arc_ramp, center_orbit, city_map, dome_ramp, left_orbit, lift_ramp, pop_cluster, right_orbit,
-};
+use crate::hardware::{city_map, pop_cluster};
 use crate::systems::game::meridian_basins::MODE_COLOR;
 use crate::systems::game::{ExclusiveMode, LiftRampStartable, ModeManager, SporeApplied, points};
 use crate::systems::{sounds, sounds_bytes};
@@ -33,9 +26,9 @@ pub struct MeridianBasinsMode {
 impl MeridianBasinsMode {
   pub fn new() -> Self {
     let initial = vec![
-      ModeShots::LeftOrbit,
-      ModeShots::DomeRamp,
-      ModeShots::LeftOrbit,
+      ModeShots::Main(MainShot::LeftOrbit),
+      ModeShots::Main(MainShot::DomeRamp),
+      ModeShots::Main(MainShot::LeftOrbit),
     ];
     Self {
       attention_effect: Self::attention_effect(&initial),
@@ -160,18 +153,8 @@ impl System for MeridianBasinsMode {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<NextSet>() {
       self.advance(ctx);
-    } else if event.is::<LeftOrbitHit>() {
-      self.on_shot_hit(ModeShots::LeftOrbit, ctx);
-    } else if event.is::<DomeRampHit>() {
-      self.on_shot_hit(ModeShots::DomeRamp, ctx);
-    } else if event.is::<ArcRampHit>() {
-      self.on_shot_hit(ModeShots::ArcRamp, ctx);
-    } else if event.is::<CenterOrbitHit>() {
-      self.on_shot_hit(ModeShots::CenterOrbit, ctx);
-    } else if event.is::<LiftRampHit>() {
-      self.on_shot_hit(ModeShots::LiftRamp, ctx);
-    } else if event.is::<RightOrbitHit>() {
-      self.on_shot_hit(ModeShots::RightOrbit, ctx);
+    } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
+      self.on_shot_hit(ModeShots::Main(hit.shot), ctx);
     } else if event.is::<CaptiveBallHit>() {
       self.on_shot_hit(ModeShots::CaptiveBall, ctx)
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
@@ -202,51 +185,40 @@ impl System for MeridianBasinsMode {
 #[derive(serde::Serialize, Event)]
 struct NextSet;
 
-// TODO: this feels like it has more general purpose application
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 enum ModeShots {
-  LeftOrbit,
-  DomeRamp,
+  Main(MainShot),
   LeftPop,
-  ArcRamp,
   CaptiveBall,
-  CenterOrbit,
-  LiftRamp,
   UpperRightPop,
-  RightOrbit,
   LowerRightPop,
 }
 
 impl ModeShots {
   pub fn led_q(&self) -> LedQ {
     match self {
-      Self::LeftOrbit => left_orbit::HEX_CENTER_LED.clone(),
-      Self::DomeRamp => dome_ramp::HEX_CENTER_LED.clone(),
+      Self::Main(shot) => shot.hex_center().clone(),
       Self::LeftPop => pop_cluster::left::POP_LED.q(),
-      Self::ArcRamp => arc_ramp::HEX_CENTER_LED.clone(),
       Self::CaptiveBall => LedQ::any(vec![
         &captive_ball::LEFT_BOLT.q(),
         &captive_ball::RIGHT_BOLT.q(),
       ]),
-      Self::CenterOrbit => center_orbit::HEX_CENTER_LED.clone(),
-      Self::LiftRamp => lift_ramp::HEX_CENTER_LED.clone(),
       Self::UpperRightPop => pop_cluster::upper_right::POP_LED.q(),
-      Self::RightOrbit => right_orbit::HEX_CENTER_LED.clone(),
       Self::LowerRightPop => pop_cluster::lower_right::POP_LED.q(),
     }
   }
 
   pub fn ordered() -> Vec<ModeShots> {
     vec![
-      Self::LeftOrbit,
-      Self::DomeRamp,
+      Self::Main(MainShot::LeftOrbit),
+      Self::Main(MainShot::DomeRamp),
       Self::LeftPop,
-      Self::ArcRamp,
+      Self::Main(MainShot::ArcRamp),
       Self::CaptiveBall,
-      Self::CenterOrbit,
-      Self::LiftRamp,
+      Self::Main(MainShot::CenterOrbit),
+      Self::Main(MainShot::LiftRamp),
       Self::UpperRightPop,
-      Self::RightOrbit,
+      Self::Main(MainShot::RightOrbit),
       Self::LowerRightPop,
     ]
   }

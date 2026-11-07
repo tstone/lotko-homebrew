@@ -4,11 +4,9 @@ use frontbox_pinball::{GameManagementExt, TurnStarting};
 use frontbox_sound::SoundSystemExt;
 
 use crate::game::solarium_atrium::MODE_COLOR;
-use crate::hardware::arc_ramp::ArcRampHit;
 use crate::hardware::city_map;
-use crate::hardware::dome_ramp::DomeRampHit;
 use crate::hardware::flashers::FlashersSystem;
-use crate::hardware::lift_ramp::LiftRampHit;
+use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable, ModeManager, SporeApplied};
 use crate::systems::sounds;
 
@@ -125,12 +123,13 @@ impl System for SolariumAtriumMode {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<RoutineStarted<TurnStarting>>() {
       self.revert_to_startable(ctx);
-    } else if event.is::<DomeRampHit>() {
-      self.ramp_hit(Ramp::DomeRamp, ctx);
-    } else if event.is::<ArcRampHit>() {
-      self.ramp_hit(Ramp::ArcRamp, ctx);
-    } else if event.is::<LiftRampHit>() {
-      self.ramp_hit(Ramp::LiftRamp, ctx);
+    } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
+      match hit.shot {
+        MainShot::DomeRamp => self.ramp_hit(Ramp::DomeRamp, ctx),
+        MainShot::ArcRamp => self.ramp_hit(Ramp::ArcRamp, ctx),
+        MainShot::LiftRamp => self.ramp_hit(Ramp::LiftRamp, ctx),
+        _ => {}
+      }
     }
   }
 

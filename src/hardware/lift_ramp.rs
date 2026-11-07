@@ -78,7 +78,7 @@ hardware_defs! {
     .location(Vec3::new(14.118, 10.827, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub HEX_LEDS: LedDefinition = LedDefinition::multi("lift_ramp_lane")
-    .locations(LedLayout::ring(6, Vec3::new(13.5, 14.068, 0.0), 0.5, 12.0f32.to_radians(), LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))
+    .locations(LedLayout::ring(6, Vec3::new(13.5, 14.068, 0.0), 0.5, 42.0f32.to_radians(), LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))
     .locations([Vec3::new(13.5, 14.068, 0.0).relative_to(&planes::PLAYFIELD)])
     .tag(Playfield)
     .tag(Insert)

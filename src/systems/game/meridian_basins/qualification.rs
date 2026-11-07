@@ -1,6 +1,4 @@
-use crate::hardware::center_orbit::CenterOrbitHit;
-use crate::hardware::left_orbit::LeftOrbitHit;
-use crate::hardware::right_orbit::RightOrbitHit;
+use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::*;
 use crate::systems::sounds;
 use frontbox_core::prelude::*;
@@ -14,7 +12,12 @@ impl ExclusiveModeQualifier for MeridianBasinsQualifier {
   const HIT_SND_KEY: &'static str = sounds::LANE_HIT3;
 
   fn is_qualifying_shot(event: &dyn Event) -> bool {
-    event.is::<LeftOrbitHit>() || event.is::<CenterOrbitHit>() || event.is::<RightOrbitHit>()
+    event.downcast_ref::<MainShotHit>().is_some_and(|hit| {
+      matches!(
+        hit.shot,
+        MainShot::LeftOrbit | MainShot::CenterOrbit | MainShot::RightOrbit
+      )
+    })
   }
 
   fn on_qualified(ctx: &SystemContext) {

@@ -6,8 +6,6 @@ use frontbox_pinball::GameManagementExt;
 use frontbox_pinball::TurnPhase;
 use frontbox_sound::SoundSystemExt;
 
-use crate::hardware::arc_ramp;
-use crate::hardware::lower_scoop;
 use crate::hardware::lower_scoop::LowerScoopBallEnter;
 use crate::systems::game;
 use crate::systems::game::ExclusiveMode;
@@ -100,24 +98,14 @@ impl LeftScoopStartable {
     }
   }
 
-  fn attention_effect(mode: &ExclusiveMode) -> LedScene {
-    LedScene::unbound(led_scene!("startable/left_scoop_attention.ron"))
-      .on("bolts", (&*lower_scoop::BOLTS_Q).at_z(1))
-      .unwrap()
-      .on("hex", (&*arc_ramp::HEX_CENTER_LED).at_z(2))
-      .unwrap()
-      .on("subway", arc_ramp::ARC_LEDS.q().range(0..6).reverse())
-      .unwrap()
-      .param("color", mode.color())
+  fn attention_effect(mode: &ExclusiveMode) -> LedPlayback {
+    led_playback!("startable/left_scoop_attention.scene").param("color", mode.color())
   }
 
-  fn hit_effect(mode: &ExclusiveMode) -> LedScene {
-    LedScene::new(
-      LedQ::tag::<tags::Playfield>().at_z(-1),
-      led_scene!("startable/hit.ron"),
-    )
-    .param("color", mode.color())
-    .stopped()
+  fn hit_effect(mode: &ExclusiveMode) -> LedPlayback {
+    led_playback!("startable/hit.scene")
+      .param("color", mode.color())
+      .stopped()
   }
 }
 
@@ -165,8 +153,8 @@ impl System for LeftScoopStartable {
 
 #[derive(Clone)]
 pub struct StartableEffects {
-  pub attention_effect: LedScene,
-  pub hit_effect: LedScene,
+  pub attention_effect: LedPlayback,
+  pub hit_effect: LedPlayback,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

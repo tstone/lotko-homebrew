@@ -59,7 +59,7 @@ pub struct ModeManager {
   turn_active: bool,
   /// Flashes the map insert of each active mode. Each mode has its own flash, so an exclusive mode and any number of
   /// non-exclusive modes can flash together.
-  map_flashes: HashMap<ActiveMode, LedScene>,
+  map_flashes: HashMap<ActiveMode, LedPlayback>,
 }
 
 impl ModeManager {
@@ -279,9 +279,10 @@ impl ModeManager {
   fn flash_map_insert(&mut self, mode: ActiveMode) {
     if let Some(led) = mode.map_led() {
       let color = mode.color();
-      self.map_flashes.entry(mode).or_insert_with(|| {
-        LedScene::new(led.at_z(1), led_scene!("map_flash.ron")).param("color", color)
-      });
+      self
+        .map_flashes
+        .entry(mode)
+        .or_insert_with(|| led_playback!("map_flash.scene", led).param("color", color));
     }
   }
 

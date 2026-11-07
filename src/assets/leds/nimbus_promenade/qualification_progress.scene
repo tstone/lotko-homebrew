@@ -1,0 +1,59 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::vspinner::0",
+      "___child::vspinner::1",
+      "___child::vspinner::2",
+      "___child::vspinner::3",
+      "___child::vspinner::4",
+      "___child::vspinner::5",
+      "___child::vspinner::6",
+      "___child::vspinner::7",
+      "___child::vspinner::8",
+      "___child::vspinner::9",
+      "___child::vspinner::10",
+      "___child::vspinner::11",
+    ]),
+  ),
+  composition: (
+    params: {
+      "width": Float(0.5),
+    },
+    timing: (
+      duration: 1.25,
+      cycle: Forever,
+    ),
+    layers: [
+      (
+        fill: (
+          base: Solid(Fixed(255, 0, 255, 255)),
+        ),
+        shape: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.25,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Rect(
+            width: Param("width"),
+            height: Fixed(1.0),
+          ),
+        ),
+      ),
+    ],
+  ),
+)

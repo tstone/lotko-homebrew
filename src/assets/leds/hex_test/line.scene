@@ -1,0 +1,184 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::l_orbit::2",
+      "___child::l_orbit::6",
+      "___child::l_orbit::5",
+      "___child::dome_ramp::5",
+      "___child::dome_ramp::6",
+      "___child::dome_ramp::2",
+      "___child::arc_ramp_lane::0",
+      "___child::arc_ramp_lane::6",
+      "___child::arc_ramp_lane::3",
+      "___child::center_orbit::5",
+      "___child::center_orbit::6",
+      "___child::center_orbit::2",
+      "___child::lift_ramp_lane::5",
+      "___child::lift_ramp_lane::6",
+      "___child::lift_ramp_lane::2",
+      "___child::r_orbit::5",
+      "___child::r_orbit::6",
+      "___child::r_orbit::2",
+    ]),
+  ),
+  composition: (
+    layers: [
+      (
+        fill: (
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.029411765,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.029411765,
+                color: Fixed(127, 127, 127, 255),
+              ),
+              (
+                at: 0.0882353,
+                color: Fixed(127, 127, 127, 255),
+              ),
+              (
+                at: 0.0882353,
+                color: Fixed(255, 255, 0, 255),
+              ),
+              (
+                at: 0.14705883,
+                color: Fixed(255, 255, 0, 255),
+              ),
+              (
+                at: 0.14705883,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.20588236,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.20588236,
+                color: Fixed(127, 127, 127, 255),
+              ),
+              (
+                at: 0.2647059,
+                color: Fixed(127, 127, 127, 255),
+              ),
+              (
+                at: 0.2647059,
+                color: Fixed(255, 255, 0, 255),
+              ),
+              (
+                at: 0.32352942,
+                color: Fixed(255, 255, 0, 255),
+              ),
+              (
+                at: 0.32352942,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.38235295,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.38235295,
+                color: Fixed(127, 127, 127, 255),
+              ),
+              (
+                at: 0.44117647,
+                color: Fixed(127, 127, 127, 255),
+              ),
+              (
+                at: 0.44117647,
+                color: Fixed(255, 255, 0, 255),
+              ),
+              (
+                at: 0.5,
+                color: Fixed(255, 255, 0, 255),
+              ),
+              (
+                at: 0.5,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.5588235,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.5588235,
+                color: Fixed(127, 127, 127, 255),
+              ),
+              (
+                at: 0.61764705,
+                color: Fixed(127, 127, 127, 255),
+              ),
+              (
+                at: 0.61764705,
+                color: Fixed(255, 255, 0, 255),
+              ),
+              (
+                at: 0.6764706,
+                color: Fixed(255, 255, 0, 255),
+              ),
+              (
+                at: 0.6764706,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.7352941,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.7352941,
+                color: Fixed(127, 127, 127, 255),
+              ),
+              (
+                at: 0.7941176,
+                color: Fixed(127, 127, 127, 255),
+              ),
+              (
+                at: 0.7941176,
+                color: Fixed(255, 255, 0, 255),
+              ),
+              (
+                at: 0.85294116,
+                color: Fixed(255, 255, 0, 255),
+              ),
+              (
+                at: 0.85294116,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.9117647,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.9117647,
+                color: Fixed(127, 127, 127, 255),
+              ),
+              (
+                at: 0.9705882,
+                color: Fixed(127, 127, 127, 255),
+              ),
+              (
+                at: 0.9705882,
+                color: Fixed(255, 255, 0, 255),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(255, 255, 0, 255),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ],
+  ),
+)

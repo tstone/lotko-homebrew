@@ -13,10 +13,10 @@ const GRACE_PERIOD: Duration = Duration::from_millis(100);
 
 #[derive(Clone)]
 pub struct DropBankSkillShot {
-  attention_effect: LedScene,
+  attention_effect: LedPlayback,
   enqueued_target: Option<DropBankTarget>,
   current_target: DropBankTarget,
-  hit_effect: Option<LedScene>,
+  hit_effect: Option<LedPlayback>,
   hit: bool,
   /// An unlit target dropped, and the lit one has until `GracePeriodElapsed` to drop too
   grace_period: bool,
@@ -63,21 +63,12 @@ impl DropBankSkillShot {
     ctx.systems.despawn_self();
   }
 
-  fn attention_effect<T: Contextual<LedIdentifications> + Send + Sync + 'static>(
-    target: T,
-  ) -> LedScene {
-    LedScene::new(target, led_scene!("skill_shots/drop_bank_attention.ron"))
+  fn attention_effect(target: LedQ) -> LedPlayback {
+    led_playback!("skill_shots/drop_bank_attention.scene", target)
   }
 
-  fn hit_effect() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &drop_bank::TARGET1_LEDS.q(),
-        &drop_bank::TARGET2_LEDS.q(),
-        &drop_bank::TARGET3_LEDS.q(),
-      ]),
-      led_scene!("skill_shots/drop_bank_hit.ron"),
-    )
+  fn hit_effect() -> LedPlayback {
+    led_playback!("skill_shots/drop_bank_hit.scene")
   }
 
   fn next(&mut self, ctx: &SystemContext) {

@@ -1,0 +1,233 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Multiple({
+    "flashers": (
+      leds: Names([
+        "___child::l_flasher::0",
+        "___child::l_flasher::1",
+        "___child::l_flasher::2",
+        "___child::l_flasher::3",
+        "___child::l_flasher::4",
+        "___child::l_flasher::5",
+        "___child::l_flasher::6",
+        "___child::l_flasher::7",
+        "___child::c_flasher::0",
+        "___child::c_flasher::1",
+        "___child::c_flasher::2",
+        "___child::c_flasher::3",
+        "___child::c_flasher::4",
+        "___child::c_flasher::5",
+        "___child::c_flasher::6",
+        "___child::c_flasher::7",
+      ]),
+    ),
+    "left_speaker": (
+      leds: Names([
+        "___child::l_speaker::24",
+        "___child::l_speaker::23",
+        "___child::l_speaker::22",
+        "___child::l_speaker::21",
+        "___child::l_speaker::20",
+        "___child::l_speaker::19",
+        "___child::l_speaker::18",
+        "___child::l_speaker::17",
+        "___child::l_speaker::16",
+        "___child::l_speaker::15",
+        "___child::l_speaker::14",
+        "___child::l_speaker::13",
+        "___child::l_speaker::12",
+        "___child::l_speaker::11",
+        "___child::l_speaker::10",
+        "___child::l_speaker::9",
+        "___child::l_speaker::8",
+        "___child::l_speaker::7",
+        "___child::l_speaker::6",
+        "___child::l_speaker::5",
+        "___child::l_speaker::4",
+        "___child::l_speaker::3",
+        "___child::l_speaker::2",
+        "___child::l_speaker::1",
+        "___child::l_speaker::0",
+      ]),
+    ),
+    "right_speaker": (
+      leds: Names([
+        "___child::r_speaker::24",
+        "___child::r_speaker::23",
+        "___child::r_speaker::22",
+        "___child::r_speaker::21",
+        "___child::r_speaker::20",
+        "___child::r_speaker::19",
+        "___child::r_speaker::18",
+        "___child::r_speaker::17",
+        "___child::r_speaker::16",
+        "___child::r_speaker::15",
+        "___child::r_speaker::14",
+        "___child::r_speaker::13",
+        "___child::r_speaker::12",
+        "___child::r_speaker::11",
+        "___child::r_speaker::10",
+        "___child::r_speaker::9",
+        "___child::r_speaker::8",
+        "___child::r_speaker::7",
+        "___child::r_speaker::6",
+        "___child::r_speaker::5",
+        "___child::r_speaker::4",
+        "___child::r_speaker::3",
+        "___child::r_speaker::2",
+        "___child::r_speaker::1",
+        "___child::r_speaker::0",
+      ]),
+    ),
+  }),
+  composition: (
+    timing: (
+      duration: 0.25,
+      cycle: Forever,
+    ),
+    layers: [
+      (
+        name: "flashers",
+        targets: [
+          "flashers",
+        ],
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.25,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(255, 255, 255, 255),
+              ),
+              (
+                at: 0.1,
+                color: Fixed(255, 255, 255, 255),
+              ),
+              (
+                at: 0.1,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+      (
+        name: "left_speaker",
+        targets: [
+          "left_speaker",
+        ],
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.25,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(255, 165, 0, 255),
+              ),
+              (
+                at: 0.14583333,
+                color: Fixed(255, 165, 0, 255),
+              ),
+              (
+                at: 0.14583333,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+      (
+        name: "right_speaker",
+        targets: [
+          "right_speaker",
+        ],
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.25,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(255, 165, 0, 255),
+              ),
+              (
+                at: 0.14583333,
+                color: Fixed(255, 165, 0, 255),
+              ),
+              (
+                at: 0.14583333,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ],
+  ),
+)

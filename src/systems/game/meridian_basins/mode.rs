@@ -1,9 +1,9 @@
-use frontbox_core::prelude::tags::Playfield;
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
 use crate::hardware::arc_ramp::ArcRampHit;
+use crate::hardware::captive_ball;
 use crate::hardware::captive_ball::CaptiveBallHit;
 use crate::hardware::center_orbit::CenterOrbitHit;
 use crate::hardware::dome_ramp::DomeRampHit;
@@ -12,10 +12,8 @@ use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::pop_cluster::PopBumper;
 use crate::hardware::right_orbit::RightOrbitHit;
 use crate::hardware::{
-  arc_ramp, backbox, center_orbit, city_map, dome_ramp, left_orbit, lift_ramp, pop_cluster,
-  right_orbit,
+  arc_ramp, center_orbit, city_map, dome_ramp, left_orbit, lift_ramp, pop_cluster, right_orbit,
 };
-use crate::hardware::{captive_ball, flashers};
 use crate::systems::game::meridian_basins::MODE_COLOR;
 use crate::systems::game::{ExclusiveMode, LiftRampStartable, ModeManager, SporeApplied, points};
 use crate::systems::{sounds, sounds_bytes};
@@ -24,10 +22,10 @@ use frontbox_sound::*;
 static REQUIRED_HITS: u8 = 6;
 
 pub struct MeridianBasinsMode {
-  attention_effect: LedScene,
-  hit_effect: LedScene,
-  intensity_effect: LedScene,
-  progress_effect: LedScene,
+  attention_effect: LedPlayback,
+  hit_effect: LedPlayback,
+  intensity_effect: LedPlayback,
+  progress_effect: LedPlayback,
   hits: u8,
   current_shots: Vec<ModeShots>,
 }
@@ -49,47 +47,26 @@ impl MeridianBasinsMode {
     }
   }
 
-  fn attention_effect(shots: &Vec<ModeShots>) -> LedScene {
+  fn attention_effect(shots: &Vec<ModeShots>) -> LedPlayback {
     let led_qs: Vec<LedQ> = shots.iter().map(|shot| shot.led_q()).collect();
     let qs: Vec<&LedQ> = led_qs.iter().collect();
 
-    LedScene::new(LedQ::any(qs), led_scene!("meridian_basins/attention.ron"))
+    led_playback!("meridian_basins/attention.scene", LedQ::any(qs))
   }
 
-  fn hit_effect() -> LedScene {
-    LedScene::new(
-      LedQ::tag::<Playfield>().at_z(-1),
-      led_scene!("meridian_basins/hit.ron"),
-    )
-    .stopped()
+  fn hit_effect() -> LedPlayback {
+    led_playback!("meridian_basins/hit.scene").stopped()
   }
 
-  fn complete_effect() -> LedScene {
-    LedScene::new(
-      LedQ::tag::<Playfield>().at_z(-1),
-      led_scene!("meridian_basins/complete.ron"),
-    )
-    .stopped()
+  fn complete_effect() -> LedPlayback {
+    led_playback!("meridian_basins/complete.scene").stopped()
   }
 
-  fn intensity_effect() -> LedScene {
-    LedScene::unbound(led_scene!("meridian_basins/intensity.ron"))
-      .on(
-        "flashers",
-        LedQ::any(vec![
-          &flashers::LEFT_FLASHER.q(),
-          &flashers::CENTER_FLASHER.q(),
-        ]),
-      )
-      .unwrap()
-      .on("left_speaker", backbox::LEFT_SPEAKER_LEDS.q().reverse())
-      .unwrap()
-      .on("right_speaker", backbox::RIGHT_SPEAKER_LEDS.q().reverse())
-      .unwrap()
-      .stopped()
+  fn intensity_effect() -> LedPlayback {
+    led_playback!("meridian_basins/intensity.scene").stopped()
   }
 
-  fn progress_effect(hits: u8) -> LedScene {
+  fn progress_effect(hits: u8) -> LedPlayback {
     city_map::spore_count_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
   }
 

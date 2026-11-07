@@ -1,0 +1,24 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::center_spinner::0",
+    ]),
+  ),
+  composition: (
+    params: {
+      "brightness": Float(1.0),
+    },
+    layers: [
+      (
+        fill: (
+          base: Solid(Fixed(0, 255, 0, 255)),
+          adjust: [
+            Brightness(Param("brightness")),
+          ],
+        ),
+      ),
+    ],
+  ),
+)

@@ -1,8 +1,5 @@
-use crate::hardware::center_orbit;
 use crate::hardware::center_orbit::CenterOrbitHit;
-use crate::hardware::left_orbit;
 use crate::hardware::left_orbit::LeftOrbitHit;
-use crate::hardware::right_orbit;
 use crate::hardware::right_orbit::RightOrbitHit;
 use crate::systems::game::*;
 use crate::systems::sounds;
@@ -29,16 +26,8 @@ impl ExclusiveModeQualifier for MeridianBasinsQualifier {
     ctx.systems.despawn_self();
   }
 
-  fn attention_effect() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &*left_orbit::HEX_CENTER_LED,
-        &*center_orbit::HEX_CENTER_LED,
-        &*right_orbit::HEX_CENTER_LED,
-      ])
-      .at_z(1),
-      led_scene!("meridian_basins/qualification.ron"),
-    )
+  fn attention_effect() -> LedPlayback {
+    led_playback!("meridian_basins/qualification.scene")
   }
 }
 

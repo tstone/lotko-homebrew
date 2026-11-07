@@ -5,15 +5,14 @@ use frontbox_led::prelude::*;
 use frontbox_pinball::GameManagementExt;
 use frontbox_sound::SoundSystemExt;
 
-use crate::hardware::{arc_ramp, center_orbit, dome_ramp, left_orbit, lift_ramp, right_orbit};
 use crate::systems::game;
 use crate::systems::game::ModeManager;
 
 #[derive(Clone)]
 pub struct ExclusiveModeQualification<T: ExclusiveModeQualifier + Clone> {
   hits: u8,
-  attention_effect: LedScene,
-  hit_effect: LedScene,
+  attention_effect: LedPlayback,
+  hit_effect: LedPlayback,
   _t: PhantomData<T>,
 }
 
@@ -30,20 +29,8 @@ where
     }
   }
 
-  fn hit_effect() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &left_orbit::HEX_LEDS.q(),
-        &dome_ramp::HEX_LEDS.q(),
-        &arc_ramp::HEX_LEDS.q(),
-        &center_orbit::HEX_LEDS.q(),
-        &lift_ramp::HEX_LEDS.q(),
-        &right_orbit::HEX_LEDS.q(),
-      ])
-      .at_z(1),
-      led_scene!("exclusive_qualification_hit.ron"),
-    )
-    .stopped()
+  fn hit_effect() -> LedPlayback {
+    led_playback!("exclusive_qualification_hit.scene").stopped()
   }
 
   fn on_qualifying_hit(&mut self, ctx: &SystemContext) {
@@ -90,6 +77,6 @@ pub trait ExclusiveModeQualifier: Send + Sync + 'static {
   const HIT_SND_KEY: &'static str;
 
   fn is_qualifying_shot(event: &dyn Event) -> bool;
-  fn attention_effect() -> LedScene;
+  fn attention_effect() -> LedPlayback;
   fn on_qualified(ctx: &SystemContext);
 }

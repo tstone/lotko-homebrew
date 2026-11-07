@@ -1,4 +1,3 @@
-use crate::hardware::lift_ramp;
 use crate::hardware::lift_ramp::LiftRampHit;
 use crate::systems::game::*;
 use crate::systems::sounds;
@@ -25,11 +24,8 @@ impl ExclusiveModeQualifier for SkyrailStationQualifier {
     ctx.systems.despawn_self();
   }
 
-  fn attention_effect() -> LedScene {
-    LedScene::new(
-      (&*lift_ramp::HEX_CENTER_LED).at_z(1),
-      led_scene!("skyrail_station/qualification.ron"),
-    )
+  fn attention_effect() -> LedPlayback {
+    led_playback!("skyrail_station/qualification.scene")
   }
 }
 

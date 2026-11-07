@@ -1,25 +1,24 @@
-use frontbox_core::prelude::tags::*;
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnStarting};
 use frontbox_sound::SoundSystemExt;
 
 use crate::game::solarium_atrium::MODE_COLOR;
-use crate::hardware::arc_ramp::{self, ArcRampHit};
-use crate::hardware::dome_ramp::{self, DomeRampHit};
-use crate::hardware::flashers::{self, FlashersSystem};
-use crate::hardware::lift_ramp::{self, LiftRampHit};
-use crate::hardware::{backbox, city_map};
+use crate::hardware::arc_ramp::ArcRampHit;
+use crate::hardware::city_map;
+use crate::hardware::dome_ramp::DomeRampHit;
+use crate::hardware::flashers::FlashersSystem;
+use crate::hardware::lift_ramp::LiftRampHit;
 use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable, ModeManager, SporeApplied};
 use crate::systems::sounds;
 
 static REQUIRED_HITS: u8 = 6;
 
 pub struct SolariumAtriumMode {
-  attention_effect: LedScene,
-  hit_effect: LedScene,
-  intensity_effect: LedScene,
-  progress_effect: LedScene,
+  attention_effect: LedPlayback,
+  hit_effect: LedPlayback,
+  intensity_effect: LedPlayback,
+  progress_effect: LedPlayback,
   ramp_hits: u8,
   last_ramp: Option<Ramp>,
 }
@@ -36,51 +35,23 @@ impl SolariumAtriumMode {
     }
   }
 
-  fn attention_effect() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &*dome_ramp::HEX_CENTER_LED,
-        &*arc_ramp::HEX_CENTER_LED,
-        &*lift_ramp::HEX_CENTER_LED,
-      ]),
-      led_scene!("solarium_atrium/attention.ron"),
-    )
+  fn attention_effect() -> LedPlayback {
+    led_playback!("solarium_atrium/attention.scene")
   }
 
-  fn hit_effect() -> LedScene {
-    LedScene::new(
-      LedQ::tag::<Playfield>().at_z(-1),
-      led_scene!("solarium_atrium/hit.ron"),
-    )
-    .stopped()
+  fn hit_effect() -> LedPlayback {
+    led_playback!("solarium_atrium/hit.scene").stopped()
   }
 
-  fn complete_effect() -> LedScene {
-    LedScene::new(
-      LedQ::tag::<Playfield>().at_z(-1),
-      led_scene!("solarium_atrium/complete.ron"),
-    )
-    .stopped()
+  fn complete_effect() -> LedPlayback {
+    led_playback!("solarium_atrium/complete.scene").stopped()
   }
 
-  fn intensity_effect() -> LedScene {
-    LedScene::unbound(led_scene!("solarium_atrium/intensity.ron"))
-      .on(
-        "flashers",
-        LedQ::any(vec![
-          &flashers::LEFT_FLASHER.q(),
-          &flashers::CENTER_FLASHER.q(),
-        ]),
-      )
-      .unwrap()
-      .on("left_speaker", backbox::LEFT_SPEAKER_LEDS.q().reverse())
-      .unwrap()
-      .on("right_speaker", backbox::RIGHT_SPEAKER_LEDS.q().reverse())
-      .unwrap()
-      .stopped()
+  fn intensity_effect() -> LedPlayback {
+    led_playback!("solarium_atrium/intensity.scene").stopped()
   }
 
-  fn progress_effect(hits: u8) -> LedScene {
+  fn progress_effect(hits: u8) -> LedPlayback {
     city_map::spore_count_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
   }
 
@@ -103,7 +74,7 @@ impl SolariumAtriumMode {
     ctx
       .systems
       .expect::<FlashersSystem>()
-      .play(led_scene!("solarium_atrium/flashers.ron"));
+      .play(led_playback!("solarium_atrium/flashers.scene"));
 
     let points = match (self.last_ramp.as_ref(), &ramp_hit) {
       (Some(Ramp::DomeRamp), Ramp::LiftRamp) => game::points::EXL_MODE_HIT as f32 * 2.0,

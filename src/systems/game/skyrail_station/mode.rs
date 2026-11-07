@@ -1,12 +1,11 @@
-use frontbox_core::prelude::tags::Playfield;
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
-use crate::hardware::drop_bank::{self, DropBankSystem, DropBankTargetHit};
-use crate::hardware::flashers::{self, FlashersSystem};
+use crate::hardware::city_map;
+use crate::hardware::drop_bank::{DropBankSystem, DropBankTargetHit};
+use crate::hardware::flashers::FlashersSystem;
 use crate::hardware::lift_ramp::{LiftRampHit, LiftRampScoopBallEnter, LiftRampSystem};
-use crate::hardware::{backbox, city_map, lift_ramp};
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
@@ -14,10 +13,10 @@ use crate::systems::game::{
 };
 
 pub struct SkyrailStationMode {
-  attention_effect: LedScene,
-  hit_effect: LedScene,
-  intensity_effect: LedScene,
-  progress_effect: LedScene,
+  attention_effect: LedPlayback,
+  hit_effect: LedPlayback,
+  intensity_effect: LedPlayback,
+  progress_effect: LedPlayback,
   target_hits: u8,
   ramp_hits: u8,
   state: State,
@@ -40,66 +39,27 @@ impl SkyrailStationMode {
     }
   }
 
-  fn attention_effect_ramp() -> LedScene {
-    LedScene::new(
-      &*lift_ramp::HEX_CENTER_LED,
-      led_scene!("skyrail_station/attention_ramp.ron"),
-    )
+  fn attention_effect_ramp() -> LedPlayback {
+    led_playback!("skyrail_station/attention_ramp.scene")
   }
 
-  fn attention_effect_target() -> LedScene {
-    LedScene::unbound(led_scene!("skyrail_station/attention_target.ron"))
-      .on(
-        "targets",
-        LedQ::any(vec![
-          &drop_bank::TARGET1_LEDS.q().skip(3).take(1),
-          &drop_bank::TARGET2_LEDS.q().skip(3).take(1),
-          &drop_bank::TARGET3_LEDS.q().skip(3).take(1),
-        ]),
-      )
-      .unwrap()
-      .on("hex", &*lift_ramp::HEX_LINE_LEDS)
-      .unwrap()
+  fn attention_effect_target() -> LedPlayback {
+    led_playback!("skyrail_station/attention_target.scene")
   }
 
-  fn attention_effect_target_final() -> LedScene {
-    LedScene::unbound(led_scene!("skyrail_station/attention_target_final.ron"))
-      .on("target1", drop_bank::TARGET1_LEDS.q())
-      .unwrap()
-      .on("target2", drop_bank::TARGET2_LEDS.q())
-      .unwrap()
-      .on("target3", drop_bank::TARGET3_LEDS.q())
-      .unwrap()
-      .on("hex", &*lift_ramp::HEX_LINE_LEDS)
-      .unwrap()
+  fn attention_effect_target_final() -> LedPlayback {
+    led_playback!("skyrail_station/attention_target_final.scene")
   }
 
-  fn hit_effect() -> LedScene {
-    LedScene::new(
-      LedQ::tag::<Playfield>().at_z(-1),
-      led_scene!("skyrail_station/hit.ron"),
-    )
-    .stopped()
+  fn hit_effect() -> LedPlayback {
+    led_playback!("skyrail_station/hit.scene").stopped()
   }
 
-  fn intensity_effect() -> LedScene {
-    LedScene::unbound(led_scene!("skyrail_station/intensity.ron"))
-      .on(
-        "flashers",
-        LedQ::any(vec![
-          &flashers::LEFT_FLASHER.q(),
-          &flashers::CENTER_FLASHER.q(),
-        ]),
-      )
-      .unwrap()
-      .on("left_speaker", backbox::LEFT_SPEAKER_LEDS.q().reverse())
-      .unwrap()
-      .on("right_speaker", backbox::RIGHT_SPEAKER_LEDS.q().reverse())
-      .unwrap()
-      .stopped()
+  fn intensity_effect() -> LedPlayback {
+    led_playback!("skyrail_station/intensity.scene").stopped()
   }
 
-  fn progress_effect(hits: u8) -> LedScene {
+  fn progress_effect(hits: u8) -> LedPlayback {
     city_map::spore_count_effect(*MODE_COLOR, hits as f32 / 8.0)
   }
 
@@ -110,7 +70,7 @@ impl SkyrailStationMode {
     ctx
       .systems
       .expect::<FlashersSystem>()
-      .play(led_scene!("skyrail_station/flashers.ron"));
+      .play(led_playback!("skyrail_station/flashers.scene"));
 
     match self.state {
       Final => {
@@ -124,7 +84,7 @@ impl SkyrailStationMode {
           ctx.add_points(game::points::EXL_COMPLETION);
 
           self.hit_effect.stop(ctx);
-          self.hit_effect = LedScene::new(LedQ::Every, led_scene!("skyrail_station/complete.ron"));
+          self.hit_effect = led_playback!("skyrail_station/complete.scene");
           return;
         }
       }

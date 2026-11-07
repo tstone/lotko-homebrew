@@ -1,5 +1,4 @@
 use crate::hardware::captive_ball::CaptiveBallHit;
-use crate::hardware::gi;
 use crate::systems::game::*;
 use crate::systems::sounds;
 use frontbox_core::prelude::*;
@@ -20,11 +19,8 @@ impl ExclusiveModeQualifier for SporeMultiballQualifier {
     ctx.systems.replace_self(SporeMultiballStartable::new());
   }
 
-  fn attention_effect() -> LedScene {
-    LedScene::new(
-      gi::CAPTIVE_BALL.q().at_z(1),
-      led_scene!("spore_multiball/qualification.ron"),
-    )
+  fn attention_effect() -> LedPlayback {
+    led_playback!("spore_multiball/qualification.scene")
   }
 }
 

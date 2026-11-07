@@ -1,0 +1,53 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::l_orbit::2",
+      "___child::l_orbit::6",
+      "___child::l_orbit::5",
+      "___child::dome_ramp::5",
+      "___child::dome_ramp::6",
+      "___child::dome_ramp::2",
+      "___child::arc_ramp_lane::0",
+      "___child::arc_ramp_lane::6",
+      "___child::arc_ramp_lane::3",
+      "___child::center_orbit::5",
+      "___child::center_orbit::6",
+      "___child::center_orbit::2",
+      "___child::lift_ramp_lane::5",
+      "___child::lift_ramp_lane::6",
+      "___child::lift_ramp_lane::2",
+      "___child::r_orbit::5",
+      "___child::r_orbit::6",
+      "___child::r_orbit::2",
+    ]),
+  ),
+  composition: (
+    timing: (
+      duration: 0.35,
+      cycle: Forever,
+    ),
+    layers: [
+      (
+        fill: (
+          base: Solid(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: (255, 255, 0, 255),
+                curve: Linear,
+              ),
+              (
+                at: 0.35,
+                value: (102, 102, 0, 255),
+                curve: EaseInOut,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ),
+      ),
+    ],
+  ),
+)

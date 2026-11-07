@@ -1,0 +1,41 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Tag("Playfield"),
+    z: -1,
+  ),
+  composition: (
+    params: {
+      "color": Color(255, 255, 255, 255),
+    },
+    timing: (
+      duration: 0.75,
+      cycle: Once,
+    ),
+    layers: [
+      (
+        fill: (
+          base: Solid(Param("color")),
+          adjust: [
+            Opacity(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.75,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+      ),
+    ],
+  ),
+)

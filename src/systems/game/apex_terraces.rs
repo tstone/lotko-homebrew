@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::{
   hardware::{
-    center_orbit::{self, CenterSpinnerHit},
+    center_orbit::CenterSpinnerHit,
     left_inlane,
     pop_cluster::{self, PopBumper, match_target_switch},
   },
@@ -43,9 +43,9 @@ pub struct ApexTerracesMode {
   lit: HashSet<Target>,
   lit_warning: bool,
   lit_cue: Option<u64>,
-  target_effect: Option<LedScene>,
-  spinner_effect: Option<LedScene>,
-  start_effect: Option<LedScene>,
+  target_effect: Option<LedPlayback>,
+  spinner_effect: Option<LedPlayback>,
+  start_effect: Option<LedPlayback>,
 }
 
 impl ApexTerracesMode {
@@ -130,23 +130,20 @@ impl ApexTerracesMode {
 
     self.target_effect = if self.phase != Phase::Charging {
       // once charged, the targets stay dimly lit since they're still worth a little
-      Some(LedScene::new(
-        LedQ::Or(Target::ALL.iter().map(Target::led).collect()),
-        led_scene!("apex_terraces/targets_charged.ron"),
-      ))
+      Some(led_playback!("apex_terraces/targets_charged.scene"))
     } else if self.lit.is_empty() {
       None
     } else {
       let q = LedQ::Or(self.lit.iter().map(Target::led).collect());
       Some(if self.lit_warning {
-        LedScene::new(q, led_scene!("apex_terraces/targets_warning.ron"))
+        led_playback!("apex_terraces/targets_warning.scene", q)
       } else {
-        LedScene::new(q, led_scene!("apex_terraces/targets_lit.ron"))
+        led_playback!("apex_terraces/targets_lit.scene", q)
       })
     };
   }
 
-  fn set_spinner_effect(&mut self, effect: LedScene, ctx: &SystemContext) {
+  fn set_spinner_effect(&mut self, effect: LedPlayback, ctx: &SystemContext) {
     if let Some(effect) = self.spinner_effect.as_mut() {
       effect.stop(ctx);
     }
@@ -154,13 +151,9 @@ impl ApexTerracesMode {
   }
 
   /// The LED under the spinner gets brighter with each charge
-  fn charge_effect(charge: u8) -> LedScene {
+  fn charge_effect(charge: u8) -> LedPlayback {
     let dim = 0.4 * (1.0 - charge as f32 / REQUIRED_CHARGE as f32);
-    LedScene::new(
-      center_orbit::SPINNER_LED.q(),
-      led_scene!("apex_terraces/spinner_charging.ron"),
-    )
-    .param("brightness", 1.0 - 2.0 * dim)
+    led_playback!("apex_terraces/spinner_charging.scene").param("brightness", 1.0 - 2.0 * dim)
   }
 
   fn charge_spinner(&mut self, ctx: &SystemContext) {
@@ -169,17 +162,8 @@ impl ApexTerracesMode {
     self.clear_lit(ctx);
 
     ctx.play_sfx(sounds::EVOLUTION_COMPLETE);
-    self.start_effect = Some(LedScene::new(
-      LedQ::Every,
-      led_scene!("apex_terraces/start.ron"),
-    ));
-    self.set_spinner_effect(
-      LedScene::new(
-        center_orbit::SPINNER_LED.q(),
-        led_scene!("apex_terraces/spinner_charged.ron"),
-      ),
-      ctx,
-    );
+    self.start_effect = Some(led_playback!("apex_terraces/start.scene"));
+    self.set_spinner_effect(led_playback!("apex_terraces/spinner_charged.scene"), ctx);
 
     ctx
       .systems

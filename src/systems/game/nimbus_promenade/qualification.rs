@@ -3,7 +3,7 @@ use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
-use crate::hardware::vspinner::{self, VerticalSpinnerHit};
+use crate::hardware::vspinner::VerticalSpinnerHit;
 use crate::systems::game::NimbusPromenadeMode;
 use crate::systems::game::nimbus_promenade;
 use crate::systems::sounds;
@@ -12,8 +12,8 @@ const REQUIRED_HITS: u8 = 20;
 
 #[derive(Clone)]
 pub struct NimbusPromenadeQualification {
-  hit_effect: LedScene,
-  progress_effect: LedScene,
+  hit_effect: LedPlayback,
+  progress_effect: LedPlayback,
   hits: u8,
   shutdown: bool,
 }
@@ -28,26 +28,16 @@ impl NimbusPromenadeQualification {
     }
   }
 
-  fn hit_effect() -> LedScene {
+  fn hit_effect() -> LedPlayback {
     // energy from the spinner goes outwards through the rays to the pops
-    LedScene::unbound(led_scene!("nimbus_promenade/qualification_hit.ron"))
-      .on("left_ray", &*vspinner::left_ray::Q)
-      .unwrap()
-      .on("upper_right_ray", &*vspinner::upper_right_ray::Q)
-      .unwrap()
-      .on("lower_right_ray", &*vspinner::lower_right_ray::Q)
-      .unwrap()
-      .stopped()
+    led_playback!("nimbus_promenade/qualification_hit.scene").stopped()
   }
 
-  fn progress_effect(count: u8) -> LedScene {
+  fn progress_effect(count: u8) -> LedPlayback {
     log::info!("Progress effect: {}", count);
     // the ring's 12 LEDs are 1/11 apart along a scene
-    LedScene::new(
-      vspinner::LEDS.q(),
-      led_scene!("nimbus_promenade/qualification_progress.ron"),
-    )
-    .param("width", count as f32 / 11.0)
+    led_playback!("nimbus_promenade/qualification_progress.scene")
+      .param("width", count as f32 / 11.0)
   }
 
   fn spinner_hit(&mut self, ctx: &SystemContext) {

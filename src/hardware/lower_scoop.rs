@@ -67,7 +67,7 @@ pub const LOWER_SCOOP_EJECT: &'static str = "lower_scoop_eject";
 
 #[derive(Clone)]
 pub struct LowerScoopSystem {
-  eject_program: LedScene,
+  eject_program: LedPlayback,
   subway_entry: bool,
   handle: SystemHandle,
   eject_pending: bool,
@@ -75,7 +75,7 @@ pub struct LowerScoopSystem {
 
 impl LowerScoopSystem {
   pub fn new() -> Self {
-    let eject_program = LedScene::new(&*BOLTS_Q, led_scene!("lower_scoop/eject.ron")).stopped();
+    let eject_program = led_playback!("lower_scoop/eject.scene").stopped();
 
     Self {
       eject_program,

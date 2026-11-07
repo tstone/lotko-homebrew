@@ -1,21 +1,18 @@
 use std::collections::HashSet;
 use std::sync::LazyLock;
 
-use frontbox_core::prelude::tags::Playfield;
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnEnding};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::arc_ramp::ArcRampHit;
-use crate::hardware::backbox::{LEFT_SPEAKER_LEDS, RIGHT_SPEAKER_LEDS};
 use crate::hardware::center_orbit::CenterOrbitHit;
 use crate::hardware::dome_ramp::DomeRampHit;
-use crate::hardware::flashers::{self, FlashersSystem};
+use crate::hardware::flashers::FlashersSystem;
 use crate::hardware::left_orbit::LeftOrbitHit;
 use crate::hardware::lift_ramp::LiftRampHit;
-use crate::hardware::more_tags::ArcRamp;
-use crate::hardware::{arc_ramp, center_orbit, city_map, dome_ramp, left_orbit, lift_ramp};
+use crate::hardware::{arc_ramp, center_orbit, dome_ramp, left_orbit, lift_ramp};
 use crate::systems::game::ModeManager;
 use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable, SporeApplied};
 use crate::systems::sounds;
@@ -24,11 +21,11 @@ static BASE_SHOT_TIME: LazyLock<Duration> = LazyLock::new(|| Duration::from_secs
 
 #[derive(Clone)]
 pub struct HydroCoreMode {
-  attention_effect: LedScene,
-  intensity_effect: LedScene,
-  hit_effect: LedScene,
-  arc_effect: LedScene,
-  progress_effect: Option<LedScene>,
+  attention_effect: LedPlayback,
+  intensity_effect: LedPlayback,
+  hit_effect: LedPlayback,
+  arc_effect: LedPlayback,
+  progress_effect: Option<LedPlayback>,
   current_combo_shot: u8,
   /// Track which shots have been made in the past
   combo_shots_seen: HashSet<u8>,
@@ -41,7 +38,7 @@ impl HydroCoreMode {
   pub fn new() -> Self {
     Self {
       attention_effect: Self::attention_effect(&*lift_ramp::HEX_CENTER_LED),
-      hit_effect: Self::hit_effect(&*lift_ramp::HEX_CENTER_LED),
+      hit_effect: Self::hit_effect(),
       arc_effect: Self::arc_effect(),
       intensity_effect: Self::intensity_effect(),
       progress_effect: None,
@@ -53,54 +50,30 @@ impl HydroCoreMode {
     }
   }
 
-  fn attention_effect<T: Contextual<LedIdentifications> + Send + Sync + 'static>(
-    target: T,
-  ) -> LedScene {
-    LedScene::new(target, led_scene!("hydro_core/attention.ron"))
+  fn attention_effect(target: &LedQ) -> LedPlayback {
+    led_playback!("hydro_core/attention.scene", target.clone())
   }
 
-  fn attention_ring<T: Contextual<LedIdentifications> + Send + Sync + 'static>(
-    target: T,
-  ) -> LedScene {
-    LedScene::new(target, led_scene!("hydro_core/attention_ring.ron"))
+  fn attention_ring(target: &LedQ) -> LedPlayback {
+    led_playback!("hydro_core/attention_ring.scene", target.clone())
   }
 
-  fn intensity_effect() -> LedScene {
-    LedScene::unbound(led_scene!("hydro_core/intensity.ron"))
-      .on(
-        "flashers",
-        LedQ::any(vec![
-          &flashers::LEFT_FLASHER.q(),
-          &flashers::CENTER_FLASHER.q(),
-        ]),
-      )
-      .unwrap()
-      .on("left_speaker", LEFT_SPEAKER_LEDS.q())
-      .unwrap()
-      .on("right_speaker", RIGHT_SPEAKER_LEDS.q())
-      .unwrap()
-      .stopped()
+  fn intensity_effect() -> LedPlayback {
+    led_playback!("hydro_core/intensity.scene").stopped()
   }
 
-  fn hit_effect<T: Contextual<LedIdentifications> + Send + Sync + 'static>(target: T) -> LedScene {
-    LedScene::unbound(led_scene!("hydro_core/hit.ron"))
-      .on("shot", target)
-      .unwrap()
-      .on("playfield", LedQ::tag::<Playfield>().at_z(-1))
-      .unwrap()
+  fn hit_effect() -> LedPlayback {
+    led_playback!("hydro_core/hit.scene")
   }
 
-  fn arc_effect() -> LedScene {
-    LedScene::new(LedQ::tag::<ArcRamp>(), led_scene!("hydro_core/arc.ron"))
+  fn arc_effect() -> LedPlayback {
+    led_playback!("hydro_core/arc.scene")
   }
 
-  fn progress_effect(duration: Duration) -> LedScene {
-    LedScene::new(
-      city_map::SPORE_COUNT_BAR.q().reverse(),
-      led_scene!("hydro_core/progress.ron"),
-    )
-    .over(duration)
-    .end_behavior(EndBehavior::Hold)
+  fn progress_effect(duration: Duration) -> LedPlayback {
+    led_playback!("hydro_core/progress.scene")
+      .over(duration)
+      .end_behavior(EndBehavior::Hold)
   }
 
   fn restart_combo(&mut self, ctx: &SystemContext) {
@@ -128,7 +101,7 @@ impl HydroCoreMode {
     if shot == 6 {
       ctx.play_sfx(sounds::HYDRO_CORE_PURGED);
       self.hit_effect.stop(ctx);
-      self.hit_effect = LedScene::new(LedQ::Every, led_scene!("hydro_core/complete.ron"));
+      self.hit_effect = led_playback!("hydro_core/complete.scene");
       self.mode_complete = true;
       return;
     }
@@ -192,7 +165,7 @@ impl HydroCoreMode {
     ctx
       .systems
       .expect::<FlashersSystem>()
-      .play(led_scene!("hydro_core/flashers.ron"));
+      .play(led_playback!("hydro_core/flashers.scene"));
 
     // Points for combo only score the first time, not repeated times
     if !self.combo_shots_seen.contains(&self.current_combo_shot) {

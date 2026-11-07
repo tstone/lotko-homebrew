@@ -3,15 +3,14 @@ use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnPhase};
 
-use crate::hardware::left_outlane::{self, LeftOutlaneRollover};
+use crate::hardware::left_outlane::LeftOutlaneRollover;
 use crate::hardware::more_tags::DoesNotCancelSkillshot;
 use crate::hardware::right_pass_lane::RightPassLane;
-use crate::hardware::{left_inlane, right_inlane, right_outlane};
 
 // Secret skill shot to hit the left outlane without hitting anything else
 #[derive(Clone)]
 pub struct LeftOutlaneSkillShot {
-  hit_effect: LedScene,
+  hit_effect: LedPlayback,
   hit: bool,
 }
 
@@ -32,16 +31,8 @@ impl LeftOutlaneSkillShot {
     ctx.systems.despawn_self();
   }
 
-  fn hit_effect() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &left_outlane::LED.q(),
-        &left_inlane::TARGET_LED.q(),
-        &right_inlane::ENTRANCE_LED.q(),
-        &right_outlane::LED.q(),
-      ]),
-      led_scene!("skill_shots/left_outlane_hit.ron"),
-    )
+  fn hit_effect() -> LedPlayback {
+    led_playback!("skill_shots/left_outlane_hit.scene")
   }
 }
 

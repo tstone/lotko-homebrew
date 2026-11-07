@@ -1,0 +1,72 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::vs_left_ray1::0",
+      "___child::vs_left_ray2::0",
+      "___child::vs_left_ray3::0",
+      "___child::vs_left_ray4::0",
+      "___child::vs_lr_ray1::0",
+      "___child::vs_lr_ray2::0",
+      "___child::vs_lr_ray3::0",
+      "___child::vs_ur_ray1::0",
+      "___child::vs_ur_ray2::0",
+      "___child::vs_ur_ray3::0",
+      "___child::l_pop_led::0",
+      "___child::lr_pop_led::0",
+      "___child::ur_pop_led::0",
+    ]),
+  ),
+  composition: (
+    timing: (
+      duration: 0.1,
+      cycle: Times(5),
+    ),
+    layers: [
+      (
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.1,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(255, 0, 0, 255),
+              ),
+              (
+                at: 0.041666668,
+                color: Fixed(255, 0, 0, 255),
+              ),
+              (
+                at: 0.041666668,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ],
+  ),
+)

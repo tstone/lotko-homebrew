@@ -1,4 +1,4 @@
-use frontbox_console::{WebTracer, console_plane};
+use frontbox_console::WebTracer;
 use frontbox_core::prelude::*;
 use frontbox_dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_dmd::{DmdSystem, PanelType, Pin2Dmd};
@@ -19,7 +19,6 @@ use hardware::*;
 
 use crate::hardware::cabinet::*;
 use crate::hardware::flashers::FlashersSystem;
-use crate::hardware::trough::DRAIN_LED;
 use crate::menu::MENU;
 use crate::systems::dmd::*;
 use crate::systems::game::*;
@@ -73,16 +72,15 @@ async fn main() {
     ..Default::default()
   })
   .configure(|app| {
-    let ball_save_effect = LedScene::new(DRAIN_LED.q(), led_scene!("ball_save.ron"));
+    let ball_save_effect = led_playback!("ball_save.scene");
 
-    app.tracer(
-      WebTracer::new()
-        .plane(console_plane!(planes::PLAYFIELD))
-        .plane(console_plane!(planes::ARC_RAMP))
-        .plane(console_plane!(planes::BACKBOX_PANEL))
-        .plane(console_plane!(planes::BACKBOARD))
-        .plane(console_plane!(planes::CABINET_FRONT)),
-    );
+    app.plane(app_plane!(planes::PLAYFIELD));
+    app.plane(app_plane!(planes::ARC_RAMP));
+    app.plane(app_plane!(planes::BACKBOX_PANEL));
+    app.plane(app_plane!(planes::BACKBOARD));
+    app.plane(app_plane!(planes::CABINET_FRONT));
+
+    app.tracer(WebTracer::new());
 
     // core
     app.system(LedSystem::new());
@@ -142,16 +140,10 @@ async fn main() {
       )
       .plunge_lane(plunge_lane::SWITCH.name)
       .re_enter_timeout(Duration::from_millis(1200))
-      .ball_present_effect(LedScene::new(
-        plunge_lane::LED_STRIP.q(),
-        led_scene!("plunge_lane.ron"),
-      ))
+      .ball_present_effect(led_playback!("plunge_lane.scene"))
       .autoplunger(plunge_lane::COIL.name)
       .launch_button(action_button::SWITCH.q())
-      .launch_ready_effect(LedScene::new(
-        action_button::LED.q(),
-        led_scene!("launch_ready.ron"),
-      ))
+      .launch_ready_effect(led_playback!("launch_ready.scene"))
       .build(),
     );
 

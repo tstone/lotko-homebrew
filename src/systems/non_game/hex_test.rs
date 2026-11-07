@@ -1,13 +1,10 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 
-use crate::hardware::{
-  arc_ramp, cabinet::RIGHT_FLIPPER_SWITCH1, center_orbit, dome_ramp, left_orbit, lift_ramp,
-  right_orbit,
-};
+use crate::hardware::cabinet::RIGHT_FLIPPER_SWITCH1;
 
 pub struct HexTest {
-  program: LedScene,
+  program: LedPlayback,
   state: State,
 }
 
@@ -19,46 +16,16 @@ impl HexTest {
     }
   }
 
-  fn center_program() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &left_orbit::HEX_CENTER_LED,
-        &dome_ramp::HEX_CENTER_LED,
-        &arc_ramp::HEX_CENTER_LED,
-        &center_orbit::HEX_CENTER_LED,
-        &lift_ramp::HEX_CENTER_LED,
-        &right_orbit::HEX_CENTER_LED,
-      ]),
-      led_scene!("hex_test/center.ron"),
-    )
+  fn center_program() -> LedPlayback {
+    led_playback!("hex_test/center.scene")
   }
 
-  fn line_program() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &left_orbit::HEX_LINE_LEDS,
-        &dome_ramp::HEX_LINE_LEDS,
-        &arc_ramp::HEX_LINE_LEDS,
-        &center_orbit::HEX_LINE_LEDS,
-        &lift_ramp::HEX_LINE_LEDS,
-        &right_orbit::HEX_LINE_LEDS,
-      ]),
-      led_scene!("hex_test/line.ron"),
-    )
+  fn line_program() -> LedPlayback {
+    led_playback!("hex_test/line.scene")
   }
 
-  fn circle_program() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &left_orbit::HEX_CIRCLE_LEDS,
-        &dome_ramp::HEX_CIRCLE_LEDS,
-        &arc_ramp::HEX_CIRCLE_LEDS,
-        &center_orbit::HEX_CIRCLE_LEDS,
-        &lift_ramp::HEX_CIRCLE_LEDS,
-        &right_orbit::HEX_CIRCLE_LEDS,
-      ]),
-      led_scene!("hex_test/circle.ron"),
-    )
+  fn circle_program() -> LedPlayback {
+    led_playback!("hex_test/circle.scene")
   }
 }
 

@@ -1,0 +1,61 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::l_cap_ball_bolt::0",
+      "___child::r_cap_ball_bolt::0",
+    ]),
+  ),
+  composition: (
+    timing: (
+      duration: 0.55,
+      cycle: Forever,
+    ),
+    layers: [
+      (
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.55,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(255, 165, 0, 255),
+              ),
+              (
+                at: 0.5,
+                color: Fixed(255, 165, 0, 255),
+              ),
+              (
+                at: 0.5,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ],
+  ),
+)

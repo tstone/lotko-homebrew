@@ -1,8 +1,5 @@
-use std::sync::LazyLock;
-
 use frontbox_core::prelude::*;
 use frontbox_core::tags::*;
-use frontbox_gfx::scene::Scene;
 use frontbox_led::prelude::*;
 
 use crate::hardware::planes;
@@ -19,12 +16,9 @@ hardware_defs! {
     .tag(Flasher);
 }
 
-static ALL_FLASHERS: LazyLock<LedQ> =
-  LazyLock::new(|| LedQ::any(vec![&LEFT_FLASHER.q(), &CENTER_FLASHER.q()]));
-
 #[derive(Clone)]
 pub struct FlashersSystem {
-  effects: Vec<LedScene>,
+  effects: Vec<LedPlayback>,
 }
 
 impl FlashersSystem {
@@ -34,8 +28,8 @@ impl FlashersSystem {
     }
   }
 
-  pub fn play(&mut self, scene: Scene) {
-    self.effects.push(LedScene::new(&*ALL_FLASHERS, scene));
+  pub fn play(&mut self, effect: LedPlayback) {
+    self.effects.push(effect);
   }
 }
 

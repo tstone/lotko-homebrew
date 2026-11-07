@@ -4,13 +4,12 @@ use frontbox_pinball::*;
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::pop_cluster::{self, PopBumper};
-use crate::hardware::vspinner;
 use crate::systems::game::{MULTIBALL_BALL_SAVE, ModeManager, NonExclusiveMode};
 use crate::systems::sounds;
 
 pub struct NimbusPromenadeMode {
-  attention_effect: LedScene,
-  hit_effect: LedScene,
+  attention_effect: LedPlayback,
+  hit_effect: LedPlayback,
   cycle_time: Duration,
   current_pop: PopBumper,
   hits: u8,
@@ -90,37 +89,26 @@ impl NimbusPromenadeMode {
     ctx.play_sfx(sounds::LANE_HIT_COMPLETE);
 
     self.hit_effect.stop(ctx);
-    self.hit_effect = LedScene::new(LedQ::Every, led_scene!("nimbus_promenade/complete.ron"));
+    self.hit_effect = led_playback!("nimbus_promenade/complete.scene");
 
     self.complete = true;
   }
 
-  fn attention_effect(pop: &PopBumper, hit_count: u8) -> LedScene {
-    LedScene::new(
+  fn attention_effect(pop: &PopBumper, hit_count: u8) -> LedPlayback {
+    led_playback!(
+      "nimbus_promenade/attention.scene",
       LedQ::any(vec![
         &pop_cluster::led_for_pop(pop).q(),
         &pop_cluster::target_led_for_pop(pop).q(),
         &pop_cluster::led_ray_for_pop(pop)
           .clone()
-          .take((hit_count / 2) as usize),
-      ]),
-      led_scene!("nimbus_promenade/attention.ron"),
+          .take((hit_count / 2) as usize)
+      ])
     )
   }
 
-  fn hit_effect() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &pop_cluster::left::TARGET_LED.q(),
-        &pop_cluster::upper_right::TARGET_LED.q(),
-        &pop_cluster::lower_right::TARGET_LED.q(),
-        &vspinner::left_ray::Q,
-        &vspinner::upper_right_ray::Q,
-        &vspinner::lower_right_ray::Q,
-      ]),
-      led_scene!("nimbus_promenade/hit.ron"),
-    )
-    .stopped()
+  fn hit_effect() -> LedPlayback {
+    led_playback!("nimbus_promenade/hit.scene").stopped()
   }
 }
 

@@ -5,13 +5,13 @@ use frontbox_pinball::*;
 use frontbox_sound::*;
 
 use crate::hardware::more_tags::DoesNotCancelSkillshot;
-use crate::hardware::{pop_cluster, vspinner};
+use crate::hardware::pop_cluster;
 use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct LeftPopSkillShot {
-  attention_effect: LedScene,
-  hit_effect: Option<LedScene>,
+  attention_effect: LedPlayback,
+  hit_effect: Option<LedPlayback>,
   hit: bool,
 }
 
@@ -33,26 +33,12 @@ impl LeftPopSkillShot {
     ctx.systems.despawn_self();
   }
 
-  fn attention_effect() -> LedScene {
-    LedScene::unbound(led_scene!("skill_shots/left_pop_attention.ron"))
-      .on("ray", vspinner::left_ray::Q.clone().reverse())
-      .unwrap()
-      .on("pop", pop_cluster::left::POP_LED.q())
-      .unwrap()
+  fn attention_effect() -> LedPlayback {
+    led_playback!("skill_shots/left_pop_attention.scene")
   }
 
-  fn hit_effect() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &*vspinner::left_ray::Q,
-        &*vspinner::lower_right_ray::Q,
-        &*vspinner::upper_right_ray::Q,
-        &pop_cluster::left::POP_LED.q(),
-        &pop_cluster::lower_right::POP_LED.q(),
-        &pop_cluster::upper_right::POP_LED.q(),
-      ]),
-      led_scene!("skill_shots/left_pop_hit.ron"),
-    )
+  fn hit_effect() -> LedPlayback {
+    led_playback!("skill_shots/left_pop_hit.scene")
   }
 }
 

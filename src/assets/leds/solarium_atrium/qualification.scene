@@ -1,0 +1,19 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::dome_ramp::6",
+    ]),
+    z: 1,
+  ),
+  composition: (
+    layers: [
+      (
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+        ),
+      ),
+    ],
+  ),
+)

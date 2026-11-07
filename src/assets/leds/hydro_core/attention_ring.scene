@@ -1,0 +1,65 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::lift_ramp_lane::2",
+      "___child::lift_ramp_lane::1",
+      "___child::lift_ramp_lane::0",
+      "___child::lift_ramp_lane::5",
+      "___child::lift_ramp_lane::4",
+      "___child::lift_ramp_lane::3",
+    ]),
+  ),
+  composition: (
+    timing: (
+      duration: 1.5,
+      cycle: Forever,
+    ),
+    layers: [
+      (
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.5,
+                  value: 360.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(0, 255, 255, 255),
+              ),
+              (
+                at: 0.1,
+                color: Fixed(0, 255, 255, 255),
+              ),
+              (
+                at: 0.1,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ],
+  ),
+)

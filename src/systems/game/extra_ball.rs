@@ -6,7 +6,7 @@ use frontbox_pinball::{
   ExtraBallGranted, ExtraBallUsed, GameManagementExt, TurnPhase, TurnStartReason, TurnStarting,
 };
 
-use crate::hardware::lower_scoop::{self, LowerScoopBallEnter};
+use crate::hardware::lower_scoop::LowerScoopBallEnter;
 use crate::hardware::trough::DRAIN_LED;
 use crate::systems::dmd::ANNOUNCEMENT_DMD_LAYER;
 use crate::systems::game::{CityModeCompleted, points};
@@ -39,7 +39,7 @@ pub struct ExtraBallSystem {
   lit: u8,
   /// Sources that have lit one this game
   sources_used: Vec<ExtraBallSource>,
-  lit_effect: LedScene,
+  lit_effect: LedPlayback,
   lit_effect_playing: bool,
   screen_cue: Option<u64>,
   handle: SystemHandle,
@@ -47,12 +47,7 @@ pub struct ExtraBallSystem {
 
 impl ExtraBallSystem {
   pub fn new() -> Self {
-    let lit_effect = LedScene::unbound(led_scene!("extra_ball_lit.ron"))
-      .on("bolts", (&*lower_scoop::BOLTS_Q).at_z(3))
-      .unwrap()
-      .on("drain", DRAIN_LED.q().at_z(1))
-      .unwrap()
-      .stopped();
+    let lit_effect = led_playback!("extra_ball_lit.scene").stopped();
 
     Self {
       lit: 0,

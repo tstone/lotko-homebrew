@@ -1,0 +1,18 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::lift_ramp_lane::6",
+    ]),
+  ),
+  composition: (
+    layers: [
+      (
+        fill: (
+          base: Solid(Fixed(0, 255, 255, 255)),
+        ),
+      ),
+    ],
+  ),
+)

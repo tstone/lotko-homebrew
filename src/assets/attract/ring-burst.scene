@@ -1,0 +1,58 @@
+Led(
+  version: 1,
+  viewport: Area,
+  targets: Single(
+    leds: Every,
+    plane: "Playfield",
+  ),
+  composition: (
+    timing: (
+      duration: 1.0,
+      cycle: Times(2),
+    ),
+    layers: [
+      (
+        fill: (
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(255, 0, 166, 255),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(255, 212, 0, 255),
+              ),
+            ],
+            space: Oklab,
+            style: Radial,
+          ),
+        ),
+        shape: (
+          transform: [
+            Scale(Fixed(1.0, 1.0)),
+            Translate(Fixed(10.125, 22.5)),
+          ],
+          base: Ring(
+            radius: Fixed(0.609),
+            thickness: Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.316,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.0,
+                  value: 19.941,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+          ),
+        ),
+      ),
+    ],
+  ),
+)

@@ -1,0 +1,21 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::l_target_led::0",
+      "___child::ur_target_led::0",
+      "___child::lr_target_led::0",
+      "___child::l_inlane::0",
+    ]),
+  ),
+  composition: (
+    layers: [
+      (
+        fill: (
+          base: Solid(Fixed(0, 102, 0, 255)),
+        ),
+      ),
+    ],
+  ),
+)

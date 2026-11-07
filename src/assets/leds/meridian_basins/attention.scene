@@ -1,0 +1,37 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::l_orbit::6",
+      "___child::dome_ramp::6",
+    ]),
+  ),
+  composition: (
+    timing: (
+      duration: 0.46875,
+      cycle: Forever,
+    ),
+    layers: [
+      (
+        fill: (
+          base: Solid(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: (255, 165, 0, 255),
+                curve: Linear,
+              ),
+              (
+                at: 0.46875,
+                value: (102, 66, 0, 255),
+                curve: EaseInOut,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ),
+      ),
+    ],
+  ),
+)

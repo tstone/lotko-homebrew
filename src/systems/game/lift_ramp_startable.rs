@@ -6,7 +6,6 @@ use frontbox_pinball::GameManagementExt;
 use frontbox_pinball::TurnPhase;
 use frontbox_sound::SoundSystemExt;
 
-use crate::hardware::lift_ramp;
 use crate::hardware::lift_ramp::LiftRampScoopBallEnter;
 use crate::hardware::lift_ramp::LiftRampSystem;
 use crate::systems::game;
@@ -133,21 +132,14 @@ impl LiftRampStartable {
     }
   }
 
-  fn attention_effect(mode: &ExclusiveMode) -> LedScene {
-    LedScene::new(
-      lift_ramp::BOLT_LED.q(),
-      led_scene!("startable/lift_ramp_attention.ron"),
-    )
-    .param("color", mode.color())
+  fn attention_effect(mode: &ExclusiveMode) -> LedPlayback {
+    led_playback!("startable/lift_ramp_attention.scene").param("color", mode.color())
   }
 
-  fn hit_effect(mode: &ExclusiveMode) -> LedScene {
-    LedScene::new(
-      LedQ::tag::<tags::Playfield>().at_z(-1),
-      led_scene!("startable/hit.ron"),
-    )
-    .param("color", mode.color())
-    .stopped()
+  fn hit_effect(mode: &ExclusiveMode) -> LedPlayback {
+    led_playback!("startable/hit.scene")
+      .param("color", mode.color())
+      .stopped()
   }
 }
 

@@ -4,11 +4,7 @@ use frontbox_pinball::TurnPhase;
 use frontbox_sound::SoundSystemExt;
 
 use crate::{
-  hardware::{
-    arc_ramp,
-    captive_ball::{self, CaptiveBallHit},
-    center_orbit, dome_ramp, flashers, left_orbit, lift_ramp, right_orbit,
-  },
+  hardware::captive_ball::CaptiveBallHit,
   systems::{
     game::{ExclusiveMode, ModeManager, SporeMultiballMode},
     sounds,
@@ -17,8 +13,8 @@ use crate::{
 
 #[derive(Clone)]
 pub struct SporeMultiballStartable {
-  attention_effect: LedScene,
-  hit_effect: LedScene,
+  attention_effect: LedPlayback,
+  hit_effect: LedPlayback,
   complete: bool,
 }
 
@@ -31,41 +27,12 @@ impl SporeMultiballStartable {
     }
   }
 
-  fn attention_effect() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &captive_ball::LEFT_BOLT.q(),
-        &captive_ball::RIGHT_BOLT.q(),
-      ]),
-      led_scene!("spore_multiball/startable_attention.ron"),
-    )
+  fn attention_effect() -> LedPlayback {
+    led_playback!("spore_multiball/startable_attention.scene")
   }
 
-  fn hit_effect() -> LedScene {
-    LedScene::unbound(led_scene!("spore_multiball/startable_hit.ron"))
-      .on(
-        "rings",
-        LedQ::any(vec![
-          &left_orbit::HEX_CIRCLE_LEDS,
-          &dome_ramp::HEX_CIRCLE_LEDS,
-          &arc_ramp::HEX_CIRCLE_LEDS,
-          &captive_ball::LEFT_BOLT.q(),
-          &captive_ball::RIGHT_BOLT.q(),
-          &center_orbit::HEX_CIRCLE_LEDS,
-          &lift_ramp::HEX_CIRCLE_LEDS,
-          &right_orbit::HEX_CIRCLE_LEDS,
-        ]),
-      )
-      .unwrap()
-      .on(
-        "flashers",
-        LedQ::any(vec![
-          &flashers::LEFT_FLASHER.q(),
-          &flashers::CENTER_FLASHER.q(),
-        ]),
-      )
-      .unwrap()
-      .stopped()
+  fn hit_effect() -> LedPlayback {
+    led_playback!("spore_multiball/startable_hit.scene").stopped()
   }
 }
 

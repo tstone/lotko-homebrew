@@ -1,4 +1,3 @@
-use crate::hardware::dome_ramp;
 use crate::hardware::dome_ramp::DomeRampHit;
 use crate::systems::game::*;
 use crate::systems::sounds;
@@ -25,11 +24,8 @@ impl ExclusiveModeQualifier for SolariumAtriumQualifier {
     ctx.systems.despawn_self();
   }
 
-  fn attention_effect() -> LedScene {
-    LedScene::new(
-      (&*dome_ramp::HEX_CENTER_LED).at_z(1),
-      led_scene!("solarium_atrium/qualification.ron"),
-    )
+  fn attention_effect() -> LedPlayback {
+    led_playback!("solarium_atrium/qualification.scene")
   }
 }
 

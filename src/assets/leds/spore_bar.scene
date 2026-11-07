@@ -1,0 +1,43 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::spore_count::15",
+      "___child::spore_count::14",
+      "___child::spore_count::13",
+      "___child::spore_count::12",
+      "___child::spore_count::11",
+      "___child::spore_count::10",
+      "___child::spore_count::9",
+      "___child::spore_count::8",
+      "___child::spore_count::7",
+      "___child::spore_count::6",
+      "___child::spore_count::5",
+      "___child::spore_count::4",
+      "___child::spore_count::3",
+      "___child::spore_count::2",
+      "___child::spore_count::1",
+      "___child::spore_count::0",
+    ]),
+  ),
+  composition: (
+    params: {
+      "color": Color(255, 255, 255, 255),
+      "width": Float(2.0),
+    },
+    layers: [
+      (
+        fill: (
+          base: Solid(Param("color")),
+        ),
+        shape: (
+          base: Rect(
+            width: Param("width"),
+            height: Fixed(1.0),
+          ),
+        ),
+      ),
+    ],
+  ),
+)

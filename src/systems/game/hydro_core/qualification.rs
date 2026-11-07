@@ -1,7 +1,6 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 
-use crate::hardware::arc_ramp;
 use crate::hardware::arc_ramp::ArcRampHit;
 use crate::systems::game::*;
 use crate::systems::sounds;
@@ -26,11 +25,8 @@ impl ExclusiveModeQualifier for HydroCoreQualifier {
     ctx.systems.despawn_self();
   }
 
-  fn attention_effect() -> LedScene {
-    LedScene::new(
-      (&*arc_ramp::HEX_CENTER_LED).at_z(1),
-      led_scene!("hydro_core/qualification.ron"),
-    )
+  fn attention_effect() -> LedPlayback {
+    led_playback!("hydro_core/qualification.scene")
   }
 }
 

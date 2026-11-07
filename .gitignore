@@ -2,3 +2,5 @@
 # operator config saved from the menu/console
 /operator_config.toml
 /metrics.db/
+# Ableton live file
+*.asd

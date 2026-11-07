@@ -1,18 +1,16 @@
 use frontbox_core::prelude::*;
-use frontbox_core::tags::Playfield;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystemExt;
 
-use crate::hardware::arc_ramp::{self, ArcRampHit};
-use crate::hardware::captive_ball;
+use crate::hardware::arc_ramp::ArcRampHit;
 use crate::hardware::captive_ball::CaptiveBallHit;
-use crate::hardware::center_orbit::{self, CenterOrbitHit};
-use crate::hardware::dome_ramp::{self, DomeRampHit};
-use crate::hardware::left_orbit::{self, LeftOrbitHit};
+use crate::hardware::center_orbit::CenterOrbitHit;
+use crate::hardware::city_map;
+use crate::hardware::dome_ramp::DomeRampHit;
+use crate::hardware::left_orbit::LeftOrbitHit;
 use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::right_orbit::RightOrbitHit;
-use crate::hardware::{city_map, lift_ramp, right_orbit};
 use crate::systems::game::ModeManager;
 use crate::systems::game::SporeMultiballQualification;
 use crate::systems::game::{ExclusiveMode, MULTIBALL_BALL_SAVE};
@@ -22,11 +20,11 @@ use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct SporeMultiballMode {
-  attention_effect: LedScene,
-  super_jackpot_attention_effect: LedScene,
-  hit_effect: LedScene,
-  super_jackpot_hit_effect: LedScene,
-  progress_effect: LedScene,
+  attention_effect: LedPlayback,
+  super_jackpot_attention_effect: LedPlayback,
+  hit_effect: LedPlayback,
+  super_jackpot_hit_effect: LedPlayback,
+  progress_effect: LedPlayback,
   hits: u8,
   super_jackpot_active: bool,
   cue_id: Option<u64>,
@@ -48,44 +46,23 @@ impl SporeMultiballMode {
     }
   }
 
-  fn attention_effect() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &*left_orbit::HEX_LINE_LEDS,
-        &*dome_ramp::HEX_LINE_LEDS,
-        &*arc_ramp::HEX_LINE_LEDS,
-        &*center_orbit::HEX_LINE_LEDS,
-        &*lift_ramp::HEX_LINE_LEDS,
-        &*right_orbit::HEX_LINE_LEDS,
-      ]),
-      led_scene!("spore_multiball/attention.ron"),
-    )
+  fn attention_effect() -> LedPlayback {
+    led_playback!("spore_multiball/attention.scene")
   }
 
-  fn super_jackpot_attention_effect() -> LedScene {
-    LedScene::new(
-      LedQ::any(vec![
-        &captive_ball::LEFT_BOLT.q(),
-        &captive_ball::RIGHT_BOLT.q(),
-      ]),
-      led_scene!("spore_multiball/super_jackpot_attention.ron"),
-    )
-    .stopped()
+  fn super_jackpot_attention_effect() -> LedPlayback {
+    led_playback!("spore_multiball/super_jackpot_attention.scene").stopped()
   }
 
-  fn hit_effect() -> LedScene {
-    LedScene::new(LedQ::Every, led_scene!("spore_multiball/hit.ron")).stopped()
+  fn hit_effect() -> LedPlayback {
+    led_playback!("spore_multiball/hit.scene").stopped()
   }
 
-  fn super_jackpot_hit_effect() -> LedScene {
-    LedScene::new(
-      LedQ::tag::<Playfield>(),
-      led_scene!("spore_multiball/super_jackpot_hit.ron"),
-    )
-    .stopped()
+  fn super_jackpot_hit_effect() -> LedPlayback {
+    led_playback!("spore_multiball/super_jackpot_hit.scene").stopped()
   }
 
-  fn progress_effect(hits: u8) -> LedScene {
+  fn progress_effect(hits: u8) -> LedPlayback {
     city_map::spore_count_effect(Rgba::yellow(), (hits % 5) as f32 / 5.0)
   }
 

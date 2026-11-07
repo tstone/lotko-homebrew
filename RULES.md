@@ -20,14 +20,11 @@ There are two voices, one for each side.
 
 ### The Steward (the city)
 
-The city's civic AI. It was built to manage the city's green spaces: to trim them, pave them and keep nature
-contained. It's the antagonist, and it does most of the talking.
+The city's civic AI. It was built to manage the city's green spaces: to trim them, pave them and keep nature contained. It's the antagonist, and it does most of the talking.
 
-- **Its alerts are the instructions.** Every mode start is a public announcement that tells the player what to shoot,
-  without breaking the fiction: *"Attention residents: unauthorized growth detected on the Solarium ramps. Please
-  stand clear."*
-- **Direction:** calm, polite, corporate, unhurried, like a transit announcement. A soft two-note chime comes before
-  each line. It never shouts until late in the game.
+- **Its alerts are the instructions.** Every mode start is a public announcement that tells the player what to shoot, without breaking the fiction: *"Attention residents: unauthorized growth detected on the Solarium ramps. Please stand clear."*
+- **Direction:** calm, polite, corporate, unhurried, like a transit announcement. A soft two-note chime comes before each line. It never shouts until late in the game.
+
 - **It breaks down as the city falls.** A global *Steward integrity* level, set by the number of districts played
   (0–6), controls the processing:
   - 0–1: clean, with light PA reverb.

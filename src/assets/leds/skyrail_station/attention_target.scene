@@ -1,0 +1,101 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Multiple({
+    "targets": (
+      leds: Names([
+        "___child::drop_target1::3",
+        "___child::drop_target2::3",
+        "___child::drop_target3::3",
+      ]),
+    ),
+    "hex": (
+      leds: Names([
+        "___child::lift_ramp_lane::5",
+        "___child::lift_ramp_lane::6",
+        "___child::lift_ramp_lane::2",
+      ]),
+    ),
+  }),
+  composition: (
+    timing: (
+      duration: 0.75,
+      cycle: Forever,
+    ),
+    layers: [
+      (
+        name: "targets",
+        targets: [
+          "targets",
+        ],
+        fill: (
+          base: Solid(Fixed(0, 0, 255, 255)),
+          adjust: [
+            Opacity(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.1875,
+                  value: 0.0,
+                  curve: EaseInOut,
+                ),
+              ],
+              cycle: Forever,
+            )),
+          ],
+        ),
+      ),
+      (
+        name: "hex",
+        targets: [
+          "hex",
+        ],
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.25,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Forever,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.25,
+                color: Fixed(0, 0, 255, 255),
+              ),
+              (
+                at: 0.25,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ],
+  ),
+)

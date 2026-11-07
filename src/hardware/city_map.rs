@@ -59,9 +59,9 @@ const SPORE_COUNT_LEDS: f32 = 16.0;
 
 /// Lights `progress`, from 0 to 1, of the spore count bar. The scene's shape is around the start of the bar, and to light
 /// a number of LEDs its edge goes between the last of them and the next.
-pub fn spore_count_effect(color: Rgba<u8>, progress: f32) -> LedScene {
+pub fn spore_count_effect(color: Rgba<u8>, progress: f32) -> LedPlayback {
   let lit = (progress * SPORE_COUNT_LEDS).round();
-  LedScene::new(SPORE_COUNT_BAR.q().reverse(), led_scene!("spore_bar.ron"))
+  led_playback!("spore_bar.scene")
     .param("color", color)
     .param(
       "width",

@@ -1,0 +1,37 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::l_pop_led::0",
+      "___child::l_target_led::0",
+    ]),
+  ),
+  composition: (
+    timing: (
+      duration: 0.7228916,
+      cycle: Forever,
+    ),
+    layers: [
+      (
+        fill: (
+          base: Solid(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: (255, 0, 255, 255),
+                curve: Linear,
+              ),
+              (
+                at: 0.7228916,
+                value: (102, 0, 102, 255),
+                curve: EaseInOut,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ),
+      ),
+    ],
+  ),
+)

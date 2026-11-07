@@ -1,0 +1,71 @@
+Led(
+  version: 1,
+  viewport: Sequence,
+  targets: Single(
+    leds: Names([
+      "___child::plunge::0",
+      "___child::plunge::1",
+      "___child::plunge::2",
+      "___child::plunge::3",
+    ]),
+  ),
+  composition: (
+    timing: (
+      duration: 0.9,
+      cycle: Forever,
+    ),
+    layers: [
+      (
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.9,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(127, 0, 210, 255),
+              ),
+              (
+                at: 0.16666667,
+                color: Fixed(127, 0, 210, 255),
+              ),
+              (
+                at: 0.16666667,
+                color: Fixed(207, 134, 255, 255),
+              ),
+              (
+                at: 0.5,
+                color: Fixed(207, 134, 255, 255),
+              ),
+              (
+                at: 0.5,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ],
+  ),
+)

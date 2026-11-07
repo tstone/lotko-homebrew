@@ -83,7 +83,10 @@ async fn main() {
 
     // core
     app.system(LedSystem::new());
-    app.system(SoundSystem::by_name_or_default("Sound Blaster"));
+    let mut sound = SoundSystem::by_name_or_default("Sound Blaster");
+    // the Steward's lines get lost under the music and sfx
+    sound.set_callout_volume(4.0);
+    app.system(sound);
     app.system(FreePlay::new(start_button::SWITCH.q()));
     app.system(SoundLoaderSystem::new());
     app.system(game_startable());

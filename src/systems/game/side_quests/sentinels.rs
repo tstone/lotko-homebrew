@@ -77,14 +77,14 @@ impl SentinelsSystem {
     }
   }
 
-  /// Red on the targets still up
+  /// Peach on the targets still up
   fn render(&self, ctx: &SystemContext) {
     for (target, switch) in targets() {
       let down = ctx.switches.is_closed(switch).unwrap_or(false);
       if down {
         ctx.undeclare_leds(&target.q());
       } else {
-        ctx.declare_leds(&target.q(), ColorSequence::solid(Rgba::red()));
+        ctx.declare_leds(&target.q(), ColorSequence::solid(Rgba::peach()));
       }
     }
   }

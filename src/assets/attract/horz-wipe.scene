@@ -1,63 +1,62 @@
-Led(
-  version: 1,
-  timing: (
-    duration: 2.75,
-    cycle: Times(3),
-  ),
-  layers: [
-    (
-      leds: Every,
-      surface: Area("Playfield"),
-      layer: (
-        fill: (
-          transform: [
-            Rotate(Fixed(90.0)),
-          ],
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(166, 0, 255, 255),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(255, 247, 0, 255),
-              ),
-            ],
-            space: Oklab,
-            style: Linear,
-          ),
-        ),
-        shape: (
-          transform: [
-            Scale(Fixed(1.0, 1.0)),
-            Translate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: (23.824, 22.314),
-                  curve: Linear,
-                ),
-                (
-                  at: 1.5,
-                  value: (-4.464, 21.865),
-                  curve: Linear,
-                ),
-                (
-                  at: 2.75,
-                  value: (23.824, 22.314),
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-          base: Rect(
-            width: Fixed(3.317),
-            height: Fixed(46.599),
-          ),
-        ),
-      ),
-    ),
-  ],
+Led(
+  version: 1,
+  timing: (
+    duration: 2.75,
+    cycle: Times(4),
+  ),
+  layers: [
+    (
+      leds: Every,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          transform: [
+            Rotate(Fixed(90.0)),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(166, 0, 255, 255),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(255, 247, 0, 255),
+              ),
+            ],
+            style: Linear,
+          ),
+        ),
+        shape: (
+          transform: [
+            Scale(Fixed(1.0, 1.0)),
+            Translate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: (23.824, 22.314),
+                  curve: Linear,
+                ),
+                (
+                  at: 1.5,
+                  value: (-4.464, 21.865),
+                  curve: Linear,
+                ),
+                (
+                  at: 2.75,
+                  value: (23.824, 22.314),
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Rect(
+            width: Fixed(3.317),
+            height: Fixed(46.599),
+          ),
+        ),
+      ),
+    ),
+  ],
 )

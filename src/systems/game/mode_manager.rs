@@ -34,6 +34,8 @@ pub struct ModeManager {
   /// The rows of the mode select menu while it's open
   menu_rows: Vec<Mode>,
   highlighted: Option<Mode>,
+  /// The scoop is lit, so the districts it can start pulse
+  scoop_lit: bool,
   /// Pulses the map insert of each mode that wants it, with how it's pulsing
   map_pulses: HashMap<Mode, (MapPulse, LedPlayback)>,
 }
@@ -49,6 +51,7 @@ impl ModeManager {
       turn_active: false,
       menu_rows: Vec::new(),
       highlighted: None,
+      scoop_lit: false,
       map_pulses: HashMap::new(),
     }
   }
@@ -193,6 +196,14 @@ impl ModeManager {
     self.render_map(ctx);
   }
 
+  /// The scoop lit or went out. The available districts only pulse while it's lit.
+  pub fn set_scoop_lit(&mut self, lit: bool, ctx: &ServiceContext) {
+    if self.scoop_lit != lit {
+      self.scoop_lit = lit;
+      self.render_map(&ctx.for_system(self.handle));
+    }
+  }
+
   pub fn hide_menu(&mut self, ctx: &ServiceContext) {
     let ctx = &ctx.for_system(self.handle);
     self.menu_rows.clear();
@@ -251,7 +262,8 @@ impl ModeManager {
     }
   }
 
-  /// Every district's insert: off, a pulse, solid in its color, or green once it's completed
+  /// Every district's insert: off, a pulse, solid in its color, or green once it's completed. An available district only
+  /// pulses once the scoop is lit to start it.
   fn render_map(&mut self, ctx: &SystemContext) {
     for mode in Mode::DISTRICTS {
       let Some(led) = mode.map_led() else { continue };
@@ -260,7 +272,8 @@ impl ModeManager {
         None
       } else if self.mode == Some(mode) {
         Some(MapPulse::Running)
-      } else if state == ModeState::Available || self.menu_rows.contains(&mode) {
+      } else if (self.scoop_lit && state == ModeState::Available) || self.menu_rows.contains(&mode)
+      {
         Some(MapPulse::Offered)
       } else {
         None

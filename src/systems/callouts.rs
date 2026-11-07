@@ -112,7 +112,7 @@ callouts! {
 }
 
 impl Callout {
-  /// How the line is said. Every line comes with the chime. A passing line is dropped if it has to wait too long, and
+  /// How the line is said. A run of lines starts with the chime. A passing line is dropped if it has to wait too long, and
   /// any other line takes the place of the passing lines waiting ahead of it.
   fn request(self) -> CalloutRequest {
     let line = CalloutRequest::new(self.key()).lead_in(sounds::STEWARD_CHIME);

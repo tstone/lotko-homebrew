@@ -5,7 +5,7 @@ use frontbox_led::prelude::*;
 use frontbox_pinball::{BallManagementExt, GameManagementExt, PlayerEntry, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
-use crate::hardware::cabinet::{self, start_button};
+use crate::hardware::cabinet::{self, action_button, start_button};
 use crate::hardware::lower_scoop::{LowerScoopBallEnter, LowerScoopSystem};
 use crate::systems::dmd::MENU_DMD_LAYER;
 use crate::systems::game::{
@@ -25,7 +25,7 @@ const SINGLE_OPTION_TIME: Duration = Duration::from_millis(1500);
 ///    busy, so the ball ejects as normal and the scoop stays lit for the next time.
 /// 3. The ball goes, and the chosen mode's start phase takes it from there.
 ///
-/// In the menu the flippers move the selection, and both flippers or start choose. A timeout takes the highlighted
+/// In the menu the flippers move the selection, and both flippers, action, or start choose. A timeout takes the highlighted
 /// row, and a single option shows briefly and starts. Belongs in the player template.
 #[derive(Clone)]
 pub struct ModeSelectSystem {
@@ -170,7 +170,9 @@ impl ModeSelectSystem {
     );
     let held = |name: &str| ctx.switches.is_closed(name).unwrap_or(false);
 
-    if switch.name == start_button::SWITCH.name {
+    if switch.name == action_button::SWITCH.name {
+      self.choose(ctx);
+    } else if switch.name == start_button::SWITCH.name {
       // while players can still join, start is for that
       if ctx.states.is(PlayerEntry::Closed) {
         self.choose(ctx);

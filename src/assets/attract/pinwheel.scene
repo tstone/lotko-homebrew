@@ -51,13 +51,12 @@ Led(
                 ),
               ),
             ],
-            space: Oklab,
             style: Conical,
           ),
         ),
         shape: (
           transform: [
-            Scale(Fixed(1.0, 1.0)),
+            Scale(Fixed(1.549, 1.549)),
             Translate(Fixed(1.0, 1.0)),
             Rotate(Track(
               keys: [
@@ -77,7 +76,7 @@ Led(
           ],
           base: Pinwheel(
             blades: Fixed(8.0),
-            balance: Fixed(0.5),
+            balance: Fixed(0.4),
           ),
         ),
       ),

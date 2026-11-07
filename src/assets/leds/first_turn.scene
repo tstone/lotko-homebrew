@@ -1,0 +1,41 @@
+Led(
+  version: 1,
+  timing: (
+    duration: 1.1,
+    cycle: Times(1),
+  ),
+  layers: [
+    (
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+        ),
+        shape: (
+          transform: [
+            Scale(Fixed(1.0, 1.0)),
+            Translate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: (10.05, 43.273),
+                  curve: Linear,
+                ),
+                (
+                  at: 1.1,
+                  value: (9.175, -0.273),
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Rect(
+            width: Fixed(29.443),
+            height: Fixed(2.117),
+          ),
+        ),
+      ),
+    ),
+  ],
+)

@@ -104,12 +104,20 @@ impl ScoopQualifier {
         led_playback!("startable/left_scoop_attention.scene")
           .param("color", color.unwrap_or(Rgba::white())),
       );
+      ctx
+        .systems
+        .expect::<ModeManager>()
+        .set_scoop_lit(true, ctx.into());
     }
   }
 
   fn stop_lit_effect(&mut self, ctx: &SystemContext) {
     if let Some(mut effect) = self.lit_effect.take() {
       effect.stop(ctx);
+      ctx
+        .systems
+        .expect::<ModeManager>()
+        .set_scoop_lit(false, ctx.into());
     }
   }
 }

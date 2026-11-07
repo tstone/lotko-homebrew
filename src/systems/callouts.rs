@@ -62,6 +62,7 @@ callouts! {
   DecommissioningDroneOne => "side/decomissioning-drone-1",
   DecommissioningDroneThree => "side/decomissioning-drone-3",
   DroneDisengaged => "side/drone-disengaged",
+  SurveillanceEnabled => "side/surveillance-enabled",
 
   // multiballs
   SeismicEventDetected => "multiball/seismic-event-detected",

@@ -6,6 +6,7 @@ Led(
   ),
   layers: [
     (
+      leds: Tag("Playfield"),
       surface: Area("Playfield"),
       layer: (
         fill: (

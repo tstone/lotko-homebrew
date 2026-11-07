@@ -84,16 +84,18 @@ you're back to one ball.
 
 These run all the time, alongside the districts.
 
-- **Charge.** Spinner spins and pops fill the spore bar. A full bar lights the left inlane target. Hit it to fire a
-  **spore burst**: for 8 seconds every district shot counts double. With no district running, it scores big points.
-- **Surveillance.** The red pop targets are cameras. Blind all three for a set. Each set needs one more hit per camera,
-  counts toward lighting the scoop, and every third set lights an outlane save.
-- **Sentinels.** Clear the drop targets to down a drone. Every 2 drones lights a lock. At 5 drones: points. 10: extra
-  ball lit. 15: big points.
-- **Heartwood.** Hit the captive ball to charge the heart. A full charge starts **Heartwood multiball**. It needs more
-  each time.
-- **Root tunnels.** Orbits dig a tunnel at that shot's ring. A full ring scores and counts as a hit in the current
-  district.
+- **Charge — green.** Spinner spins and pops fill the spore bar. A full bar lights the left inlane target. Hit it to
+  fire a **spore burst**: for 8 seconds every district shot counts double. With no district running, it scores big
+  points.
+- **Surveillance — red.** The pop targets are cameras. They come online after 50 playfield switch hits, and stay on
+  for the rest of your game. Blind all three for a set. Each set needs one more hit per camera, counts toward
+  lighting the scoop, and every third set lights an outlane save.
+- **Sentinels — peach.** Clear the drop targets to down a drone. Every 2 drones lights a lock. At 5 drones: points.
+  10: extra ball lit. 15: big points.
+- **Heartwood — lime.** Hit the captive ball to charge the heart. A full charge starts **Heartwood multiball**. It
+  needs more each time.
+- **Root tunnels — lime.** Orbits dig a tunnel at that shot's ring. A full ring scores and counts as a hit in the
+  current district.
 
 ## Combos
 

@@ -1,0 +1,93 @@
+Led(
+  version: 1,
+  timing: (
+    duration: 0.3,
+    cycle: Times(4),
+  ),
+  layers: [
+    (
+      leds: Names([
+        "___child::l_flasher::0",
+        "___child::l_flasher::1",
+        "___child::l_flasher::2",
+        "___child::l_flasher::3",
+        "___child::l_flasher::4",
+        "___child::l_flasher::5",
+        "___child::l_flasher::6",
+        "___child::l_flasher::7",
+      ]),
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: (255, 0, 0, 255),
+                curve: Linear,
+              ),
+              (
+                at: 0.149,
+                value: (255, 0, 0, 255),
+                curve: Linear,
+              ),
+              (
+                at: 0.15,
+                value: (0, 0, 0, 0),
+                curve: Linear,
+              ),
+              (
+                at: 0.3,
+                value: (0, 0, 0, 0),
+                curve: Linear,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ),
+      ),
+    ),
+    (
+      leds: Names([
+        "___child::c_flasher::0",
+        "___child::c_flasher::1",
+        "___child::c_flasher::2",
+        "___child::c_flasher::3",
+        "___child::c_flasher::4",
+        "___child::c_flasher::5",
+        "___child::c_flasher::6",
+        "___child::c_flasher::7",
+      ]),
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: (0, 0, 0, 0),
+                curve: Linear,
+              ),
+              (
+                at: 0.149,
+                value: (0, 0, 0, 0),
+                curve: Linear,
+              ),
+              (
+                at: 0.15,
+                value: (255, 0, 0, 255),
+                curve: Linear,
+              ),
+              (
+                at: 0.3,
+                value: (255, 0, 0, 255),
+                curve: Linear,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ),
+      ),
+    ),
+  ],
+)

@@ -1,0 +1,65 @@
+Led(
+  version: 1,
+  params: {
+    "color": Color(140, 0, 255, 255),
+  },
+  timing: (
+    duration: 0.6,
+    cycle: Once,
+  ),
+  layers: [
+    (
+      leds: Names([
+        "___child::vs_left_ray1::0",
+        "___child::vs_left_ray2::0",
+        "___child::vs_left_ray3::0",
+        "___child::vs_left_ray4::0",
+      ]),
+      z: 20,
+      surface: Sequence,
+      layer: (
+        fill: (
+          transform: [
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.6,
+                  value: 360.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Param("color"),
+              ),
+              (
+                at: 0.16666667,
+                color: Param("color"),
+              ),
+              (
+                at: 0.16666667,
+                color: Fixed(0, 0, 0, 0),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 0, 0),
+              ),
+            ],
+            space: Rgb,
+            style: Linear,
+          ),
+        ),
+      ),
+    ),
+  ],
+)

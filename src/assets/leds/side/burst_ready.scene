@@ -1,0 +1,49 @@
+Led(
+  version: 1,
+  timing: (
+    duration: 1.0,
+    cycle: Forever,
+  ),
+  layers: [
+    (
+      leds: Names([
+        "___child::l_inlane::0",
+      ]),
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: (0, 255, 0, 255),
+                curve: Linear,
+              ),
+              (
+                at: 0.1,
+                value: (140, 0, 255, 255),
+                curve: EaseOut,
+              ),
+              (
+                at: 0.25,
+                value: (0, 255, 0, 255),
+                curve: EaseIn,
+              ),
+              (
+                at: 0.35,
+                value: (140, 0, 255, 255),
+                curve: EaseOut,
+              ),
+              (
+                at: 1.0,
+                value: (0, 60, 0, 255),
+                curve: EaseIn,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ),
+      ),
+    ),
+  ],
+)

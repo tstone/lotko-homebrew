@@ -6,6 +6,7 @@ use frontbox_pinball::{GameManagementExt, TurnPhase};
 use crate::hardware::left_outlane::LeftOutlaneRollover;
 use crate::hardware::more_tags::DoesNotCancelSkillshot;
 use crate::hardware::right_pass_lane::RightPassLane;
+use crate::systems::game;
 
 // Secret skill shot to hit the left outlane without hitting anything else
 #[derive(Clone)]
@@ -27,7 +28,7 @@ impl LeftOutlaneSkillShot {
     self.hit_effect.play();
 
     // TODO: play sfx
-    ctx.add_points(500_000);
+    ctx.add_points(game::points::SKILL_SHOT);
     ctx.systems.despawn_self();
   }
 

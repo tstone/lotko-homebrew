@@ -10,7 +10,7 @@ use crate::hardware::lower_scoop::LowerScoopEjected;
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
-  self, EffectsSystem, MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, SporeApplied, points,
+  self, EffectsSystem, MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, SporesSystem, points,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -22,7 +22,6 @@ pub struct SkyrailStationMode {
   attention_effect: LedPlayback,
   hit_effect: LedPlayback,
   intensity_effect: LedPlayback,
-  progress_effect: LedPlayback,
   target_hits: u8,
   ramp_hits: u8,
   state: State,
@@ -39,7 +38,6 @@ impl SkyrailStationMode {
       attention_effect: Self::attention_effect_ramp(),
       hit_effect: Self::hit_effect(),
       intensity_effect: Self::intensity_effect(),
-      progress_effect: Self::progress_effect(0),
       target_hits: 0,
       ramp_hits: 0,
       state: HitRamp,
@@ -70,12 +68,13 @@ impl SkyrailStationMode {
   }
 
   fn progress_effect(hits: u8) -> LedPlayback {
-    city_map::spore_count_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
+    city_map::mode_progress_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
   }
 
   fn advance(&mut self, ctx: &SystemContext) {
     ctx.add_points(points::EXL_MODE_HIT);
-    ctx.emit(SporeApplied);
+    // each shot is a stage of its own, so a burst can't skip one
+    ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
     self.hit_effect.play();
     ctx
       .systems
@@ -145,7 +144,10 @@ impl SkyrailStationMode {
       }
     }
 
-    self.progress_effect = Self::progress_effect(self.target_hits + self.ramp_hits);
+    ctx
+      .systems
+      .expect::<EffectsSystem>()
+      .play(Self::progress_effect(self.target_hits + self.ramp_hits));
   }
 
   fn add_ball(&mut self, ctx: &SystemContext) {
@@ -176,7 +178,6 @@ impl SkyrailStationMode {
       self.ramp_up = false;
     }
   }
-
 }
 
 impl System for SkyrailStationMode {
@@ -193,7 +194,7 @@ impl System for SkyrailStationMode {
     self.run.on_event(event, ctx);
 
     if event.is::<LiftRampScoopBallEnter>() {
-      ctx.add_points(500);
+      ctx.add_points(points::SKYRAIL_SCOOP_ENTER);
     } else if event.is::<LowerScoopEjected>() && self.needs_ball {
       self.needs_ball = false;
       self.add_ball(ctx);
@@ -242,7 +243,6 @@ impl System for SkyrailStationMode {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
     self.intensity_effect.apply(delta, ctx);
-    self.progress_effect.apply(delta, ctx);
   }
 }
 

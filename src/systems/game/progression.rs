@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::systems::game::{Mode, ModeState};
+use crate::systems::game::{Mode, ModeState, Perk};
 
-/// One player's way up the city (RULES.md, Primary progression). Each step has a mode or two to choose between, and
+/// One player's way up the city (DESIGN.md, Primary progression). Each step has a mode or two to choose between, and
 /// starting one marks it played and opens the next step. Choosing one road closes the other for the game.
 #[derive(Debug, Clone)]
 pub struct Progression {
@@ -78,6 +78,11 @@ impl Progression {
     self.count_districts(|state| state == ModeState::Completed)
   }
 
+  /// A perk is the player's once its district is completed
+  pub fn has_perk(&self, perk: Perk) -> bool {
+    self.state(perk.district()) == ModeState::Completed
+  }
+
   fn count_districts(&self, matches: impl Fn(ModeState) -> bool) -> usize {
     Mode::DISTRICTS
       .iter()
@@ -137,7 +142,10 @@ mod tests {
 
     assert_eq!(progression.state(Mode::MeridianBasins), ModeState::Played);
     assert_eq!(progression.state(Mode::HydroCore), ModeState::Unplayed);
-    assert_eq!(progression.state(Mode::NimbusPromenade), ModeState::Available);
+    assert_eq!(
+      progression.state(Mode::NimbusPromenade),
+      ModeState::Available
+    );
   }
 
   #[test]
@@ -161,7 +169,10 @@ mod tests {
     progression.start(Mode::HydroCore);
     progression.complete(Mode::HydroCore);
 
-    assert_eq!(progression.available_modes(None), vec![Mode::NimbusPromenade]);
+    assert_eq!(
+      progression.available_modes(None),
+      vec![Mode::NimbusPromenade]
+    );
   }
 
   #[test]
@@ -222,5 +233,16 @@ mod tests {
 
     assert_eq!(progression.districts_played(), 2);
     assert_eq!(progression.districts_completed(), 1);
+  }
+
+  #[test]
+  fn a_perk_comes_with_completing_its_district() {
+    let mut progression = Progression::new();
+    progression.start(Mode::HydroCore);
+    assert!(!progression.has_perk(Perk::LongerTimers));
+
+    progression.complete(Mode::HydroCore);
+    assert!(progression.has_perk(Perk::LongerTimers));
+    assert!(!progression.has_perk(Perk::DoubleTunnels));
   }
 }

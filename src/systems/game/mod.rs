@@ -1,7 +1,9 @@
 mod apex_terraces;
 mod bonus;
-mod end_of_ball;
+mod center_spinner;
+mod combos;
 mod effects;
+mod end_of_ball;
 mod extra_ball;
 mod game_greeting;
 mod hydro_core;
@@ -12,9 +14,11 @@ mod mode_manager;
 mod mode_run;
 mod mode_select;
 mod nimbus_promenade;
+mod outlane_save;
 mod playfield_illumination;
 mod progression;
 mod scoop_qualifier;
+mod side_quests;
 mod skill_shots;
 mod skyrail_station;
 mod solarium_atrium;
@@ -24,8 +28,10 @@ mod tilt_presenter;
 
 pub use apex_terraces::*;
 pub use bonus::*;
-pub use end_of_ball::*;
+pub use center_spinner::*;
+pub use combos::*;
 pub use effects::*;
+pub use end_of_ball::*;
 pub use extra_ball::*;
 pub use game_greeting::*;
 pub use hydro_core::*;
@@ -36,9 +42,11 @@ pub use mode_manager::*;
 pub use mode_run::*;
 pub use mode_select::*;
 pub use nimbus_promenade::*;
+pub use outlane_save::*;
 pub use playfield_illumination::*;
 pub use progression::*;
 pub use scoop_qualifier::*;
+pub use side_quests::*;
 pub use skill_shots::*;
 pub use skyrail_station::*;
 pub use solarium_atrium::*;
@@ -49,10 +57,6 @@ pub use tilt_presenter::*;
 /// How long a multiball saves drains once its balls are in play
 pub const MULTIBALL_BALL_SAVE: std::time::Duration = std::time::Duration::from_secs(12);
 
-/// A spore was applied to the city, which for now means a mode shot was made
-#[derive(serde::Serialize, frontbox_core::prelude::Event)]
-pub struct SporeApplied;
-
 mod points {
   pub static EXCL_QUAL_HIT: u32 = 50_250;
   pub static EXCL_START: u32 = 350_000;
@@ -62,4 +66,34 @@ mod points {
   pub static BONUS_PER_SPORE: u32 = 15_000;
   /// Awarded for collecting an extra ball once the player is at the limit
   pub static EXTRA_BALL_AS_POINTS: u32 = 10_000_000;
+  /// Each spin of the center spinner, doubled by the Apex perk
+  pub static CENTER_SPIN: u32 = 10_000;
+  pub static SKILL_SHOT: u32 = 500_000;
+  /// The drop bank skill shot's consolation for hitting the bank but missing the lit target
+  pub static SKILL_SHOT_MISSED: u32 = 50_000;
+  pub static SKYRAIL_SCOOP_ENTER: u32 = 500;
+  pub static NIMBUS_HIT: u32 = 50_000;
+  pub static NIMBUS_COMPLETION: u32 = 15_000_000;
+  /// Each hit in a mini-wizard, times its tier
+  pub static MINI_WIZARD_HIT: u32 = 1_000_000;
+  pub static HEARTWOOD_JACKPOT: u32 = 5_000_000;
+  pub static HEARTWOOD_SUPER_JACKPOT: u32 = 25_000_000;
+  /// Each captive ball hit toward the multiball
+  pub static HEARTWOOD_CHARGE: u32 = 50_000;
+  /// A spore burst with no mode running for it to double
+  pub static BURST: u32 = 2_500_000;
+  pub static SURVEILLANCE_HIT: u32 = 25_000;
+  pub static SURVEILLANCE_SET: u32 = 500_000;
+  pub static DRONE_DOWN: u32 = 250_000;
+  /// 5 drones down
+  pub static SENTINELS_FIRST_AWARD: u32 = 5_000_000;
+  /// 15 drones down, until DESIGN.md settles what it is
+  pub static SENTINELS_THIRD_AWARD: u32 = 15_000_000;
+  pub static TUNNEL_SEGMENT: u32 = 25_000;
+  pub static TUNNEL_COLLECT: u32 = 1_000_000;
+  /// A 2 shot route
+  pub static COMBO: u32 = 1_000_000;
+  /// A 3 shot route
+  pub static COMBO_LONG: u32 = 2_500_000;
+  pub static GRIDLOCK: u32 = 25_000_000;
 }

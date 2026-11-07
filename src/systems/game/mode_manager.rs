@@ -7,11 +7,14 @@ use frontbox_pinball::{TurnEnding, TurnStarting};
 use frontbox_sound::{SoundSystem, SoundSystemExt};
 
 use crate::metrics;
-use crate::systems::game::{Mode, ModeState, Multiball, Progression, music_file};
+use crate::systems::game::{Mode, ModeState, Multiball, Perk, Progression, music_file};
 use crate::systems::{Callout, SayExt, sounds};
 
 /// How long an insert takes to pulse once for a mode that can be chosen, which is calmer than a running mode's flash
 const OFFERED_PULSE: Duration = Duration::from_millis(900);
+
+/// What Hydro's perk adds to each mode timer
+const LONGER_TIMERS: Duration = Duration::from_secs(5);
 
 /// What's running for the current player: a mode and a multiball, in a slot each, and how far they've got up the
 /// route. Owns the music, the city map and the rules for what can run together.
@@ -67,7 +70,7 @@ impl ModeManager {
     self.progression.mini_wizard_available()
   }
 
-  // For Steward integrity (PLAN.md, 1.9)
+  // For Steward integrity (PLAN.md, 1.4)
   #[allow(dead_code)]
   pub fn districts_played(&self) -> usize {
     self.progression.districts_played()
@@ -75,6 +78,19 @@ impl ModeManager {
 
   pub fn districts_completed(&self) -> usize {
     self.progression.districts_completed()
+  }
+
+  pub fn has_perk(&self, perk: Perk) -> bool {
+    self.progression.has_perk(perk)
+  }
+
+  /// How long a mode timer or hurry-up runs, given its `base`. Hydro's perk adds 5s to every one.
+  pub fn mode_timer(&self, base: Duration) -> Duration {
+    if self.has_perk(Perk::LongerTimers) {
+      base + LONGER_TIMERS
+    } else {
+      base
+    }
   }
 
   /// The color the playfield is lit in, by the same priority as the music. White when nothing is running.
@@ -90,7 +106,9 @@ impl ModeManager {
   /// Start a mode or resume one, taking the mode slot. Its system takes it from there.
   pub fn start_mode(&mut self, mode: Mode, ctx: &ServiceContext) -> Result<(), String> {
     if let Some(existing) = self.mode {
-      return self.refuse(format!("{mode:?} can't start while {existing:?} is running"));
+      return self.refuse(format!(
+        "{mode:?} can't start while {existing:?} is running"
+      ));
     }
     if let Some(multiball) = self.multiball.filter(|m| !m.stacks_with(mode)) {
       return self.refuse(format!("{mode:?} can't run with {multiball:?}"));
@@ -98,7 +116,11 @@ impl ModeManager {
 
     let ctx = &ctx.for_system(self.handle);
     let resuming = self.progression.state(mode) == ModeState::Played;
-    log::info!("ModeManager: {} {:?}", if resuming { "resuming" } else { "starting" }, mode);
+    log::info!(
+      "ModeManager: {} {:?}",
+      if resuming { "resuming" } else { "starting" },
+      mode
+    );
     self.progression.start(mode);
     self.mode = Some(mode);
     if !resuming {
@@ -137,7 +159,11 @@ impl ModeManager {
   }
 
   /// Take the multiball slot
-  pub fn take_multiball(&mut self, multiball: Multiball, ctx: &ServiceContext) -> Result<(), String> {
+  pub fn take_multiball(
+    &mut self,
+    multiball: Multiball,
+    ctx: &ServiceContext,
+  ) -> Result<(), String> {
     if let Some(existing) = self.multiball {
       return self.refuse(format!("{multiball:?} can't start during {existing:?}"));
     }

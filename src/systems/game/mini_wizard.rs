@@ -6,11 +6,12 @@ use frontbox_sound::SoundSystemExt;
 use crate::hardware::city_map;
 use crate::hardware::lower_scoop::LowerScoopEjected;
 use crate::hardware::main_shot::MainShotHit;
-use crate::systems::game::{MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, points};
+use crate::systems::game::{
+  EffectsSystem, MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, TunnelCollected, points,
+};
 use crate::systems::sounds;
 
 const REQUIRED_HITS: u8 = 10;
-const HIT_POINTS: u32 = 1_000_000;
 
 /// Stands in for all four mini-wizards until they're built (PLAN.md, Part 3), so that the route can be played to its
 /// end. It has their shape: a multiball started from the menu, 2 balls in tier 1 and 3 in tier 2, that ends when one
@@ -19,7 +20,6 @@ const HIT_POINTS: u32 = 1_000_000;
 pub struct MiniWizardMode {
   mode: Mode,
   run: ModeRun,
-  progress_effect: LedPlayback,
   hits: u8,
   eject_id: Option<u64>,
 }
@@ -29,14 +29,13 @@ impl MiniWizardMode {
     Self {
       mode,
       run: ModeRun::new(mode, REQUIRED_HITS),
-      progress_effect: Self::progress_effect(mode, 0),
       hits: 0,
       eject_id: None,
     }
   }
 
   fn progress_effect(mode: Mode, hits: u8) -> LedPlayback {
-    city_map::spore_count_effect(mode.color(), hits as f32 / REQUIRED_HITS as f32)
+    city_map::mode_progress_effect(mode.color(), hits as f32 / REQUIRED_HITS as f32)
   }
 
   fn add_balls(&mut self, ctx: &SystemContext) {
@@ -47,9 +46,11 @@ impl MiniWizardMode {
 
   fn on_hit(&mut self, ctx: &SystemContext) {
     self.hits += 1;
-    ctx.add_points(HIT_POINTS * self.mode.tier() as u32);
-    self.progress_effect.stop(ctx);
-    self.progress_effect = Self::progress_effect(self.mode, self.hits);
+    ctx.add_points(points::MINI_WIZARD_HIT * self.mode.tier() as u32);
+    ctx
+      .systems
+      .expect::<EffectsSystem>()
+      .play(Self::progress_effect(self.mode, self.hits));
 
     if self.hits < REQUIRED_HITS {
       ctx.play_sfx(sounds::city_hit(self.hits as f32 / REQUIRED_HITS as f32));
@@ -88,7 +89,7 @@ impl System for MiniWizardMode {
 
     if event.is::<LowerScoopEjected>() && self.eject_id.is_none() {
       self.add_balls(ctx);
-    } else if event.is::<MainShotHit>() {
+    } else if event.is::<MainShotHit>() || event.is::<TunnelCollected>() {
       self.on_hit(ctx);
     } else if let Some(EjectCompleted { id, .. }) = event.downcast_ref::<EjectCompleted>()
       && Some(*id) == self.eject_id
@@ -108,8 +109,6 @@ impl System for MiniWizardMode {
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if !self.run.apply(delta, ctx) {
-      self.progress_effect.apply(delta, ctx);
-    }
+    self.run.apply(delta, ctx);
   }
 }

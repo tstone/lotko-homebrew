@@ -68,3 +68,15 @@ pub fn spore_count_effect(color: Rgba<u8>, progress: f32) -> LedPlayback {
       (2.0 * (lit - 0.5) / (SPORE_COUNT_LEDS - 1.0)).max(0.0),
     )
 }
+
+/// Shows a mode's `progress`, from 0 to 1, on the spore count bar for a moment, over the charge it shows the rest of
+/// the time (PLAN.md, decision 3)
+pub fn mode_progress_effect(color: Rgba<u8>, progress: f32) -> LedPlayback {
+  let lit = (progress * SPORE_COUNT_LEDS).round();
+  led_playback!("mode_progress.scene")
+    .param("color", color)
+    .param(
+      "width",
+      (2.0 * (lit - 0.5) / (SPORE_COUNT_LEDS - 1.0)).max(0.0),
+    )
+}

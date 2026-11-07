@@ -12,7 +12,7 @@ use crate::systems::sounds;
 /// Z of the lit shots' hex centers
 const LIT_SHOT_Z: i8 = 10;
 
-/// Lights the left scoop (RULES.md, Starting modes). All 6 main shots start lit, in white on their hex centers. A hit
+/// Lights the left scoop (DESIGN.md, Starting modes). All 6 main shots start lit, in white on their hex centers. A hit
 /// shot goes out and counts, and enough of them light the scoop. Each time gets harder: 2, then 3, then 4 hits.
 /// A mini-wizard lights the scoop just by being reached.
 ///
@@ -50,8 +50,6 @@ impl ScoopQualifier {
   }
 
   /// Count something other than a main shot as a lit shot, e.g. a Surveillance set
-  // For Surveillance (PLAN.md, Part 5)
-  #[allow(dead_code)]
   pub fn add_lit_shot(&mut self, ctx: &ServiceContext) {
     let ctx = &ctx.for_system(self.handle);
     if self.count.add_hit() {
@@ -92,7 +90,10 @@ impl ScoopQualifier {
   fn update_lit_effect(&mut self, ctx: &SystemContext) {
     let (lit, color) = {
       let mode_manager = ctx.systems.expect::<ModeManager>();
-      let color = mode_manager.available_modes().first().map(|mode| mode.color());
+      let color = mode_manager
+        .available_modes()
+        .first()
+        .map(|mode| mode.color());
       (self.is_lit(&mode_manager), color)
     };
 

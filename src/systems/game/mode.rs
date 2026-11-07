@@ -12,7 +12,7 @@ use crate::systems::game::{
 
 const MUSIC_FOLDER: &str = "/userdata/home/armsom/music";
 
-/// A stop on the route up the city (RULES.md, Primary progression): a district or a mini-wizard
+/// A stop on the route up the city (DESIGN.md, Primary progression): a district or a mini-wizard
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize)]
 pub enum Mode {
   MeridianBasins,
@@ -207,6 +207,37 @@ impl Multiball {
     match self {
       Self::Heartwood => true,
       Self::Groundswell => !mode.is_mini_wizard(),
+    }
+  }
+}
+
+/// What completing a district gives the player for the rest of the game (DESIGN.md, Perks)
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize)]
+pub enum Perk {
+  /// Root tunnel hits count double
+  DoubleTunnels,
+  /// +5s on mode timers
+  LongerTimers,
+  /// Pops charge twice as fast
+  FasterPopCharge,
+  /// One drop bank clear lights a lock
+  QuickLocks,
+  /// The center spinner scores double
+  DoubleCenterSpinner,
+  /// Captive ball hits charge the heart twice as fast
+  FasterHeartCharge,
+}
+
+impl Perk {
+  /// The district that gives it
+  pub fn district(&self) -> Mode {
+    match self {
+      Self::DoubleTunnels => Mode::MeridianBasins,
+      Self::LongerTimers => Mode::HydroCore,
+      Self::FasterPopCharge => Mode::NimbusPromenade,
+      Self::QuickLocks => Mode::SkyrailStation,
+      Self::DoubleCenterSpinner => Mode::ApexTerraces,
+      Self::FasterHeartCharge => Mode::SolariumAtrium,
     }
   }
 }

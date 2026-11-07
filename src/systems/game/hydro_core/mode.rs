@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use std::sync::LazyLock;
 
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
@@ -7,10 +6,16 @@ use frontbox_pinball::GameManagementExt;
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::main_shot::{MainShot, MainShotHit};
-use crate::systems::game::{self, EffectsSystem, Mode, ModeManager, ModeRun, SporeApplied};
+use crate::systems::game::{
+  self, EffectsSystem, Mode, ModeManager, ModeRun, SporesSystem, TunnelCollected,
+};
 use crate::systems::{Callout, SayExt, sounds};
 
-static BASE_SHOT_TIME: LazyLock<Duration> = LazyLock::new(|| Duration::from_secs(25));
+/// The time for each shot after the first
+const BASE_SHOT_TIME: Duration = Duration::from_secs(25);
+
+/// What each failed attempt adds to the shot time
+const ATTEMPT_HANDICAP: Duration = Duration::from_secs(5);
 
 const COMBO: [MainShot; 5] = [
   MainShot::LiftRamp,
@@ -29,8 +34,9 @@ pub struct HydroCoreMode {
   arc_effect: LedPlayback,
   progress_effect: Option<LedPlayback>,
   current_combo_shot: u8,
-  /// Track which shots have been made in the past
+  /// The combo shots, by number, that have been made and scored
   combo_shots_seen: HashSet<u8>,
+  /// Failed attempts, each adding to the shot time
   combo_attempts: u16,
   cue_id: Option<u64>,
 }
@@ -77,8 +83,8 @@ impl HydroCoreMode {
       .end_behavior(EndBehavior::Hold)
   }
 
-  fn restart_combo(&mut self, ctx: &SystemContext) {
-    self.combo_attempts += 1;
+  /// Start the combo from the lift ramp, as the mode starts or resumes, or after a failed attempt
+  fn start_combo(&mut self, ctx: &SystemContext) {
     self.run.reset_progress();
     self.advance_combo(1, ctx);
     self.intensity_effect.stop(ctx);
@@ -113,13 +119,16 @@ impl HydroCoreMode {
       ctx.play_sfx(sounds::city_hit((shot - 1) as f32 / COMBO.len() as f32));
     }
 
-    // first and last shot aren't timed
-    if shot > 1 && shot < 5 {
+    // the first shot isn't timed, as there's nothing to restart (decision 6)
+    if shot > 1 {
       // Player only has a limited amount of time to make the next shot BUT
       // to avoid frustrating the player, keep making the combo duration longer as they fail attempts
       // (this results in less points but is still completable)
-      let handicap = Duration::from_secs(5 * self.combo_attempts as u64);
-      let final_time = *BASE_SHOT_TIME + handicap;
+      let handicap = ATTEMPT_HANDICAP * self.combo_attempts as u32;
+      let final_time = ctx
+        .systems
+        .expect::<ModeManager>()
+        .mode_timer(BASE_SHOT_TIME + handicap);
       log::info!(
         "combo_attempts={} handicap={:?} final_time={:?}",
         self.combo_attempts,
@@ -150,26 +159,26 @@ impl HydroCoreMode {
     self.hit_effect.reset();
     self.hit_effect.play();
 
-    self.advance_combo(self.current_combo_shot + 1, ctx);
-    ctx.emit(SporeApplied);
+    let made = self.current_combo_shot;
     ctx
       .systems
       .expect::<EffectsSystem>()
       .play(led_playback!("hydro_core/flashers.scene"));
 
-    // Points for combo only score the first time, not repeated times
-    if !self.combo_shots_seen.contains(&self.current_combo_shot) {
-      ctx.add_points(game::points::EXL_MODE_HIT * self.current_combo_shot as u32);
-      self.combo_shots_seen.insert(self.current_combo_shot - 1);
+    // a shot only scores the first time it's made, not again on a later attempt
+    if self.combo_shots_seen.insert(made) {
+      ctx.add_points(game::points::EXL_MODE_HIT * made as u32);
     }
+
+    self.advance_combo(made + 1, ctx);
   }
 
   fn combo_time_up(&mut self, ctx: &SystemContext) {
     log::info!("HydroCore: Combo time up!");
     ctx.play_sfx(sounds::HIT_ORGANIC_LOW1);
-    self.restart_combo(ctx);
+    self.combo_attempts += 1;
+    self.start_combo(ctx);
   }
-
 }
 
 impl System for HydroCoreMode {
@@ -179,12 +188,14 @@ impl System for HydroCoreMode {
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
     self.run.begin(ctx);
-    self.restart_combo(ctx);
+    self.start_combo(ctx);
   }
 
+  /// A resume keeps the failed attempts and the shots that have scored, and starts the combo over
   fn on_reactivate(&mut self, ctx: &SystemContext) {
     ctx.activate_led_declarations();
     self.run.begin(ctx);
+    self.start_combo(ctx);
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
@@ -207,15 +218,18 @@ impl System for HydroCoreMode {
     }
   }
 
-  // TODO: change order to lift ramp => arc ramp => left ramp => right orbit => center orbit to get to N spins (untimed)
-
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     self.run.on_event(event, ctx);
 
     if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       if hit.shot == COMBO[self.current_combo_shot as usize - 1] {
+        // the combo goes a shot at a time, so a burst can't skip one
+        ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
         self.combo_hit(ctx);
       }
+    } else if event.is::<TunnelCollected>() {
+      // a root tunnel makes the shot the combo is on
+      self.combo_hit(ctx);
     } else if event.is::<ComboTimeUp>() {
       self.combo_time_up(ctx);
     }

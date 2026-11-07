@@ -25,7 +25,7 @@ pub enum ExtraBallSource {
   Groundswell,
 }
 
-/// Lights and collects extra balls (RULES.md, Extra balls). A source lights one (`light`), and a shot to the front of
+/// Lights and collects extra balls (DESIGN.md, Extra balls). A source lights one (`light`), and a shot to the front of
 /// the left scoop collects it (`collect_at_scoop`, from `ModeSelectSystem`, which goes first with anything lit); a ball
 /// coming in from the arc ramp's subway doesn't. Collecting grants the extra ball, or awards points once the player is
 /// at the `MAX_EXTRA_BALLS` limit.
@@ -166,6 +166,7 @@ impl System for ExtraBallSystem {
       self.update_lit_effect(ctx);
       if routine.reason == TurnStartReason::ExtraBall {
         self.show("SHOOT AGAIN", ctx);
+        ctx.say(Callout::ExtraBall);
       }
     } else if event.is::<ScreenShown>() {
       self.screen_cue = None;

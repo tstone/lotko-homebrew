@@ -34,10 +34,7 @@ impl BonusSystem {
 
   fn on_turn_ending(&mut self, ctx: &SystemContext) {
     let spores = ctx.systems.expect::<SporesSystem>().count();
-    let completed = ctx
-      .systems
-      .expect::<ModeManager>()
-      .districts_completed() as u32;
+    let completed = ctx.systems.expect::<ModeManager>().districts_completed() as u32;
     let bonus = spores * points::BONUS_PER_SPORE + completed * points::BONUS_PER_CITY_MODE;
     log::info!(
       "Bonus: {} spores applied, {} city modes completed, awarding {}",

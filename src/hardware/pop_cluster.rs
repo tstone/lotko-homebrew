@@ -5,7 +5,7 @@ use crate::hardware::more_tags::*;
 use crate::hardware::planes;
 use crate::hardware::vspinner;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PopBumper {
   Left,
   UpperRight,
@@ -13,13 +13,7 @@ pub enum PopBumper {
 }
 
 impl PopBumper {
-  pub fn next(&self) -> Self {
-    match self {
-      Self::Left => Self::UpperRight,
-      Self::UpperRight => Self::LowerRight,
-      Self::LowerRight => Self::Left,
-    }
-  }
+  pub const ALL: [PopBumper; 3] = [Self::Left, Self::UpperRight, Self::LowerRight];
 }
 
 pub mod left {

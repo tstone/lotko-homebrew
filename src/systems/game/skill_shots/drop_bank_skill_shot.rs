@@ -6,6 +6,7 @@ use frontbox_sound::*;
 
 use crate::hardware::drop_bank::{self, DropBankTarget};
 use crate::hardware::more_tags::DoesNotCancelSkillshot;
+use crate::systems::game;
 use crate::systems::sounds;
 
 /// How long after an unlit target drops that the lit one still counts
@@ -44,7 +45,7 @@ impl DropBankSkillShot {
     if hit_target == self.current_target {
       self.hit = true;
       ctx.play_sfx(sounds::ARP_HIT1);
-      ctx.add_points(500_000);
+      ctx.add_points(game::points::SKILL_SHOT);
       // despawns from on_tick once the hit effect completes
       self.attention_effect.stop(ctx);
       self.hit_effect = Some(Self::hit_effect());
@@ -59,7 +60,7 @@ impl DropBankSkillShot {
   fn on_grace_period_elapsed(&mut self, ctx: &SystemContext) {
     log::info!("DropbankSkillShot: missed {:?}", self.current_target);
     // consolation prize for still hitting the drop bank
-    ctx.add_points(50_000);
+    ctx.add_points(game::points::SKILL_SHOT_MISSED);
     ctx.systems.despawn_self();
   }
 

@@ -18,7 +18,7 @@ const MENU_TIMEOUT: Duration = Duration::from_secs(10);
 /// How long a menu of one option shows it for
 const SINGLE_OPTION_TIME: Duration = Duration::from_millis(1500);
 
-/// Decides what a ball in the left scoop does (RULES.md, Starting modes), in order:
+/// Decides what a ball in the left scoop does (DESIGN.md, Starting modes), in order:
 ///
 /// 1. A lit extra ball collects first, on a front entry, with the ball held for its animation.
 /// 2. If the scoop is lit and only one ball is in play, the mode select menu opens. With more in play the flippers are

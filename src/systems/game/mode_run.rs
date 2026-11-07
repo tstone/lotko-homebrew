@@ -10,7 +10,7 @@ use crate::systems::{SayExt, sounds};
 /// The ball save a mode starts with, as the scoop eject is a common drain
 const START_BALL_SAVE: Duration = Duration::from_secs(8);
 
-/// The parts every mode shares, from the phases in RULES.md: the start, the intensity stages and the completion. Each
+/// The parts every mode shares, from the phases in DESIGN.md: the start, the intensity stages and the completion. Each
 /// mode's system owns one and passes it what it needs to.
 ///
 /// A mode is started by [`ModeManager::start_mode`], which spawns its system. When the turn ends the slot empties and
@@ -109,7 +109,9 @@ impl ModeRun {
   /// reached a new one.
   pub fn progress(&mut self, done: u8) -> Option<u8> {
     let percent = done as u32 * 100 / self.required.max(1) as u32;
-    let stage = [75, 50, 25].into_iter().find(|stage| percent >= *stage as u32)?;
+    let stage = [75, 50, 25]
+      .into_iter()
+      .find(|stage| percent >= *stage as u32)?;
     (stage > self.stage).then(|| {
       self.stage = stage;
       stage

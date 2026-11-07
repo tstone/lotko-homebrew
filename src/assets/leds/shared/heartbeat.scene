@@ -1,0 +1,60 @@
+Led(
+  version: 1,
+  params: {
+    "color": Color(0, 255, 0, 255),
+  },
+  timing: (
+    duration: 1.0,
+    cycle: Forever,
+  ),
+  layers: [
+    (
+      leds: Names([
+        "___child::l_cap_ball_bolt::0",
+      ]),
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Param("color")),
+          adjust: [
+            Opacity(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.15,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.08,
+                  value: 1.0,
+                  curve: EaseOut,
+                ),
+                (
+                  at: 0.2,
+                  value: 0.3,
+                  curve: EaseIn,
+                ),
+                (
+                  at: 0.28,
+                  value: 0.8,
+                  curve: EaseOut,
+                ),
+                (
+                  at: 0.5,
+                  value: 0.15,
+                  curve: EaseIn,
+                ),
+                (
+                  at: 1.0,
+                  value: 0.15,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+      ),
+    ),
+  ],
+)

@@ -1,0 +1,31 @@
+Led(
+  version: 1,
+  params: {
+    "color": Color(0, 255, 0, 255),
+    "width": Float(0.0),
+  },
+  layers: [
+    (
+      leds: Names([
+        "___child::l_orbit::5",
+        "___child::l_orbit::4",
+        "___child::l_orbit::3",
+        "___child::l_orbit::2",
+        "___child::l_orbit::1",
+        "___child::l_orbit::0",
+      ]),
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Param("color")),
+        ),
+        shape: (
+          base: Rect(
+            width: Param("width"),
+            height: Fixed(1.0),
+          ),
+        ),
+      ),
+    ),
+  ],
+)

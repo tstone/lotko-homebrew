@@ -42,10 +42,31 @@ callouts! {
   UnregisteredResident => "unregistered-resident",
   ErrorInvalidResident => "error-invalid-resident",
   RetrievalFailed => "retrieval-failed",
+  ExtraBall => "extra-ball",
+  NewHighScore => "new-high-score",
   AccessToCityRestricted => "generic/access-to-city-restricted",
   BiologicalContaminantIdentified => "generic/biological-contaminent-identified",
   FourOfSix => "generic/four-of-six",
   StewardCoreBreached => "final/steward-core-breached",
+  Alert => "generic/alert",
+  Warning => "generic/warning",
+  Scanning => "generic/scanning",
+  CityScanComplete => "generic/city-scan-complete",
+  SeekingBiologicalEntity => "generic/seeking-biological-entity",
+  RestrictedArea => "generic/restricted-area",
+  SkyrailUnavailable => "generic/skyrail-unavailable",
+
+  // side quests
+  AirborneContaminantDetected => "side/airborne-contantaminant-detected",
+  CameraNetworkOffline => "side/camera-network-offline",
+  DecommissioningDroneOne => "side/decomissioning-drone-1",
+  DecommissioningDroneThree => "side/decomissioning-drone-3",
+  DroneDisengaged => "side/drone-disengaged",
+
+  // multiballs
+  SeismicEventDetected => "multiball/seismic-event-detected",
+  SeismicActivityAlert => "multiball/seismic-activity-alert",
+  SeismicDamageIdentified => "multiball/seismic-damage-identified",
 
   // meridian basins
   RootIntrusion => "meridian/root-intrusion",
@@ -119,6 +140,8 @@ impl Callout {
         | Self::AtriumIntegrityFailing
         | Self::TestLabShutdownInitiated
         | Self::AtriumContainmentEnacted
+        | Self::DroneDisengaged
+        | Self::SeismicDamageIdentified
     )
   }
 }

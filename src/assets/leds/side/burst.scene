@@ -1,0 +1,55 @@
+Led(
+  version: 1,
+  timing: (
+    duration: 1.2,
+    cycle: Once,
+  ),
+  layers: [
+    (
+      leds: Every,
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(0, 255, 0, 255),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(140, 0, 255, 255),
+              ),
+            ],
+            space: Rgb,
+            style: Radial,
+          ),
+        ),
+        shape: (
+          transform: [
+            Translate(Fixed(3.088, 31.606)),
+          ],
+          base: Ring(
+            radius: Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.5,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.2,
+                  value: 40.0,
+                  curve: EaseOut,
+                ),
+              ],
+              cycle: Once,
+            ),
+            thickness: Fixed(3.0),
+          ),
+        ),
+      ),
+    ),
+  ],
+)

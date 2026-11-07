@@ -2,50 +2,44 @@ use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
-use crate::hardware::captive_ball;
-use crate::hardware::captive_ball::CaptiveBallHit;
+use crate::hardware::city_map;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
-use crate::hardware::pop_cluster::PopBumper;
-use crate::hardware::{city_map, pop_cluster};
 use crate::systems::game::meridian_basins::MODE_COLOR;
-use crate::systems::game::{Mode, ModeManager, ModeRun, SporeApplied, points};
+use crate::systems::game::{
+  EffectsSystem, Mode, ModeManager, ModeRun, SporesSystem, TunnelCollected, points,
+};
 use crate::systems::{Callout, SayExt, sounds};
 use frontbox_sound::*;
 
 static REQUIRED_HITS: u8 = 6;
+
+/// How many neighboring shots are lit at once
+const WINDOW: usize = 3;
 
 pub struct MeridianBasinsMode {
   run: ModeRun,
   attention_effect: LedPlayback,
   hit_effect: LedPlayback,
   intensity_effect: LedPlayback,
-  progress_effect: LedPlayback,
   hits: u8,
-  current_shots: Vec<ModeShots>,
+  /// The index in [`MainShot::ALL`] of the window's leftmost shot
+  window: usize,
 }
 
 impl MeridianBasinsMode {
   pub fn new() -> Self {
-    let initial = vec![
-      ModeShots::Main(MainShot::LeftOrbit),
-      ModeShots::Main(MainShot::DomeRamp),
-      ModeShots::Main(MainShot::LeftOrbit),
-    ];
     Self {
       run: ModeRun::new(Mode::MeridianBasins, REQUIRED_HITS),
-      attention_effect: Self::attention_effect(&initial),
+      attention_effect: Self::attention_effect(&lit_shots(0)),
       hit_effect: Self::hit_effect(),
       intensity_effect: Self::intensity_effect(),
-      progress_effect: Self::progress_effect(0),
-      current_shots: initial,
       hits: 0,
+      window: 0,
     }
   }
 
-  fn attention_effect(shots: &Vec<ModeShots>) -> LedPlayback {
-    let led_qs: Vec<LedQ> = shots.iter().map(|shot| shot.led_q()).collect();
-    let qs: Vec<&LedQ> = led_qs.iter().collect();
-
+  fn attention_effect(shots: &[MainShot]) -> LedPlayback {
+    let qs: Vec<&LedQ> = shots.iter().map(|shot| shot.hex_center()).collect();
     led_playback!("meridian_basins/attention.scene", LedQ::any(qs))
   }
 
@@ -62,64 +56,56 @@ impl MeridianBasinsMode {
   }
 
   fn progress_effect(hits: u8) -> LedPlayback {
-    city_map::spore_count_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
+    city_map::mode_progress_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
   }
 
-  fn on_shot_hit(&mut self, shot: ModeShots, ctx: &SystemContext) {
-    if self.current_shots.contains(&shot) {
-      self.hits += 1;
-      self.progress_effect = Self::progress_effect(self.hits);
-      log::info!("MeridianBasins: hits = {}", self.hits);
-      ctx.add_points(points::EXL_MODE_HIT);
-      ctx.emit(SporeApplied);
-
-      if self.hits == REQUIRED_HITS {
-        log::info!("MeridianBasins: complete");
-        self
-          .run
-          .complete(points::EXL_COMPLETION, Self::complete_effect(), ctx);
-        return;
-      }
-
-      ctx.play_sfx(sounds::city_hit(self.hits as f32 / REQUIRED_HITS as f32));
-      ctx.say(if self.hits == 4 {
-        Callout::FourOfSix
-      } else {
-        Callout::ChannelBreach
-      });
-
-      if self.run.progress(self.hits) == Some(50) {
-        self.intensity_effect.play();
-      }
-      self.hit_effect.play();
+  fn on_shot_hit(&mut self, shot: MainShot, ctx: &SystemContext) {
+    if !lit_shots(self.window).contains(&shot) {
+      return;
     }
+
+    let progress = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
+    self.add_hits(progress, ctx);
   }
 
-  fn advance(&mut self, ctx: &SystemContext) {
-    let ordered = ModeShots::ordered();
-    let current_start_idx = ordered
-      .iter()
-      .position(|s| *s == self.current_shots[0])
-      .unwrap_or(0);
+  /// Hits from a lit shot, or from a root tunnel
+  fn add_hits(&mut self, hits: u8, ctx: &SystemContext) {
+    self.hits = (self.hits + hits).min(REQUIRED_HITS);
+    ctx
+      .systems
+      .expect::<EffectsSystem>()
+      .play(Self::progress_effect(self.hits));
+    log::info!("MeridianBasins: hits = {}", self.hits);
+    ctx.add_points(points::EXL_MODE_HIT);
 
-    self.current_shots = vec![
-      ordered[Self::wrap_shot_idx(current_start_idx + 1)],
-      ordered[Self::wrap_shot_idx(current_start_idx + 2)],
-      ordered[Self::wrap_shot_idx(current_start_idx + 3)],
-    ];
+    if self.hits == REQUIRED_HITS {
+      log::info!("MeridianBasins: complete");
+      self
+        .run
+        .complete(points::EXL_COMPLETION, Self::complete_effect(), ctx);
+      return;
+    }
+
+    ctx.play_sfx(sounds::city_hit(self.hits as f32 / REQUIRED_HITS as f32));
+    ctx.say(if self.hits == 4 {
+      Callout::FourOfSix
+    } else {
+      Callout::ChannelBreach
+    });
+
+    if self.run.progress(self.hits) == Some(50) {
+      self.intensity_effect.play();
+    }
+    self.hit_effect.play();
+  }
+
+  /// Move the window one shot to the right, wrapping back to the left orbit after the far right
+  fn advance(&mut self, ctx: &SystemContext) {
+    self.window = (self.window + 1) % MainShot::ALL.len();
 
     ctx.play_sfx(sounds::rnd_latch());
     self.attention_effect.stop(ctx);
-    self.attention_effect = Self::attention_effect(&self.current_shots);
-  }
-
-  fn wrap_shot_idx(idx: usize) -> usize {
-    let len = ModeShots::ordered().len();
-    if idx >= len {
-      Self::wrap_shot_idx(idx - len)
-    } else {
-      idx
-    }
+    self.attention_effect = Self::attention_effect(&lit_shots(self.window));
   }
 }
 
@@ -133,7 +119,7 @@ impl System for MeridianBasinsMode {
     self.run.begin(ctx);
     ctx
       .cues
-      .start(NextSet, Duration::from_millis(2250).forever());
+      .start(WindowMoveDue, Duration::from_millis(2250).forever());
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
@@ -149,20 +135,12 @@ impl System for MeridianBasinsMode {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     self.run.on_event(event, ctx);
 
-    if event.is::<NextSet>() {
+    if event.is::<WindowMoveDue>() {
       self.advance(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
-      self.on_shot_hit(ModeShots::Main(hit.shot), ctx);
-    } else if event.is::<CaptiveBallHit>() {
-      self.on_shot_hit(ModeShots::CaptiveBall, ctx)
-    } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
-      && let Some(pop) = pop_cluster::match_switch(&event.switch)
-    {
-      match pop {
-        PopBumper::Left => self.on_shot_hit(ModeShots::LeftPop, ctx),
-        PopBumper::UpperRight => self.on_shot_hit(ModeShots::UpperRightPop, ctx),
-        PopBumper::LowerRight => self.on_shot_hit(ModeShots::LowerRightPop, ctx),
-      }
+      self.on_shot_hit(hit.shot, ctx);
+    } else if event.is::<TunnelCollected>() {
+      self.add_hits(1, ctx);
     }
   }
 
@@ -174,48 +152,40 @@ impl System for MeridianBasinsMode {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
     self.intensity_effect.apply(delta, ctx);
-    self.progress_effect.apply(delta, ctx);
   }
 }
 
 #[derive(serde::Serialize, Event)]
-struct NextSet;
+struct WindowMoveDue;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-enum ModeShots {
-  Main(MainShot),
-  LeftPop,
-  CaptiveBall,
-  UpperRightPop,
-  LowerRightPop,
+/// The shots lit by a window starting at `window`
+fn lit_shots(window: usize) -> Vec<MainShot> {
+  (window..window + WINDOW)
+    .map(|idx| MainShot::ALL[idx % MainShot::ALL.len()])
+    .collect()
 }
 
-impl ModeShots {
-  pub fn led_q(&self) -> LedQ {
-    match self {
-      Self::Main(shot) => shot.hex_center().clone(),
-      Self::LeftPop => pop_cluster::left::POP_LED.q(),
-      Self::CaptiveBall => LedQ::any(vec![
-        &captive_ball::LEFT_BOLT.q(),
-        &captive_ball::RIGHT_BOLT.q(),
-      ]),
-      Self::UpperRightPop => pop_cluster::upper_right::POP_LED.q(),
-      Self::LowerRightPop => pop_cluster::lower_right::POP_LED.q(),
-    }
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn the_first_window_is_the_three_leftmost_shots() {
+    assert_eq!(
+      lit_shots(0),
+      vec![MainShot::LeftOrbit, MainShot::DomeRamp, MainShot::ArcRamp]
+    );
   }
 
-  pub fn ordered() -> Vec<ModeShots> {
-    vec![
-      Self::Main(MainShot::LeftOrbit),
-      Self::Main(MainShot::DomeRamp),
-      Self::LeftPop,
-      Self::Main(MainShot::ArcRamp),
-      Self::CaptiveBall,
-      Self::Main(MainShot::CenterOrbit),
-      Self::Main(MainShot::LiftRamp),
-      Self::UpperRightPop,
-      Self::Main(MainShot::RightOrbit),
-      Self::LowerRightPop,
-    ]
+  #[test]
+  fn the_window_wraps_back_to_the_left() {
+    assert_eq!(
+      lit_shots(5),
+      vec![
+        MainShot::RightOrbit,
+        MainShot::LeftOrbit,
+        MainShot::DomeRamp
+      ]
+    );
   }
 }

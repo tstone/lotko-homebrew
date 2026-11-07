@@ -33,7 +33,9 @@ impl System for PlayfieldIllumination {
   }
 
   fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    // a declaration stands until it's replaced, so it only needs making when the color changes
     if self.update {
+      self.update = false;
       ctx.declare_leds(
         &LedQ::tag::<GeneralIllumination>(),
         ColorSequence::solid(self.color),

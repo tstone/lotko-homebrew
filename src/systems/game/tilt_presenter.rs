@@ -10,7 +10,7 @@ use crate::systems::{Callout, SayExt};
 /// How long a tilt warning is shown
 const WARNING_DURATION: Duration = Duration::from_millis(1500);
 
-/// Shows tilt warnings and tilts (RULES.md, Presentation). A warning flashes the speaker rings red and shows WARNING on
+/// Shows tilt warnings and tilts (DESIGN.md, Presentation). A warning flashes the speaker rings red and shows WARNING on
 /// the DMD. A tilt puts every playfield light out and shows TILT until the next turn starts or the game ends.
 ///
 /// At the root, as it outlives the tilted turn: the playfield stays dark while the balls drain.

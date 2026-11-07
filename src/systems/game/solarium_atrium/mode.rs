@@ -6,7 +6,7 @@ use frontbox_sound::SoundSystemExt;
 use crate::game::solarium_atrium::MODE_COLOR;
 use crate::hardware::city_map;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
-use crate::systems::game::{self, EffectsSystem, Mode, ModeManager, ModeRun, SporeApplied};
+use crate::systems::game::{self, EffectsSystem, Mode, ModeManager, ModeRun, SporesSystem};
 use crate::systems::{Callout, SayExt, sounds};
 
 static REQUIRED_HITS: u8 = 6;
@@ -16,7 +16,6 @@ pub struct SolariumAtriumMode {
   attention_effect: LedPlayback,
   hit_effect: LedPlayback,
   intensity_effect: LedPlayback,
-  progress_effect: LedPlayback,
   ramp_hits: u8,
   last_ramp: Option<Ramp>,
 }
@@ -28,7 +27,6 @@ impl SolariumAtriumMode {
       attention_effect: Self::attention_effect(),
       hit_effect: Self::hit_effect(),
       intensity_effect: Self::intensity_effect(),
-      progress_effect: Self::progress_effect(0),
       ramp_hits: 0,
       last_ramp: None,
     }
@@ -51,11 +49,12 @@ impl SolariumAtriumMode {
   }
 
   fn progress_effect(hits: u8) -> LedPlayback {
-    city_map::spore_count_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
+    city_map::mode_progress_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
   }
 
   fn ramp_hit(&mut self, ramp_hit: Ramp, ctx: &SystemContext) {
-    self.ramp_hits += 1;
+    let progress = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
+    self.ramp_hits = (self.ramp_hits + progress).min(REQUIRED_HITS);
     self.hit_effect.reset();
     ctx
       .systems
@@ -68,7 +67,6 @@ impl SolariumAtriumMode {
       _ => game::points::EXL_MODE_HIT as f32,
     };
     ctx.add_points(points as u32);
-    ctx.emit(SporeApplied);
 
     if self.ramp_hits == REQUIRED_HITS {
       // TODO: epic reaction effect
@@ -93,9 +91,11 @@ impl SolariumAtriumMode {
     self.hit_effect.play();
 
     self.last_ramp = Some(ramp_hit);
-    self.progress_effect = Self::progress_effect(self.ramp_hits);
+    ctx
+      .systems
+      .expect::<EffectsSystem>()
+      .play(Self::progress_effect(self.ramp_hits));
   }
-
 }
 
 impl System for SolariumAtriumMode {
@@ -135,8 +135,6 @@ impl System for SolariumAtriumMode {
     if self.run.apply(delta, ctx) {
       return;
     }
-
-    self.progress_effect.apply(delta, ctx);
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
     self.intensity_effect.apply(delta, ctx);

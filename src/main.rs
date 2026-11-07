@@ -153,7 +153,7 @@ async fn main() {
 
     // game
     app.routine::<TurnEnding>(routine![EndOfBallSystem, BonusSystem, TurnEndScoreSystem]);
-    app.routine::<BallDraining>(routine![BallSaveSystem]);
+    app.routine::<BallDraining>(routine![BallSaveSystem, OutlaneSaveSystem]);
     app.routine::<GameEnding>(routine![EndOfBallSystem]);
 
     app.system(EndOfBallSystem::new());
@@ -174,11 +174,18 @@ async fn main() {
           // modes
           ModeManager::new(),
           SporesSystem::new(),
+          CenterSpinnerScoring::new(),
           BonusSystem::new(),
           TurnEndScoreSystem::new(),
           ScoopQualifier::new(),
           ModeSelectSystem::new(),
-          SporeMultiballQualification::new(),
+          // side quests
+          HeartwoodCharge::new(),
+          SurveillanceSystem::new(),
+          SentinelsSystem::new(),
+          RootTunnelsSystem::new(),
+          ComboSystem::new(),
+          OutlaneSaveSystem::new(),
         ],
         SwitchQ::tag::<tags::Playfield>(),
       )

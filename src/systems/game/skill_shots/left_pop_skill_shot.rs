@@ -6,6 +6,7 @@ use frontbox_sound::*;
 
 use crate::hardware::more_tags::DoesNotCancelSkillshot;
 use crate::hardware::pop_cluster;
+use crate::systems::game;
 use crate::systems::sounds;
 
 #[derive(Clone)]
@@ -29,7 +30,7 @@ impl LeftPopSkillShot {
     self.hit_effect = Some(Self::hit_effect());
 
     ctx.play_sfx(sounds::ARP_HIT1);
-    ctx.add_points(500_000);
+    ctx.add_points(game::points::SKILL_SHOT);
     ctx.systems.despawn_self();
   }
 

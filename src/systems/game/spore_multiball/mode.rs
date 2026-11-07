@@ -6,9 +6,7 @@ use frontbox_sound::SoundSystemExt;
 use crate::hardware::captive_ball::CaptiveBallHit;
 use crate::hardware::city_map;
 use crate::hardware::main_shot::MainShotHit;
-use crate::systems::game::ModeManager;
-use crate::systems::game::SporeMultiballQualification;
-use crate::systems::game::{MULTIBALL_BALL_SAVE, Multiball};
+use crate::systems::game::{self, EffectsSystem, MULTIBALL_BALL_SAVE, ModeManager, Multiball};
 use crate::systems::sounds;
 
 // TODO: super jackpot
@@ -19,7 +17,6 @@ pub struct SporeMultiballMode {
   super_jackpot_attention_effect: LedPlayback,
   hit_effect: LedPlayback,
   super_jackpot_hit_effect: LedPlayback,
-  progress_effect: LedPlayback,
   hits: u8,
   super_jackpot_active: bool,
   cue_id: Option<u64>,
@@ -33,7 +30,6 @@ impl SporeMultiballMode {
       hit_effect: Self::hit_effect(),
       super_jackpot_attention_effect: Self::super_jackpot_attention_effect(),
       super_jackpot_hit_effect: Self::super_jackpot_hit_effect(),
-      progress_effect: Self::progress_effect(0),
       hits: 0,
       super_jackpot_active: false,
       cue_id: None,
@@ -58,14 +54,18 @@ impl SporeMultiballMode {
   }
 
   fn progress_effect(hits: u8) -> LedPlayback {
-    city_map::spore_count_effect(Rgba::yellow(), (hits % 5) as f32 / 5.0)
+    city_map::mode_progress_effect(Rgba::yellow(), (hits % 5) as f32 / 5.0)
   }
 
   fn jackpot_hit(&mut self, ctx: &SystemContext) {
     self.hit_effect.reset();
     self.hit_effect.play();
     self.hits += 1;
-    ctx.add_points(5_000_000);
+    ctx
+      .systems
+      .expect::<EffectsSystem>()
+      .play(Self::progress_effect(self.hits));
+    ctx.add_points(game::points::HEARTWOOD_JACKPOT);
     // rises toward the super jackpot that every 5th hit lights
     ctx.play_sfx(sounds::city_hit(((self.hits - 1) % 5) as f32 / 4.0));
 
@@ -76,7 +76,7 @@ impl SporeMultiballMode {
   }
 
   fn super_jackpot_hit(&mut self, ctx: &SystemContext) {
-    ctx.add_points(25_000_000);
+    ctx.add_points(game::points::HEARTWOOD_SUPER_JACKPOT);
     ctx.play_sfx(sounds::ARP_HIT1);
     self.super_jackpot_hit_effect.reset();
     self.super_jackpot_hit_effect.play();
@@ -108,7 +108,7 @@ impl SporeMultiballMode {
       .systems
       .expect::<ModeManager>()
       .release_multiball(Multiball::Heartwood, ctx.into());
-    ctx.systems.replace_self(SporeMultiballQualification::new());
+    ctx.systems.despawn_self();
   }
 }
 
@@ -125,7 +125,6 @@ impl System for SporeMultiballMode {
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
-    self.progress_effect.apply(delta, ctx);
     self.super_jackpot_hit_effect.apply(delta, ctx);
     self.super_jackpot_attention_effect.apply(delta, ctx);
   }

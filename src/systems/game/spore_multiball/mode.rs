@@ -67,7 +67,7 @@ impl SporeMultiballMode {
     self.hits += 1;
     ctx.add_points(5_000_000);
     // rises toward the super jackpot that every 5th hit lights
-    ctx.play_sfx(sounds::rising_organic_hit((self.hits - 1) % 5 + 1));
+    ctx.play_sfx(sounds::city_hit(((self.hits - 1) % 5) as f32 / 4.0));
 
     // super jackpot
     if self.hits % 5 == 0 {

@@ -1134,6 +1134,8 @@ dependencies = [
  "frontbox-core",
  "kira",
  "log",
+ "serde",
+ "serde_json",
  "tokio",
 ]
 

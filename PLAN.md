@@ -200,20 +200,43 @@ console edits it, but its own docs say "there's nothing to play one with yet", s
 
 ## 1.9 Sound and callouts
 
-40 callouts are on disk and **none are loaded or played**. `sound_loader.rs` only has SFX, and nothing calls
-`play_callout` yet.
+All 40 callouts and the 20 files in `sfx/` are loaded, and every line with a moment in the game today is wired up.
 
-- [ ] Add the callouts to `sound_loader.rs` the way SFX are done (`include_bytes!` and `preload_embedded`).
-- [ ] Add a `Callout` enum and a single `ctx.say(Callout::…)` so call sites don't hold file keys. Steward chimes and
-      integrity variants can then be added in one place.
-- [ ] Fix the frontbox callout queue. `callout_queue` is a `Vec` used with `push` and `pop`, so the newest queued line
-      plays first, and it never drops stale ones. Make it first in, first out, and give lines a priority so a mode start
-      can replace a queued hit line.
-- [ ] Add a `CalloutCompleted` event so an intro can hold the scoop for exactly as long as its line.
-- [ ] Set up escalating hits as a shared helper: `city_hit(progress)`. It extends `rising_organic_hit` from city to
-      forest. Today's organic sounds are the stand-in until the palette exists.
-- [ ] Retire the old voice in `sounds/hydro-core/` (a different voice from the Steward).
-- [ ] Add the Steward's two-note chime. Bake it into the files, or sequence it in `say` once the queue is fixed.
+- [x] Add the callouts to `sound_loader.rs` the way SFX are done (`include_bytes!` and `preload_embedded`).
+- [x] Add a `Callout` enum and a single `ctx.say(Callout::…)` so call sites don't hold file keys. Steward chimes and
+      integrity variants can then be added in one place. It's in `systems/callouts.rs`, and a line's key is its path
+      under `callouts/`.
+- [x] Fix the frontbox callout queue. It's first in, first out, and a line has a priority, a lead-in and a longest
+      wait. In `Callout::request`, a passing line (a hit, an intensity stage, the ball start status) waits at most 3s,
+      and any other line replaces the passing lines waiting ahead of it. The line playing always plays out.
+- [x] Add a `CalloutCompleted` event so an intro can hold the scoop for exactly as long as its line. It also comes for
+      a line that was dropped, so the hold can't get stuck. `ModeRun` waits for both the intro scene and the last start
+      line.
+- [x] Set up escalating hits as a shared helper: `city_hit(progress)`. It replaces `rising_organic_hit`, going latch,
+      latch, organic 2, 3, 4, then `impact-dirt`. These are stand-ins until the palette exists. Completion plays the
+      top step.
+- [ ] Retire the old voice in `sounds/hydro-core/`. Nothing uses it now, but the 5 files are still on disk. Delete them.
+- [x] Add the Steward's two-note chime. `say` plays `sfx/steward-chime` as the line's lead-in, with the line
+      scheduled on the audio clock to start right as the chime ends.
+- [ ] Tune by ear on the machine: chime gap, `city_hit` steps, the 3s wait, and Meridian's gate clunk every 2.25s.
+
+What the SFX stand in for today:
+
+| SFX | Used for |
+|---|---|
+| `steward-chime` | Before every Steward line |
+| `latch-heavy1`–`3` | First two `city_hit` steps; Meridian's gate clunk as the window moves |
+| `impact-dirt` | Last `city_hit` step |
+| `impact-cinematic-heavy` | Choosing a mode in the menu |
+| `braam-bio1` | District completion |
+| `braam-bio2` | Mini-wizard completion; Heartwood start |
+| `scan-light` | Ball start, with the status line |
+| `woosh-light`, `latch-double` | Skyrail ramp (train past) and drop (signal clank) |
+| `hum`, `motor1`–`5`, `scan-light2`, `scan-med`, `scan-heavy-stutter` | Loaded, not used. `hum` needs `loop` to be a bed, and the motors aren't a stepped set (their lengths differ), so not Hydro's rising hum. Candidates: lift ramp, Surveillance, glitches. |
+
+Lines with no moment in the game yet: `retrieval-failed` (outlane save), `access-to-city-restricted` (lock lit),
+`biological-contaminent-identified` (spore burst), `steward-core-breached` (final), `walkway-4-sealed` (Nimbus seals),
+and the spares `meridian-basins-uninhabitable`, `hydro-core-offline` and `nimbus-promenade-offline`.
 
 Music: `ModeManager` has placeholder commercial tracks for Hydro, Skyrail, Solarium, Meridian, Nimbus, spore multiball
 and the default. Apex, the mini-wizards and Groundswell have nothing. `play_music` plays a track once, so anything longer than the track goes

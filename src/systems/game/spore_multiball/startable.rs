@@ -54,7 +54,7 @@ impl System for SporeMultiballStartable {
         Ok(_) => {
           self.complete = true;
           self.hit_effect.play();
-          ctx.play_sfx(sounds::HIT_ORGANIC3);
+          ctx.play_sfx(sounds::BRAAM_BIO2);
         }
         _ => {}
       }

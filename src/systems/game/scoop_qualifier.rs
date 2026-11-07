@@ -70,7 +70,7 @@ impl ScoopQualifier {
     self.hit_effect.reset();
     self.hit_effect.play();
     ctx.play_sfx(if self.count.is_qualified() {
-      sounds::HYDRO_CORE_ONLINE
+      sounds::ARP_HIT1
     } else {
       sounds::rnd_lane_hit()
     });

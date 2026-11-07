@@ -58,8 +58,7 @@ impl NimbusPromenadeMode {
       if self.hits == required_hits {
         self.complete(ctx);
       } else {
-        // rises every other hit to spread the four pitches across the mode
-        ctx.play_sfx(sounds::rising_organic_hit((self.hits + 1) / 2));
+        ctx.play_sfx(sounds::city_hit(self.hits as f32 / required_hits as f32));
       }
     }
   }
@@ -81,7 +80,6 @@ impl NimbusPromenadeMode {
   }
 
   fn complete(&mut self, ctx: &SystemContext) {
-    ctx.play_sfx(sounds::LANE_HIT_COMPLETE);
     self.run.complete(
       15_000_000,
       led_playback!("nimbus_promenade/complete.scene"),

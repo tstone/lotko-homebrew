@@ -4,3 +4,5 @@
 /metrics.db/
 # Ableton live file
 *.asd
+# Ableton raw recordings (held open by Live while the set is loaded)
+/audio/*/Samples/Recorded/

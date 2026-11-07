@@ -1,10 +1,13 @@
 use frontbox_core::prelude::*;
 use frontbox_dmd::{InitialsEntered, InitialsEntrySystem};
-use frontbox_pinball::{GameEndReason, GameEnding, HighScoreSlot, HighScoresSystem, TurnEnding};
+use frontbox_pinball::{
+  GameEndReason, GameEnding, HighScoreSlot, HighScoresSystem, TurnEndReason, TurnEnding,
+};
 use frontbox_sound::SoundSystem;
 
 use crate::hardware::cabinet;
 use crate::systems::sounds::LANE_HIT_COMPLETE;
+use crate::systems::{Callout, SayExt};
 
 /// A participant in `TurnEnding` (end-of-ball sound) and `GameEnding` (high-score initials entry, skipped after a
 /// slam tilt)
@@ -79,7 +82,10 @@ impl System for EndOfBallSystem {
   }
 
   fn on_routine(&mut self, routine: &dyn Event, ctx: &SystemContext) {
-    if routine.is::<TurnEnding>() {
+    if let Some(turn) = routine.downcast_ref::<TurnEnding>() {
+      if turn.reason == TurnEndReason::Drained {
+        ctx.say(Callout::GrowthContained);
+      }
       // insert a slice delay to let hardware settle and final points come in
       ctx.cues.start(Continue, Duration::from_millis(500).once());
     } else if let Some(GameEnding { scores, reason }) = routine.downcast_ref::<GameEnding>() {

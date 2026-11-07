@@ -1,10 +1,11 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{BallSaveExt, GameManagementExt};
-use frontbox_sound::SoundSystemExt;
+use frontbox_sound::{CalloutCompleted, SoundSystemExt};
 
 use crate::hardware::lower_scoop::{LowerScoopEjected, LowerScoopSystem};
 use crate::systems::game::{EffectsSystem, Mode, ModeManager};
+use crate::systems::{SayExt, sounds};
 
 /// The ball save a mode starts with, as the scoop eject is a common drain
 const START_BALL_SAVE: Duration = Duration::from_secs(8);
@@ -29,6 +30,8 @@ pub struct ModeRun {
   stage: u8,
   /// The intro, while it's playing with the ball held in the scoop
   intro: Option<LedPlayback>,
+  /// The start line the intro is still waiting on, by key
+  intro_line: Option<&'static str>,
   /// The ball was let go and hasn't left the scoop yet
   awaiting_eject: bool,
 }
@@ -40,29 +43,34 @@ impl ModeRun {
       required,
       stage: 0,
       intro: None,
+      intro_line: None,
       awaiting_eject: false,
     }
   }
 
-  /// The start phase: the ball waits in the scoop through the intro
+  /// The start phase: the ball waits in the scoop through the intro and the Steward's announcement
   pub fn begin(&mut self, ctx: &SystemContext) {
     log::info!("ModeRun: {:?} begins", self.mode);
     ctx
       .systems
       .expect::<LowerScoopSystem>()
       .hold(ctx.id(), ctx.into());
-    ctx.play_sfx(self.mode.start_sound());
+    for line in self.mode.start_lines() {
+      ctx.say(*line);
+    }
+    self.intro_line = self.mode.start_lines().last().map(|line| line.key());
     self.intro = Some(led_playback!("startable/hit.scene").param("color", self.mode.color()));
   }
 
-  /// Plays the intro until it's done, then lets the ball go. Returns whether the mode is still starting.
+  /// Plays the intro until both it and the start lines are done, then lets the ball go. Returns whether the mode is
+  /// still starting.
   pub fn apply(&mut self, delta: Duration, ctx: &SystemContext) -> bool {
     let Some(intro) = self.intro.as_mut() else {
       return false;
     };
 
     intro.apply(delta, ctx);
-    if intro.is_complete() {
+    if intro.is_complete() && self.intro_line.is_none() {
       intro.stop(ctx);
       self.intro = None;
       self.awaiting_eject = true;
@@ -76,6 +84,14 @@ impl ModeRun {
     if self.awaiting_eject && event.is::<LowerScoopEjected>() {
       self.awaiting_eject = false;
       ctx.request_ball_save(START_BALL_SAVE);
+    } else if let Some(line) = event.downcast_ref::<CalloutCompleted>() {
+      self.line_completed(line.key);
+    }
+  }
+
+  fn line_completed(&mut self, key: &'static str) {
+    if self.intro_line == Some(key) {
+      self.intro_line = None;
     }
   }
 
@@ -85,6 +101,7 @@ impl ModeRun {
       intro.stop(ctx);
       self.release_ball(ctx);
     }
+    self.intro_line = None;
     self.awaiting_eject = false;
   }
 
@@ -108,6 +125,15 @@ impl ModeRun {
   /// take the completion back.
   pub fn complete(&self, points: u32, effect: LedPlayback, ctx: &SystemContext) {
     ctx.add_points(points);
+    ctx.play_sfx(sounds::city_hit(1.0));
+    ctx.play_sfx(if self.mode.is_mini_wizard() {
+      sounds::BRAAM_BIO2
+    } else {
+      sounds::BRAAM_BIO1
+    });
+    if let Some(line) = self.mode.completion_line() {
+      ctx.say(line);
+    }
     ctx.systems.expect::<EffectsSystem>().play(effect);
     ctx
       .systems
@@ -128,6 +154,19 @@ impl ModeRun {
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  #[test]
+  fn only_the_last_start_line_ends_the_wait() {
+    let mut run = ModeRun::new(Mode::NimbusPromenade, 8);
+    let lines = Mode::NimbusPromenade.start_lines();
+    run.intro_line = lines.last().map(|line| line.key());
+
+    run.line_completed(lines[0].key());
+    assert!(run.intro_line.is_some());
+
+    run.line_completed(lines[1].key());
+    assert!(run.intro_line.is_none());
+  }
 
   #[test]
   fn each_stage_is_reported_once_as_it_is_reached() {

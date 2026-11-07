@@ -9,7 +9,7 @@ use crate::hardware::pop_cluster::PopBumper;
 use crate::hardware::{city_map, pop_cluster};
 use crate::systems::game::meridian_basins::MODE_COLOR;
 use crate::systems::game::{Mode, ModeManager, ModeRun, SporeApplied, points};
-use crate::systems::{sounds, sounds_bytes};
+use crate::systems::{Callout, SayExt, sounds};
 use frontbox_sound::*;
 
 static REQUIRED_HITS: u8 = 6;
@@ -70,18 +70,23 @@ impl MeridianBasinsMode {
       self.hits += 1;
       self.progress_effect = Self::progress_effect(self.hits);
       log::info!("MeridianBasins: hits = {}", self.hits);
-      ctx.play_sfx(sounds::rnd_lane_hit());
       ctx.add_points(points::EXL_MODE_HIT);
       ctx.emit(SporeApplied);
 
       if self.hits == REQUIRED_HITS {
         log::info!("MeridianBasins: complete");
-        ctx.play_sfx(sounds::ARP_HIT1);
         self
           .run
           .complete(points::EXL_COMPLETION, Self::complete_effect(), ctx);
         return;
       }
+
+      ctx.play_sfx(sounds::city_hit(self.hits as f32 / REQUIRED_HITS as f32));
+      ctx.say(if self.hits == 4 {
+        Callout::FourOfSix
+      } else {
+        Callout::ChannelBreach
+      });
 
       if self.run.progress(self.hits) == Some(50) {
         self.intensity_effect.play();
@@ -103,6 +108,7 @@ impl MeridianBasinsMode {
       ordered[Self::wrap_shot_idx(current_start_idx + 3)],
     ];
 
+    ctx.play_sfx(sounds::rnd_latch());
     self.attention_effect.stop(ctx);
     self.attention_effect = Self::attention_effect(&self.current_shots);
   }

@@ -4,10 +4,11 @@ use std::path::PathBuf;
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{TurnEnding, TurnStarting};
-use frontbox_sound::SoundSystem;
+use frontbox_sound::{SoundSystem, SoundSystemExt};
 
 use crate::metrics;
 use crate::systems::game::{Mode, ModeState, Multiball, Progression, music_file};
+use crate::systems::{Callout, SayExt, sounds};
 
 /// How long an insert takes to pulse once for a mode that can be chosen, which is calmer than a running mode's flash
 const OFFERED_PULSE: Duration = Duration::from_millis(900);
@@ -190,6 +191,16 @@ impl ModeManager {
     ctx.emit(ModeSlotsChanged);
   }
 
+  /// The Steward's status line, which is less sure of itself once a district has fallen
+  fn announce_ball(&self, ctx: &SystemContext) {
+    ctx.play_sfx(sounds::SCAN_LIGHT);
+    ctx.say(if self.districts_completed() == 0 {
+      Callout::AllSystemsWithinOperationalTolerance
+    } else {
+      Callout::ContinuingCityMaintenance
+    });
+  }
+
   fn stop_music(&mut self, ctx: &SystemContext) {
     ctx
       .systems
@@ -276,6 +287,7 @@ impl System for ModeManager {
       self.turn_active = true;
       self.crossfade_music(ctx);
       self.render_map(ctx);
+      self.announce_ball(ctx);
     } else if event.is::<RoutineStarted<TurnEnding>>() {
       self.turn_active = false;
       self.stop_music(ctx);

@@ -9,6 +9,7 @@ use frontbox_pinball::{
 use crate::hardware::trough::DRAIN_LED;
 use crate::systems::dmd::ANNOUNCEMENT_DMD_LAYER;
 use crate::systems::game::{DistrictCompleted, points};
+use crate::systems::{Callout, SayExt};
 
 /// How long the extra ball and shoot again screens are shown
 const SCREEN_DURATION: Duration = Duration::from_secs(2);
@@ -72,6 +73,7 @@ impl ExtraBallSystem {
     self.lit += 1;
     log::info!("Extra ball lit by {:?}, {} lit", source, self.lit);
     self.show("EXTRA BALL LIT", ctx);
+    ctx.say(Callout::UnregisteredResident);
     self.update_lit_effect(ctx);
     true
   }
@@ -89,6 +91,7 @@ impl ExtraBallSystem {
 
   fn collect(&mut self, ctx: &SystemContext) {
     self.lit -= 1;
+    ctx.say(Callout::ErrorInvalidResident);
     if ctx.grant_extra_ball() {
       log::info!("Extra ball collected");
       self.show("EXTRA BALL", ctx);

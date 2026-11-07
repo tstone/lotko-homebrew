@@ -157,6 +157,7 @@ async fn main() {
     app.routine::<GameEnding>(routine![EndOfBallSystem]);
 
     app.system(EndOfBallSystem::new());
+    app.system(GameGreeting::new());
     app.system(TiltPresenter::new());
     app.system(
       GameManager::competitive(

@@ -8,7 +8,7 @@ use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{self, EffectsSystem, Mode, ModeManager, ModeRun, SporeApplied};
-use crate::systems::sounds;
+use crate::systems::{Callout, SayExt, sounds};
 
 static BASE_SHOT_TIME: LazyLock<Duration> = LazyLock::new(|| Duration::from_secs(25));
 
@@ -101,7 +101,6 @@ impl HydroCoreMode {
     self.hit_effect.stop(ctx);
 
     if shot == 6 {
-      ctx.play_sfx(sounds::HYDRO_CORE_PURGED);
       self.run.complete(
         game::points::EXL_COMPLETION,
         led_playback!("hydro_core/complete.scene"),
@@ -110,7 +109,9 @@ impl HydroCoreMode {
       return;
     }
 
-    ctx.play_sfx(sounds::rnd_lane_hit());
+    if shot > 1 {
+      ctx.play_sfx(sounds::city_hit((shot - 1) as f32 / COMBO.len() as f32));
+    }
 
     // first and last shot aren't timed
     if shot > 1 && shot < 5 {
@@ -135,8 +136,10 @@ impl HydroCoreMode {
     self.attention_effect = Self::attention_effect(target.hex_center());
     self.hit_effect = Self::attention_ring(target.hex_ring());
 
-    if self.run.progress(shot - 1) == Some(50) {
-      self.intensity_effect.play();
+    match self.run.progress(shot - 1) {
+      Some(50) => self.intensity_effect.play(),
+      Some(75) => ctx.say(Callout::CoreTemperatureRising),
+      _ => {}
     }
   }
 

@@ -1,6 +1,7 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
+use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::city_map;
 use crate::hardware::drop_bank::{DropBankSystem, DropBankTargetHit};
@@ -11,6 +12,10 @@ use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
   self, EffectsSystem, MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, SporeApplied, points,
 };
+use crate::systems::{Callout, SayExt, sounds};
+
+/// Ramp shots and drop targets to the end of the mode
+const REQUIRED_HITS: u8 = 8;
 
 pub struct SkyrailStationMode {
   run: ModeRun,
@@ -30,7 +35,7 @@ pub struct SkyrailStationMode {
 impl SkyrailStationMode {
   pub fn new() -> Self {
     Self {
-      run: ModeRun::new(Mode::SkyrailStation, 8),
+      run: ModeRun::new(Mode::SkyrailStation, REQUIRED_HITS),
       attention_effect: Self::attention_effect_ramp(),
       hit_effect: Self::hit_effect(),
       intensity_effect: Self::intensity_effect(),
@@ -65,7 +70,7 @@ impl SkyrailStationMode {
   }
 
   fn progress_effect(hits: u8) -> LedPlayback {
-    city_map::spore_count_effect(*MODE_COLOR, hits as f32 / 8.0)
+    city_map::spore_count_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
   }
 
   fn advance(&mut self, ctx: &SystemContext) {
@@ -76,6 +81,14 @@ impl SkyrailStationMode {
       .systems
       .expect::<EffectsSystem>()
       .play(led_playback!("skyrail_station/flashers.scene"));
+    ctx.play_sfx(sounds::city_hit(
+      (self.target_hits + self.ramp_hits) as f32 / REQUIRED_HITS as f32,
+    ));
+    ctx.play_sfx(if self.state == HitRamp {
+      sounds::WOOSH_LIGHT
+    } else {
+      sounds::LATCH_DOUBLE
+    });
 
     match self.state {
       Final => {
@@ -105,6 +118,9 @@ impl SkyrailStationMode {
       HitRamp => {
         log::info!("Skyrail: HitRamp");
         self.ramp_hits += 1;
+        if self.ramp_hits == 1 {
+          ctx.say(Callout::The515IsDelayed);
+        }
 
         if self.ramp_hits == 3 {
           // on the final round all 3 targets must be hit with a 2 ball multiball

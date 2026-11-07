@@ -5,6 +5,7 @@ use frontbox_led::prelude::*;
 use frontbox_pinball::{GameEnding, PlayerTilted, TiltWarned, TurnStarting};
 
 use crate::systems::dmd::ANNOUNCEMENT_DMD_LAYER;
+use crate::systems::{Callout, SayExt};
 
 /// How long a tilt warning is shown
 const WARNING_DURATION: Duration = Duration::from_millis(1500);
@@ -52,6 +53,7 @@ impl TiltPresenter {
       ColorSequence::solid(Rgba::black()),
     );
     self.show("TILT".to_string(), ctx);
+    ctx.say(Callout::ThankYouForCooperation);
   }
 
   /// The tilt is over: the next turn starts, or the game ends

@@ -48,11 +48,12 @@ impl MiniWizardMode {
   fn on_hit(&mut self, ctx: &SystemContext) {
     self.hits += 1;
     ctx.add_points(HIT_POINTS * self.mode.tier() as u32);
-    ctx.play_sfx(sounds::rising_organic_hit(self.hits.div_ceil(3)));
     self.progress_effect.stop(ctx);
     self.progress_effect = Self::progress_effect(self.mode, self.hits);
 
-    if self.hits == REQUIRED_HITS {
+    if self.hits < REQUIRED_HITS {
+      ctx.play_sfx(sounds::city_hit(self.hits as f32 / REQUIRED_HITS as f32));
+    } else {
       self.run.complete(
         points::EXL_COMPLETION,
         led_playback!("startable/hit.scene").param("color", self.mode.color()),

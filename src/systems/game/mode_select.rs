@@ -108,6 +108,7 @@ impl ModeSelectSystem {
     if started.is_ok() {
       ctx.systems.expect::<ScoopQualifier>().used(ctx.into());
       ctx.add_points(game::points::EXCL_START);
+      ctx.play_sfx(sounds::IMPACT_CINEMATIC_HEAVY);
     }
     self.release_ball(ctx);
   }

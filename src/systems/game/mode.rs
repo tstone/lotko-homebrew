@@ -4,11 +4,11 @@ use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 
 use crate::hardware::city_map;
+use crate::systems::Callout;
 use crate::systems::game::{
   ApexTerracesMode, HydroCoreMode, MeridianBasinsMode, MiniWizardMode, NimbusPromenadeMode,
   SkyrailStationMode, SolariumAtriumMode,
 };
-use crate::systems::sound_loader;
 
 const MUSIC_FOLDER: &str = "/userdata/home/armsom/music";
 
@@ -123,10 +123,31 @@ impl Mode {
     Some(music_file(file))
   }
 
-  pub fn start_sound(&self) -> &'static str {
+  /// What the Steward says as the mode starts, in order. The ball waits in the scoop for the last of them.
+  pub fn start_lines(&self) -> &'static [Callout] {
     match self {
-      Self::HydroCore => sound_loader::sounds::HYDRO_CORE_ONLINE,
-      _ => sound_loader::sounds::ARP_HIT1, // TODO: improve
+      Self::MeridianBasins => &[Callout::RootIntrusion],
+      Self::HydroCore => &[Callout::CoolantCoreDropping],
+      Self::NimbusPromenade => &[Callout::PromenadeClosed, Callout::WalkwaysWillBeSealed],
+      Self::SkyrailStation => &[Callout::SkyrailServiceSuspended, Callout::ClearThePlatform],
+      Self::ApexTerraces => &[Callout::ResidentsEvacuateNow],
+      Self::SolariumAtrium => &[Callout::AtriumIntegrityVerified],
+      Self::Floodgates => &[Callout::FloodBarriersEngaged],
+      Self::Derailment => &[Callout::TrainDerailmentSubverting],
+      Self::Blackout | Self::Canopy => &[],
+    }
+  }
+
+  /// What the Steward says as the mode is completed
+  pub fn completion_line(&self) -> Option<Callout> {
+    match self {
+      Self::MeridianBasins => Some(Callout::BasinsReclassified),
+      Self::HydroCore => Some(Callout::CoreOffline),
+      Self::NimbusPromenade => Some(Callout::AccessToUpperCityRestricted),
+      Self::SkyrailStation => Some(Callout::AllLinesAreNowClosed),
+      Self::ApexTerraces => Some(Callout::ApexTerracesOffline),
+      Self::SolariumAtrium => Some(Callout::TheScienceWillNotBeLost),
+      Self::Floodgates | Self::Blackout | Self::Derailment | Self::Canopy => None,
     }
   }
 
@@ -197,6 +218,14 @@ pub fn music_file(file: &str) -> PathBuf {
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  #[test]
+  fn districts_have_lines_for_their_start_and_completion() {
+    for mode in Mode::DISTRICTS {
+      assert!(!mode.start_lines().is_empty());
+      assert!(mode.completion_line().is_some());
+    }
+  }
 
   #[test]
   fn groundswell_stacks_with_districts_but_not_mini_wizards() {

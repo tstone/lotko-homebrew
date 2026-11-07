@@ -7,7 +7,7 @@ use crate::game::solarium_atrium::MODE_COLOR;
 use crate::hardware::city_map;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{self, EffectsSystem, Mode, ModeManager, ModeRun, SporeApplied};
-use crate::systems::sounds;
+use crate::systems::{Callout, SayExt, sounds};
 
 static REQUIRED_HITS: u8 = 6;
 
@@ -71,7 +71,6 @@ impl SolariumAtriumMode {
     ctx.emit(SporeApplied);
 
     if self.ramp_hits == REQUIRED_HITS {
-      ctx.play_sfx(sounds::ARP_HIT1);
       // TODO: epic reaction effect
       self
         .run
@@ -79,8 +78,17 @@ impl SolariumAtriumMode {
       return;
     }
 
-    if self.run.progress(self.ramp_hits) == Some(50) {
-      self.intensity_effect.play();
+    ctx.play_sfx(sounds::city_hit(
+      self.ramp_hits as f32 / REQUIRED_HITS as f32,
+    ));
+    match self.run.progress(self.ramp_hits) {
+      Some(25) => ctx.say(Callout::AtriumIntegrityFailing),
+      Some(50) => {
+        ctx.say(Callout::TestLabShutdownInitiated);
+        self.intensity_effect.play();
+      }
+      Some(75) => ctx.say(Callout::AtriumContainmentEnacted),
+      _ => {}
     }
     self.hit_effect.play();
 

@@ -7,6 +7,7 @@ use crate::{
     pop_cluster::{self, PopBumper, match_target_switch},
   },
   systems::{
+    Callout, SayExt,
     game::{Mode, ModeManager, ModeRun},
     sounds,
   },
@@ -85,7 +86,12 @@ impl ApexTerracesMode {
         return;
       }
 
-      ctx.play_sfx(sounds::COUNTING);
+      ctx.play_sfx(sounds::city_hit(
+        self.charge as f32 / REQUIRED_CHARGE as f32,
+      ));
+      if self.charge == 1 {
+        ctx.say(Callout::ThisIsAnExclusiveArea);
+      }
       self.set_spinner_effect(Self::charge_effect(self.charge), ctx);
 
       if self.lit.is_empty() {
@@ -164,6 +170,7 @@ impl ApexTerracesMode {
     self.clear_lit(ctx);
 
     ctx.play_sfx(sounds::EVOLUTION_COMPLETE);
+    ctx.say(Callout::WarningStructuralConcern);
     self.start_effect = Some(led_playback!("apex_terraces/start.scene"));
     self.set_spinner_effect(led_playback!("apex_terraces/spinner_charged.scene"), ctx);
   }

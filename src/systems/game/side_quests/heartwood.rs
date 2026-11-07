@@ -47,7 +47,7 @@ impl HeartwoodCharge {
       &captive_ball::LEFT_BOLT.q(),
       &captive_ball::RIGHT_BOLT.q(),
     ]);
-    heartbeat_effect(&bolts, Rgba::green(), Duration::from_secs_f32(beat))
+    heartbeat_effect(&bolts, Rgba::lime(), Duration::from_secs_f32(beat))
   }
 
   fn on_hit(&mut self, ctx: &SystemContext) {

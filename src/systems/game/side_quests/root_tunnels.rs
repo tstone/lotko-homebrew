@@ -43,7 +43,7 @@ impl RootTunnelsSystem {
       tunnel.hex_ring(),
       SEGMENTS as usize,
       dug as usize,
-      Rgba::green(),
+      Rgba::lime(),
     )
   }
 
@@ -69,7 +69,7 @@ impl RootTunnelsSystem {
       ctx
         .systems
         .expect::<EffectsSystem>()
-        .play(flash_effect(shot.hex_ring(), Rgba::green()));
+        .play(flash_effect(shot.hex_ring(), Rgba::lime()));
       ctx.emit(TunnelCollected);
       self.dug[index] = 0;
     }

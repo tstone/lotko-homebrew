@@ -61,7 +61,7 @@ impl OutlaneSaveSystem {
     let lit = outlane.grown(RING_LEDS);
     side
       .rings()
-      .map(|ring| fill_effect(&ring.q(), RING_LEDS, lit, Rgba::green()))
+      .map(|ring| fill_effect(&ring.q(), RING_LEDS, lit, Rgba::lime()))
   }
 
   /// Light a side that isn't lit, if there is one. Returns whether one was.
@@ -138,7 +138,7 @@ impl OutlaneSaveSystem {
     if outlane.lit && lit_effect.is_none() {
       *lit_effect = Some(heartbeat_effect(
         &side.led().q(),
-        Rgba::green(),
+        Rgba::lime(),
         Duration::from_millis(1600),
       ));
     } else if !outlane.lit

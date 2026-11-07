@@ -80,12 +80,12 @@ impl SurveillanceSystem {
     }
   }
 
-  /// Red on the cameras still watching
+  /// Peach on the cameras still watching
   fn render(&self, ctx: &SystemContext) {
     for pop in PopBumper::ALL {
       let led = pop_cluster::target_led_for_pop(&pop).q();
       if self.cameras.is_watching(pop) {
-        ctx.declare_leds(&led, ColorSequence::solid(Rgba::red()));
+        ctx.declare_leds(&led, ColorSequence::solid(Rgba::peach()));
       } else {
         ctx.undeclare_leds(&led);
       }

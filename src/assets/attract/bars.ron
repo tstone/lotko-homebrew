@@ -3,12 +3,12 @@
   viewport: Area,
   timing: (
     duration: 1.25,
-    cycle: Times(3),
+    cycle: Times(4),
   ),
   layers: [
     (
       fill: (
-        base: Solid(Fixed(0, 255, 149, 255)),
+        base: Solid(Fixed(0, 255, 108, 255)),
       ),
       shape: (
         transform: [

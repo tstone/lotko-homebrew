@@ -20,12 +20,10 @@ impl ExclusiveModeQualifier for SporeMultiballQualifier {
     ctx.systems.replace_self(SporeMultiballStartable::new());
   }
 
-  fn attention_effect() -> LedProgram1d {
-    LedProgram1d::pulse(
+  fn attention_effect() -> LedScene {
+    LedScene::new(
       gi::CAPTIVE_BALL.q().at_z(1),
-      Rgba::white(),
-      Duration::from_millis(1400),
-      Cycle::Forever,
+      led_scene!("spore_multiball/qualification.ron"),
     )
   }
 }

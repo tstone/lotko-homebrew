@@ -1,6 +1,5 @@
 use frontbox_core::prelude::tags::Playfield;
 use frontbox_core::prelude::*;
-use frontbox_gfx::animation::Curve;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
@@ -25,10 +24,10 @@ use frontbox_sound::*;
 static REQUIRED_HITS: u8 = 6;
 
 pub struct MeridianBasinsMode {
-  attention_effect: LedProgram1d,
-  hit_effect: LedProgram1d,
-  intensity_effect: LedProgram1d,
-  progress_effect: LedProgram1d,
+  attention_effect: LedScene,
+  hit_effect: LedScene,
+  intensity_effect: LedScene,
+  progress_effect: LedScene,
   hits: u8,
   current_shots: Vec<ModeShots>,
 }
@@ -42,7 +41,7 @@ impl MeridianBasinsMode {
     ];
     Self {
       attention_effect: Self::attention_effect(&initial),
-      hit_effect: Self::hit_effect(2),
+      hit_effect: Self::hit_effect(),
       intensity_effect: Self::intensity_effect(),
       progress_effect: Self::progress_effect(0),
       current_shots: initial,
@@ -50,63 +49,48 @@ impl MeridianBasinsMode {
     }
   }
 
-  fn attention_effect(shots: &Vec<ModeShots>) -> LedProgram1d {
+  fn attention_effect(shots: &Vec<ModeShots>) -> LedScene {
     let led_qs: Vec<LedQ> = shots.iter().map(|shot| shot.led_q()).collect();
     let qs: Vec<&LedQ> = led_qs.iter().collect();
 
-    LedProgram1d::pulse(
-      LedQ::any(qs),
-      *MODE_COLOR,
-      Duration::bpm(128),
-      Cycle::Forever,
-    )
+    LedScene::new(LedQ::any(qs), led_scene!("meridian_basins/attention.ron"))
   }
 
-  fn hit_effect(flash_count: u32) -> LedProgram1d {
-    LedProgram1d::flash(
+  fn hit_effect() -> LedScene {
+    LedScene::new(
       LedQ::tag::<Playfield>().at_z(-1),
-      (*MODE_COLOR).into(),
-      Cycle::Times(flash_count),
+      led_scene!("meridian_basins/hit.ron"),
     )
     .stopped()
   }
 
-  fn intensity_effect() -> LedProgram1d {
-    LedProgram1d::multi(vec![
-      LedProgram1d::rotating(
+  fn complete_effect() -> LedScene {
+    LedScene::new(
+      LedQ::tag::<Playfield>().at_z(-1),
+      led_scene!("meridian_basins/complete.ron"),
+    )
+    .stopped()
+  }
+
+  fn intensity_effect() -> LedScene {
+    LedScene::unbound(led_scene!("meridian_basins/intensity.ron"))
+      .on(
+        "flashers",
         LedQ::any(vec![
           &flashers::LEFT_FLASHER.q(),
           &flashers::CENTER_FLASHER.q(),
         ]),
-        ColorSequence::exact(vec![Rgba::white(), Rgba::white().lighten(0.4)]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-      LedProgram1d::rotating(
-        backbox::LEFT_SPEAKER_LEDS.q().reverse(),
-        ColorSequence::exact(vec![*MODE_COLOR, *MODE_COLOR, *MODE_COLOR, *MODE_COLOR]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-      LedProgram1d::rotating(
-        backbox::LEFT_SPEAKER_LEDS.q().reverse(),
-        ColorSequence::exact(vec![*MODE_COLOR, *MODE_COLOR, *MODE_COLOR, *MODE_COLOR]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-    ])
-    .stopped()
+      )
+      .unwrap()
+      .on("left_speaker", backbox::LEFT_SPEAKER_LEDS.q().reverse())
+      .unwrap()
+      .on("right_speaker", backbox::RIGHT_SPEAKER_LEDS.q().reverse())
+      .unwrap()
+      .stopped()
   }
 
-  fn progress_effect(hits: u8) -> LedProgram1d {
-    LedProgram1d::fixed(
-      city_map::SPORE_COUNT_BAR.q().reverse(),
-      ColorSequence::solid(*MODE_COLOR)
-        .padding_right(Extent::Relative(1.0 - (hits as f32 / REQUIRED_HITS as f32))),
-    )
+  fn progress_effect(hits: u8) -> LedScene {
+    city_map::spore_count_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
   }
 
   fn revert_to_startable(&mut self, ctx: &SystemContext) {
@@ -136,7 +120,7 @@ impl MeridianBasinsMode {
       } else if self.is_complete() {
         log::info!("MeridianBasins: complete");
         ctx.play_sfx(sounds::ARP_HIT1);
-        self.hit_effect = Self::hit_effect(4);
+        self.hit_effect = Self::complete_effect();
         ctx.add_points(points::EXL_COMPLETION);
       }
 

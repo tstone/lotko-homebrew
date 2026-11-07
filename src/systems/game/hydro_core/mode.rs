@@ -3,7 +3,6 @@ use std::sync::LazyLock;
 
 use frontbox_core::prelude::tags::Playfield;
 use frontbox_core::prelude::*;
-use frontbox_gfx::animation::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnEnding};
 use frontbox_sound::SoundSystemExt;
@@ -18,7 +17,6 @@ use crate::hardware::lift_ramp::LiftRampHit;
 use crate::hardware::more_tags::ArcRamp;
 use crate::hardware::{arc_ramp, center_orbit, city_map, dome_ramp, left_orbit, lift_ramp};
 use crate::systems::game::ModeManager;
-use crate::systems::game::hydro_core::MODE_COLOR;
 use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable, SporeApplied};
 use crate::systems::sounds;
 
@@ -26,11 +24,11 @@ static BASE_SHOT_TIME: LazyLock<Duration> = LazyLock::new(|| Duration::from_secs
 
 #[derive(Clone)]
 pub struct HydroCoreMode {
-  attention_effect: LedProgram1d,
-  intensity_effect: LedProgram1d,
-  hit_effect: LedProgram1d,
-  arc_effect: LedProgram1d,
-  progress_effect: Option<LedProgram1d>,
+  attention_effect: LedScene,
+  intensity_effect: LedScene,
+  hit_effect: LedScene,
+  arc_effect: LedScene,
+  progress_effect: Option<LedScene>,
   current_combo_shot: u8,
   /// Track which shots have been made in the past
   combo_shots_seen: HashSet<u8>,
@@ -57,96 +55,52 @@ impl HydroCoreMode {
 
   fn attention_effect<T: Contextual<LedIdentifications> + Send + Sync + 'static>(
     target: T,
-  ) -> LedProgram1d {
-    LedProgram1d::rotating(
-      target,
-      ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-      Duration::from_millis(1500),
-      Curve::EaseIn,
-      Cycle::Forever,
-    )
+  ) -> LedScene {
+    LedScene::new(target, led_scene!("hydro_core/attention.ron"))
   }
 
-  fn intensity_effect() -> LedProgram1d {
-    LedProgram1d::multi(vec![
-      LedProgram1d::rotating(
+  fn attention_ring<T: Contextual<LedIdentifications> + Send + Sync + 'static>(
+    target: T,
+  ) -> LedScene {
+    LedScene::new(target, led_scene!("hydro_core/attention_ring.ron"))
+  }
+
+  fn intensity_effect() -> LedScene {
+    LedScene::unbound(led_scene!("hydro_core/intensity.ron"))
+      .on(
+        "flashers",
         LedQ::any(vec![
           &flashers::LEFT_FLASHER.q(),
           &flashers::CENTER_FLASHER.q(),
         ]),
-        ColorSequence::exact(vec![Rgba::white(), Rgba::white().lighten(0.4)]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-      LedProgram1d::rotating(
-        LEFT_SPEAKER_LEDS.q(),
-        ColorSequence::exact(vec![*MODE_COLOR, *MODE_COLOR, *MODE_COLOR, *MODE_COLOR]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-      LedProgram1d::rotating(
-        RIGHT_SPEAKER_LEDS.q(),
-        ColorSequence::exact(vec![*MODE_COLOR, *MODE_COLOR, *MODE_COLOR, *MODE_COLOR]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-    ])
-    .stopped()
-  }
-
-  fn hit_effect<T: Contextual<LedIdentifications> + Send + Sync + 'static>(
-    target: T,
-  ) -> LedProgram1d {
-    LedProgram1d::timeline()
-      .at(
-        Duration::ZERO,
-        LedProgram1d::rotating(
-          target,
-          ColorSequence::exact(vec![
-            *MODE_COLOR,
-            MODE_COLOR.darken(0.4),
-            MODE_COLOR.darken(0.8),
-          ]),
-          Duration::from_millis(600),
-          Curve::Linear,
-          Cycle::Once,
-        ),
       )
-      .at(
-        Duration::ZERO,
-        LedProgram1d::tween(
-          LedQ::tag::<Playfield>().at_z(-1),
-          Duration::from_millis(500),
-          Curve::ExponentialOut,
-          Cycle::Once,
-          vec![
-            ColorSequence::fade(*MODE_COLOR, Rgba::default()).shuffle(rand::random()),
-            ColorSequence::solid(Rgba::default()),
-          ],
-          EndBehavior::Clear,
-        ),
-      )
+      .unwrap()
+      .on("left_speaker", LEFT_SPEAKER_LEDS.q())
+      .unwrap()
+      .on("right_speaker", RIGHT_SPEAKER_LEDS.q())
+      .unwrap()
+      .stopped()
   }
 
-  fn arc_effect() -> LedProgram1d {
-    LedProgram1d::breathe(
-      LedQ::tag::<ArcRamp>(),
-      *MODE_COLOR,
-      Duration::bpm(150), // sync with mode music
-      Cycle::Forever,
-    )
+  fn hit_effect<T: Contextual<LedIdentifications> + Send + Sync + 'static>(target: T) -> LedScene {
+    LedScene::unbound(led_scene!("hydro_core/hit.ron"))
+      .on("shot", target)
+      .unwrap()
+      .on("playfield", LedQ::tag::<Playfield>().at_z(-1))
+      .unwrap()
   }
 
-  fn progress_effect(duration: Duration) -> LedProgram1d {
-    LedProgram1d::progress_time_remaining(
+  fn arc_effect() -> LedScene {
+    LedScene::new(LedQ::tag::<ArcRamp>(), led_scene!("hydro_core/arc.ron"))
+  }
+
+  fn progress_effect(duration: Duration) -> LedScene {
+    LedScene::new(
       city_map::SPORE_COUNT_BAR.q().reverse(),
-      ColorSequence::fade(Rgba::blue(), *MODE_COLOR),
-      duration,
-      Curve::Linear,
+      led_scene!("hydro_core/progress.ron"),
     )
+    .over(duration)
+    .end_behavior(EndBehavior::Hold)
   }
 
   fn restart_combo(&mut self, ctx: &SystemContext) {
@@ -174,11 +128,7 @@ impl HydroCoreMode {
     if shot == 6 {
       ctx.play_sfx(sounds::HYDRO_CORE_PURGED);
       self.hit_effect.stop(ctx);
-      self.hit_effect = LedProgram1d::flash(
-        LedQ::Every,
-        ColorSequence::fade(*MODE_COLOR, Rgba::blue()),
-        Cycle::Times(7),
-      );
+      self.hit_effect = LedScene::new(LedQ::Every, led_scene!("hydro_core/complete.ron"));
       self.mode_complete = true;
       return;
     }
@@ -207,24 +157,24 @@ impl HydroCoreMode {
     match shot {
       1 => {
         self.attention_effect = Self::attention_effect(&*lift_ramp::HEX_CENTER_LED);
-        self.hit_effect = Self::attention_effect(&*lift_ramp::HEX_CIRCLE_LEDS);
+        self.hit_effect = Self::attention_ring(&*lift_ramp::HEX_CIRCLE_LEDS);
       }
       2 => {
         self.attention_effect = Self::attention_effect(&*arc_ramp::HEX_CENTER_LED);
-        self.hit_effect = Self::attention_effect(&*arc_ramp::HEX_CIRCLE_LEDS);
+        self.hit_effect = Self::attention_ring(&*arc_ramp::HEX_CIRCLE_LEDS);
       }
       3 => {
         self.attention_effect = Self::attention_effect(&*left_orbit::HEX_CENTER_LED);
-        self.hit_effect = Self::attention_effect(&*left_orbit::HEX_CIRCLE_LEDS);
+        self.hit_effect = Self::attention_ring(&*left_orbit::HEX_CIRCLE_LEDS);
       }
       4 => {
         self.attention_effect = Self::attention_effect(&*center_orbit::HEX_CENTER_LED);
-        self.hit_effect = Self::attention_effect(&*center_orbit::HEX_CIRCLE_LEDS);
+        self.hit_effect = Self::attention_ring(&*center_orbit::HEX_CIRCLE_LEDS);
         self.intensity_effect.play();
       }
       5 => {
         self.attention_effect = Self::attention_effect(&*dome_ramp::HEX_CENTER_LED);
-        self.hit_effect = Self::attention_effect(&*dome_ramp::HEX_CIRCLE_LEDS);
+        self.hit_effect = Self::attention_ring(&*dome_ramp::HEX_CIRCLE_LEDS);
       }
       _ => panic!("Cannot set program for unknown shot: {}", shot),
     };
@@ -239,15 +189,10 @@ impl HydroCoreMode {
 
     self.advance_combo(self.current_combo_shot + 1, ctx);
     ctx.emit(SporeApplied);
-    ctx.systems.expect::<FlashersSystem>().rotate(
-      2,
-      ColorSequence::tile(vec![
-        *MODE_COLOR,
-        MODE_COLOR.lighten(0.35),
-        Rgba::default(),
-        Rgba::default(),
-      ]),
-    );
+    ctx
+      .systems
+      .expect::<FlashersSystem>()
+      .play(led_scene!("hydro_core/flashers.ron"));
 
     // Points for combo only score the first time, not repeated times
     if !self.combo_shots_seen.contains(&self.current_combo_shot) {

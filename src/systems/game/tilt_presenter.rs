@@ -15,7 +15,7 @@ const WARNING_DURATION: Duration = Duration::from_millis(1500);
 ///
 /// At the root, as it outlives the tilted turn: the playfield stays dark while the balls drain.
 pub struct TiltPresenter {
-  warning_effect: LedProgram1d,
+  warning_effect: LedScene,
   warning_cue: Option<u64>,
   tilted: bool,
 }
@@ -23,14 +23,13 @@ pub struct TiltPresenter {
 impl TiltPresenter {
   pub fn new() -> Self {
     Self {
-      warning_effect: LedProgram1d::flash(
+      warning_effect: LedScene::new(
         LedQ::any(vec![
           &backbox::LEFT_SPEAKER_LEDS.q(),
           &backbox::RIGHT_SPEAKER_LEDS.q(),
         ])
         .at_z(10),
-        ColorSequence::solid(Rgba::red()),
-        Cycle::Times(1),
+        led_scene!("tilt_warning.ron"),
       )
       .stopped(),
       warning_cue: None,

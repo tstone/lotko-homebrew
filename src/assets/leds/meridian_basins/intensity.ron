@@ -1,0 +1,156 @@
+(
+  version: 12,
+  viewport: Sequence,
+  timing: (
+    duration: 0.25,
+    cycle: Forever,
+  ),
+  targets: [
+    "flashers",
+    "left_speaker",
+    "right_speaker",
+  ],
+  layers: [
+    (
+      name: "flashers",
+      targets: [
+        "flashers",
+      ],
+      fill: (
+        transform: [
+          Rotate(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: 0.0,
+                curve: Linear,
+              ),
+              (
+                at: 0.25,
+                value: 360.0,
+                curve: Linear,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ],
+        base: Gradient(
+          stops: [
+            (
+              at: 0.0,
+              color: Fixed(255, 255, 255, 255),
+            ),
+            (
+              at: 0.1,
+              color: Fixed(255, 255, 255, 255),
+            ),
+            (
+              at: 0.1,
+              color: Fixed(0, 0, 0, 0),
+            ),
+            (
+              at: 1.0,
+              color: Fixed(0, 0, 0, 0),
+            ),
+          ],
+          space: Rgb,
+          style: Linear,
+        ),
+      ),
+    ),
+    (
+      name: "left_speaker",
+      targets: [
+        "left_speaker",
+      ],
+      fill: (
+        transform: [
+          Rotate(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: 0.0,
+                curve: Linear,
+              ),
+              (
+                at: 0.25,
+                value: 360.0,
+                curve: Linear,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ],
+        base: Gradient(
+          stops: [
+            (
+              at: 0.0,
+              color: Fixed(255, 165, 0, 255),
+            ),
+            (
+              at: 0.14583333,
+              color: Fixed(255, 165, 0, 255),
+            ),
+            (
+              at: 0.14583333,
+              color: Fixed(0, 0, 0, 0),
+            ),
+            (
+              at: 1.0,
+              color: Fixed(0, 0, 0, 0),
+            ),
+          ],
+          space: Rgb,
+          style: Linear,
+        ),
+      ),
+    ),
+    (
+      name: "right_speaker",
+      targets: [
+        "right_speaker",
+      ],
+      fill: (
+        transform: [
+          Rotate(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: 0.0,
+                curve: Linear,
+              ),
+              (
+                at: 0.25,
+                value: 360.0,
+                curve: Linear,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ],
+        base: Gradient(
+          stops: [
+            (
+              at: 0.0,
+              color: Fixed(255, 165, 0, 255),
+            ),
+            (
+              at: 0.14583333,
+              color: Fixed(255, 165, 0, 255),
+            ),
+            (
+              at: 0.14583333,
+              color: Fixed(0, 0, 0, 0),
+            ),
+            (
+              at: 1.0,
+              color: Fixed(0, 0, 0, 0),
+            ),
+          ],
+          space: Rgb,
+          style: Linear,
+        ),
+      ),
+    ),
+  ],
+)

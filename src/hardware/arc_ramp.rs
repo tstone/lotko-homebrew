@@ -2,8 +2,6 @@ use std::sync::LazyLock;
 
 use frontbox_core::prelude::*;
 use frontbox_core::tags::*;
-use frontbox_gfx::animation::Curve;
-use frontbox_led::prelude::*;
 
 use crate::hardware::arc_ramp::State::*;
 use crate::hardware::more_tags::ArcRamp;
@@ -28,7 +26,7 @@ hardware_defs! {
     .tag(Playfield);
 
   pub ARC_LEDS: LedDefinition = LedDefinition::multi("arc")
-    .locations(LedLayout::arc(18, Vec3::new(4.072, 0.059, 0.0), 3.5, 180.0f32.to_radians(), 180.0f32.to_radians(), LedLayoutDirection::Clockwise).relative_to(&planes::ARC_RAMP))
+    .locations(LedLayout::arc(18, Vec3::new(4.072, 0.059, 0.0), 3.5, 0.0, 180.0f32.to_radians(), LedLayoutDirection::CounterClockwise).relative_to(&planes::ARC_RAMP))
     .tag(ArcRamp)
     .tag(Playfield);
 
@@ -60,16 +58,6 @@ pub static HEX_CIRCLE_LEDS: LazyLock<LedQ> = LazyLock::new(|| {
     HEX_LEDS.child(4).unwrap().name(),
   ])
 });
-
-pub fn into_subway_program(color: Rgba<u8>) -> LedProgram1d {
-  LedProgram1d::rotating(
-    ARC_LEDS.q().range(0..6).reverse(),
-    ColorSequence::exact(vec![color, color.darken(0.2), color.darken(0.4)]),
-    Duration::from_millis(500),
-    Curve::EaseIn,
-    Cycle::Forever,
-  )
-}
 
 #[derive(Clone)]
 pub struct ArcRampSystem {

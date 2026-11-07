@@ -7,7 +7,7 @@ use crate::hardware::{
 };
 
 pub struct HexTest {
-  program: LedProgram1d,
+  program: LedScene,
   state: State,
 }
 
@@ -19,8 +19,8 @@ impl HexTest {
     }
   }
 
-  fn center_program() -> LedProgram1d {
-    LedProgram1d::fixed(
+  fn center_program() -> LedScene {
+    LedScene::new(
       LedQ::any(vec![
         &left_orbit::HEX_CENTER_LED,
         &dome_ramp::HEX_CENTER_LED,
@@ -29,13 +29,12 @@ impl HexTest {
         &lift_ramp::HEX_CENTER_LED,
         &right_orbit::HEX_CENTER_LED,
       ]),
-      ColorSequence::solid(Rgba::white()),
+      led_scene!("hex_test/center.ron"),
     )
   }
 
-  fn line_program() -> LedProgram1d {
-    let pattern = ColorSequence::fade(Rgba::blue(), Rgba::yellow()).generate(3);
-    LedProgram1d::fixed(
+  fn line_program() -> LedScene {
+    LedScene::new(
       LedQ::any(vec![
         &left_orbit::HEX_LINE_LEDS,
         &dome_ramp::HEX_LINE_LEDS,
@@ -44,13 +43,12 @@ impl HexTest {
         &lift_ramp::HEX_LINE_LEDS,
         &right_orbit::HEX_LINE_LEDS,
       ]),
-      ColorSequence::tile(pattern),
+      led_scene!("hex_test/line.ron"),
     )
   }
 
-  fn circle_program() -> LedProgram1d {
-    let pattern = ColorSequence::fade(Rgba::blue(), Rgba::red()).generate(6);
-    LedProgram1d::fixed(
+  fn circle_program() -> LedScene {
+    LedScene::new(
       LedQ::any(vec![
         &left_orbit::HEX_CIRCLE_LEDS,
         &dome_ramp::HEX_CIRCLE_LEDS,
@@ -59,7 +57,7 @@ impl HexTest {
         &lift_ramp::HEX_CIRCLE_LEDS,
         &right_orbit::HEX_CIRCLE_LEDS,
       ]),
-      ColorSequence::tile(pattern),
+      led_scene!("hex_test/circle.ron"),
     )
   }
 }

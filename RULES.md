@@ -415,13 +415,13 @@ Lines in quotes are callouts: **S** is the Steward, **O** is the Oaks. Lines are
 
 | Moment | LEDs | Sound / callouts | DMD |
 |---|---|---|---|
-| Attract | Slow forest noise field. Every so often roots grow out of the spinner over the city map and pull back. City scan lines sweep down from the top | Rare Oaks whispers under ambient city hum | Title; city skyline slowly covered by roots; high scores |
-| Game start | Roots ignite at the spinner, then a wave runs down to the flippers | S: *"Good morning, residents. The city is clean."* O: *"Wake."* | Roots crack through the title |
+| Attract | Slow forest noise field. Every so often roots grow out of the spinner over the city map and pull back. City scan lines sweep down from the top | none | Title; city skyline slowly covered by roots; high scores |
+| Game start | Roots ignite at the spinner, then a wave runs down to the flippers | S: *"Good morning, residents. The city is clear."* O: *"Wake."* | Roots crack through the title |
 | Ball start | City-white scan down the playfield, then the forest ambient for the current overgrowth level | S: a status line, e.g. *"Overgrowth at twelve percent."* | Player / ball / overgrowth % |
-| Mode select | The scoop bolts pulse. Available districts on the city map pulse in their colors; the highlighted one is solid | Wooden clicks to move; a deep impact to choose | The city map. Roots reach toward the highlighted district; the row shows name, summary and perk |
+| Mode select | The scoop bolts pulse. Available districts on the city map pulse in their colors; the highlighted one is solid | Wooden clicks to move; a deep impact to choose | The currently selected city region. Name and perk |
 | Ball save | A green radial pulse from the drain | O: *"Again."* | Roots catch a falling ball |
-| Extra ball lit | The left scoop bolts flash white; the drain LED pulses | S: *"Unregistered resident detected near the scoop."* | EXTRA BALL LIT |
-| Extra ball collected | A growth from the roots to the drain LED, which stays lit | S: *"Error. Resident count incorrect."* | A second root breaks the surface |
+| Extra ball lit | The left scoop bolts flash white; the drain LED pulses | S: *"Unregistered resident detected near scoop."* | EXTRA BALL LIT |
+| Extra ball collected | A growth from the roots to the drain LED, which stays lit | S: *"Error. Invalid resident."* | A second root breaks the surface |
 | Outlane save growing | Each sling hit grows the roots a step up that side's post rings | A short creak | — |
 | Outlane save lit | Both post rings on that side are full; the outlane LED glows green with a slow heartbeat | O, whispered: *"Hold."* | — |
 | Outlane save used | Roots surge from the outlane up to the plunger lane; the post rings empty | O: *"Not yet."* S: *"Retrieval… failed."* | Roots grab the ball as it falls and throw it back |

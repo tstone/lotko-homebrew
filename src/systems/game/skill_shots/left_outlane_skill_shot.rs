@@ -11,7 +11,7 @@ use crate::hardware::{left_inlane, right_inlane, right_outlane};
 // Secret skill shot to hit the left outlane without hitting anything else
 #[derive(Clone)]
 pub struct LeftOutlaneSkillShot {
-  hit_effect: LedProgram1d,
+  hit_effect: LedScene,
   hit: bool,
 }
 
@@ -32,16 +32,15 @@ impl LeftOutlaneSkillShot {
     ctx.systems.despawn_self();
   }
 
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::flash(
+  fn hit_effect() -> LedScene {
+    LedScene::new(
       LedQ::any(vec![
         &left_outlane::LED.q(),
         &left_inlane::TARGET_LED.q(),
         &right_inlane::ENTRANCE_LED.q(),
         &right_outlane::LED.q(),
       ]),
-      ColorSequence::solid(Rgba::purple()),
-      Cycle::Times(5),
+      led_scene!("skill_shots/left_outlane_hit.ron"),
     )
   }
 }

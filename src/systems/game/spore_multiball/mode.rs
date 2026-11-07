@@ -1,6 +1,5 @@
 use frontbox_core::prelude::*;
 use frontbox_core::tags::Playfield;
-use frontbox_gfx::animation::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystemExt;
@@ -23,11 +22,11 @@ use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct SporeMultiballMode {
-  attention_effect: LedProgram1d,
-  super_jackpot_attention_effect: LedProgram1d,
-  hit_effect: LedProgram1d,
-  super_jackpot_hit_effect: LedProgram1d,
-  progress_effect: LedProgram1d,
+  attention_effect: LedScene,
+  super_jackpot_attention_effect: LedScene,
+  hit_effect: LedScene,
+  super_jackpot_hit_effect: LedScene,
+  progress_effect: LedScene,
   hits: u8,
   super_jackpot_active: bool,
   cue_id: Option<u64>,
@@ -49,85 +48,45 @@ impl SporeMultiballMode {
     }
   }
 
-  fn attention_effect() -> LedProgram1d {
-    LedProgram1d::multi(vec![
-      LedProgram1d::pulse(
+  fn attention_effect() -> LedScene {
+    LedScene::new(
+      LedQ::any(vec![
         &*left_orbit::HEX_LINE_LEDS,
-        Rgba::yellow(),
-        Duration::from_millis(350),
-        Cycle::Forever,
-      ),
-      LedProgram1d::pulse(
         &*dome_ramp::HEX_LINE_LEDS,
-        Rgba::yellow(),
-        Duration::from_millis(350),
-        Cycle::Forever,
-      ),
-      LedProgram1d::pulse(
         &*arc_ramp::HEX_LINE_LEDS,
-        Rgba::yellow(),
-        Duration::from_millis(350),
-        Cycle::Forever,
-      ),
-      LedProgram1d::pulse(
         &*center_orbit::HEX_LINE_LEDS,
-        Rgba::yellow(),
-        Duration::from_millis(350),
-        Cycle::Forever,
-      ),
-      LedProgram1d::pulse(
         &*lift_ramp::HEX_LINE_LEDS,
-        Rgba::yellow(),
-        Duration::from_millis(350),
-        Cycle::Forever,
-      ),
-      LedProgram1d::pulse(
         &*right_orbit::HEX_LINE_LEDS,
-        Rgba::yellow(),
-        Duration::from_millis(350),
-        Cycle::Forever,
-      ),
-    ])
+      ]),
+      led_scene!("spore_multiball/attention.ron"),
+    )
   }
 
-  fn super_jackpot_attention_effect() -> LedProgram1d {
-    LedProgram1d::rotating(
+  fn super_jackpot_attention_effect() -> LedScene {
+    LedScene::new(
       LedQ::any(vec![
         &captive_ball::LEFT_BOLT.q(),
         &captive_ball::RIGHT_BOLT.q(),
       ]),
-      ColorSequence::exact(vec![Rgba::orange(), Rgba::default()]),
-      Duration::from_millis(550),
-      Curve::Linear,
-      Cycle::Forever,
+      led_scene!("spore_multiball/super_jackpot_attention.ron"),
     )
     .stopped()
   }
 
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::flash(
-      LedQ::Every,
-      ColorSequence::fade(Rgba::yellow(), Rgba::default()),
-      Cycle::Times(2),
-    )
-    .stopped()
+  fn hit_effect() -> LedScene {
+    LedScene::new(LedQ::Every, led_scene!("spore_multiball/hit.ron")).stopped()
   }
 
-  fn super_jackpot_hit_effect() -> LedProgram1d {
-    LedProgram1d::flash(
+  fn super_jackpot_hit_effect() -> LedScene {
+    LedScene::new(
       LedQ::tag::<Playfield>(),
-      ColorSequence::solid(Rgba::orange()),
-      Cycle::Times(4),
+      led_scene!("spore_multiball/super_jackpot_hit.ron"),
     )
     .stopped()
   }
 
-  fn progress_effect(hits: u8) -> LedProgram1d {
-    LedProgram1d::fixed(
-      city_map::SPORE_COUNT_BAR.q().reverse(),
-      ColorSequence::solid(Rgba::yellow())
-        .padding_right(Extent::Relative(1.0 - (hits % 5) as f32 / 5.0)),
-    )
+  fn progress_effect(hits: u8) -> LedScene {
+    city_map::spore_count_effect(Rgba::yellow(), (hits % 5) as f32 / 5.0)
   }
 
   fn jackpot_hit(&mut self, ctx: &SystemContext) {

@@ -1,7 +1,6 @@
 use std::collections::VecDeque;
 
 use frontbox_core::prelude::*;
-use frontbox_gfx::animation::Curve;
 use frontbox_led::prelude::*;
 use frontbox_pinball::GameManagementExt;
 use frontbox_pinball::TurnPhase;
@@ -134,22 +133,20 @@ impl LiftRampStartable {
     }
   }
 
-  fn attention_effect(mode: &ExclusiveMode) -> LedProgram1d {
-    LedProgram1d::flash(lift_ramp::BOLT_LED.q(), mode.color().into(), Cycle::Forever)
+  fn attention_effect(mode: &ExclusiveMode) -> LedScene {
+    LedScene::new(
+      lift_ramp::BOLT_LED.q(),
+      led_scene!("startable/lift_ramp_attention.ron"),
+    )
+    .param("color", mode.color())
   }
 
-  fn hit_effect(mode: &ExclusiveMode) -> LedProgram1d {
-    LedProgram1d::tween(
+  fn hit_effect(mode: &ExclusiveMode) -> LedScene {
+    LedScene::new(
       LedQ::tag::<tags::Playfield>().at_z(-1),
-      Duration::from_millis(750),
-      Curve::EaseIn,
-      Cycle::Once,
-      vec![
-        ColorSequence::solid(mode.color()),
-        ColorSequence::solid(Rgba::default()),
-      ],
-      EndBehavior::Clear,
+      led_scene!("startable/hit.ron"),
     )
+    .param("color", mode.color())
     .stopped()
   }
 }

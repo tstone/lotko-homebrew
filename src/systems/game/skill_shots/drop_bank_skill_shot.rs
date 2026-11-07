@@ -1,6 +1,5 @@
 use frontbox_core::prelude::tags::Playfield;
 use frontbox_core::prelude::*;
-use frontbox_gfx::animation::Curve;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::*;
@@ -14,10 +13,10 @@ const GRACE_PERIOD: Duration = Duration::from_millis(100);
 
 #[derive(Clone)]
 pub struct DropBankSkillShot {
-  attention_effect: LedProgram1d,
+  attention_effect: LedScene,
   enqueued_target: Option<DropBankTarget>,
   current_target: DropBankTarget,
-  hit_effect: Option<LedProgram1d>,
+  hit_effect: Option<LedScene>,
   hit: bool,
   /// An unlit target dropped, and the lit one has until `GracePeriodElapsed` to drop too
   grace_period: bool,
@@ -66,25 +65,18 @@ impl DropBankSkillShot {
 
   fn attention_effect<T: Contextual<LedIdentifications> + Send + Sync + 'static>(
     target: T,
-  ) -> LedProgram1d {
-    LedProgram1d::flash(
-      target,
-      ColorSequence::fade(Rgba::purple(), Rgba::blue()),
-      Cycle::Forever,
-    )
+  ) -> LedScene {
+    LedScene::new(target, led_scene!("skill_shots/drop_bank_attention.ron"))
   }
 
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::rotating(
+  fn hit_effect() -> LedScene {
+    LedScene::new(
       LedQ::any(vec![
         &drop_bank::TARGET1_LEDS.q(),
         &drop_bank::TARGET2_LEDS.q(),
         &drop_bank::TARGET3_LEDS.q(),
       ]),
-      ColorSequence::fade(Rgba::red(), Rgba::blue()),
-      Duration::from_millis(100),
-      Curve::Linear,
-      Cycle::Times(3),
+      led_scene!("skill_shots/drop_bank_hit.ron"),
     )
   }
 

@@ -25,10 +25,10 @@ impl ExclusiveModeQualifier for SolariumAtriumQualifier {
     ctx.systems.despawn_self();
   }
 
-  fn attention_effect() -> LedProgram1d {
-    LedProgram1d::fixed(
+  fn attention_effect() -> LedScene {
+    LedScene::new(
       (&*dome_ramp::HEX_CENTER_LED).at_z(1),
-      ColorSequence::solid(Rgba::white()),
+      led_scene!("solarium_atrium/qualification.ron"),
     )
   }
 }

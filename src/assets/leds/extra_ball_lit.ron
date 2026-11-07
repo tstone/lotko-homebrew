@@ -1,0 +1,63 @@
+(
+  version: 12,
+  viewport: Sequence,
+  timing: (
+    duration: 1.0,
+    cycle: Forever,
+  ),
+  targets: [
+    "bolts",
+    "drain",
+  ],
+  layers: [
+    (
+      name: "bolts",
+      targets: [
+        "bolts",
+      ],
+      fill: (
+        base: Solid(Fixed(255, 255, 255, 255)),
+        adjust: [
+          Opacity(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: 1.0,
+                curve: Linear,
+              ),
+              (
+                at: 0.2,
+                value: 0.0,
+                curve: EaseInOut,
+              ),
+            ],
+            cycle: Forever,
+          )),
+        ],
+      ),
+    ),
+    (
+      name: "drain",
+      targets: [
+        "drain",
+      ],
+      fill: (
+        base: Solid(Track(
+          keys: [
+            (
+              at: 0.0,
+              value: (255, 255, 255, 255),
+              curve: Linear,
+            ),
+            (
+              at: 1.0,
+              value: (178, 178, 178, 255),
+              curve: EaseInOut,
+            ),
+          ],
+          cycle: Forever,
+        )),
+      ),
+    ),
+  ],
+)

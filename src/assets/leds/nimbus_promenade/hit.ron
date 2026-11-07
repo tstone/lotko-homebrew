@@ -1,0 +1,45 @@
+(
+  version: 12,
+  viewport: Sequence,
+  timing: (
+    duration: 0.45,
+    cycle: Once,
+  ),
+  layers: [
+    (
+      fill: (
+        transform: [
+          Rotate(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: 0.0,
+                curve: Linear,
+              ),
+              (
+                at: 0.45,
+                value: 360.0,
+                curve: EaseOut,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ],
+        base: Gradient(
+          stops: [
+            (
+              at: 0.0,
+              color: Fixed(255, 0, 255, 255),
+            ),
+            (
+              at: 1.0,
+              color: Fixed(255, 255, 255, 255),
+            ),
+          ],
+          space: Rgb,
+          style: Linear,
+        ),
+      ),
+    ),
+  ],
+)

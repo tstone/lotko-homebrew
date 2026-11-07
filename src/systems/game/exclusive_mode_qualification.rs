@@ -1,7 +1,6 @@
 use std::marker::PhantomData;
 
 use frontbox_core::prelude::*;
-use frontbox_gfx::animation::Curve;
 use frontbox_led::prelude::*;
 use frontbox_pinball::GameManagementExt;
 use frontbox_sound::SoundSystemExt;
@@ -13,8 +12,8 @@ use crate::systems::game::ModeManager;
 #[derive(Clone)]
 pub struct ExclusiveModeQualification<T: ExclusiveModeQualifier + Clone> {
   hits: u8,
-  attention_effect: LedProgram1d,
-  hit_effect: LedProgram1d,
+  attention_effect: LedScene,
+  hit_effect: LedScene,
   _t: PhantomData<T>,
 }
 
@@ -31,8 +30,8 @@ where
     }
   }
 
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::rotating(
+  fn hit_effect() -> LedScene {
+    LedScene::new(
       LedQ::any(vec![
         &left_orbit::HEX_LEDS.q(),
         &dome_ramp::HEX_LEDS.q(),
@@ -42,10 +41,7 @@ where
         &right_orbit::HEX_LEDS.q(),
       ])
       .at_z(1),
-      ColorSequence::fade(Rgba::white(), Rgba::default()),
-      Duration::from_millis(500),
-      Curve::Linear,
-      Cycle::Once,
+      led_scene!("exclusive_qualification_hit.ron"),
     )
     .stopped()
   }
@@ -94,6 +90,6 @@ pub trait ExclusiveModeQualifier: Send + Sync + 'static {
   const HIT_SND_KEY: &'static str;
 
   fn is_qualifying_shot(event: &dyn Event) -> bool;
-  fn attention_effect() -> LedProgram1d;
+  fn attention_effect() -> LedScene;
   fn on_qualified(ctx: &SystemContext);
 }

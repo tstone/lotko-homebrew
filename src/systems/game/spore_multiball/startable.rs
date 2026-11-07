@@ -1,5 +1,4 @@
 use frontbox_core::prelude::*;
-use frontbox_gfx::animation::Curve;
 use frontbox_led::prelude::*;
 use frontbox_pinball::TurnPhase;
 use frontbox_sound::SoundSystemExt;
@@ -18,8 +17,8 @@ use crate::{
 
 #[derive(Clone)]
 pub struct SporeMultiballStartable {
-  attention_effect: LedProgram1d,
-  hit_effect: LedProgram1d,
+  attention_effect: LedScene,
+  hit_effect: LedScene,
   complete: bool,
 }
 
@@ -32,20 +31,20 @@ impl SporeMultiballStartable {
     }
   }
 
-  fn attention_effect() -> LedProgram1d {
-    LedProgram1d::flash(
+  fn attention_effect() -> LedScene {
+    LedScene::new(
       LedQ::any(vec![
         &captive_ball::LEFT_BOLT.q(),
         &captive_ball::RIGHT_BOLT.q(),
       ]),
-      ColorSequence::solid(Rgba::yellow()),
-      Cycle::Forever,
+      led_scene!("spore_multiball/startable_attention.ron"),
     )
   }
 
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::multi(vec![
-      LedProgram1d::flash(
+  fn hit_effect() -> LedScene {
+    LedScene::unbound(led_scene!("spore_multiball/startable_hit.ron"))
+      .on(
+        "rings",
         LedQ::any(vec![
           &left_orbit::HEX_CIRCLE_LEDS,
           &dome_ramp::HEX_CIRCLE_LEDS,
@@ -56,21 +55,17 @@ impl SporeMultiballStartable {
           &lift_ramp::HEX_CIRCLE_LEDS,
           &right_orbit::HEX_CIRCLE_LEDS,
         ]),
-        ColorSequence::solid(Rgba::yellow()),
-        Cycle::Times(3),
-      ),
-      LedProgram1d::rotating(
+      )
+      .unwrap()
+      .on(
+        "flashers",
         LedQ::any(vec![
           &flashers::LEFT_FLASHER.q(),
           &flashers::CENTER_FLASHER.q(),
         ]),
-        ColorSequence::fade(Rgba::yellow(), Rgba::yellow()),
-        Duration::from_millis(400),
-        Curve::Linear,
-        Cycle::Times(3),
-      ),
-    ])
-    .stopped()
+      )
+      .unwrap()
+      .stopped()
   }
 }
 

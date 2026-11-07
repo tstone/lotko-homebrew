@@ -1,6 +1,5 @@
 use frontbox_core::prelude::tags::Playfield;
 use frontbox_core::prelude::*;
-use frontbox_gfx::animation::Curve;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
@@ -15,10 +14,10 @@ use crate::systems::game::{
 };
 
 pub struct SkyrailStationMode {
-  attention_effect: LedProgram1d,
-  hit_effect: LedProgram1d,
-  intensity_effect: LedProgram1d,
-  progress_effect: LedProgram1d,
+  attention_effect: LedScene,
+  hit_effect: LedScene,
+  intensity_effect: LedScene,
+  progress_effect: LedScene,
   target_hits: u8,
   ramp_hits: u8,
   state: State,
@@ -41,135 +40,67 @@ impl SkyrailStationMode {
     }
   }
 
-  fn attention_effect_ramp() -> LedProgram1d {
-    LedProgram1d::pulse(
+  fn attention_effect_ramp() -> LedScene {
+    LedScene::new(
       &*lift_ramp::HEX_CENTER_LED,
-      *MODE_COLOR,
-      Duration::bpm(128),
-      Cycle::Forever,
+      led_scene!("skyrail_station/attention_ramp.ron"),
     )
   }
 
-  fn attention_effect_target() -> LedProgram1d {
-    LedProgram1d::multi(vec![
-      LedProgram1d::flash(
+  fn attention_effect_target() -> LedScene {
+    LedScene::unbound(led_scene!("skyrail_station/attention_target.ron"))
+      .on(
+        "targets",
         LedQ::any(vec![
           &drop_bank::TARGET1_LEDS.q().skip(3).take(1),
           &drop_bank::TARGET2_LEDS.q().skip(3).take(1),
           &drop_bank::TARGET3_LEDS.q().skip(3).take(1),
         ]),
-        (*MODE_COLOR).into(),
-        Cycle::Forever,
-      ),
-      LedProgram1d::rotating(
-        &*lift_ramp::HEX_LINE_LEDS,
-        ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-    ])
+      )
+      .unwrap()
+      .on("hex", &*lift_ramp::HEX_LINE_LEDS)
+      .unwrap()
   }
 
-  fn attention_effect_target_final() -> LedProgram1d {
-    LedProgram1d::multi(vec![
-      LedProgram1d::rotating(
-        drop_bank::TARGET1_LEDS.q(),
-        ColorSequence::exact(vec![
-          *MODE_COLOR,
-          Rgba::default(),
-          Rgba::default(),
-          Rgba::default(),
-        ]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-      LedProgram1d::rotating(
-        drop_bank::TARGET2_LEDS.q(),
-        ColorSequence::exact(vec![
-          Rgba::default(),
-          *MODE_COLOR,
-          Rgba::default(),
-          Rgba::default(),
-        ]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-      LedProgram1d::rotating(
-        drop_bank::TARGET3_LEDS.q(),
-        ColorSequence::exact(vec![
-          Rgba::default(),
-          Rgba::default(),
-          *MODE_COLOR,
-          Rgba::default(),
-        ]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-      LedProgram1d::rotating(
-        &*lift_ramp::HEX_LINE_LEDS,
-        ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-    ])
+  fn attention_effect_target_final() -> LedScene {
+    LedScene::unbound(led_scene!("skyrail_station/attention_target_final.ron"))
+      .on("target1", drop_bank::TARGET1_LEDS.q())
+      .unwrap()
+      .on("target2", drop_bank::TARGET2_LEDS.q())
+      .unwrap()
+      .on("target3", drop_bank::TARGET3_LEDS.q())
+      .unwrap()
+      .on("hex", &*lift_ramp::HEX_LINE_LEDS)
+      .unwrap()
   }
 
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::tween(
+  fn hit_effect() -> LedScene {
+    LedScene::new(
       LedQ::tag::<Playfield>().at_z(-1),
-      Duration::from_millis(600),
-      Curve::ExponentialOut,
-      Cycle::Once,
-      vec![
-        ColorSequence::fade(*MODE_COLOR, Rgba::default()).shuffle(rand::random()),
-        ColorSequence::solid(Rgba::default()),
-      ],
-      EndBehavior::Clear,
+      led_scene!("skyrail_station/hit.ron"),
     )
     .stopped()
   }
 
-  fn intensity_effect() -> LedProgram1d {
-    LedProgram1d::multi(vec![
-      LedProgram1d::rotating(
+  fn intensity_effect() -> LedScene {
+    LedScene::unbound(led_scene!("skyrail_station/intensity.ron"))
+      .on(
+        "flashers",
         LedQ::any(vec![
           &flashers::LEFT_FLASHER.q(),
           &flashers::CENTER_FLASHER.q(),
         ]),
-        ColorSequence::exact(vec![Rgba::white(), Rgba::white().lighten(0.4)]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-      LedProgram1d::rotating(
-        backbox::LEFT_SPEAKER_LEDS.q().reverse(),
-        ColorSequence::exact(vec![*MODE_COLOR, *MODE_COLOR, *MODE_COLOR, *MODE_COLOR]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-      LedProgram1d::rotating(
-        backbox::LEFT_SPEAKER_LEDS.q().reverse(),
-        ColorSequence::exact(vec![*MODE_COLOR, *MODE_COLOR, *MODE_COLOR, *MODE_COLOR]),
-        Duration::from_millis(250),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-    ])
-    .stopped()
+      )
+      .unwrap()
+      .on("left_speaker", backbox::LEFT_SPEAKER_LEDS.q().reverse())
+      .unwrap()
+      .on("right_speaker", backbox::RIGHT_SPEAKER_LEDS.q().reverse())
+      .unwrap()
+      .stopped()
   }
 
-  fn progress_effect(hits: u8) -> LedProgram1d {
-    LedProgram1d::fixed(
-      city_map::SPORE_COUNT_BAR.q().reverse(),
-      ColorSequence::solid(*MODE_COLOR)
-        .padding_right(Extent::Relative(1.0 - (hits as f32 / 8 as f32))),
-    )
+  fn progress_effect(hits: u8) -> LedScene {
+    city_map::spore_count_effect(*MODE_COLOR, hits as f32 / 8.0)
   }
 
   fn advance(&mut self, ctx: &SystemContext) {
@@ -179,7 +110,7 @@ impl SkyrailStationMode {
     ctx
       .systems
       .expect::<FlashersSystem>()
-      .flash(3, ColorSequence::tile(vec![*MODE_COLOR, Rgba::default()]));
+      .play(led_scene!("skyrail_station/flashers.ron"));
 
     match self.state {
       Final => {
@@ -193,31 +124,7 @@ impl SkyrailStationMode {
           ctx.add_points(game::points::EXL_COMPLETION);
 
           self.hit_effect.stop(ctx);
-          self.hit_effect = LedProgram1d::timeline()
-            .at(
-              Duration::ZERO,
-              LedProgram1d::rotating(
-                LedQ::Every,
-                ColorSequence::fade(*MODE_COLOR, MODE_COLOR.lighten(0.5)),
-                Duration::from_millis(1200),
-                Curve::Linear,
-                Cycle::Times(3),
-              ),
-            )
-            .at(
-              Duration::from_millis(3600),
-              LedProgram1d::tween(
-                LedQ::Every,
-                Duration::from_millis(1250),
-                Curve::EaseIn,
-                Cycle::Once,
-                vec![
-                  ColorSequence::fade(*MODE_COLOR, MODE_COLOR.lighten(0.5)),
-                  ColorSequence::solid(Rgba::default()),
-                ],
-                EndBehavior::Clear,
-              ),
-            );
+          self.hit_effect = LedScene::new(LedQ::Every, led_scene!("skyrail_station/complete.ron"));
           return;
         }
       }

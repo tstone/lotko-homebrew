@@ -1,18 +1,16 @@
 use frontbox_core::prelude::*;
-use frontbox_gfx::animation::Curve;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::pop_cluster::{self, PopBumper};
 use crate::hardware::vspinner;
-use crate::systems::game::nimbus_promenade::MODE_COLOR;
 use crate::systems::game::{MULTIBALL_BALL_SAVE, ModeManager, NonExclusiveMode};
 use crate::systems::sounds;
 
 pub struct NimbusPromenadeMode {
-  attention_effect: LedProgram1d,
-  hit_effect: LedProgram1d,
+  attention_effect: LedScene,
+  hit_effect: LedScene,
   cycle_time: Duration,
   current_pop: PopBumper,
   hits: u8,
@@ -92,17 +90,13 @@ impl NimbusPromenadeMode {
     ctx.play_sfx(sounds::LANE_HIT_COMPLETE);
 
     self.hit_effect.stop(ctx);
-    self.hit_effect = LedProgram1d::flash(
-      LedQ::Every,
-      ColorSequence::fade(*MODE_COLOR, Rgba::red()),
-      Cycle::Times(2),
-    );
+    self.hit_effect = LedScene::new(LedQ::Every, led_scene!("nimbus_promenade/complete.ron"));
 
     self.complete = true;
   }
 
-  fn attention_effect(pop: &PopBumper, hit_count: u8) -> LedProgram1d {
-    LedProgram1d::pulse(
+  fn attention_effect(pop: &PopBumper, hit_count: u8) -> LedScene {
+    LedScene::new(
       LedQ::any(vec![
         &pop_cluster::led_for_pop(pop).q(),
         &pop_cluster::target_led_for_pop(pop).q(),
@@ -110,14 +104,12 @@ impl NimbusPromenadeMode {
           .clone()
           .take((hit_count / 2) as usize),
       ]),
-      (*MODE_COLOR).into(),
-      Duration::bpm(83),
-      Cycle::Forever,
+      led_scene!("nimbus_promenade/attention.ron"),
     )
   }
 
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::rotating(
+  fn hit_effect() -> LedScene {
+    LedScene::new(
       LedQ::any(vec![
         &pop_cluster::left::TARGET_LED.q(),
         &pop_cluster::upper_right::TARGET_LED.q(),
@@ -126,10 +118,7 @@ impl NimbusPromenadeMode {
         &vspinner::upper_right_ray::Q,
         &vspinner::lower_right_ray::Q,
       ]),
-      ColorSequence::fade(*MODE_COLOR, Rgba::white()),
-      Duration::from_millis(450),
-      Curve::EaseOut,
-      Cycle::Once,
+      led_scene!("nimbus_promenade/hit.ron"),
     )
     .stopped()
   }

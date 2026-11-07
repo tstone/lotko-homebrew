@@ -1,0 +1,17 @@
+(
+  version: 12,
+  params: {
+    "brightness": Float(1.0),
+  },
+  viewport: Sequence,
+  layers: [
+    (
+      fill: (
+        base: Solid(Fixed(0, 255, 0, 255)),
+        adjust: [
+          Brightness(Param("brightness")),
+        ],
+      ),
+    ),
+  ],
+)

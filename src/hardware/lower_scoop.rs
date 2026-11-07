@@ -2,7 +2,6 @@ use std::sync::LazyLock;
 
 use frontbox_core::prelude::*;
 use frontbox_core::tags::*;
-use frontbox_gfx::animation::Curve;
 use frontbox_led::prelude::*;
 use frontbox_pinball::GameManagementExt;
 use frontbox_sound::SoundSystemExt;
@@ -68,7 +67,7 @@ pub const LOWER_SCOOP_EJECT: &'static str = "lower_scoop_eject";
 
 #[derive(Clone)]
 pub struct LowerScoopSystem {
-  eject_program: LedProgram1d,
+  eject_program: LedScene,
   subway_entry: bool,
   handle: SystemHandle,
   eject_pending: bool,
@@ -76,18 +75,7 @@ pub struct LowerScoopSystem {
 
 impl LowerScoopSystem {
   pub fn new() -> Self {
-    let eject_program = LedProgram1d::tween(
-      &*BOLTS_Q,
-      Duration::from_millis(750 / 4),
-      Curve::Steps(2),
-      Cycle::Times(4),
-      vec![
-        ColorSequence::exact(vec![Rgba::white(), Rgba::default()]),
-        ColorSequence::exact(vec![Rgba::default(), Rgba::white()]),
-      ],
-      EndBehavior::Clear,
-    )
-    .stopped();
+    let eject_program = LedScene::new(&*BOLTS_Q, led_scene!("lower_scoop/eject.ron")).stopped();
 
     Self {
       eject_program,

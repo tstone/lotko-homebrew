@@ -2,13 +2,13 @@ use frontbox_console::{WebTracer, console_plane};
 use frontbox_core::prelude::*;
 use frontbox_dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
 use frontbox_dmd::{DmdSystem, PanelType, Pin2Dmd};
-use frontbox_gfx::animation::Curve;
-use frontbox_gfx::animation::Cycle::Forever;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystem;
 use std::io::Write;
 
+#[macro_use]
+mod led_scenes;
 mod systems;
 use systems::*;
 mod hardware;
@@ -73,8 +73,7 @@ async fn main() {
     ..Default::default()
   })
   .configure(|app| {
-    let ball_save_effect =
-      LedProgram1d::flash(DRAIN_LED.q(), ColorSequence::solid(Rgba::green()), Forever);
+    let ball_save_effect = LedScene::new(DRAIN_LED.q(), led_scene!("ball_save.ron"));
 
     app.tracer(
       WebTracer::new()
@@ -143,25 +142,15 @@ async fn main() {
       )
       .plunge_lane(plunge_lane::SWITCH.name)
       .re_enter_timeout(Duration::from_millis(1200))
-      .ball_present_effect(LedProgram1d::rotating(
+      .ball_present_effect(LedScene::new(
         plunge_lane::LED_STRIP.q(),
-        ColorSequence::exact(vec![
-          Rgba::purple(),
-          Rgba::purple().lighten(0.35),
-          Rgba::default(),
-          Rgba::default(),
-        ]),
-        Duration::from_millis(900),
-        Curve::Linear,
-        Cycle::Forever,
+        led_scene!("plunge_lane.ron"),
       ))
       .autoplunger(plunge_lane::COIL.name)
       .launch_button(action_button::SWITCH.q())
-      .launch_ready_effect(LedProgram1d::pulse(
+      .launch_ready_effect(LedScene::new(
         action_button::LED.q(),
-        Rgba::magenta(),
-        Duration::from_millis(1250),
-        Cycle::Forever,
+        led_scene!("launch_ready.ron"),
       ))
       .build(),
     );

@@ -39,7 +39,7 @@ pub struct ExtraBallSystem {
   lit: u8,
   /// Sources that have lit one this game
   sources_used: Vec<ExtraBallSource>,
-  lit_effect: LedProgram1d,
+  lit_effect: LedScene,
   lit_effect_playing: bool,
   screen_cue: Option<u64>,
   handle: SystemHandle,
@@ -47,24 +47,11 @@ pub struct ExtraBallSystem {
 
 impl ExtraBallSystem {
   pub fn new() -> Self {
-    let lit_effect = LedProgram1d::timeline()
-      .at(
-        Duration::ZERO,
-        LedProgram1d::flash(
-          (&*lower_scoop::BOLTS_Q).at_z(3),
-          ColorSequence::solid(Rgba::white()),
-          Cycle::Forever,
-        ),
-      )
-      .at(
-        Duration::ZERO,
-        LedProgram1d::pulse(
-          DRAIN_LED.q().at_z(1),
-          Rgba::white(),
-          Duration::from_millis(1000),
-          Cycle::Forever,
-        ),
-      )
+    let lit_effect = LedScene::unbound(led_scene!("extra_ball_lit.ron"))
+      .on("bolts", (&*lower_scoop::BOLTS_Q).at_z(3))
+      .unwrap()
+      .on("drain", DRAIN_LED.q().at_z(1))
+      .unwrap()
       .stopped();
 
     Self {

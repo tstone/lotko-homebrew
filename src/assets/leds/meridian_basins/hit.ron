@@ -1,0 +1,32 @@
+(
+  version: 12,
+  viewport: Sequence,
+  timing: (
+    duration: 0.185,
+    cycle: Times(2),
+  ),
+  layers: [
+    (
+      fill: (
+        base: Solid(Fixed(255, 165, 0, 255)),
+        adjust: [
+          Opacity(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: 1.0,
+                curve: Linear,
+              ),
+              (
+                at: 0.185,
+                value: 0.0,
+                curve: EaseInOut,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ],
+      ),
+    ),
+  ],
+)

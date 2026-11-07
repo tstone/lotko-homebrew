@@ -43,9 +43,9 @@ pub struct ApexTerracesMode {
   lit: HashSet<Target>,
   lit_warning: bool,
   lit_cue: Option<u64>,
-  target_effect: Option<LedProgram1d>,
-  spinner_effect: Option<LedProgram1d>,
-  start_effect: Option<LedProgram1d>,
+  target_effect: Option<LedScene>,
+  spinner_effect: Option<LedScene>,
+  start_effect: Option<LedScene>,
 }
 
 impl ApexTerracesMode {
@@ -72,7 +72,11 @@ impl ApexTerracesMode {
     if self.lit.remove(&target) {
       ctx.add_points(points::LIT_TARGET);
       self.charge += 1;
-      log::info!("ApexTerraces: spinner charge {}/{}", self.charge, REQUIRED_CHARGE);
+      log::info!(
+        "ApexTerraces: spinner charge {}/{}",
+        self.charge,
+        REQUIRED_CHARGE
+      );
 
       if self.charge == REQUIRED_CHARGE {
         self.charge_spinner(ctx);
@@ -126,23 +130,23 @@ impl ApexTerracesMode {
 
     self.target_effect = if self.phase != Phase::Charging {
       // once charged, the targets stay dimly lit since they're still worth a little
-      Some(LedProgram1d::fixed(
+      Some(LedScene::new(
         LedQ::Or(Target::ALL.iter().map(Target::led).collect()),
-        ColorSequence::solid(Rgba::green().with_lightness(0.2)),
+        led_scene!("apex_terraces/targets_charged.ron"),
       ))
     } else if self.lit.is_empty() {
       None
     } else {
       let q = LedQ::Or(self.lit.iter().map(Target::led).collect());
       Some(if self.lit_warning {
-        LedProgram1d::flash(q, ColorSequence::solid(Rgba::green()), Cycle::Forever)
+        LedScene::new(q, led_scene!("apex_terraces/targets_warning.ron"))
       } else {
-        LedProgram1d::pulse(q, Rgba::green(), Duration::from_millis(900), Cycle::Forever)
+        LedScene::new(q, led_scene!("apex_terraces/targets_lit.ron"))
       })
     };
   }
 
-  fn set_spinner_effect(&mut self, effect: LedProgram1d, ctx: &SystemContext) {
+  fn set_spinner_effect(&mut self, effect: LedScene, ctx: &SystemContext) {
     if let Some(effect) = self.spinner_effect.as_mut() {
       effect.stop(ctx);
     }
@@ -150,12 +154,13 @@ impl ApexTerracesMode {
   }
 
   /// The LED under the spinner gets brighter with each charge
-  fn charge_effect(charge: u8) -> LedProgram1d {
+  fn charge_effect(charge: u8) -> LedScene {
     let dim = 0.4 * (1.0 - charge as f32 / REQUIRED_CHARGE as f32);
-    LedProgram1d::fixed(
+    LedScene::new(
       center_orbit::SPINNER_LED.q(),
-      ColorSequence::solid(Rgba::green().darken(dim)),
+      led_scene!("apex_terraces/spinner_charging.ron"),
     )
+    .param("brightness", 1.0 - 2.0 * dim)
   }
 
   fn charge_spinner(&mut self, ctx: &SystemContext) {
@@ -164,16 +169,14 @@ impl ApexTerracesMode {
     self.clear_lit(ctx);
 
     ctx.play_sfx(sounds::EVOLUTION_COMPLETE);
-    self.start_effect = Some(LedProgram1d::flash(
+    self.start_effect = Some(LedScene::new(
       LedQ::Every,
-      ColorSequence::solid(Rgba::green()),
-      Cycle::Times(4),
+      led_scene!("apex_terraces/start.ron"),
     ));
     self.set_spinner_effect(
-      LedProgram1d::flash(
+      LedScene::new(
         center_orbit::SPINNER_LED.q(),
-        ColorSequence::solid(Rgba::green()),
-        Cycle::Forever,
+        led_scene!("apex_terraces/spinner_charged.ron"),
       ),
       ctx,
     );

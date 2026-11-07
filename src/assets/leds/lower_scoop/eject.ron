@@ -1,0 +1,63 @@
+(
+  version: 12,
+  viewport: Sequence,
+  timing: (
+    duration: 0.1875,
+    cycle: Times(4),
+  ),
+  layers: [
+    (
+      fill: (
+        transform: [
+          Rotate(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: 0.0,
+                curve: Linear,
+              ),
+              (
+                at: 0.09375,
+                value: 0.0,
+                curve: Linear,
+              ),
+              (
+                at: 0.09375,
+                value: 180.0,
+                curve: Linear,
+              ),
+              (
+                at: 0.1875,
+                value: 180.0,
+                curve: Linear,
+              ),
+            ],
+            cycle: Once,
+          )),
+        ],
+        base: Gradient(
+          stops: [
+            (
+              at: 0.0,
+              color: Fixed(255, 255, 255, 255),
+            ),
+            (
+              at: 0.5,
+              color: Fixed(255, 255, 255, 255),
+            ),
+            (
+              at: 0.5,
+              color: Fixed(0, 0, 0, 0),
+            ),
+            (
+              at: 1.0,
+              color: Fixed(0, 0, 0, 0),
+            ),
+          ],
+          space: Rgb,
+          style: Linear,
+        ),
+      ),
+    ),
+  ],
+)

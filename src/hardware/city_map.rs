@@ -1,5 +1,6 @@
 use frontbox_core::prelude::*;
 use frontbox_core::tags::*;
+use frontbox_led::prelude::*;
 
 use crate::hardware::more_tags::*;
 use crate::hardware::planes;
@@ -51,4 +52,19 @@ hardware_defs! {
     .locations(LedLayout::strip(16, Vec3::new(10.891, 33.849, 0.0), 180.0f32.to_radians(), 0.25).relative_to(&planes::PLAYFIELD))
     .tag(Playfield)
     .tag(CityMap);
+}
+
+/// How many LEDs [`SPORE_COUNT_BAR`] has
+const SPORE_COUNT_LEDS: f32 = 16.0;
+
+/// Lights `progress`, from 0 to 1, of the spore count bar. The scene's shape is around the start of the bar, and to light
+/// a number of LEDs its edge goes between the last of them and the next.
+pub fn spore_count_effect(color: Rgba<u8>, progress: f32) -> LedScene {
+  let lit = (progress * SPORE_COUNT_LEDS).round();
+  LedScene::new(SPORE_COUNT_BAR.q().reverse(), led_scene!("spore_bar.ron"))
+    .param("color", color)
+    .param(
+      "width",
+      (2.0 * (lit - 0.5) / (SPORE_COUNT_LEDS - 1.0)).max(0.0),
+    )
 }

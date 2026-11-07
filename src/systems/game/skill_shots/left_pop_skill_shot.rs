@@ -1,6 +1,5 @@
 use frontbox_core::prelude::tags::Playfield;
 use frontbox_core::prelude::*;
-use frontbox_gfx::animation::Curve;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::*;
@@ -11,8 +10,8 @@ use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct LeftPopSkillShot {
-  attention_effect: LedProgram1d,
-  hit_effect: Option<LedProgram1d>,
+  attention_effect: LedScene,
+  hit_effect: Option<LedScene>,
   hit: bool,
 }
 
@@ -34,30 +33,16 @@ impl LeftPopSkillShot {
     ctx.systems.despawn_self();
   }
 
-  fn attention_effect() -> LedProgram1d {
-    LedProgram1d::multi(vec![
-      LedProgram1d::rotating(
-        vspinner::left_ray::Q.clone().reverse(),
-        ColorSequence::exact(vec![
-          Rgba::purple(),
-          Rgba::default(),
-          Rgba::default(),
-          Rgba::default(),
-        ]),
-        Duration::from_millis(900),
-        Curve::Linear,
-        Cycle::Forever,
-      ),
-      LedProgram1d::flash(
-        pop_cluster::left::POP_LED.q(),
-        Rgba::purple().into(),
-        Cycle::Forever,
-      ),
-    ])
+  fn attention_effect() -> LedScene {
+    LedScene::unbound(led_scene!("skill_shots/left_pop_attention.ron"))
+      .on("ray", vspinner::left_ray::Q.clone().reverse())
+      .unwrap()
+      .on("pop", pop_cluster::left::POP_LED.q())
+      .unwrap()
   }
 
-  fn hit_effect() -> LedProgram1d {
-    LedProgram1d::rotating(
+  fn hit_effect() -> LedScene {
+    LedScene::new(
       LedQ::any(vec![
         &*vspinner::left_ray::Q,
         &*vspinner::lower_right_ray::Q,
@@ -66,10 +51,7 @@ impl LeftPopSkillShot {
         &pop_cluster::lower_right::POP_LED.q(),
         &pop_cluster::upper_right::POP_LED.q(),
       ]),
-      ColorSequence::exact(vec![Rgba::red(), Rgba::default()]),
-      Duration::from_millis(100),
-      Curve::Linear,
-      Cycle::Times(5),
+      led_scene!("skill_shots/left_pop_hit.ron"),
     )
   }
 }

@@ -1,0 +1,29 @@
+(
+  version: 12,
+  viewport: Sequence,
+  timing: (
+    duration: 0.35,
+    cycle: Forever,
+  ),
+  layers: [
+    (
+      fill: (
+        base: Solid(Track(
+          keys: [
+            (
+              at: 0.0,
+              value: (255, 255, 0, 255),
+              curve: Linear,
+            ),
+            (
+              at: 0.35,
+              value: (102, 102, 0, 255),
+              curve: EaseInOut,
+            ),
+          ],
+          cycle: Once,
+        )),
+      ),
+    ),
+  ],
+)

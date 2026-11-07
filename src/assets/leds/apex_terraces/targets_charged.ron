@@ -1,0 +1,11 @@
+(
+  version: 12,
+  viewport: Sequence,
+  layers: [
+    (
+      fill: (
+        base: Solid(Fixed(0, 102, 0, 255)),
+      ),
+    ),
+  ],
+)

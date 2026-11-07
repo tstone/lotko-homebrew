@@ -1,0 +1,49 @@
+(
+  version: 12,
+  viewport: Sequence,
+  timing: (
+    duration: 1.2,
+    cycle: Once,
+  ),
+  targets: [
+    "rings",
+    "flashers",
+  ],
+  layers: [
+    (
+      name: "rings",
+      targets: [
+        "rings",
+      ],
+      fill: (
+        base: Solid(Fixed(255, 255, 0, 255)),
+        adjust: [
+          Opacity(Track(
+            keys: [
+              (
+                at: 0.0,
+                value: 1.0,
+                curve: Linear,
+              ),
+              (
+                at: 0.185,
+                value: 0.0,
+                curve: EaseInOut,
+              ),
+            ],
+            cycle: Times(3),
+          )),
+        ],
+      ),
+    ),
+    (
+      name: "flashers",
+      targets: [
+        "flashers",
+      ],
+      fill: (
+        base: Solid(Fixed(255, 255, 0, 255)),
+      ),
+    ),
+  ],
+)

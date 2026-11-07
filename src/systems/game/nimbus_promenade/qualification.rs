@@ -1,21 +1,19 @@
 use frontbox_core::prelude::*;
-use frontbox_gfx::animation::Curve;
-use frontbox_gfx::color_sequence::{Anchor1d, Fill1dArea};
 use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::vspinner::{self, VerticalSpinnerHit};
 use crate::systems::game::NimbusPromenadeMode;
-use crate::systems::game::nimbus_promenade::{self, MODE_COLOR};
+use crate::systems::game::nimbus_promenade;
 use crate::systems::sounds;
 
 const REQUIRED_HITS: u8 = 20;
 
 #[derive(Clone)]
 pub struct NimbusPromenadeQualification {
-  hit_effect: LedProgram1d,
-  progress_effect: LedProgram1d,
+  hit_effect: LedScene,
+  progress_effect: LedScene,
   hits: u8,
   shutdown: bool,
 }
@@ -30,57 +28,26 @@ impl NimbusPromenadeQualification {
     }
   }
 
-  fn hit_effect() -> LedProgram1d {
+  fn hit_effect() -> LedScene {
     // energy from the spinner goes outwards through the rays to the pops
-    let duration = Duration::from_millis(600);
-    LedProgram1d::timeline()
-      .at(
-        Duration::ZERO,
-        LedProgram1d::rotating(
-          &*vspinner::left_ray::Q,
-          ColorSequence::exact(vec![
-            *MODE_COLOR,
-            Rgba::default(),
-            Rgba::default(),
-            Rgba::default(),
-          ]),
-          duration,
-          Curve::Linear,
-          Cycle::Once,
-        ),
-      )
-      .at(
-        Duration::ZERO,
-        LedProgram1d::rotating(
-          &*vspinner::upper_right_ray::Q,
-          ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-          duration,
-          Curve::Linear,
-          Cycle::Once,
-        ),
-      )
-      .at(
-        Duration::ZERO,
-        LedProgram1d::rotating(
-          &*vspinner::lower_right_ray::Q,
-          ColorSequence::exact(vec![*MODE_COLOR, Rgba::default(), Rgba::default()]),
-          duration,
-          Curve::Linear,
-          Cycle::Once,
-        ),
-      )
+    LedScene::unbound(led_scene!("nimbus_promenade/qualification_hit.ron"))
+      .on("left_ray", &*vspinner::left_ray::Q)
+      .unwrap()
+      .on("upper_right_ray", &*vspinner::upper_right_ray::Q)
+      .unwrap()
+      .on("lower_right_ray", &*vspinner::lower_right_ray::Q)
+      .unwrap()
       .stopped()
   }
 
-  fn progress_effect(count: u8) -> LedProgram1d {
+  fn progress_effect(count: u8) -> LedScene {
     log::info!("Progress effect: {}", count);
-    LedProgram1d::rotating(
+    // the ring's 12 LEDs are 1/11 apart along a scene
+    LedScene::new(
       vspinner::LEDS.q(),
-      ColorSequence::solid(*MODE_COLOR).area(Fill1dArea::anchored(Anchor1d::Start, count)),
-      Duration::from_millis(1250),
-      Curve::Linear,
-      Cycle::Forever,
+      led_scene!("nimbus_promenade/qualification_progress.ron"),
     )
+    .param("width", count as f32 / 11.0)
   }
 
   fn spinner_hit(&mut self, ctx: &SystemContext) {

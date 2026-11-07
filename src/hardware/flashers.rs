@@ -2,7 +2,7 @@ use std::sync::LazyLock;
 
 use frontbox_core::prelude::*;
 use frontbox_core::tags::*;
-use frontbox_gfx::animation::Curve;
+use frontbox_gfx::scene::Scene;
 use frontbox_led::prelude::*;
 
 use crate::hardware::planes;
@@ -24,7 +24,7 @@ static ALL_FLASHERS: LazyLock<LedQ> =
 
 #[derive(Clone)]
 pub struct FlashersSystem {
-  effects: Vec<LedProgram1d>,
+  effects: Vec<LedScene>,
 }
 
 impl FlashersSystem {
@@ -34,22 +34,8 @@ impl FlashersSystem {
     }
   }
 
-  pub fn flash(&mut self, times: u32, colors: ColorSequence) {
-    self.effects.push(LedProgram1d::flash(
-      &*ALL_FLASHERS,
-      colors,
-      Cycle::Times(times),
-    ));
-  }
-
-  pub fn rotate(&mut self, times: u32, colors: ColorSequence) {
-    self.effects.push(LedProgram1d::rotating(
-      &*ALL_FLASHERS,
-      colors,
-      Duration::from_millis(600),
-      Curve::Linear,
-      Cycle::Times(times),
-    ))
+  pub fn play(&mut self, scene: Scene) {
+    self.effects.push(LedScene::new(&*ALL_FLASHERS, scene));
   }
 }
 

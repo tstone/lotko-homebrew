@@ -108,15 +108,31 @@ pub fn match_switch(switch: &Switch) -> Option<DropBankTarget> {
   }
 }
 
+/// How long a cleared bank stays down, so that it doesn't come up under the ball
+const CLEARED_RAISE_DELAY: Duration = Duration::from_millis(500);
+
 #[derive(Clone)]
 pub struct DropBankSystem {
   handle: SystemHandle,
+  raise_cue: Option<u64>,
 }
 
 impl DropBankSystem {
   pub fn new() -> Self {
     Self {
       handle: SystemHandle::default(),
+      raise_cue: None,
+    }
+  }
+
+  fn check_cleared(&mut self, ctx: &SystemContext) {
+    let all_down = [&TARGET1, &TARGET2, &TARGET3]
+      .iter()
+      .all(|target| ctx.switches.is_closed(target.name).unwrap_or(false));
+    if all_down && self.raise_cue.is_none() {
+      log::info!("Drop bank cleared");
+      ctx.emit(DropBankCleared);
+      self.raise_cue = Some(ctx.cues.start(RaiseBank, CLEARED_RAISE_DELAY.once()));
     }
   }
 
@@ -137,14 +153,20 @@ impl System for DropBankSystem {
     if let Some(event) = event.downcast_ref::<SwitchClosed>() {
       if event.switch.name == TARGET1.name {
         ctx.emit(DropBankTargetHit(1));
+        self.check_cleared(ctx);
       } else if event.switch.name == TARGET2.name {
         ctx.emit(DropBankTargetHit(2));
+        self.check_cleared(ctx);
       } else if event.switch.name == TARGET3.name {
         ctx.emit(DropBankTargetHit(3));
+        self.check_cleared(ctx);
       } else if event.switch.name == PADDLE_SWITCH.name {
         ctx.emit(DropBankPaddleHit);
         self.raise_targets(ctx.into());
       }
+    } else if event.is::<RaiseBank>() {
+      self.raise_cue = None;
+      self.raise_targets(ctx.into());
     }
   }
 }
@@ -154,3 +176,10 @@ pub struct DropBankTargetHit(pub u8);
 
 #[derive(serde::Serialize, Event)]
 pub struct DropBankPaddleHit;
+
+/// All three targets are down. The bank raises itself shortly after.
+#[derive(serde::Serialize, Event)]
+pub struct DropBankCleared;
+
+#[derive(serde::Serialize, Event)]
+struct RaiseBank;

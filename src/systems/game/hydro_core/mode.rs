@@ -3,13 +3,11 @@ use std::sync::LazyLock;
 
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::{GameManagementExt, TurnEnding};
+use frontbox_pinball::GameManagementExt;
 use frontbox_sound::SoundSystemExt;
 
-use crate::hardware::flashers::FlashersSystem;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
-use crate::systems::game::ModeManager;
-use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable, SporeApplied};
+use crate::systems::game::{self, EffectsSystem, Mode, ModeManager, ModeRun, SporeApplied};
 use crate::systems::sounds;
 
 static BASE_SHOT_TIME: LazyLock<Duration> = LazyLock::new(|| Duration::from_secs(25));
@@ -24,6 +22,7 @@ const COMBO: [MainShot; 5] = [
 
 #[derive(Clone)]
 pub struct HydroCoreMode {
+  run: ModeRun,
   attention_effect: LedPlayback,
   intensity_effect: LedPlayback,
   hit_effect: LedPlayback,
@@ -34,12 +33,12 @@ pub struct HydroCoreMode {
   combo_shots_seen: HashSet<u8>,
   combo_attempts: u16,
   cue_id: Option<u64>,
-  mode_complete: bool,
 }
 
 impl HydroCoreMode {
   pub fn new() -> Self {
     Self {
+      run: ModeRun::new(Mode::HydroCore, COMBO.len() as u8),
       attention_effect: Self::attention_effect(COMBO[0].hex_center()),
       hit_effect: Self::hit_effect(),
       arc_effect: Self::arc_effect(),
@@ -49,7 +48,6 @@ impl HydroCoreMode {
       combo_shots_seen: HashSet::new(),
       combo_attempts: 0,
       cue_id: None,
-      mode_complete: false,
     }
   }
 
@@ -81,6 +79,7 @@ impl HydroCoreMode {
 
   fn restart_combo(&mut self, ctx: &SystemContext) {
     self.combo_attempts += 1;
+    self.run.reset_progress();
     self.advance_combo(1, ctx);
     self.intensity_effect.stop(ctx);
   }
@@ -103,9 +102,11 @@ impl HydroCoreMode {
 
     if shot == 6 {
       ctx.play_sfx(sounds::HYDRO_CORE_PURGED);
-      self.hit_effect.stop(ctx);
-      self.hit_effect = led_playback!("hydro_core/complete.scene");
-      self.mode_complete = true;
+      self.run.complete(
+        game::points::EXL_COMPLETION,
+        led_playback!("hydro_core/complete.scene"),
+        ctx,
+      );
       return;
     }
 
@@ -134,7 +135,7 @@ impl HydroCoreMode {
     self.attention_effect = Self::attention_effect(target.hex_center());
     self.hit_effect = Self::attention_ring(target.hex_ring());
 
-    if shot == 4 {
+    if self.run.progress(shot - 1) == Some(50) {
       self.intensity_effect.play();
     }
   }
@@ -150,7 +151,7 @@ impl HydroCoreMode {
     ctx.emit(SporeApplied);
     ctx
       .systems
-      .expect::<FlashersSystem>()
+      .expect::<EffectsSystem>()
       .play(led_playback!("hydro_core/flashers.scene"));
 
     // Points for combo only score the first time, not repeated times
@@ -166,40 +167,33 @@ impl HydroCoreMode {
     self.restart_combo(ctx);
   }
 
-  fn revert_to_startable(&mut self, ctx: &SystemContext) {
-    ctx
-      .systems
-      .expect::<ModeManager>()
-      .release_exclusive(&ExclusiveMode::HydroCore, ctx.into());
-    ctx.systems.expect::<LeftScoopStartable>().make_startable(
-      ExclusiveMode::HydroCore,
-      Duration::ZERO,
-      ctx.into(),
-    );
-    ctx.systems.despawn_self();
-  }
-
-  fn complete(&mut self, ctx: &SystemContext) {
-    ctx.add_points(game::points::EXL_COMPLETION);
-    ctx
-      .systems
-      .expect::<ModeManager>()
-      .complete_exclusive(ExclusiveMode::HydroCore, ctx.into());
-    // a city mode can only be completed once per game
-    ctx.systems.despawn_self();
-  }
 }
 
 impl System for HydroCoreMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.systems.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::HydroCore)
+    ctx.systems.expect::<ModeManager>().current_mode() == Some(Mode::HydroCore)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
+    self.run.begin(ctx);
     self.restart_combo(ctx);
   }
 
+  fn on_reactivate(&mut self, ctx: &SystemContext) {
+    ctx.activate_led_declarations();
+    self.run.begin(ctx);
+  }
+
+  fn on_deactivate(&mut self, ctx: &SystemContext) {
+    self.run.interrupt(ctx);
+    ctx.deactivate_led_declarations();
+  }
+
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
+    if self.run.apply(delta, ctx) {
+      return;
+    }
+
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
     self.arc_effect.apply(delta, ctx);
@@ -208,23 +202,19 @@ impl System for HydroCoreMode {
     if let Some(effect) = self.progress_effect.as_mut() {
       effect.apply(delta, ctx);
     }
-
-    if self.mode_complete && self.hit_effect.is_complete() {
-      self.complete(ctx);
-    }
   }
 
   // TODO: change order to lift ramp => arc ramp => left ramp => right orbit => center orbit to get to N spins (untimed)
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    self.run.on_event(event, ctx);
+
     if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       if hit.shot == COMBO[self.current_combo_shot as usize - 1] {
         self.combo_hit(ctx);
       }
     } else if event.is::<ComboTimeUp>() {
       self.combo_time_up(ctx);
-    } else if event.is::<RoutineStarted<TurnEnding>>() {
-      self.revert_to_startable(ctx);
     }
   }
 }

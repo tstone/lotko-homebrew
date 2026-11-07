@@ -1,85 +1,85 @@
-Led(
-  version: 1,
-  timing: (
-    duration: 6.0,
-    cycle: Times(3),
-  ),
-  layers: [
-    (
-      leds: Tag("Playfield"),
-      surface: Area("Playfield"),
-      layer: (
-        fill: (
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Random(
-                  picks: [
-                    (
-                      at: 0.0,
-                      smooth_in: 0.5,
-                      smooth_out: 0.5,
-                    ),
-                  ],
-                  spread: Color(
-                    hue: (8.0, 106.0),
-                    brightness: (0.5, 1.0),
-                    alpha: (1.0, 1.0),
-                  ),
-                  seed: 2161059077,
-                  force_unique: true,
-                ),
-              ),
-              (
-                at: 1.0,
-                color: Random(
-                  picks: [
-                    (
-                      at: 0.0,
-                      smooth_in: 0.5,
-                      smooth_out: 0.5,
-                    ),
-                  ],
-                  spread: Color(
-                    hue: (164.0, 258.0),
-                    brightness: (0.0, 1.0),
-                    alpha: (1.0, 1.0),
-                  ),
-                  seed: 2364681603,
-                  force_unique: true,
-                ),
-              ),
-            ],
-            space: Oklab,
-            style: Conical,
-          ),
-        ),
-        shape: (
-          transform: [
-            Scale(Fixed(1.0, 1.0)),
-            Translate(Fixed(1.0, 1.0)),
-            Rotate(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: -180.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 5.0,
-                  value: 180.0,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-          base: Pinwheel(
-            blades: Fixed(8.0),
-          ),
-        ),
-      ),
-    ),
-  ],
+Led(
+  version: 1,
+  timing: (
+    duration: 5.0,
+    cycle: Times(3),
+  ),
+  layers: [
+    (
+      leds: Tag("Playfield"),
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Random(
+                  picks: [
+                    (
+                      at: 0.0,
+                      smooth_in: 0.5,
+                      smooth_out: 0.5,
+                    ),
+                  ],
+                  spread: Color(
+                    hue: (8.0, 106.0),
+                    brightness: (0.5, 1.0),
+                    alpha: (1.0, 1.0),
+                  ),
+                  seed: 2161059077,
+                  force_unique: true,
+                ),
+              ),
+              (
+                at: 1.0,
+                color: Random(
+                  picks: [
+                    (
+                      at: 0.0,
+                      smooth_in: 0.5,
+                      smooth_out: 0.5,
+                    ),
+                  ],
+                  spread: Color(
+                    hue: (164.0, 258.0),
+                    brightness: (0.0, 1.0),
+                    alpha: (1.0, 1.0),
+                  ),
+                  seed: 2364681603,
+                  force_unique: true,
+                ),
+              ),
+            ],
+            space: Oklab,
+            style: Conical,
+          ),
+        ),
+        shape: (
+          transform: [
+            Scale(Fixed(1.0, 1.0)),
+            Translate(Fixed(1.0, 1.0)),
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: -180.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 5.0,
+                  value: 180.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Pinwheel(
+            blades: Fixed(8.0),
+          ),
+        ),
+      ),
+    ),
+  ],
 )

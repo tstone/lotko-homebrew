@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::sync::LazyLock;
 
 use frontbox_core::prelude::ActivationMode::VirtualSwitchOn;
@@ -109,6 +110,8 @@ pub static HEX_CIRCLE_LEDS: LazyLock<LedQ> = LazyLock::new(|| {
 
 #[derive(Clone)]
 pub struct LiftRampSystem {
+  /// Who wants the ramp up, by `ctx.id()`. It stays up while anyone does.
+  requests: HashSet<u64>,
   ramp_lifted: bool,
   close_cue_id: Option<u64>,
   ball_present: bool,
@@ -118,6 +121,7 @@ pub struct LiftRampSystem {
 impl LiftRampSystem {
   pub fn new() -> Self {
     Self {
+      requests: HashSet::new(),
       ramp_lifted: false,
       close_cue_id: None,
       ball_present: false,
@@ -129,7 +133,21 @@ impl LiftRampSystem {
     self.ramp_lifted
   }
 
-  pub fn lift_up(&mut self, ctx: &ServiceContext) {
+  /// Ask for the ramp to be up, keyed by the requester's `ctx.id()`
+  pub fn request_up(&mut self, requester: u64, ctx: &ServiceContext) {
+    self.requests.insert(requester);
+    self.lift_up(ctx);
+  }
+
+  /// Take back a [`Self::request_up`]. The ramp comes down once nobody is asking.
+  pub fn release(&mut self, requester: u64, ctx: &ServiceContext) {
+    self.requests.remove(&requester);
+    if self.requests.is_empty() {
+      self.lift_down(ctx);
+    }
+  }
+
+  fn lift_up(&mut self, ctx: &ServiceContext) {
     if !self.ramp_lifted {
       let ctx = ctx.for_system(self.handle);
       log::info!("Lifting ramp up.");
@@ -139,7 +157,7 @@ impl LiftRampSystem {
     }
   }
 
-  pub fn lift_down(&mut self, ctx: &ServiceContext) {
+  fn lift_down(&mut self, ctx: &ServiceContext) {
     if self.ramp_lifted {
       let ctx = ctx.for_system(self.handle);
       log::info!("Lifting ramp down.");
@@ -189,6 +207,7 @@ impl System for LiftRampSystem {
       } else if event.switch.name == SCOOP_OPTO.name {
         log::info!("Ball entered lift ramp scoop");
         ctx.emit(LiftRampScoopBallEnter);
+        self.eject(ctx.into());
       }
     } else if event.is::<VerifyVacancy>() {
       self.verify_vacancy(ctx);
@@ -204,8 +223,8 @@ impl System for LiftRampSystem {
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    // If the ramp was up before, raise it up again
-    if self.is_lifted() {
+    // Whoever still wants the ramp up gets it back
+    if !self.requests.is_empty() {
       self.lift_up(ctx.into());
     }
   }

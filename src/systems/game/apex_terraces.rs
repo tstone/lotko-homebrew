@@ -7,13 +7,13 @@ use crate::{
     pop_cluster::{self, PopBumper, match_target_switch},
   },
   systems::{
-    game::{ModeManager, NonExclusiveMode},
+    game::{Mode, ModeManager, ModeRun},
     sounds,
   },
 };
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::{GameManagementExt, TurnPhase};
+use frontbox_pinball::GameManagementExt;
 use frontbox_sound::*;
 
 /// Lit target hits it takes to charge the center spinner
@@ -38,6 +38,7 @@ mod points {
 /// The targets stay dimly lit and are worth a little.
 #[derive(Clone)]
 pub struct ApexTerracesMode {
+  run: ModeRun,
   phase: Phase,
   charge: u8,
   lit: HashSet<Target>,
@@ -51,6 +52,7 @@ pub struct ApexTerracesMode {
 impl ApexTerracesMode {
   pub fn new() -> Self {
     Self {
+      run: ModeRun::new(Mode::ApexTerraces, REQUIRED_CHARGE),
       phase: Phase::Charging,
       charge: 0,
       lit: HashSet::new(),
@@ -164,11 +166,6 @@ impl ApexTerracesMode {
     ctx.play_sfx(sounds::EVOLUTION_COMPLETE);
     self.start_effect = Some(led_playback!("apex_terraces/start.scene"));
     self.set_spinner_effect(led_playback!("apex_terraces/spinner_charged.scene"), ctx);
-
-    ctx
-      .systems
-      .expect::<ModeManager>()
-      .non_exclusive_active(NonExclusiveMode::ApexTerraces, ctx.into());
   }
 
   fn on_spin(&mut self, ctx: &SystemContext) {
@@ -193,21 +190,29 @@ impl ApexTerracesMode {
       effect.stop(ctx);
     }
 
-    ctx
-      .systems
-      .expect::<ModeManager>()
-      .complete_non_exclusive(NonExclusiveMode::ApexTerraces, ctx.into());
-    // a city mode can only be completed once per game
-    ctx.systems.despawn_self();
+    self
+      .run
+      .complete(0, led_playback!("apex_terraces/start.scene"), ctx);
   }
 }
 
 impl System for ApexTerracesMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.states.is(TurnPhase::Active)
+    ctx.systems.expect::<ModeManager>().current_mode() == Some(Mode::ApexTerraces)
+  }
+
+  fn on_spawn(&mut self, ctx: &SystemContext) {
+    self.run.begin(ctx);
+  }
+
+  fn on_reactivate(&mut self, ctx: &SystemContext) {
+    ctx.activate_led_declarations();
+    self.run.begin(ctx);
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    self.run.on_event(event, ctx);
+
     if event.is::<LitTargetsWarned>() {
       self.lit_warning = true;
       self.lit_cue = Some(ctx.cues.start(LitTargetsTimedOut, LIT_WARNING.once()));
@@ -236,6 +241,7 @@ impl System for ApexTerracesMode {
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
+    self.run.interrupt(ctx);
     // lit targets and the spinning window end with the ball; a charged spinner waits for the next one
     self.clear_lit(ctx);
     if self.phase == Phase::Spinning {
@@ -245,6 +251,10 @@ impl System for ApexTerracesMode {
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
+    if self.run.apply(delta, ctx) {
+      return;
+    }
+
     for effect in [
       &mut self.target_effect,
       &mut self.spinner_effect,

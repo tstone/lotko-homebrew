@@ -3,13 +3,12 @@ use frontbox_dmd::*;
 use frontbox_gfx::canvas::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{
-  ExtraBallGranted, ExtraBallUsed, GameManagementExt, TurnPhase, TurnStartReason, TurnStarting,
+  ExtraBallGranted, ExtraBallUsed, GameManagementExt, TurnStartReason, TurnStarting,
 };
 
-use crate::hardware::lower_scoop::LowerScoopBallEnter;
 use crate::hardware::trough::DRAIN_LED;
 use crate::systems::dmd::ANNOUNCEMENT_DMD_LAYER;
-use crate::systems::game::{CityModeCompleted, points};
+use crate::systems::game::{DistrictCompleted, points};
 
 /// How long the extra ball and shoot again screens are shown
 const SCREEN_DURATION: Duration = Duration::from_secs(2);
@@ -26,8 +25,9 @@ pub enum ExtraBallSource {
 }
 
 /// Lights and collects extra balls (RULES.md, Extra balls). A source lights one (`light`), and a shot to the front of
-/// the left scoop collects it; a ball coming in from the arc ramp's subway doesn't. Collecting grants the extra ball,
-/// or awards points once the player is at the `MAX_EXTRA_BALLS` limit.
+/// the left scoop collects it (`collect_at_scoop`, from `ModeSelectSystem`, which goes first with anything lit); a ball
+/// coming in from the arc ramp's subway doesn't. Collecting grants the extra ball, or awards points once the player is
+/// at the `MAX_EXTRA_BALLS` limit.
 ///
 /// While one is lit, the scoop bolts flash white and the drain LED pulses. While the player has one to use, the drain
 /// LED (shoot again) stays lit.
@@ -42,6 +42,8 @@ pub struct ExtraBallSystem {
   lit_effect: LedPlayback,
   lit_effect_playing: bool,
   screen_cue: Option<u64>,
+  /// The screen showing is a collect, which the scoop is waiting on
+  collecting: bool,
   handle: SystemHandle,
 }
 
@@ -55,6 +57,7 @@ impl ExtraBallSystem {
       lit_effect,
       lit_effect_playing: false,
       screen_cue: None,
+      collecting: false,
       handle: SystemHandle::default(),
     }
   }
@@ -70,6 +73,17 @@ impl ExtraBallSystem {
     log::info!("Extra ball lit by {:?}, {} lit", source, self.lit);
     self.show("EXTRA BALL LIT", ctx);
     self.update_lit_effect(ctx);
+    true
+  }
+
+  /// Collect a lit extra ball, if there is one. Returns whether there was, in which case [`ExtraBallCollected`] follows
+  /// when its animation has played.
+  pub fn collect_at_scoop(&mut self, ctx: &ServiceContext) -> bool {
+    if self.lit == 0 {
+      return false;
+    }
+    self.collect(&ctx.for_system(self.handle));
+    self.collecting = true;
     true
   }
 
@@ -138,16 +152,7 @@ impl System for ExtraBallSystem {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if let Some(LowerScoopBallEnter {
-      subway_entry: false,
-    }) = event.downcast_ref::<LowerScoopBallEnter>()
-      && self.lit > 0
-      && ctx.states.is(TurnPhase::Active)
-    {
-      self.collect(ctx);
-    } else if let Some(CityModeCompleted { completed: 1 }) =
-      event.downcast_ref::<CityModeCompleted>()
-    {
+    if let Some(DistrictCompleted { completed: 1 }) = event.downcast_ref::<DistrictCompleted>() {
       self.light(ExtraBallSource::Progression, ctx.into());
     } else if event.is::<ExtraBallGranted>() || event.is::<ExtraBallUsed>() {
       self.update_shoot_again(ctx);
@@ -162,6 +167,10 @@ impl System for ExtraBallSystem {
     } else if event.is::<ScreenShown>() {
       self.screen_cue = None;
       self.remove_screen(ctx);
+      if self.collecting {
+        self.collecting = false;
+        ctx.emit(ExtraBallCollected);
+      }
     }
   }
 
@@ -173,6 +182,10 @@ impl System for ExtraBallSystem {
     self.remove_screen(ctx);
   }
 }
+
+/// An extra ball was collected and its animation has played, so the scoop can move on
+#[derive(serde::Serialize, Event)]
+pub struct ExtraBallCollected;
 
 #[derive(serde::Serialize, Event)]
 struct ScreenShown;

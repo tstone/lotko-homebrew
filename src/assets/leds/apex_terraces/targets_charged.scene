@@ -11,7 +11,7 @@ Led(
       surface: Sequence,
       layer: (
         fill: (
-          base: Solid(Fixed(0, 102, 0, 255)),
+          base: Solid(Fixed(102, 62, 0, 255)),
         ),
       ),
     ),

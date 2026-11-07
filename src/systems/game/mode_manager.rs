@@ -1,178 +1,193 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::LazyLock;
 
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{TurnEnding, TurnStarting};
 use frontbox_sound::SoundSystem;
 
-use crate::hardware::city_map;
 use crate::metrics;
-use crate::systems::game::ExclusiveMode;
+use crate::systems::game::{Mode, ModeState, Multiball, Progression, music_file};
 
-static DEFAULT_MUSIC: LazyLock<PathBuf> =
-  LazyLock::new(|| PathBuf::from("/userdata/home/armsom/music/colyn-rushing.mp3"));
-static EXCL_MODE_MUSIC: LazyLock<HashMap<ExclusiveMode, PathBuf>> = LazyLock::new(|| {
-  let mut map = HashMap::new();
-  map.insert(
-    ExclusiveMode::HydroCore,
-    PathBuf::from("/userdata/home/armsom/music/inzo-wonder.mp3"),
-  );
-  map.insert(
-    ExclusiveMode::SkyrailStation,
-    PathBuf::from("/userdata/home/armsom/music/deadmau5-arguru2k19.mp3"),
-  );
-  map.insert(
-    ExclusiveMode::SolariumAtrium,
-    PathBuf::from("/userdata/home/armsom/music/fehrplay-arcadia.mp3"),
-  );
-  map.insert(
-    ExclusiveMode::MeridianBasins,
-    PathBuf::from("/userdata/home/armsom/music/glitch-mob-cant-kill-us.mp3"),
-  );
-  map.insert(
-    ExclusiveMode::SporeMultiball,
-    PathBuf::from("/userdata/home/armsom/music/rezmau5-infraliminal.mp3"),
-  );
-  map
-});
-static NON_EXCL_MODE_MUSIC: LazyLock<HashMap<NonExclusiveMode, PathBuf>> = LazyLock::new(|| {
-  let mut map = HashMap::new();
-  map.insert(
-    NonExclusiveMode::NimbusPromenade,
-    PathBuf::from("/userdata/home/armsom/music/wice-5omething.mp3"),
-  );
-  map
-});
+/// How long an insert takes to pulse once for a mode that can be chosen, which is calmer than a running mode's flash
+const OFFERED_PULSE: Duration = Duration::from_millis(900);
 
+/// What's running for the current player: a mode and a multiball, in a slot each, and how far they've got up the
+/// route. Owns the music, the city map and the rules for what can run together.
+///
+/// A mode that loses its slot isn't over. Its system goes inactive and keeps its progress, and resuming it makes it
+/// active again. See [`ModeRun`](crate::systems::game::ModeRun).
 #[derive(Clone)]
 pub struct ModeManager {
   handle: SystemHandle,
-  exclusive_mode: Option<ExclusiveMode>,
-  music_priority: Vec<NonExclusiveMode>,
-  exclusive_completions: HashSet<ExclusiveMode>,
-  non_exclusive_completions: HashSet<NonExclusiveMode>,
+  mode: Option<Mode>,
+  multiball: Option<Multiball>,
+  progression: Progression,
   current_music: Option<PathBuf>,
-  /// Music only plays during a turn. Modes changing outside of one (e.g. releasing exclusive as the turn ends)
-  /// update state without starting music.
+  /// Music only plays during a turn. Modes changing outside of one (e.g. a slot clearing as the turn ends) update
+  /// state without starting music.
   turn_active: bool,
-  /// Flashes the map insert of each active mode. Each mode has its own flash, so an exclusive mode and any number of
-  /// non-exclusive modes can flash together.
-  map_flashes: HashMap<ActiveMode, LedPlayback>,
+  /// The rows of the mode select menu while it's open
+  menu_rows: Vec<Mode>,
+  highlighted: Option<Mode>,
+  /// Pulses the map insert of each mode that wants it, with how it's pulsing
+  map_pulses: HashMap<Mode, (MapPulse, LedPlayback)>,
 }
 
 impl ModeManager {
   pub fn new() -> Self {
     Self {
       handle: SystemHandle::default(),
-      exclusive_mode: None,
-      music_priority: Vec::new(),
-      exclusive_completions: HashSet::new(),
-      non_exclusive_completions: HashSet::new(),
+      mode: None,
+      multiball: None,
+      progression: Progression::new(),
       current_music: None,
       turn_active: false,
-      map_flashes: HashMap::new(),
+      menu_rows: Vec::new(),
+      highlighted: None,
+      map_pulses: HashMap::new(),
     }
   }
 
-  pub fn current_mode(&self) -> &Option<ExclusiveMode> {
-    &self.exclusive_mode
+  pub fn current_mode(&self) -> Option<Mode> {
+    self.mode
   }
 
-  /// The number of city modes completed this game, each lit on the city map
-  pub fn completed_city_mode_count(&self) -> usize {
-    self.exclusive_completions.len() + self.non_exclusive_completions.len()
+  pub fn current_multiball(&self) -> Option<Multiball> {
+    self.multiball
   }
 
-  pub fn take_exclusive(
-    &mut self,
-    mode: ExclusiveMode,
-    ctx: &ServiceContext,
-  ) -> Result<(), String> {
-    if let Some(existing) = &self.exclusive_mode {
-      let msg = format!(
-        "Cannot start {:?} because {:?} already has exclusive.",
-        mode, existing
-      );
-      log::warn!("{}", msg);
-      Err(msg)
-    } else {
-      let ctx = &ctx.for_system(self.handle);
-      self.exclusive_mode = Some(mode);
-      log::info!("ModeManager: taking exclusive (playing music)");
-      self.crossfade_music(ctx);
-      self.flash_map_insert(ActiveMode::Exclusive(mode));
-      ctx.emit(ExclusiveModeStarted(mode.clone()));
-      Ok(())
+  /// What the mode select menu offers
+  pub fn available_modes(&self) -> Vec<Mode> {
+    self.progression.available_modes(self.mode)
+  }
+
+  pub fn mini_wizard_available(&self) -> bool {
+    self.progression.mini_wizard_available()
+  }
+
+  // For Steward integrity (PLAN.md, 1.9)
+  #[allow(dead_code)]
+  pub fn districts_played(&self) -> usize {
+    self.progression.districts_played()
+  }
+
+  pub fn districts_completed(&self) -> usize {
+    self.progression.districts_completed()
+  }
+
+  /// The color the playfield is lit in, by the same priority as the music. White when nothing is running.
+  pub fn illumination(&self) -> Rgba<u8> {
+    match (self.mode, self.multiball) {
+      (Some(mode), _) if mode.is_mini_wizard() => mode.color(),
+      (_, Some(multiball)) => multiball.color(),
+      (Some(mode), None) => mode.color(),
+      (None, None) => Rgba::white(),
     }
   }
 
-  pub fn complete_exclusive(&mut self, mode: ExclusiveMode, ctx: &ServiceContext) {
-    log::info!("Modes: Exclusive completed {:?}", mode);
-    self.release_exclusive(&mode, ctx);
-    ctx.metrics.inc(&metrics::MODES_COMPLETED);
-    ctx.metrics.inc(metrics::exclusive_mode_completed(&mode));
-    self.exclusive_completions.insert(mode);
+  /// Start a mode or resume one, taking the mode slot. Its system takes it from there.
+  pub fn start_mode(&mut self, mode: Mode, ctx: &ServiceContext) -> Result<(), String> {
+    if let Some(existing) = self.mode {
+      return self.refuse(format!("{mode:?} can't start while {existing:?} is running"));
+    }
+    if let Some(multiball) = self.multiball.filter(|m| !m.stacks_with(mode)) {
+      return self.refuse(format!("{mode:?} can't run with {multiball:?}"));
+    }
+
     let ctx = &ctx.for_system(self.handle);
+    let resuming = self.progression.state(mode) == ModeState::Played;
+    log::info!("ModeManager: {} {:?}", if resuming { "resuming" } else { "starting" }, mode);
+    self.progression.start(mode);
+    self.mode = Some(mode);
+    if !resuming {
+      mode.spawn(ctx);
+    }
+    self.slots_changed(ctx);
     self.render_map(ctx);
-    ctx.emit(CityModeCompleted {
-      completed: self.completed_city_mode_count(),
-    });
+    ctx.emit(ModeStarted(mode));
+    Ok(())
   }
 
-  pub fn release_exclusive(&mut self, mode: &ExclusiveMode, ctx: &ServiceContext) {
-    if self
-      .exclusive_mode
-      .as_ref()
-      .map(|m| m == mode)
-      .unwrap_or(false)
-    {
+  /// Give up the mode slot, leaving the mode to be resumed
+  pub fn end_mode(&mut self, mode: Mode, ctx: &ServiceContext) {
+    if self.mode == Some(mode) {
       let ctx = &ctx.for_system(self.handle);
-      self.exclusive_mode = None;
-      log::info!("ModeManager: releasing_exclusive (playing music)");
-      self.crossfade_music(ctx);
-      self.stop_map_flash(&ActiveMode::Exclusive(*mode), ctx);
-      ctx.emit(ExclusiveModeEnded);
+      self.clear_mode(ctx);
     }
   }
 
-  pub fn non_exclusive_active(&mut self, mode: NonExclusiveMode, ctx: &ServiceContext) {
+  /// A mode is done for the game. This doesn't need it to be running, as one can finish while a ball is ending.
+  pub fn complete(&mut self, mode: Mode, ctx: &ServiceContext) {
+    log::info!("ModeManager: completed {:?}", mode);
     let ctx = &ctx.for_system(self.handle);
-    if !self.music_priority.contains(&mode) {
-      self.music_priority.push(mode.clone());
+    self.progression.complete(mode);
+    ctx.metrics.inc(&metrics::MODES_COMPLETED);
+    ctx.metrics.inc(metrics::mode_completed(&mode));
+    if self.mode == Some(mode) {
+      self.clear_mode(ctx);
     }
-    if self.is_default_music_playing() {
-      log::info!(
-        "ModeManager: non-exclusive active {:?} (playing music)",
-        mode
-      );
-      self.crossfade_music(ctx);
+    self.render_map(ctx);
+    if !mode.is_mini_wizard() {
+      ctx.emit(DistrictCompleted {
+        completed: self.progression.districts_completed(),
+      });
     }
-    self.flash_map_insert(ActiveMode::NonExclusive(mode));
   }
 
-  pub fn non_exclusive_inactive(&mut self, mode: &NonExclusiveMode, ctx: &ServiceContext) {
+  /// Take the multiball slot
+  pub fn take_multiball(&mut self, multiball: Multiball, ctx: &ServiceContext) -> Result<(), String> {
+    if let Some(existing) = self.multiball {
+      return self.refuse(format!("{multiball:?} can't start during {existing:?}"));
+    }
+    if let Some(mode) = self.mode.filter(|mode| !multiball.stacks_with(*mode)) {
+      return self.refuse(format!("{multiball:?} can't run with {mode:?}"));
+    }
+
     let ctx = &ctx.for_system(self.handle);
-    self.music_priority.retain(|m| m != mode);
-    log::info!("ModeManager: non-exclusive inactive (playing music)");
+    self.multiball = Some(multiball);
+    self.slots_changed(ctx);
+    Ok(())
+  }
+
+  pub fn release_multiball(&mut self, multiball: Multiball, ctx: &ServiceContext) {
+    if self.multiball == Some(multiball) {
+      let ctx = &ctx.for_system(self.handle);
+      self.multiball = None;
+      self.slots_changed(ctx);
+    }
+  }
+
+  /// Show the mode select menu on the map: its rows pulse and the highlighted one is solid
+  pub fn show_menu(&mut self, rows: Vec<Mode>, highlighted: Mode, ctx: &ServiceContext) {
+    let ctx = &ctx.for_system(self.handle);
+    self.menu_rows = rows;
+    self.highlighted = Some(highlighted);
+    self.render_map(ctx);
+  }
+
+  pub fn hide_menu(&mut self, ctx: &ServiceContext) {
+    let ctx = &ctx.for_system(self.handle);
+    self.menu_rows.clear();
+    self.highlighted = None;
+    self.render_map(ctx);
+  }
+
+  fn refuse(&self, reason: String) -> Result<(), String> {
+    log::warn!("ModeManager: {reason}");
+    Err(reason)
+  }
+
+  fn clear_mode(&mut self, ctx: &SystemContext) {
+    self.mode = None;
+    self.slots_changed(ctx);
+    self.render_map(ctx);
+    ctx.emit(ModeEnded);
+  }
+
+  fn slots_changed(&mut self, ctx: &SystemContext) {
     self.crossfade_music(ctx);
-    self.stop_map_flash(&ActiveMode::NonExclusive(mode.clone()), ctx);
-  }
-
-  pub fn complete_non_exclusive(&mut self, mode: NonExclusiveMode, ctx: &ServiceContext) {
-    log::info!("Modes: Non-exclusive completed {:?}", mode);
-    self.non_exclusive_inactive(&mode, ctx);
-    ctx.metrics.inc(&metrics::MODES_COMPLETED);
-    ctx
-      .metrics
-      .inc(metrics::non_exclusive_mode_completed(&mode));
-    self.non_exclusive_completions.insert(mode);
-    let ctx = &ctx.for_system(self.handle);
-    self.render_map(ctx);
-    ctx.emit(CityModeCompleted {
-      completed: self.completed_city_mode_count(),
-    });
+    ctx.emit(ModeSlotsChanged);
   }
 
   fn stop_music(&mut self, ctx: &SystemContext) {
@@ -188,107 +203,64 @@ impl ModeManager {
       return;
     }
 
-    let path = match (&self.exclusive_mode, self.music_priority.get(0)) {
-      (Some(mode), _) => EXCL_MODE_MUSIC.get(&mode),
-      (_, Some(mode)) => NON_EXCL_MODE_MUSIC.get(&mode),
-      (None, None) => Some(&*DEFAULT_MUSIC),
-    };
-    let path = if let Some(path) = path {
-      path
-    } else {
-      &*DEFAULT_MUSIC
-    };
-
-    let already_playing_music = self
-      .current_music
-      .as_ref()
-      .map(|p| p == path)
-      .unwrap_or(false);
-
-    if !already_playing_music {
+    let path = music_for(self.mode, self.multiball);
+    if self.current_music.as_ref() != Some(&path) {
+      log::info!("ModeManager: playing {}", path.display());
       self.current_music = Some(path.clone());
       ctx
         .systems
         .expect::<SoundSystem>()
-        .play_music(path, Duration::from_millis(750));
+        .play_music(&path, Duration::from_millis(750));
     }
   }
 
-  fn is_default_music_playing(&self) -> bool {
-    self
-      .current_music
-      .as_ref()
-      .map(|p| *p == *DEFAULT_MUSIC)
-      .unwrap_or(false)
+  /// Every district's insert: off, a pulse, solid in its color, or green once it's completed
+  fn render_map(&mut self, ctx: &SystemContext) {
+    for mode in Mode::DISTRICTS {
+      let Some(led) = mode.map_led() else { continue };
+      let state = self.progression.state(mode);
+      let pulse = if self.highlighted == Some(mode) {
+        None
+      } else if self.mode == Some(mode) {
+        Some(MapPulse::Running)
+      } else if state == ModeState::Available || self.menu_rows.contains(&mode) {
+        Some(MapPulse::Offered)
+      } else {
+        None
+      };
+      self.set_map_pulse(mode, &led, pulse, ctx);
+
+      // what's under a pulse, which needs nothing there while it's only offered
+      let color = match state {
+        ModeState::Completed => Rgba::green(),
+        ModeState::Played => mode.color(),
+        _ if self.highlighted == Some(mode) => mode.color(),
+        _ => Rgba::default(),
+      };
+      ctx.declare_leds(&led, ColorSequence::from(color));
+    }
   }
 
-  fn is_exclusive_mode_complete(&self, mode: &ExclusiveMode) -> bool {
-    self.exclusive_completions.contains(mode)
-  }
-
-  fn is_non_exclusive_mode_complete(&self, mode: &NonExclusiveMode) -> bool {
-    self.non_exclusive_completions.contains(mode)
-  }
-
-  fn render_exclusive_mode<T: Contextual<LedIdentifications>>(
-    &self,
-    targets: &T,
-    mode: &ExclusiveMode,
+  fn set_map_pulse(
+    &mut self,
+    mode: Mode,
+    led: &LedQ,
+    pulse: Option<MapPulse>,
     ctx: &SystemContext,
   ) {
-    let color: ColorSequence = if self.is_exclusive_mode_complete(mode) {
-      mode.color().into()
-    } else {
-      Rgba::default().into()
-    };
-    ctx.declare_leds(targets, color);
-  }
-
-  fn render_non_exclusive_mode(&self, mode: &NonExclusiveMode, ctx: &SystemContext) {
-    let color: ColorSequence = if self.is_non_exclusive_mode_complete(mode) {
-      mode.color().into()
-    } else {
-      Rgba::default().into()
-    };
-    ctx.declare_leds(&mode.map_led(), color);
-  }
-
-  fn render_map(&self, ctx: &SystemContext) {
-    self.render_non_exclusive_mode(&NonExclusiveMode::NimbusPromenade, ctx);
-    self.render_non_exclusive_mode(&NonExclusiveMode::ApexTerraces, ctx);
-
-    self.render_exclusive_mode(&city_map::HYDRO_CORE.q(), &ExclusiveMode::HydroCore, ctx);
-    self.render_exclusive_mode(
-      &city_map::SKYRAIL_STATION.q(),
-      &ExclusiveMode::SkyrailStation,
-      ctx,
-    );
-    self.render_exclusive_mode(
-      &city_map::MERIDIAN_BASINS.q(),
-      &ExclusiveMode::MeridianBasins,
-      ctx,
-    );
-    self.render_exclusive_mode(
-      &city_map::SOLARIUM_ATRIUMS.q(),
-      &ExclusiveMode::SolariumAtrium,
-      ctx,
-    );
-  }
-
-  /// Flashes a mode's map insert over its completion color, leaving any other mode's flash running
-  fn flash_map_insert(&mut self, mode: ActiveMode) {
-    if let Some(led) = mode.map_led() {
-      let color = mode.color();
-      self
-        .map_flashes
-        .entry(mode)
-        .or_insert_with(|| led_playback!("map_flash.scene", led).param("color", color));
+    if self.map_pulses.get(&mode).map(|(current, _)| *current) == pulse {
+      return;
     }
-  }
-
-  fn stop_map_flash(&mut self, mode: &ActiveMode, ctx: &SystemContext) {
-    if let Some(mut flash) = self.map_flashes.remove(mode) {
-      flash.stop(ctx);
+    if let Some((_, mut playing)) = self.map_pulses.remove(&mode) {
+      playing.stop(ctx);
+    }
+    if let Some(pulse) = pulse {
+      let playback = led_playback!("map_flash.scene", led.clone()).param("color", mode.color());
+      let playback = match pulse {
+        MapPulse::Running => playback,
+        MapPulse::Offered => playback.over(OFFERED_PULSE),
+      };
+      self.map_pulses.insert(mode, (pulse, playback));
     }
   }
 }
@@ -303,15 +275,20 @@ impl System for ModeManager {
       log::info!("ModeManager: turn starting (playing music)");
       self.turn_active = true;
       self.crossfade_music(ctx);
+      self.render_map(ctx);
     } else if event.is::<RoutineStarted<TurnEnding>>() {
       self.turn_active = false;
       self.stop_music(ctx);
+      // the mode stops here so that it doesn't run through the end of the ball, and it's there to resume
+      if self.mode.is_some() {
+        self.clear_mode(ctx);
+      }
     }
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    for flash in self.map_flashes.values_mut() {
-      flash.apply(delta, ctx);
+    for (_, pulse) in self.map_pulses.values_mut() {
+      pulse.apply(delta, ctx);
     }
   }
 
@@ -324,65 +301,72 @@ impl System for ModeManager {
   }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum NonExclusiveMode {
-  NimbusPromenade,
-  ApexTerraces,
+/// Why a map insert is pulsing
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum MapPulse {
+  /// The mode can be chosen
+  Offered,
+  /// The mode is running
+  Running,
 }
 
-impl NonExclusiveMode {
-  fn color(&self) -> Rgba<u8> {
-    match self {
-      Self::NimbusPromenade => Rgba::magenta(),
-      Self::ApexTerraces => Rgba::green(),
-    }
-  }
-
-  fn map_led(&self) -> LedQ {
-    match self {
-      Self::NimbusPromenade => city_map::NIMBUS_PROMENADE.q(),
-      Self::ApexTerraces => city_map::APEX_TERRACES.q(),
-    }
-  }
-}
-
-/// A running mode, exclusive or not
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-enum ActiveMode {
-  Exclusive(ExclusiveMode),
-  NonExclusive(NonExclusiveMode),
-}
-
-impl ActiveMode {
-  fn color(&self) -> Rgba<u8> {
-    match self {
-      Self::Exclusive(mode) => mode.color(),
-      Self::NonExclusive(mode) => mode.color(),
-    }
-  }
-
-  /// The mode's city map insert, if it has one
-  fn map_led(&self) -> Option<LedQ> {
-    match self {
-      Self::Exclusive(ExclusiveMode::HydroCore) => Some(city_map::HYDRO_CORE.q()),
-      Self::Exclusive(ExclusiveMode::SkyrailStation) => Some(city_map::SKYRAIL_STATION.q()),
-      Self::Exclusive(ExclusiveMode::MeridianBasins) => Some(city_map::MERIDIAN_BASINS.q()),
-      Self::Exclusive(ExclusiveMode::SolariumAtrium) => Some(city_map::SOLARIUM_ATRIUMS.q()),
-      Self::Exclusive(ExclusiveMode::SporeMultiball | ExclusiveMode::Wizard) => None,
-      Self::NonExclusive(mode) => Some(mode.map_led()),
-    }
-  }
+/// The track to play: a mini-wizard's, the multiball's, the district's, and the default for anything without one
+fn music_for(mode: Option<Mode>, multiball: Option<Multiball>) -> PathBuf {
+  let mini_wizard = mode.filter(Mode::is_mini_wizard);
+  let track = match (mini_wizard, multiball, mode) {
+    (Some(mini_wizard), _, _) => mini_wizard.music(),
+    (_, Some(multiball), _) => multiball.music(),
+    (_, _, Some(mode)) => mode.music(),
+    _ => None,
+  };
+  track.unwrap_or_else(|| music_file("colyn-rushing.mp3"))
 }
 
 #[derive(serde::Serialize, Event)]
-pub struct ExclusiveModeStarted(pub ExclusiveMode);
+pub struct ModeStarted(pub Mode);
 
+/// The mode slot emptied, by the mode completing or stopping
 #[derive(serde::Serialize, Event)]
-pub struct ExclusiveModeEnded;
+pub struct ModeEnded;
 
-/// A city mode (district) was completed
+/// A mode or a multiball took or gave up its slot
 #[derive(serde::Serialize, Event)]
-pub struct CityModeCompleted {
-  /// City modes completed this game, including this one
+pub struct ModeSlotsChanged;
+
+/// A district was completed
+#[derive(serde::Serialize, Event)]
+pub struct DistrictCompleted {
+  /// Districts completed this game, including this one
   pub completed: usize,
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn multiball_music_plays_over_a_district() {
+    assert_eq!(
+      music_for(Some(Mode::HydroCore), Some(Multiball::Heartwood)),
+      Multiball::Heartwood.music().unwrap()
+    );
+  }
+
+  #[test]
+  fn a_mini_wizard_keeps_its_slot_in_the_music_over_a_multiball() {
+    // nothing recorded for one yet, so it's the default rather than the multiball's
+    assert_eq!(
+      music_for(Some(Mode::Blackout), Some(Multiball::Heartwood)),
+      music_file("colyn-rushing.mp3")
+    );
+  }
+
+  #[test]
+  fn a_district_plays_its_own_track_and_nothing_plays_the_default() {
+    assert_eq!(
+      music_for(Some(Mode::HydroCore), None),
+      Mode::HydroCore.music().unwrap()
+    );
+    assert_eq!(music_for(None, None), music_file("colyn-rushing.mp3"));
+  }
 }

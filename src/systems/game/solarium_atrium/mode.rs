@@ -1,18 +1,18 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::{GameManagementExt, TurnStarting};
+use frontbox_pinball::GameManagementExt;
 use frontbox_sound::SoundSystemExt;
 
 use crate::game::solarium_atrium::MODE_COLOR;
 use crate::hardware::city_map;
-use crate::hardware::flashers::FlashersSystem;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
-use crate::systems::game::{self, ExclusiveMode, LeftScoopStartable, ModeManager, SporeApplied};
+use crate::systems::game::{self, EffectsSystem, Mode, ModeManager, ModeRun, SporeApplied};
 use crate::systems::sounds;
 
 static REQUIRED_HITS: u8 = 6;
 
 pub struct SolariumAtriumMode {
+  run: ModeRun,
   attention_effect: LedPlayback,
   hit_effect: LedPlayback,
   intensity_effect: LedPlayback,
@@ -24,6 +24,7 @@ pub struct SolariumAtriumMode {
 impl SolariumAtriumMode {
   pub fn new() -> Self {
     Self {
+      run: ModeRun::new(Mode::SolariumAtrium, REQUIRED_HITS),
       attention_effect: Self::attention_effect(),
       hit_effect: Self::hit_effect(),
       intensity_effect: Self::intensity_effect(),
@@ -53,25 +54,12 @@ impl SolariumAtriumMode {
     city_map::spore_count_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
   }
 
-  fn revert_to_startable(&mut self, ctx: &SystemContext) {
-    ctx
-      .systems
-      .expect::<ModeManager>()
-      .release_exclusive(&ExclusiveMode::SolariumAtrium, ctx.into());
-    ctx.systems.expect::<LeftScoopStartable>().make_startable(
-      ExclusiveMode::SolariumAtrium,
-      Duration::ZERO,
-      ctx.into(),
-    );
-    ctx.systems.despawn_self();
-  }
-
   fn ramp_hit(&mut self, ramp_hit: Ramp, ctx: &SystemContext) {
     self.ramp_hits += 1;
     self.hit_effect.reset();
     ctx
       .systems
-      .expect::<FlashersSystem>()
+      .expect::<EffectsSystem>()
       .play(led_playback!("solarium_atrium/flashers.scene"));
 
     let points = match (self.last_ramp.as_ref(), &ramp_hit) {
@@ -82,11 +70,17 @@ impl SolariumAtriumMode {
     ctx.add_points(points as u32);
     ctx.emit(SporeApplied);
 
-    if self.ramp_hits == (REQUIRED_HITS - 2) {
-      self.intensity_effect.play();
-    } else if self.ramp_hits == REQUIRED_HITS {
+    if self.ramp_hits == REQUIRED_HITS {
       ctx.play_sfx(sounds::ARP_HIT1);
-      self.hit_effect = Self::complete_effect();
+      // TODO: epic reaction effect
+      self
+        .run
+        .complete(game::points::EXL_COMPLETION, Self::complete_effect(), ctx);
+      return;
+    }
+
+    if self.run.progress(self.ramp_hits) == Some(50) {
+      self.intensity_effect.play();
     }
     self.hit_effect.play();
 
@@ -94,36 +88,32 @@ impl SolariumAtriumMode {
     self.progress_effect = Self::progress_effect(self.ramp_hits);
   }
 
-  fn complete(&mut self, ctx: &SystemContext) {
-    ctx.add_points(game::points::EXL_COMPLETION);
-
-    // TODO: epic reaction effect
-    ctx
-      .systems
-      .expect::<ModeManager>()
-      .complete_exclusive(ExclusiveMode::SolariumAtrium, ctx.into());
-    // a city mode can only be completed once per game
-    ctx.systems.despawn_self();
-  }
-
-  fn is_complete(&self) -> bool {
-    self.ramp_hits == REQUIRED_HITS
-  }
 }
 
 impl System for SolariumAtriumMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.systems.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::SolariumAtrium)
+    ctx.systems.expect::<ModeManager>().current_mode() == Some(Mode::SolariumAtrium)
   }
 
-  fn on_spawn(&mut self, _ctx: &SystemContext) {
+  fn on_spawn(&mut self, ctx: &SystemContext) {
     log::info!("Solarium Atrium mode started");
+    self.run.begin(ctx);
+  }
+
+  fn on_reactivate(&mut self, ctx: &SystemContext) {
+    ctx.activate_led_declarations();
+    self.run.begin(ctx);
+  }
+
+  fn on_deactivate(&mut self, ctx: &SystemContext) {
+    self.run.interrupt(ctx);
+    ctx.deactivate_led_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<RoutineStarted<TurnStarting>>() {
-      self.revert_to_startable(ctx);
-    } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
+    self.run.on_event(event, ctx);
+
+    if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       match hit.shot {
         MainShot::DomeRamp => self.ramp_hit(Ramp::DomeRamp, ctx),
         MainShot::ArcRamp => self.ramp_hit(Ramp::ArcRamp, ctx),
@@ -134,8 +124,8 @@ impl System for SolariumAtriumMode {
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if self.hit_effect.is_complete() && self.is_complete() {
-      self.complete(ctx);
+    if self.run.apply(delta, ctx) {
+      return;
     }
 
     self.progress_effect.apply(delta, ctx);

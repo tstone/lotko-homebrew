@@ -29,3 +29,29 @@ hardware_defs! {
 
 #[derive(Tag)]
 pub struct RightPassLane;
+
+pub struct RightPassLaneSystem;
+
+impl RightPassLaneSystem {
+  pub fn new() -> Self {
+    Self
+  }
+}
+
+impl System for RightPassLaneSystem {
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if let Some(event) = event.downcast_ref::<SwitchClosed>() {
+      if event.switch.name == UPPER_SWITCH.name {
+        ctx.emit(RightPassLaneHit { upper: true });
+      } else if event.switch.name == LOWER_SWITCH.name {
+        ctx.emit(RightPassLaneHit { upper: false });
+      }
+    }
+  }
+}
+
+/// A ball crossed one of the lane's switches, which it does on its way through in either direction
+#[derive(serde::Serialize, Event)]
+pub struct RightPassLaneHit {
+  pub upper: bool,
+}

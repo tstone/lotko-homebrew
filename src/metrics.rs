@@ -4,7 +4,7 @@ use std::sync::LazyLock;
 
 use frontbox_core::prelude::*;
 
-use crate::systems::game::{ExclusiveMode, NonExclusiveMode};
+use crate::systems::game::Mode;
 
 pub static SPORES_APPLIED: LazyLock<Counter> = LazyLock::new(|| {
   Counter::new("Spores Applied", "Spores applied to the city (mode shots)")
@@ -51,21 +51,6 @@ pub static MERIDIAN_BASINS_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
   .category("Modes")
 });
 
-pub static SPORE_MULTIBALL_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
-  Counter::new(
-    "Spore Multiball Completed",
-    "Times Spore Multiball was completed",
-  )
-  .key("spore_multiball_completed")
-  .category("Modes")
-});
-
-pub static WIZARD_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
-  Counter::new("Wizard Completed", "Times the wizard mode was completed")
-    .key("wizard_completed")
-    .category("Modes")
-});
-
 pub static NIMBUS_PROMENADE_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
   Counter::new(
     "Nimbus Promenade Completed",
@@ -93,22 +78,42 @@ pub static BONUS_SKIPPED: LazyLock<Counter> = LazyLock::new(|| {
   .category("Bonus")
 });
 
-/// The counter for completions of an exclusive mode
-pub fn exclusive_mode_completed(mode: &ExclusiveMode) -> &'static Counter {
-  match mode {
-    ExclusiveMode::HydroCore => &HYDRO_CORE_COMPLETED,
-    ExclusiveMode::SkyrailStation => &SKYRAIL_STATION_COMPLETED,
-    ExclusiveMode::SolariumAtrium => &SOLARIUM_ATRIUM_COMPLETED,
-    ExclusiveMode::MeridianBasins => &MERIDIAN_BASINS_COMPLETED,
-    ExclusiveMode::SporeMultiball => &SPORE_MULTIBALL_COMPLETED,
-    ExclusiveMode::Wizard => &WIZARD_COMPLETED,
-  }
-}
+pub static FLOODGATES_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
+  Counter::new("Floodgates Completed", "Times Floodgates was completed")
+    .key("floodgates_completed")
+    .category("Modes")
+});
 
-/// The counter for completions of a non-exclusive mode
-pub fn non_exclusive_mode_completed(mode: &NonExclusiveMode) -> &'static Counter {
+pub static BLACKOUT_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
+  Counter::new("Blackout Completed", "Times Blackout was completed")
+    .key("blackout_completed")
+    .category("Modes")
+});
+
+pub static DERAILMENT_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
+  Counter::new("Derailment Completed", "Times Derailment was completed")
+    .key("derailment_completed")
+    .category("Modes")
+});
+
+pub static CANOPY_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
+  Counter::new("Canopy Completed", "Times Canopy was completed")
+    .key("canopy_completed")
+    .category("Modes")
+});
+
+/// The counter for completions of a mode
+pub fn mode_completed(mode: &Mode) -> &'static Counter {
   match mode {
-    NonExclusiveMode::NimbusPromenade => &NIMBUS_PROMENADE_COMPLETED,
-    NonExclusiveMode::ApexTerraces => &APEX_TERRACES_COMPLETED,
+    Mode::HydroCore => &HYDRO_CORE_COMPLETED,
+    Mode::SkyrailStation => &SKYRAIL_STATION_COMPLETED,
+    Mode::SolariumAtrium => &SOLARIUM_ATRIUM_COMPLETED,
+    Mode::MeridianBasins => &MERIDIAN_BASINS_COMPLETED,
+    Mode::NimbusPromenade => &NIMBUS_PROMENADE_COMPLETED,
+    Mode::ApexTerraces => &APEX_TERRACES_COMPLETED,
+    Mode::Floodgates => &FLOODGATES_COMPLETED,
+    Mode::Blackout => &BLACKOUT_COMPLETED,
+    Mode::Derailment => &DERAILMENT_COMPLETED,
+    Mode::Canopy => &CANOPY_COMPLETED,
   }
 }

@@ -3,32 +3,36 @@ use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystemExt;
 
+use crate::hardware::lower_scoop::LowerScoopEjected;
 use crate::hardware::pop_cluster::{self, PopBumper};
-use crate::systems::game::{MULTIBALL_BALL_SAVE, ModeManager, NonExclusiveMode};
+use crate::systems::game::{MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun};
 use crate::systems::sounds;
 
 pub struct NimbusPromenadeMode {
+  run: ModeRun,
   attention_effect: LedPlayback,
   hit_effect: LedPlayback,
   cycle_time: Duration,
   current_pop: PopBumper,
   hits: u8,
-  complete: bool,
   cue_id: Option<u64>,
   eject_id: Option<u64>,
+  /// The extra ball comes out once the ball is out of the scoop, each time the mode starts
+  needs_ball: bool,
 }
 
 impl NimbusPromenadeMode {
   pub fn new() -> Self {
     Self {
+      run: ModeRun::new(Mode::NimbusPromenade, 8),
       attention_effect: Self::attention_effect(&PopBumper::Left, 0),
       cycle_time: Duration::from_millis(1500),
       hit_effect: Self::hit_effect(),
       current_pop: PopBumper::Left,
       hits: 0,
-      complete: false,
       cue_id: None,
       eject_id: None,
+      needs_ball: true,
     }
   }
 
@@ -53,10 +57,6 @@ impl NimbusPromenadeMode {
 
       if self.hits == required_hits {
         self.complete(ctx);
-        ctx
-          .systems
-          .expect::<ModeManager>()
-          .complete_non_exclusive(NonExclusiveMode::NimbusPromenade, ctx.into());
       } else {
         // rises every other hit to spread the four pitches across the mode
         ctx.play_sfx(sounds::rising_organic_hit((self.hits + 1) / 2));
@@ -73,25 +73,20 @@ impl NimbusPromenadeMode {
 
   fn advance(&mut self, ctx: &SystemContext) {
     self.clear_cue(ctx);
+    self.cue_id = Some(ctx.cues.start(Next, Cue::Once(self.cycle_time)));
 
-    if !self.complete {
-      self.cue_id = Some(ctx.cues.start(Next, Cue::Once(self.cycle_time)));
-
-      self.current_pop = self.current_pop.next();
-      self.attention_effect.stop(ctx);
-      self.attention_effect = Self::attention_effect(&self.current_pop, self.hits);
-    }
+    self.current_pop = self.current_pop.next();
+    self.attention_effect.stop(ctx);
+    self.attention_effect = Self::attention_effect(&self.current_pop, self.hits);
   }
 
   fn complete(&mut self, ctx: &SystemContext) {
-    // play sfx
-    ctx.add_points(15_000_000);
     ctx.play_sfx(sounds::LANE_HIT_COMPLETE);
-
-    self.hit_effect.stop(ctx);
-    self.hit_effect = led_playback!("nimbus_promenade/complete.scene");
-
-    self.complete = true;
+    self.run.complete(
+      15_000_000,
+      led_playback!("nimbus_promenade/complete.scene"),
+      ctx,
+    );
   }
 
   fn attention_effect(pop: &PopBumper, hit_count: u8) -> LedPlayback {
@@ -114,22 +109,34 @@ impl NimbusPromenadeMode {
 
 impl System for NimbusPromenadeMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.states.is(TurnPhase::Active)
+    ctx.systems.expect::<ModeManager>().current_mode() == Some(Mode::NimbusPromenade)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
+    self.run.begin(ctx);
     self.cue_id = Some(ctx.cues.start(Next, Cue::Once(Duration::from_millis(1750))));
-    ctx
-      .systems
-      .expect::<ModeManager>()
-      .non_exclusive_active(NonExclusiveMode::NimbusPromenade, ctx.into());
-    self.eject_id = ctx.eject_balls(1, Launch::Auto);
-    ctx.request_ball_save_until_released();
+  }
+
+  fn on_reactivate(&mut self, ctx: &SystemContext) {
+    ctx.activate_led_declarations();
+    self.run.begin(ctx);
+  }
+
+  fn on_deactivate(&mut self, ctx: &SystemContext) {
+    self.needs_ball = true;
+    self.run.interrupt(ctx);
+    ctx.deactivate_led_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    self.run.on_event(event, ctx);
+
     if event.is::<Next>() {
       self.advance(ctx);
+    } else if event.is::<LowerScoopEjected>() && self.needs_ball {
+      self.needs_ball = false;
+      self.eject_id = ctx.eject_balls(1, Launch::Auto);
+      ctx.request_ball_save_until_released();
     } else if let Some(EjectCompleted { id, .. }) = event.downcast_ref::<EjectCompleted>()
       && Some(*id) == self.eject_id
     {
@@ -145,12 +152,11 @@ impl System for NimbusPromenadeMode {
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.attention_effect.apply(delta, ctx);
-
-    if self.hit_effect.is_complete() && self.complete {
-      // a city mode can only be completed once per game
-      ctx.systems.despawn_self();
+    if self.run.apply(delta, ctx) {
+      return;
     }
+
+    self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
   }
 }

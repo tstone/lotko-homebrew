@@ -8,13 +8,14 @@ use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::hardware::pop_cluster::PopBumper;
 use crate::hardware::{city_map, pop_cluster};
 use crate::systems::game::meridian_basins::MODE_COLOR;
-use crate::systems::game::{ExclusiveMode, LiftRampStartable, ModeManager, SporeApplied, points};
+use crate::systems::game::{Mode, ModeManager, ModeRun, SporeApplied, points};
 use crate::systems::{sounds, sounds_bytes};
 use frontbox_sound::*;
 
 static REQUIRED_HITS: u8 = 6;
 
 pub struct MeridianBasinsMode {
+  run: ModeRun,
   attention_effect: LedPlayback,
   hit_effect: LedPlayback,
   intensity_effect: LedPlayback,
@@ -31,6 +32,7 @@ impl MeridianBasinsMode {
       ModeShots::Main(MainShot::LeftOrbit),
     ];
     Self {
+      run: ModeRun::new(Mode::MeridianBasins, REQUIRED_HITS),
       attention_effect: Self::attention_effect(&initial),
       hit_effect: Self::hit_effect(),
       intensity_effect: Self::intensity_effect(),
@@ -63,19 +65,6 @@ impl MeridianBasinsMode {
     city_map::spore_count_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
   }
 
-  fn revert_to_startable(&mut self, ctx: &SystemContext) {
-    ctx
-      .systems
-      .expect::<ModeManager>()
-      .release_exclusive(&ExclusiveMode::MeridianBasins, ctx.into());
-    ctx.systems.expect::<LiftRampStartable>().make_startable(
-      ExclusiveMode::MeridianBasins,
-      Duration::ZERO,
-      ctx.into(),
-    );
-    ctx.systems.despawn_self();
-  }
-
   fn on_shot_hit(&mut self, shot: ModeShots, ctx: &SystemContext) {
     if self.current_shots.contains(&shot) {
       self.hits += 1;
@@ -85,30 +74,20 @@ impl MeridianBasinsMode {
       ctx.add_points(points::EXL_MODE_HIT);
       ctx.emit(SporeApplied);
 
-      if self.hits == 4 {
-        self.intensity_effect.play();
-      } else if self.is_complete() {
+      if self.hits == REQUIRED_HITS {
         log::info!("MeridianBasins: complete");
         ctx.play_sfx(sounds::ARP_HIT1);
-        self.hit_effect = Self::complete_effect();
-        ctx.add_points(points::EXL_COMPLETION);
+        self
+          .run
+          .complete(points::EXL_COMPLETION, Self::complete_effect(), ctx);
+        return;
       }
 
+      if self.run.progress(self.hits) == Some(50) {
+        self.intensity_effect.play();
+      }
       self.hit_effect.play();
     }
-  }
-
-  fn complete(&mut self, ctx: &SystemContext) {
-    ctx
-      .systems
-      .expect::<ModeManager>()
-      .complete_exclusive(ExclusiveMode::MeridianBasins, ctx.into());
-    // a city mode can only be completed once per game
-    ctx.systems.despawn_self();
-  }
-
-  fn is_complete(&self) -> bool {
-    self.hits == REQUIRED_HITS
   }
 
   fn advance(&mut self, ctx: &SystemContext) {
@@ -140,17 +119,30 @@ impl MeridianBasinsMode {
 
 impl System for MeridianBasinsMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.systems.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::MeridianBasins)
+    ctx.systems.expect::<ModeManager>().current_mode() == Some(Mode::MeridianBasins)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
     log::info!("MeridianBasins mode started");
+    self.run.begin(ctx);
     ctx
       .cues
       .start(NextSet, Duration::from_millis(2250).forever());
   }
 
+  fn on_reactivate(&mut self, ctx: &SystemContext) {
+    ctx.activate_led_declarations();
+    self.run.begin(ctx);
+  }
+
+  fn on_deactivate(&mut self, ctx: &SystemContext) {
+    self.run.interrupt(ctx);
+    ctx.deactivate_led_declarations();
+  }
+
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    self.run.on_event(event, ctx);
+
     if event.is::<NextSet>() {
       self.advance(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
@@ -165,14 +157,12 @@ impl System for MeridianBasinsMode {
         PopBumper::UpperRight => self.on_shot_hit(ModeShots::UpperRightPop, ctx),
         PopBumper::LowerRight => self.on_shot_hit(ModeShots::LowerRightPop, ctx),
       }
-    } else if event.is::<RoutineStarted<TurnStarting>>() {
-      self.revert_to_startable(ctx);
     }
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if self.is_complete() && self.hit_effect.is_complete() {
-      self.complete(ctx);
+    if self.run.apply(delta, ctx) {
+      return;
     }
 
     self.attention_effect.apply(delta, ctx);

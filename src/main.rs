@@ -18,7 +18,6 @@ mod metrics;
 use hardware::*;
 
 use crate::hardware::cabinet::*;
-use crate::hardware::flashers::FlashersSystem;
 use crate::menu::MENU;
 use crate::systems::dmd::*;
 use crate::systems::game::*;
@@ -127,6 +126,10 @@ async fn main() {
     app.system(vspinner::VerticalSpinner::new());
     app.system(captive_ball::CaptiveBallSystem::new());
     app.system(main_shot::ShotSystem::new());
+    app.system(left_outlane::LeftOutlaneSystem::new());
+    app.system(right_outlane::RightOutlaneSystem::new());
+    app.system(right_pass_lane::RightPassLaneSystem::new());
+    app.system(slingshots::SlingshotSystem::new());
     app.system(
       BallManager::standard(
         [
@@ -166,23 +169,15 @@ async fn main() {
           ExtraBallSystem::new(),
           PlayfieldIllumination::new(),
           SkillshotManager::new(),
-          FlashersSystem::new(),
+          EffectsSystem::new(),
           // modes
           ModeManager::new(),
           SporesSystem::new(),
           BonusSystem::new(),
           TurnEndScoreSystem::new(),
-          LeftScoopStartable::new(),
-          LiftRampStartable::new(),
-          // exclusive
-          HydroCoreQualification::new(),
-          SkyrailStationQualification::new(),
-          SolariumAtriumQualification::new(),
-          MeridianBasinsQualification::new(),
+          ScoopQualifier::new(),
+          ModeSelectSystem::new(),
           SporeMultiballQualification::new(),
-          // non-exclusive
-          NimbusPromenadeQualification::new(),
-          ApexTerracesMode::new(),
         ],
         SwitchQ::tag::<tags::Playfield>(),
       )

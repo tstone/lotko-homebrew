@@ -2,7 +2,7 @@ use frontbox_core::{prelude::*, tags::GeneralIllumination};
 use frontbox_led::prelude::*;
 
 use crate::hardware::arc_ramp;
-use crate::systems::game::{ExclusiveModeEnded, ExclusiveModeStarted};
+use crate::systems::game::{ModeManager, ModeSlotsChanged};
 
 #[derive(Clone)]
 pub struct PlayfieldIllumination {
@@ -18,23 +18,17 @@ impl PlayfieldIllumination {
     }
   }
 
-  pub fn set_color(&mut self, color: Rgba<u8>) {
+  fn set_color(&mut self, color: Rgba<u8>) {
     self.color = color;
-    self.update = true;
-  }
-
-  pub fn clear_color(&mut self) {
-    self.color = Rgba::white();
     self.update = true;
   }
 }
 
 impl System for PlayfieldIllumination {
-  fn on_event(&mut self, event: &dyn Event, _ctx: &SystemContext) {
-    if let Some(ExclusiveModeStarted(mode)) = event.downcast_ref::<ExclusiveModeStarted>() {
-      self.set_color(mode.color().lighten(0.35));
-    } else if event.is::<ExclusiveModeEnded>() {
-      self.clear_color();
+  fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if event.is::<ModeSlotsChanged>() {
+      let color = ctx.systems.expect::<ModeManager>().illumination();
+      self.set_color(color.lighten(0.35));
     }
   }
 
@@ -42,7 +36,7 @@ impl System for PlayfieldIllumination {
     if self.update {
       ctx.declare_leds(
         &LedQ::tag::<GeneralIllumination>(),
-        ColorSequence::solid(Rgba::white()),
+        ColorSequence::solid(self.color),
       );
       ctx.declare_leds(
         &arc_ramp::ARC_LEDS.q().at_z(-1),

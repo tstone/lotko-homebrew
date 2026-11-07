@@ -4,15 +4,16 @@ use frontbox_pinball::*;
 
 use crate::hardware::city_map;
 use crate::hardware::drop_bank::{DropBankSystem, DropBankTargetHit};
-use crate::hardware::flashers::FlashersSystem;
 use crate::hardware::lift_ramp::{LiftRampHit, LiftRampScoopBallEnter, LiftRampSystem};
+use crate::hardware::lower_scoop::LowerScoopEjected;
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
-  self, ExclusiveMode, LiftRampStartable, MULTIBALL_BALL_SAVE, ModeManager, SporeApplied, points,
+  self, EffectsSystem, MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, SporeApplied, points,
 };
 
 pub struct SkyrailStationMode {
+  run: ModeRun,
   attention_effect: LedPlayback,
   hit_effect: LedPlayback,
   intensity_effect: LedPlayback,
@@ -22,11 +23,14 @@ pub struct SkyrailStationMode {
   state: State,
   ramp_up: bool,
   eject_id: Option<u64>,
+  /// The finale lost its second ball with the turn, so it needs it back on resuming
+  needs_ball: bool,
 }
 
 impl SkyrailStationMode {
   pub fn new() -> Self {
     Self {
+      run: ModeRun::new(Mode::SkyrailStation, 8),
       attention_effect: Self::attention_effect_ramp(),
       hit_effect: Self::hit_effect(),
       intensity_effect: Self::intensity_effect(),
@@ -36,6 +40,7 @@ impl SkyrailStationMode {
       state: HitRamp,
       ramp_up: false,
       eject_id: None,
+      needs_ball: false,
     }
   }
 
@@ -69,7 +74,7 @@ impl SkyrailStationMode {
     self.hit_effect.play();
     ctx
       .systems
-      .expect::<FlashersSystem>()
+      .expect::<EffectsSystem>()
       .play(led_playback!("skyrail_station/flashers.scene"));
 
     match self.state {
@@ -79,12 +84,12 @@ impl SkyrailStationMode {
 
         // check for completion
         if self.target_hits == 5 {
-          self.state = Complete;
           self.ramp_down(ctx);
-          ctx.add_points(game::points::EXL_COMPLETION);
-
-          self.hit_effect.stop(ctx);
-          self.hit_effect = led_playback!("skyrail_station/complete.scene");
+          self.run.complete(
+            game::points::EXL_COMPLETION,
+            led_playback!("skyrail_station/complete.scene"),
+            ctx,
+          );
           return;
         }
       }
@@ -103,8 +108,7 @@ impl SkyrailStationMode {
 
         if self.ramp_hits == 3 {
           // on the final round all 3 targets must be hit with a 2 ball multiball
-          self.eject_id = ctx.eject_balls(1, Launch::Auto);
-          ctx.request_ball_save_until_released();
+          self.add_ball(ctx);
           self.state = Final;
           self.intensity_effect.play();
           self.attention_effect.stop(ctx);
@@ -123,10 +127,14 @@ impl SkyrailStationMode {
           .expect::<DropBankSystem>()
           .raise_targets(ctx.into());
       }
-      _ => {}
     }
 
     self.progress_effect = Self::progress_effect(self.target_hits + self.ramp_hits);
+  }
+
+  fn add_ball(&mut self, ctx: &SystemContext) {
+    self.eject_id = ctx.eject_balls(1, Launch::Auto);
+    ctx.request_ball_save_until_released();
   }
 
   fn ramp_up(&mut self, delay: Duration, ctx: &SystemContext) {
@@ -134,7 +142,10 @@ impl SkyrailStationMode {
       if delay > Duration::ZERO {
         ctx.cues.start(RampUp, delay.once());
       } else {
-        ctx.systems.expect::<LiftRampSystem>().lift_up(ctx.into());
+        ctx
+          .systems
+          .expect::<LiftRampSystem>()
+          .request_up(ctx.id(), ctx.into());
         self.ramp_up = true;
       }
     }
@@ -142,48 +153,34 @@ impl SkyrailStationMode {
 
   fn ramp_down(&mut self, ctx: &SystemContext) {
     if self.ramp_up {
-      ctx.systems.expect::<LiftRampSystem>().lift_down(ctx.into());
+      ctx
+        .systems
+        .expect::<LiftRampSystem>()
+        .release(ctx.id(), ctx.into());
       self.ramp_up = false;
     }
   }
 
-  fn revert_to_startable(&mut self, ctx: &SystemContext) {
-    ctx
-      .systems
-      .expect::<ModeManager>()
-      .release_exclusive(&ExclusiveMode::SkyrailStation, ctx.into());
-    self.ramp_down(ctx);
-    ctx.systems.expect::<LiftRampStartable>().make_startable(
-      ExclusiveMode::SkyrailStation,
-      Duration::ZERO,
-      ctx.into(),
-    );
-    ctx.systems.despawn_self();
-  }
-
-  fn complete(&mut self, ctx: &SystemContext) {
-    ctx
-      .systems
-      .expect::<ModeManager>()
-      .complete_exclusive(ExclusiveMode::SkyrailStation, ctx.into());
-    // a city mode can only be completed once per game
-    ctx.systems.despawn_self();
-  }
 }
 
 impl System for SkyrailStationMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.systems.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::SkyrailStation)
+    ctx.systems.expect::<ModeManager>().current_mode() == Some(Mode::SkyrailStation)
   }
 
-  fn on_spawn(&mut self, _ctx: &SystemContext) {
+  fn on_spawn(&mut self, ctx: &SystemContext) {
     log::info!("SkyrailStation mode started");
+    self.run.begin(ctx);
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    self.run.on_event(event, ctx);
+
     if event.is::<LiftRampScoopBallEnter>() {
       ctx.add_points(500);
-      ctx.systems.expect::<LiftRampSystem>().eject(ctx.into());
+    } else if event.is::<LowerScoopEjected>() && self.needs_ball {
+      self.needs_ball = false;
+      self.add_ball(ctx);
     } else if event.is::<RampUp>() {
       self.ramp_up(Duration::ZERO, ctx);
     } else if event.is::<LiftRampHit>() && self.state == HitRamp {
@@ -195,34 +192,41 @@ impl System for SkyrailStationMode {
     {
       // time the ball save from when the ball is in play
       ctx.request_ball_save(MULTIBALL_BALL_SAVE);
-    } else if event.is::<RoutineStarted<TurnStarting>>() {
-      self.revert_to_startable(ctx);
     }
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
     if self.ramp_up {
-      ctx.systems.expect::<LiftRampSystem>().lift_up(ctx.into());
+      ctx
+        .systems
+        .expect::<LiftRampSystem>()
+        .request_up(ctx.id(), ctx.into());
     }
     ctx.activate_led_declarations();
+    self.run.begin(ctx);
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     if self.ramp_up {
-      ctx.systems.expect::<LiftRampSystem>().lift_down(ctx.into());
+      ctx
+        .systems
+        .expect::<LiftRampSystem>()
+        .release(ctx.id(), ctx.into());
     }
+    self.needs_ball = self.state == Final;
+    self.run.interrupt(ctx);
     ctx.deactivate_led_declarations();
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
+    if self.run.apply(delta, ctx) {
+      return;
+    }
+
     self.attention_effect.apply(delta, ctx);
     self.hit_effect.apply(delta, ctx);
     self.intensity_effect.apply(delta, ctx);
     self.progress_effect.apply(delta, ctx);
-
-    if self.state == Complete && self.hit_effect.is_complete() {
-      self.complete(ctx);
-    }
   }
 }
 
@@ -231,7 +235,6 @@ enum State {
   HitRamp,
   HitTarget,
   Final,
-  Complete,
 }
 
 #[derive(serde::Serialize, Event)]

@@ -101,4 +101,30 @@ pub mod slingshots {
       .tag(GeneralIllumination)
       .tag(Playfield);
   }
+
+  pub struct SlingshotSystem;
+
+  impl SlingshotSystem {
+    pub fn new() -> Self {
+      Self
+    }
+  }
+
+  impl System for SlingshotSystem {
+    fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+      if let Some(event) = event.downcast_ref::<SwitchClosed>() {
+        if event.switch.name == LEFT_SWITCH.name {
+          ctx.emit(LeftSlingHit);
+        } else if event.switch.name == RIGHT_SWITCH.name {
+          ctx.emit(RightSlingHit);
+        }
+      }
+    }
+  }
+
+  #[derive(serde::Serialize, Event)]
+  pub struct LeftSlingHit;
+
+  #[derive(serde::Serialize, Event)]
+  pub struct RightSlingHit;
 }

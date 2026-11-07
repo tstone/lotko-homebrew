@@ -6,7 +6,7 @@ use frontbox_sound::SoundSystemExt;
 use crate::{
   hardware::captive_ball::CaptiveBallHit,
   systems::{
-    game::{ExclusiveMode, ModeManager, SporeMultiballMode},
+    game::{ModeManager, Multiball, SporeMultiballMode},
     sounds,
   },
 };
@@ -40,8 +40,8 @@ impl System for SporeMultiballStartable {
   fn is_active(&self, ctx: &SystemContext) -> bool {
     let mode_manager = ctx.systems.expect::<ModeManager>();
     ctx.states.is(TurnPhase::Active)
-      && (mode_manager.current_mode().is_none()
-        || *mode_manager.current_mode() == Some(ExclusiveMode::SporeMultiball))
+      && (mode_manager.current_multiball().is_none()
+        || mode_manager.current_multiball() == Some(Multiball::Heartwood))
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
@@ -49,7 +49,7 @@ impl System for SporeMultiballStartable {
       match ctx
         .systems
         .expect::<ModeManager>()
-        .take_exclusive(ExclusiveMode::SporeMultiball, ctx.into())
+        .take_multiball(Multiball::Heartwood, ctx.into())
       {
         Ok(_) => {
           self.complete = true;

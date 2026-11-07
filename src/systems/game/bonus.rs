@@ -37,7 +37,7 @@ impl BonusSystem {
     let completed = ctx
       .systems
       .expect::<ModeManager>()
-      .completed_city_mode_count() as u32;
+      .districts_completed() as u32;
     let bonus = spores * points::BONUS_PER_SPORE + completed * points::BONUS_PER_CITY_MODE;
     log::info!(
       "Bonus: {} spores applied, {} city modes completed, awarding {}",

@@ -1,6 +1,5 @@
 use frontbox_core::prelude::*;
 use frontbox_core::tags::*;
-use frontbox_led::prelude::*;
 
 use crate::hardware::planes;
 
@@ -14,43 +13,4 @@ hardware_defs! {
     .locations(LedLayout::ring(8, Vec3::new(9.56, 5.16, 1.25), 0.375, 0.0, LedLayoutDirection::Clockwise).relative_to(&planes::PLAYFIELD))
     .tag(Playfield)
     .tag(Flasher);
-}
-
-#[derive(Clone)]
-pub struct FlashersSystem {
-  effects: Vec<LedPlayback>,
-}
-
-impl FlashersSystem {
-  pub fn new() -> Self {
-    Self {
-      effects: Vec::new(),
-    }
-  }
-
-  pub fn play(&mut self, effect: LedPlayback) {
-    self.effects.push(effect);
-  }
-}
-
-impl System for FlashersSystem {
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    let mut effects_to_remove = Vec::new();
-
-    for (idx, effect) in self.effects.iter_mut().enumerate() {
-      if effect.is_complete() {
-        effect.stop(ctx);
-        effects_to_remove.push(idx);
-      } else {
-        effect.apply(delta, ctx);
-      }
-    }
-
-    effects_to_remove.iter().for_each(|idx| {
-      // TODO: this shouldn't need a guard
-      if self.effects.get(*idx).is_some() {
-        self.effects.remove(*idx);
-      }
-    });
-  }
 }

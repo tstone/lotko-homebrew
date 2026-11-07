@@ -12,7 +12,7 @@ Led(
       surface: Sequence,
       layer: (
         fill: (
-          base: Solid(Fixed(0, 255, 0, 255)),
+          base: Solid(Fixed(255, 155, 0, 255)),
           adjust: [
             Opacity(Track(
               keys: [

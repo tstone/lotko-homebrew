@@ -82,10 +82,10 @@ qualifying need one definition of a shot.
 Today there's `ExclusiveMode`, `NonExclusiveMode`, two completion sets and a map with 2 states. `ModeManager` is already
 in the player template, so "each player has their own map state" needs no extra work.
 
-- [ ] Replace both enums with one `Mode`: the 6 districts and 4 mini-wizards, each with a color, map insert, tier and
+- [x] Replace both enums with one `Mode`: the 6 districts and 4 mini-wizards, each with a color, map insert, tier and
       music. Multiballs leave this enum (see 1.3).
-- [ ] Track `ModeState` per mode: `Unplayed`, `Available`, `Played`, `Completed`.
-- [ ] Add `available_modes()`, which returns the menu rows from those states:
+- [x] Track `ModeState` per mode: `Unplayed`, `Available`, `Played`, `Completed`.
+- [x] Add `available_modes()`, which returns the menu rows from those states:
   1. Meridian or Hydro. Choosing one closes the other for the game.
   2. Nimbus.
   3. Floodgates or Blackout, whichever matches step 1.
@@ -94,51 +94,52 @@ in the player template, so "each player has their own map state" needs no extra 
   6. Derailment or Canopy, whichever matches step 4.
   - Starting a mode marks it played and opens the next step. Mini-wizards are required, per the draft in `RULES.md`.
   - Played but uncompleted modes stay listed to resume.
-- [ ] Render all four states on the map: off, a pulse in the mode color, solid mode color, green. Green for completed
+- [x] Render all four states on the map: off, a pulse in the mode color, solid mode color, green. Green for completed
       keeps green the forest's color. It's what `RULES.md` asks for in Meridian's completion.
-- [ ] Add `districts_played()` for Steward integrity (1.9) and `districts_completed()` for bonus, perks and high scores.
-- [ ] Move Apex from green to **gold**. There's no `Rgba::gold()`, so define it in lotko, and check it reads apart from
-      Meridian's orange on the actual inserts.
-- [ ] Update `metrics.rs` for the new enums, adding the mini-wizards.
+- [x] Add `districts_played()` for Steward integrity (1.9) and `districts_completed()` for bonus, perks and high scores.
+- [x] Move Apex from green to **gold**.
+- [ ] Check gold (255, 155, 0) reads apart from Meridian's orange on the actual inserts.
+- [x] Update `metrics.rs` for the new enums, adding the mini-wizards.
 
 ## 1.3 The mode slots
 
 `RULES.md` needs a district and a multiball running together, so a single exclusive slot isn't enough.
 
-- [ ] Hold two slots in `ModeManager`: `mode: Option<Mode>` and `multiball: Option<Multiball>`.
-- [ ] Enforce the stacking rules. Groundswell stacks with districts but not mini-wizards. Heartwood stacks with any mode
+- [x] Hold two slots in `ModeManager`: `mode: Option<Mode>` and `multiball: Option<Multiball>`.
+- [x] Enforce the stacking rules. Groundswell stacks with districts but not mini-wizards. Heartwood stacks with any mode
       but not Groundswell.
-- [ ] Music priority is mini-wizard, then multiball, then district, then default.
-- [ ] `PlayfieldIllumination` follows the slots. It should tint GI, not only the arc ramp and subway.
+- [x] Music priority is mini-wizard, then multiball, then district, then default.
+- [x] `PlayfieldIllumination` follows the slots. It should tint GI, not only the arc ramp and subway.
 
 ## 1.4 Mode lifecycle and resuming
 
 All the district modes repeat the same pattern: effects, hits, wait for the completion effect, despawn. Add a start
 phase and resume, and it's worth sharing.
 
-- [ ] Add a small helper each mode owns, say `ModeRun`, with the phases from `RULES.md`: Start, Attention, Hit, Intensity
+- [x] Add a small helper each mode owns, say `ModeRun`, with the phases from `RULES.md`: Start, Attention, Hit, Intensity
       and Completion. It handles:
   - The start phase: scoop held, intro scene and callout, then release (1.6).
   - Intensity stages at 25 / 50 / 75%, calling back into the mode when a stage is crossed.
   - An 8s ball save at the start, requested when the ball leaves the scoop (`RULES.md`, Timed ball saves).
   - Completion: points, callout, takeover scene, then `ModeManager::complete`.
-- [ ] Clean up on `RoutineStarted<TurnEnding>` everywhere. Today Hydro does it there, but Meridian, Skyrail and Solarium
+- [x] Clean up on `RoutineStarted<TurnEnding>` everywhere. Today Hydro does it there, but Meridian, Skyrail and Solarium
       wait for `TurnStarting`, so they hold the slot through the end of the ball.
-- [ ] **Resume by keeping the mode system alive.** On a drain, the mode gives up its slot and goes inactive, and resuming
+- [x] **Resume by keeping the mode system alive.** On a drain, the mode gives up its slot and goes inactive, and resuming
       makes it active again. `is_active` already follows the current mode, and `on_deactivate` / `on_reactivate` are how
-      `SkyrailStationMode` handles its ramp. This keeps progress with no snapshot type. Cues sit in the system's container
-      and appear to tick with the system, so confirm a paused timer really pauses.
-- [ ] Completion stops depending on the mode staying alive for its effect. Generalize `FlashersSystem` into a one-shot
+      `SkyrailStationMode` handles its ramp. This keeps progress with no snapshot type. Confirmed: cues tick with the
+      system, so a paused timer really pauses.
+- [x] Completion stops depending on the mode staying alive for its effect. Generalize `FlashersSystem` into a one-shot
       effects system (`play(effect)` and forget). It's a stand-in for gap `oneshot`.
 
 ## 1.5 Scoop qualifier
 
-- [ ] Add a single `ScoopQualifier`, replacing `ExclusiveModeQualification<T>`, the per-mode qualifiers,
-      `NimbusPromenadeQualification` and `SporeMultiballQualification`.
-- [ ] It needs 2, then 3, then 4… lit shots (decision 2), and is inactive while a mode runs.
-- [ ] Add `add_lit_shot(ctx)` so a Surveillance set counts as one.
-- [ ] A mini-wizard lights the scoop as soon as its step is reached, with no qualifying.
-- [ ] Remove `LiftRampStartable` from mode starting. Every mode now starts at the left scoop. Its ramp work moves to
+- [x] Add a single `ScoopQualifier`, replacing `ExclusiveModeQualification<T>`, the per-mode qualifiers and
+      `NimbusPromenadeQualification`. `SporeMultiballQualification` stays as a plain captive ball count, or nothing would
+      start the multiball, until Heartwood's charge replaces it (Part 5).
+- [x] It needs 2, then 3, then 4… lit shots (decision 2), and is inactive while a mode runs.
+- [x] Add `add_lit_shot(ctx)` so a Surveillance set counts as one.
+- [x] A mini-wizard lights the scoop as soon as its step is reached, with no qualifying.
+- [x] Remove `LiftRampStartable` from mode starting. Every mode now starts at the left scoop. Its ramp work moves to
       Groundswell's lock (Part 4).
 
 ## 1.6 Scoop hold and mode select
@@ -146,27 +147,29 @@ phase and resume, and it's worth sharing.
 `LowerScoopSystem` ejects 750ms after a ball lands, every time, and nothing can stop it. This blocks the menu, mode
 intros and the extra ball animation.
 
-- [ ] Add `hold(requester, ctx)` and `release(requester, ctx)` to `LowerScoopSystem`, keyed by `ctx.id()` as ball save
+- [x] Add `hold(requester, ctx)` and `release(requester, ctx)` to `LowerScoopSystem`, keyed by `ctx.id()` as ball save
       does. It ejects once nothing is holding.
-- [ ] Emit `LowerScoopEjected`. Combos and the mode ball save both need it.
-- [ ] A tilt or the end of a turn clears all holds and ejects.
-- [ ] Rework `LeftScoopStartable` into `ModeSelectSystem`, in this order on a ball entering:
+- [x] Emit `LowerScoopEjected`. Combos and the mode ball save both need it.
+- [x] A tilt or the end of a turn clears all holds and ejects.
+- [x] Rework `LeftScoopStartable` into `ModeSelectSystem`, in this order on a ball entering:
   1. A lit extra ball collects first (front entry only), with its animation.
   2. If a mode is lit and only one ball is in play, open the menu.
   3. Release, and the chosen mode's start phase takes over.
-- [ ] The menu follows `RULES.md`: flippers move, both flippers or start choose, a timeout takes the highlighted row,
-      and a single option shows briefly then starts.
-- [ ] Mode select LEDs: scoop bolts pulse, available inserts pulse, the highlighted one goes solid.
+- [x] The menu follows `RULES.md`: flippers move, both flippers or start choose, a timeout takes the highlighted row,
+      and a single option shows briefly then starts. Start only chooses once `PlayerEntry` has closed, as before that it
+      adds a player. A flipper moves the selection when it's let go, so that both flippers choose the highlighted row.
+      The DMD shows the highlighted name only. Summaries, perks and the countdown bar are 1.8.
+- [x] Mode select LEDs: scoop bolts pulse, available inserts pulse, the highlighted one goes solid.
 
 ## 1.7 Hardware layer
 
-- [ ] Add `LeftOutlaneSystem` to `main.rs`. It isn't registered, so `LeftOutlaneRollover` never fires and
+- [x] Add `LeftOutlaneSystem` to `main.rs`. It isn't registered, so `LeftOutlaneRollover` never fires and
       `LeftOutlaneSkillShot` can't award.
-- [ ] Add a matching right outlane system and event, then sling hit events (`LeftSlingHit`, `RightSlingHit`).
-- [ ] Add `DropBankCleared`, read from the target switches, and raise the bank on it. It only raises on the paddle or
+- [x] Add a matching right outlane system and event, then sling hit events (`LeftSlingHit`, `RightSlingHit`).
+- [x] Add `DropBankCleared`, read from the target switches, and raise the bank on it. It only raises on the paddle or
       when asked today, and Sentinels and Skyrail both need this.
-- [ ] Add pass lane events for the hidden right outlane save.
-- [ ] Share the lift ramp. Both Skyrail and Groundswell's lock want it up. Use `request_up(requester, ctx)` and
+- [x] Add pass lane events for the hidden right outlane save.
+- [x] Share the lift ramp. Both Skyrail and Groundswell's lock want it up. Use `request_up(requester, ctx)` and
       `release(requester, ctx)` in place of `lift_up` / `lift_down`, and the ramp stays up while anyone asks.
 - [ ] Give every GI LED a location, or positional scenes will skip them: `gi_l_sling`, `gi_r_sling`, `gi_drop1`,
       `gi_drop2`. `gi::LEFT_RAMP` is also defined but isn't wired to a port.
@@ -313,11 +316,11 @@ frontbox's `TODO.md` are marked.
 ## 1.14 Fixes to make along the way
 
 - [ ] `main.rs`: `HighScoresSystem` isn't registered, so no high score is ever saved or entered.
-- [ ] `main.rs`: register `LeftOutlaneSystem` (1.7).
+- [x] `main.rs`: register `LeftOutlaneSystem` (1.7).
 - [ ] `PlayfieldIllumination::update` is never set back to false, so it redeclares GI on every tick. Fix it, and check
       whether it helps the open console slowdown. That link is a guess, so test it rather than assuming.
 - [ ] `apex_terraces.rs` should become a folder like the other districts when it's rewritten.
-- [ ] `ExclusiveMode::start` has `todo!()` arms. They go away with 1.2.
+- [x] `ExclusiveMode::start` has `todo!()` arms. They go away with 1.2.
 
 ---
 
@@ -556,6 +559,9 @@ completion. The rules are replaced, and the flashers and intensity scenes may ca
 
 # Part 3: Mini-wizards
 
+`MiniWizardMode` stands in for all four for now, so the route can be played to its end: 2 balls in tier 1, 3 in tier 2, any
+main shot is a hit, 10 hits complete it, and it ends per decision 5.
+
 Tier 1 is 2-ball, tier 2 is 3 to 4 ball. All four are new. All need the mini-wizard flow first:
 
 - [ ] Lit as soon as the step is reached, started from the menu like a district.
@@ -671,7 +677,8 @@ O: "Open the gates."
 
 **Rules work**
 
-- [ ] Rework `LiftRampStartable` into `GroundswellLock`. Sentinels light locks, the lit lock requests the ramp up, and
+- [ ] Build `GroundswellLock`, from `LiftRampStartable` in git history (`lift_ramp_startable.rs`, removed in 1.5). Sentinels
+      light locks, the lit lock requests the ramp up, and
       the shot feeds the rear scoop.
 - [ ] Virtual locks (decision 1): count the lock, and let the ball continue to the upper flipper.
 - [ ] Lock 3 to start a 3-ball multiball. Jackpots are on the main shots, and the super jackpot is the lift ramp, upper
@@ -698,9 +705,9 @@ speaker beat, `dmd-player` plus art for the splitting ground and toppling tower,
 
 **Rules work**
 
-- [ ] Rename and rework `SporeMultiballMode`. 2-ball, started by a full Heartwood charge rather than a captive ball shot
+- [ ] Rename and rework `SporeMultiballMode`, which already has the multiball slot. 2-ball, started by a full Heartwood charge rather than a captive ball shot
       when "startable".
-- [ ] Move from the exclusive slot to the multiball slot, so it stacks with any mode but not Groundswell.
+- [x] Move from the exclusive slot to the multiball slot, so it stacks with any mode but not Groundswell.
 - [ ] Finish the super jackpot TODO. The current one is on the captive ball every 5th jackpot. Keep that unless
       `RULES.md` says otherwise.
 - [ ] Replace `spore_multiball/*.scene` colors (yellow today) and rename the folder.
@@ -766,7 +773,7 @@ a player-template system, so its state is per player with no extra work.
 the limit.
 
 - [ ] Wire `ExtraBallSource::Sentinels` and `::Groundswell`.
-- [ ] Hold the scoop for the collect animation, and collect before the menu (1.6).
+- [x] Hold the scoop for the collect animation, and collect before the menu (1.6).
 - [ ] Add callouts: `unregistered-resident` when lit, `error-invalid-resident` when collected.
 
 **Timed saves:** the mode start save is in 1.4. The ball start and multiball saves exist.

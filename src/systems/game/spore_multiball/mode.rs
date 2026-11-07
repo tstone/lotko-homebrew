@@ -8,7 +8,7 @@ use crate::hardware::city_map;
 use crate::hardware::main_shot::MainShotHit;
 use crate::systems::game::ModeManager;
 use crate::systems::game::SporeMultiballQualification;
-use crate::systems::game::{ExclusiveMode, MULTIBALL_BALL_SAVE};
+use crate::systems::game::{MULTIBALL_BALL_SAVE, Multiball};
 use crate::systems::sounds;
 
 // TODO: super jackpot
@@ -107,14 +107,14 @@ impl SporeMultiballMode {
     ctx
       .systems
       .expect::<ModeManager>()
-      .release_exclusive(&ExclusiveMode::SporeMultiball, ctx.into());
+      .release_multiball(Multiball::Heartwood, ctx.into());
     ctx.systems.replace_self(SporeMultiballQualification::new());
   }
 }
 
 impl System for SporeMultiballMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.systems.expect::<ModeManager>().current_mode() == &Some(ExclusiveMode::SporeMultiball)
+    ctx.systems.expect::<ModeManager>().current_multiball() == Some(Multiball::Heartwood)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {

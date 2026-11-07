@@ -19,12 +19,12 @@ Led(
             keys: [
               (
                 at: 0.0,
-                value: (0, 255, 0, 255),
+                value: (255, 155, 0, 255),
                 curve: Linear,
               ),
               (
                 at: 0.9,
-                value: (0, 102, 0, 255),
+                value: (102, 62, 0, 255),
                 curve: EaseInOut,
               ),
             ],

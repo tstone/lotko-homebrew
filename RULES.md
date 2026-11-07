@@ -642,7 +642,7 @@ Notes:
 
 - Virtual DMD for testing
 - improved DMD DSL + Menu
-- LED 2d/3d/canvas unification
+
 
 #### Rules
 

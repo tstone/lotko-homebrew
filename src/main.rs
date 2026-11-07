@@ -65,6 +65,11 @@ async fn main() {
     } else {
       "/userdata/home/armsom/metrics.db".into()
     }),
+    content_path: Some(if virtual_mode {
+      concat!(env!("CARGO_MANIFEST_DIR"), "/src/assets").into()
+    } else {
+      "/userdata/home/armsom/assets".into()
+    }),
     ..Default::default()
   })
   .configure(|app| {
@@ -86,7 +91,7 @@ async fn main() {
     app.system(FreePlay::new(start_button::SWITCH.q()));
     app.system(SoundLoaderSystem::new());
     app.system(game_startable());
-    app.system(AttractModeLedsSystem::new());
+    app.system(attract_mode_leds());
     app.system(StartupEject::new());
     app.system(quit_game_combo(vec![
       &cabinet::LEFT_FLIPPER_SWITCH1,

@@ -7,12 +7,19 @@ use crate::hardware::captive_ball::CaptiveBallHit;
 use crate::hardware::city_map;
 use crate::hardware::main_shot::MainShotHit;
 use crate::systems::game::{self, EffectsSystem, MULTIBALL_BALL_SAVE, ModeManager, Multiball};
-use crate::systems::sounds;
+use crate::systems::{Callout, SayExt, sounds};
 
-// TODO: super jackpot
+/// Hits it takes to light the super jackpot, each time
+const JACKPOTS_PER_SUPER: u8 = 5;
 
+/// How long the super jackpot stays lit
+const SUPER_JACKPOT_TIME: Duration = Duration::from_secs(20);
+
+/// The Heartwood multiball (DESIGN.md, Multiballs), 2-ball, started by [`HeartwoodCharge`](crate::systems::game::HeartwoodCharge).
+/// Every main shot is a jackpot, and every 5th lights the captive ball as the super jackpot for a while. It ends when a
+/// drain that stands leaves one ball or none, or with the turn.
 #[derive(Clone)]
-pub struct SporeMultiballMode {
+pub struct HeartwoodMultiballMode {
   attention_effect: LedPlayback,
   super_jackpot_attention_effect: LedPlayback,
   hit_effect: LedPlayback,
@@ -23,7 +30,7 @@ pub struct SporeMultiballMode {
   eject_id: Option<u64>,
 }
 
-impl SporeMultiballMode {
+impl HeartwoodMultiballMode {
   pub fn new() -> Self {
     Self {
       attention_effect: Self::attention_effect(),
@@ -38,23 +45,27 @@ impl SporeMultiballMode {
   }
 
   fn attention_effect() -> LedPlayback {
-    led_playback!("spore_multiball/attention.scene")
+    led_playback!("heartwood_multiball/attention.scene")
   }
 
   fn super_jackpot_attention_effect() -> LedPlayback {
-    led_playback!("spore_multiball/super_jackpot_attention.scene").stopped()
+    led_playback!("heartwood_multiball/super_jackpot_attention.scene").stopped()
   }
 
   fn hit_effect() -> LedPlayback {
-    led_playback!("spore_multiball/hit.scene").stopped()
+    led_playback!("heartwood_multiball/hit.scene").stopped()
   }
 
   fn super_jackpot_hit_effect() -> LedPlayback {
-    led_playback!("spore_multiball/super_jackpot_hit.scene").stopped()
+    led_playback!("heartwood_multiball/super_jackpot_hit.scene").stopped()
   }
 
   fn progress_effect(hits: u8) -> LedPlayback {
-    city_map::mode_progress_effect(Rgba::yellow(), (hits % 5) as f32 / 5.0)
+    let per = JACKPOTS_PER_SUPER;
+    city_map::mode_progress_effect(
+      Multiball::Heartwood.color(),
+      (hits % per) as f32 / per as f32,
+    )
   }
 
   fn jackpot_hit(&mut self, ctx: &SystemContext) {
@@ -67,10 +78,12 @@ impl SporeMultiballMode {
       .play(Self::progress_effect(self.hits));
     ctx.add_points(game::points::HEARTWOOD_JACKPOT);
     // rises toward the super jackpot that every 5th hit lights
-    ctx.play_sfx(sounds::city_hit(((self.hits - 1) % 5) as f32 / 4.0));
+    ctx.play_sfx(sounds::city_hit(
+      ((self.hits - 1) % JACKPOTS_PER_SUPER) as f32 / (JACKPOTS_PER_SUPER - 1) as f32,
+    ));
 
     // super jackpot
-    if self.hits % 5 == 0 {
+    if self.hits % JACKPOTS_PER_SUPER == 0 {
       self.start_super_jackpot(ctx);
     }
   }
@@ -88,11 +101,7 @@ impl SporeMultiballMode {
     if let Some(cue_id) = self.cue_id {
       ctx.cues.cancel(cue_id);
     }
-    self.cue_id = Some(
-      ctx
-        .cues
-        .start(SuperJackpotOver, Duration::from_secs(20).once()),
-    );
+    self.cue_id = Some(ctx.cues.start(SuperJackpotOver, SUPER_JACKPOT_TIME.once()));
 
     self.super_jackpot_active = true;
     self.super_jackpot_attention_effect.play();
@@ -112,13 +121,15 @@ impl SporeMultiballMode {
   }
 }
 
-impl System for SporeMultiballMode {
+impl System for HeartwoodMultiballMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
     ctx.systems.expect::<ModeManager>().current_multiball() == Some(Multiball::Heartwood)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    self.eject_id = ctx.eject_balls(2, Launch::Auto);
+    // on top of the one in play
+    self.eject_id = ctx.eject_balls(1, Launch::Auto);
+    ctx.say(Callout::OakHeartwood);
     ctx.request_ball_save_until_released();
   }
 

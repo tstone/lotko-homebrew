@@ -29,7 +29,10 @@ const RING_LEDS: usize = 8;
 ///
 /// A lit side stays lit until it's used, from ball to ball. It isn't used in multiball, which has its own save.
 ///
-/// The right pass lane also gives a short, hidden save on the right outlane, for a ball that doesn't make it through.
+/// The Oaks speak for every save here, including the timed ball save's in single-ball play.
+///
+/// The right pass lane's lower switch also gives a short, hidden save on the right outlane, for a ball that doesn't make
+/// it through.
 ///
 /// A participant in the `BallDraining` routine, after `BallSaveSystem` so a timed save is used first. Belongs in the
 /// player template.
@@ -89,6 +92,7 @@ impl OutlaneSaveSystem {
   fn on_lit(&mut self, side: Side, ctx: &SystemContext) {
     log::info!("OutlaneSave: {side:?} lit");
     ctx.play_sfx(sounds::ARP_HIT1);
+    ctx.say(Callout::OakHold);
     self.render(side, ctx);
   }
 
@@ -121,6 +125,7 @@ impl OutlaneSaveSystem {
       log::info!("OutlaneSave: pass lane save");
     } else if self.sides[side as usize].use_save() {
       log::info!("OutlaneSave: {side:?} save used");
+      ctx.say(Callout::OakNotYet);
       ctx.say(Callout::RetrievalFailed);
       self.render(side, ctx);
     } else {
@@ -177,8 +182,13 @@ impl System for OutlaneSaveSystem {
       self.on_outlane(Side::Left, ctx);
     } else if event.is::<RightOutlaneRollover>() {
       self.on_outlane(Side::Right, ctx);
-    } else if event.is::<RightPassLaneHit>() {
+    } else if let Some(hit) = event.downcast_ref::<RightPassLaneHit>()
+      && !hit.upper
+    {
       self.on_pass_lane(ctx);
+    } else if event.is::<BallSaved>() && ctx.balls_in_play() == 0 {
+      // the timed save is the roots catching the ball too. In multiball they're kept quiet, as they'd say it every drain.
+      ctx.say(Callout::OakAgain);
     } else if event.is::<OutlaneDrainOver>() {
       self.recent = None;
     } else if event.is::<PassLaneSaveOver>() {

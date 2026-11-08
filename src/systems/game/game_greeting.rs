@@ -22,6 +22,7 @@ impl System for GameGreeting {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<RoutineStarted<GameStarting>>() {
       ctx.say(Callout::GameStart);
+      ctx.say(Callout::OakWake);
     } else if let Some(RoutineCompleted { routine, .. }) =
       event.downcast_ref::<RoutineCompleted<TurnStarting>>()
     {

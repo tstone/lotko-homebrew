@@ -128,13 +128,8 @@ impl ModeRun {
   pub fn complete(&self, points: u32, effect: LedPlayback, ctx: &SystemContext) {
     ctx.add_points(points);
     ctx.play_sfx(sounds::city_hit(1.0));
-    ctx.play_sfx(if self.mode.is_mini_wizard() {
-      sounds::BRAAM_BIO2
-    } else {
-      sounds::BRAAM_BIO1
-    });
-    if let Some(line) = self.mode.completion_line() {
-      ctx.say(line);
+    for line in self.mode.completion_lines() {
+      ctx.say(*line);
     }
     ctx.systems.expect::<EffectsSystem>().play(effect);
     ctx

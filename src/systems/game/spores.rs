@@ -90,6 +90,7 @@ impl SporesSystem {
       self.ready_effect = Some(Self::ready_effect());
       ctx.play_sfx(sounds::ARP_HIT1);
       ctx.say(Callout::BiologicalContaminantIdentified);
+      ctx.say(Callout::OakReady);
     }
   }
 

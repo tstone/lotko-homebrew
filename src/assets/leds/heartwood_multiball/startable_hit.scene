@@ -50,7 +50,7 @@ Led(
       layer: (
         name: "rings",
         fill: (
-          base: Solid(Fixed(255, 255, 0, 255)),
+          base: Solid(Fixed(140, 255, 0, 255)),
           adjust: [
             Opacity(Track(
               keys: [
@@ -94,7 +94,7 @@ Led(
       layer: (
         name: "flashers",
         fill: (
-          base: Solid(Fixed(255, 255, 0, 255)),
+          base: Solid(Fixed(140, 255, 0, 255)),
         ),
       ),
     ),

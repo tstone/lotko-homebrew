@@ -124,6 +124,28 @@ callouts! {
   // mini-wizards
   FloodBarriersEngaged => "floodgates/flood-barriers-engaged",
   TrainDerailmentSubverting => "derailment/train-derailment-subverting",
+
+  // the Oaks
+  OakWake => "oak/wake",
+  OakAgain => "oak/again",
+  OakHold => "oak/hold",
+  OakNotYet => "oak/not-yet",
+  OakSoon => "oak/soon",
+  OakExtraBall => "oak/extra-ball",
+  OakShootAgain => "oak/shoot-again",
+  OakReady => "oak/ready",
+  OakStay => "oak/stay",
+  OakHeartwood => "oak/heartwood",
+  OakRise => "oak/rise",
+  OakOurs => "oak/ours",
+  OakDrink => "oak/drink",
+  OakTheWayIsOpen => "oak/the-way-is-open",
+  OakNothingIsYours => "oak/nothing-is-yours",
+  OakOpenSky => "oak/open-sky",
+  OakOpenTheGates => "oak/open-the-gates",
+  OakDarkness => "oak/darkness",
+  OakFall => "oak/fall",
+  OakHigher => "oak/higher",
 }
 
 impl Callout {
@@ -142,9 +164,17 @@ impl Callout {
     NUMBERS.get((n as usize).checked_sub(1)?).copied()
   }
 
-  /// How the line is said. A run of lines starts with the chime. A passing line is dropped if it has to wait too long, and
-  /// any other line takes the place of the passing lines waiting ahead of it.
+  /// Said by the Oaks rather than the Steward
+  pub fn is_oak(self) -> bool {
+    self.key().starts_with("oak/")
+  }
+
+  /// How the line is said. A run of the Steward's lines starts with the chime, and the Oaks have none. A passing line is
+  /// dropped if it has to wait too long, and any other line takes the place of the passing lines waiting ahead of it.
   fn request(self) -> CalloutRequest {
+    if self.is_oak() {
+      return CalloutRequest::new(self.key()).priority(1);
+    }
     let line = CalloutRequest::new(self.key()).lead_in(sounds::STEWARD_CHIME);
     if self.is_passing() {
       line.max_wait(PASSING_LINE_WAIT)
@@ -225,6 +255,12 @@ mod tests {
   fn each_line_is_its_own_sound() {
     let keys: HashSet<_> = Callout::ALL.iter().map(|line| line.key()).collect();
     assert_eq!(keys.len(), Callout::ALL.len());
+  }
+
+  #[test]
+  fn the_oaks_lines_are_their_own() {
+    assert!(Callout::OakWake.is_oak());
+    assert!(!Callout::GameStart.is_oak());
   }
 
   #[test]

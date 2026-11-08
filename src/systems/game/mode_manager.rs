@@ -127,6 +127,10 @@ impl ModeManager {
     self.progression.start(mode);
     self.mode = Some(mode);
     if !resuming {
+      // the braam is kept for the game's biggest moments, the first of which is reaching the top of the city
+      if mode.is_mini_wizard() && mode.tier() == 2 {
+        ctx.play_sfx(sounds::BRAAM_BIO1);
+      }
       mode.spawn(ctx);
     }
     self.slots_changed(ctx);

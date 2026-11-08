@@ -38,6 +38,10 @@ The game is built with the default for each of these. Each one changes something
 | 7 | What about the Solarium "test lab" lines? | `test-lab-shutdown-initiated`, `atrium-containment-enacted` and `the-science-will-not-be-lost` aren't in `DESIGN.md`, while "There is nothing on the glass" hasn't been recorded. | Use them at the intensity stages and completion (see Solarium). |
 | 8 | Does the center orbit dig a root tunnel? | `DESIGN.md` says "orbit hits", and the center orbit is the spinner shot. | Yes: left, center and right orbits each have a tunnel. |
 | 9 | What's the third Sentinels award, at 15 drones? | `DESIGN.md` leaves it TBD. | 15,000,000 points. |
+| 10 | Should Skyrail's finale really be saved until the mode ends? | `DESIGN.md` says so, but that means a drain in the finale is always saved, so the turn can't end there until the 5 drop hits are made, or a tilt. | As `DESIGN.md` says: saved until completion. A cap (e.g. 30s) is a one-line change. |
+| 11 | When is each mini-wizard completed? | `DESIGN.md` gives what scores, not when it's done. Completing ends it (the balls play on) and marks it completed. | Floodgates: 3 super jackpots. Blackout: the super jackpot. Derailment: 3 bank clears. Canopy: 3 collects. |
+| 12 | What counts as high overgrowth, for the Oaks' "Soon." at game over? | `DESIGN.md` says "at high overgrowth", and there's no overgrowth level yet. It's read from the player who was up last. | 3 or more districts completed. |
+| 13 | Who says "extra ball" and "shoot again"? | Both voices have them recorded now. | The Oaks, after the Steward's "Error. Invalid resident." The Steward's two are kept loaded as spares. |
 
 ### DESIGN.md items to revisit
 
@@ -112,9 +116,9 @@ What the SFX stand in for today, until the palettes exist:
 | `steward-chime` | Before every Steward line |
 | `latch-heavy1`–`3` | First two `city_hit` steps; Meridian's gate clunk; Nimbus seals; a camera blinded |
 | `impact-dirt` | Last `city_hit` step; spore burst; drone down; tunnel collected |
-| `impact-cinematic-heavy` | Choosing a mode in the menu |
-| `braam-bio1` | District completion |
-| `braam-bio2` | Mini-wizard completion; Heartwood start; Gridlock |
+| `impact-cinematic-heavy` | Choosing a mode in the menu; Gridlock; Floodgates and Derailment super jackpots |
+| `braam-bio1` | First start of the tier-2 mini-wizard. The braams are kept for the biggest moments only |
+| `braam-bio2` | Kept for the final wizard's start |
 | `scan-light` | Ball start, with the status line |
 | `scan-heavy-stutter` | Surveillance set |
 | `woosh-light`, `latch-double` | Skyrail ramp (train past) and drop (signal clank); Nimbus reopen |
@@ -129,8 +133,10 @@ Lines loaded with no moment in the game yet:
 - **Waiting on high scores:** `new-high-score`.
 - **Global moments:** `generic/alert`, `warning`, `scanning`, `city-scan-complete` and `seeking-biological-entity`. They
   suit the ball start scan, tilt warnings and attract.
-- **Final wizard:** `final/steward-core-breached`.
-- **Spares:** `meridian-basins-uninhabitable`, `hydro-core-offline` and `nimbus-promenade-offline`.
+- **Final wizard:** `final/steward-core-breached`, and `braam-bio2` for its start.
+- **Waiting on Groundswell, the Oaks:** `oak/rise`.
+- **Spares:** `meridian-basins-uninhabitable`, `hydro-core-offline` and `nimbus-promenade-offline`. Also the Steward's
+  `extra-ball` and `same-player-shoot-again`, now that the Oaks say those (decision 13).
 
 Music: `ModeManager` has placeholder commercial tracks for Hydro, Skyrail, Solarium, Meridian, Nimbus, Heartwood and the
 default. Apex, the mini-wizards and Groundswell have nothing. `play_music` plays a track once, so anything longer than
@@ -138,8 +144,6 @@ the track goes silent (gap `loop`). All original music is still to come.
 
 ### Lines still to record
 
-- **Oaks: all 18 are missing**, none found by file name. Wake, Again, Hold, Not yet, Soon, Ours, Drink, The way is open,
-  Nothing is yours, Open sky, Open the gates, Darkness, Fall, Higher, Ready, Stay, Rise, Heartwood.
 - **Steward:** each section lists its own. `callouts/combos` and `callouts/blackout` are empty.
 - **Numbers:** "N of six" only has `four-of-six`, "Walkway N" only has `walkway-4`, and "Decommissioning drone N" only
   has 1 and 3 (other drones say `drone-disengaged`).
@@ -180,7 +184,8 @@ Built, with a helper in `effects.rs` that takes the LEDs: `shared/flash.scene` (
 | `shared/forest_ambient.scene` | `amount` | Ball start ambient (≈ noise) |
 
 - [ ] Check the hand-written stand-in scenes on the machine: `shared/flash`, `shared/fill`, `shared/heartbeat`,
-      `mode_progress`, `side/charge_ray`, `side/burst_ready`, `side/burst`, and Nimbus's `seal_warning`.
+      `mode_progress`, `side/charge_ray`, `side/burst_ready`, `side/burst`, Nimbus's `seal_warning`, `shared/glow`,
+      `apex_terraces/ring` and `blackout/lit`.
 
 ### Primitive status
 
@@ -228,8 +233,12 @@ Every district plays on the 6 main shots plus the drops, uses `ModeRun`, and sta
 same note on sound and music, so it's stated here once. Palette SFX, a real music track, and Steward integrity
 processing (`voice-fx`) are outstanding for each. Each section lists only what's specific to it.
 
-A collected root tunnel emits `TunnelCollected`, and the running district counts it as one hit. Meridian, Hydro, Nimbus
-and the stand-in mini-wizard do. The three still to rewrite need to as well.
+A collected root tunnel emits `TunnelCollected`, and the running district or mini-wizard counts it as one hit. A
+completion says the Steward's line, then the Oaks' where `DESIGN.md` has one, and a mini-wizard's start lines include
+its Oaks line. Completions have no braam.
+
+The rules for all six are done. Apex and Solarium light shots with `glow_effect` (`shared/glow.scene`, z 10), a slow
+pulse standing in for their attention scenes.
 
 ## Meridian Basins — orange
 
@@ -249,7 +258,7 @@ Sweeping basins. Tier 1, alternative to Hydro. The rules are done.
 
 **Spare line:** `meridian-basins-uninhabitable`, usable at 75% or on a resume.
 
-**Still to record:** "Notice… Channel gates are closing", "N of six" for 1, 2, 3, 5, 6. O: "Ours."
+**Still to record:** "Notice… Channel gates are closing", "N of six" for 1, 2, 3, 5, 6.
 
 **To fully finish**
 
@@ -275,7 +284,7 @@ Coolant combo. Tier 1, alternative to Meridian. The rules are done. A collected 
 
 **Spare line:** `hydro-core-offline`.
 
-**Still to record:** "Engineers to the pipes", unless `coolant-core-dropping` includes it. O: "Drink."
+**Still to record:** "Engineers to the pipes", unless `coolant-core-dropping` includes it.
 
 **To fully finish**
 
@@ -306,7 +315,7 @@ walkway.
 
 **Spare lines:** `nimbus-promenade-offline`, `generic/access-to-city-restricted`.
 
-**Still to record:** "Walkway N… sealed" for 1, 2, 3, 5, 6. O: "The way is open."
+**Still to record:** "Walkway N… sealed" for 1, 2, 3, 5, 6.
 
 **To fully finish**
 
@@ -316,20 +325,9 @@ walkway.
 
 ## Skyrail Station — blue
 
-Lift ramp and drops. Tier 2, alternative to Apex.
-
-**Today:** close to `DESIGN.md`, with attention, hit, intensity, flasher and completion scenes.
-
-**Rules work**
-
-- [ ] Fix completion. `DESIGN.md` wants 5 drop hits during the finale, but `target_hits` also counts the 2 before it, so
-      the code needs only 3.
-- [ ] Five hits on a 3-target bank means raising it mid-finale. Use `DropBankCleared`.
-- [ ] Use the shared lift ramp requests. Lock lights wait while Skyrail owns the ramp.
-- [ ] Keep the ball save running until the mode ends.
-- [ ] Fix the progress total to match the new count (5 + 3 ramp shots + 2 drops = 10).
-- [ ] Resume: restart at the current stage. The finale restarts with its 2nd ball.
-- [ ] Count `TunnelCollected` as a hit.
+Lift ramp and drops. Tier 2, alternative to Apex. The rules are done, with attention, hit, intensity, flasher and
+completion scenes. The finale's ball save runs until the mode ends (decision 10). When Groundswell's lock lights, it
+has to wait while Skyrail holds the ramp up (see Groundswell).
 
 **Presentation**
 
@@ -354,22 +352,10 @@ needed.
 
 ## Apex Terraces — gold
 
-Overload. Tier 2, alternative to Skyrail.
-
-**Today:** the old mode on the pop targets, the left inlane target and the spinner. Replaced entirely. While it runs it
-shares the pop targets with Surveillance and the inlane target with Charge's burst, which the rewrite frees up.
-
-**Rules work**
-
-- [ ] Rewrite as a `Mode` on the 6 main shots, in gold.
-- [ ] One lit shot. Each hit fills a ring segment. A full ring bursts for a big award, and the lit shot moves to
-      `farthest_from`.
-- [ ] Terraces need 3, then 4, then 5 hits. Complete at 3 bursts.
-- [ ] The ring loses a segment after 6s without a hit (start value).
-- [ ] The lit shot's ring shows overload over Root tunnels (z 10 over z 0).
-- [ ] Resume keeps bursts and restarts the current ring empty.
-- [ ] Count `TunnelCollected` as a hit.
-- [ ] Delete the target and spinner scenes, and move its values into `points`.
+Overload. Tier 2, alternative to Skyrail. The rules are done, on the 6 main shots, and it starts on a random one. The
+lit shot glows gold, and its ring (`apex_terraces/ring.scene`, z 10 over Root tunnels) is dim gold with the filled
+segments in green. A hit flashes the center white, a burst flashes the ring green, and completion plays the old
+`start.scene` gold flash.
 
 **Presentation**
 
@@ -384,7 +370,7 @@ shares the pop targets with Surveillance and the inlane target with Charge's bur
 **DMD now:** card "APEX TERRACES", mode line "TERRACE 2/3" and a gauge for the current ring.
 
 **Still to record:** "Please keep off the terraces", "Terrace three: structural concern", "This is a… premium… area",
-if those are wanted over what's recorded. O: "Nothing is yours."
+if those are wanted over what's recorded.
 
 **To fully finish**
 
@@ -395,19 +381,10 @@ if those are wanted over what's recorded. O: "Nothing is yours."
 
 ## Solarium Atrium — purple
 
-Crawling vine. Tier 2 finale, the hardest district.
-
-**Today:** a ramps mode that `DESIGN.md` calls too thin, with scenes for attention, hit, intensity, flashers and
-completion. The rules are replaced, and the flashers and intensity scenes may carry over.
-
-**Rules work**
-
-- [ ] Rewrite on the 6 main shots. One lit shot moves to a neighbor every 3.5s (start value), never straight back.
-- [ ] Choose the next shot ahead of time, so the pre-light is true.
-- [ ] Each hit shortens the interval.
-- [ ] Complete at 6 hits. Resume keeps hits.
-- [ ] Remove the dome-to-lift double scoring.
-- [ ] Count `TunnelCollected` as a hit.
+Crawling vine. Tier 2 finale, the hardest district. The rules are done. The head starts on a random shot and moves
+every 3.5s, 0.35s sooner per hit down to 1.5s (start values). A hit on the head moves the vine on at once. The old
+hit, intensity, flasher and completion scenes carried over. The head glows purple, the next shot is dim purple, and the
+shot it leaves flashes green as the trail.
 
 **Presentation**
 
@@ -421,7 +398,7 @@ completion. The rules are replaced, and the flashers and intensity scenes may ca
 
 **DMD now:** card "SOLARIUM ATRIUM", mode line "CRACKS 2/6". A crack can be a growing line of `Rectangle`s.
 
-**Still to record:** "There is nothing on the… glass" with its stutter (decision 7). O: "Open sky."
+**Still to record:** "There is nothing on the… glass" with its stutter (decision 7).
 
 **To fully finish**
 
@@ -433,24 +410,18 @@ completion. The rules are replaced, and the flashers and intensity scenes may ca
 
 # Part 3: Mini-wizards
 
-`MiniWizardMode` stands in for all four for now, so the route can be played to its end: 2 balls in tier 1, 3 in tier 2, any
-main shot or collected tunnel is a hit, 10 hits complete it, and it ends per decision 5.
+The rules for all four are done, each on `MiniWizardRun` (`mini_wizards/run.rs`). It's lit as soon as its step is
+reached and started from the menu. It adds 1 ball in tier 1 and 2 in tier 2 as the ball leaves the scoop, with
+`MULTIBALL_BALL_SAVE` timed from `EjectCompleted`, and ends per decision 5. Each keeps its total for its high score
+(Part 5), and how each completes is decision 11. Groundswell can't run alongside one, as `Multiball::stacks_with` says.
 
-Tier 1 is 2-ball, tier 2 is 3 to 4 ball. All four are new. All need the mini-wizard flow first:
-
-- [ ] Lit as soon as the step is reached, started from the menu like a district.
-- [ ] Eject the balls, with `MULTIBALL_BALL_SAVE` timed from `EjectCompleted`. `SporeMultiballMode` has the pattern.
-- [ ] End per decision 5, watching `RoutineCompleted<BallDraining>` for `AllSteps`, as multiballs do.
-- [ ] Groundswell can't run alongside one. Lock lights wait.
-- [ ] A longer intro and a big finish, per `DESIGN.md`. They use their own tracks, and tempo sync is `tempo` for all four.
+- [ ] A longer intro and a big finish, per `DESIGN.md`. Today they have the districts' intro, and the finish is
+      `startable/hit.scene` in a color. They use their own tracks, and tempo sync is `tempo` for all four.
 
 ## Floodgates (Meridian, tier 1)
 
-**Rules work**
-
-- [ ] 2-ball. Orbit hits raise a water level, shown on the arc ramp. 8 hits to high water (start value).
-- [ ] At high water, the ramps are super jackpots.
-- [ ] Track the total for the Biggest Flood high score.
+The water gauge is a blue `fill_effect` on the arc ramp. The orbits glow orange while the water rises, and the ramps
+glow white at high water. A super jackpot lets the water out to rise again.
 
 **Presentation**
 
@@ -463,7 +434,6 @@ Tier 1 is 2-ball, tier 2 is 3 to 4 ball. All four are new. All need the mini-wiz
 **DMD now:** a water gauge as a `Rectangle`, and the total.
 
 **Still to record:** a variant of "Flood barriers… engaged. Engaged. Engaged", if the file doesn't already stutter.
-O: "Open the gates."
 
 **To fully finish**
 
@@ -472,10 +442,9 @@ O: "Open the gates."
 
 ## Blackout (Hydro, tier 1)
 
-**Rules work**
-
-- [ ] 2-ball. Each main shot hit darkens that shot. When all are dark, the left scoop is the super jackpot.
-- [ ] Time it from start to super jackpot for Fastest Blackout, which is lower-is-better.
+The dark layer, the roots in dim green, the lit shots and the lit scoop are built as in the table below. The lit
+shots and the scoop pulse white with `blackout/lit.scene`. The roots are taken to be the vertical spinner's ring and
+the pop rays. Fastest Blackout counts only the time it was running, from the dark coming down to the super jackpot.
 
 **Presentation**
 
@@ -487,7 +456,7 @@ O: "Open the gates."
 
 **DMD now:** a city grid drawn on the canvas, with sectors going black. It needs no art.
 
-**Still to record:** everything, as `callouts/blackout` is empty. The fragmenting Steward lines and O: "Darkness."
+**Still to record:** everything, as `callouts/blackout` is empty. The fragmenting Steward lines.
 
 **To fully finish**
 
@@ -496,11 +465,10 @@ O: "Open the gates."
 
 ## Derailment (Skyrail, tier 2)
 
-**Rules work**
+3-ball. The lift ramp is held up for the whole mode, so it feeds the upper flipper. Each drop target is a jackpot and
+each bank clear a super jackpot. The drop strips and the lift ramp hex glow blue.
 
-- [ ] 3 to 4 ball. Jackpots at the drops, fed by the upper flipper. Raise the bank on `DropBankCleared`.
-- [ ] Locked balls are kept as virtual locks. If decision 1 stays virtual, every lock already is one.
-- [ ] Track the total for the high score.
+- [ ] Keep the player's locked balls as virtual locks, once Groundswell has locks to keep.
 
 **Presentation**
 
@@ -511,7 +479,7 @@ O: "Open the gates."
 
 **DMD now:** card per jackpot, and train cars as sprites if time allows.
 
-**Still to record:** "Train… train… train" (it could be cut from existing audio). O: "Fall."
+**Still to record:** "Train… train… train" (it could be cut from existing audio).
 
 **To fully finish**
 
@@ -521,10 +489,7 @@ O: "Open the gates."
 
 ## Canopy (Apex, tier 2)
 
-**Rules work**
-
-- [ ] 3 to 4 ball. The vertical and center spinners and the pops build a value, and the ramps collect it.
-- [ ] Track the total for the high score.
+3-ball. A collect starts the value over from its base. The ramps glow gold.
 
 **Presentation**
 
@@ -535,7 +500,7 @@ O: "Open the gates."
 
 **DMD now:** the current value and a rising bar.
 
-**Still to record:** any Steward lines, and O: "Higher." There's no `callouts/canopy` folder yet.
+**Still to record:** any Steward lines. There's no `callouts/canopy` folder yet.
 
 **To fully finish**
 
@@ -553,7 +518,8 @@ O: "Open the gates."
 
 - [ ] Build `GroundswellLock`, from `LiftRampStartable` in git history (`lift_ramp_startable.rs`). Sentinels light locks
       by emitting `LockLit` (every 2 drones, or 1 with the Skyrail perk), which nothing takes up yet. The lit lock
-      requests the ramp up, and the shot feeds the rear scoop.
+      requests the ramp up, and the shot feeds the rear scoop. While Skyrail or Derailment holds the ramp up, the lock
+      light waits, so their shots aren't taken as locks.
 - [ ] Virtual locks (decision 1): count the lock, and let the ball continue to the upper flipper.
 - [ ] Lock 3 to start a 3-ball multiball. Jackpots are on the main shots, and the super jackpot is the lift ramp, upper
       flipper, then a drop shot.
@@ -577,19 +543,15 @@ speaker beat, `dmd-player` plus art for the splitting ground and toppling tower,
 
 ## Heartwood multiball
 
-`HeartwoodCharge` starts it from a full charge (Part 5). What's left of the multiball itself:
-
-- [ ] Rename `SporeMultiballMode` to Heartwood.
-- [ ] Finish the super jackpot TODO. The current one is on the captive ball every 5th jackpot. Keep that unless
-      `DESIGN.md` says otherwise.
-- [ ] Replace `spore_multiball/*.scene` colors (yellow today) and rename the folder. `qualification.scene` and
-      `startable_attention.scene` are no longer used, and can go.
+`HeartwoodCharge` starts it from a full charge (Part 5). The rules are done in `HeartwoodMultiballMode`: 2-ball, every
+main shot a jackpot, and every 5th lights the captive ball as a 20s super jackpot. Its scenes are in
+`heartwood_multiball/`, in lime like the charge.
 
 **Presentation**
 
 | Moment | LEDs now | Sound now |
 |---|---|---|
-| Start | ≈ Whole playfield on a `heartbeat`, timed by hand to the track | Heartbeat stinger missing. O: "Heartwood." |
+| Start | ≈ Whole playfield on a `heartbeat`, timed by hand to the track | `oak/heartwood`. Heartbeat stinger missing |
 | Jackpot | = Heartbeat `shot_wave` from the shot | Double-thump missing |
 
 **To fully finish:** `tempo` (the whole point of this mode's look), and `dmd-player` plus art for the glowing heart.
@@ -605,7 +567,7 @@ values to tune. What's left is presentation, the DMD side quest row (1.3) and so
 
 | Quest | Built | Still to do |
 |---|---|---|
-| **Charge** (`SporesSystem`) | A spin charges 1, a pop 3 (6 with the Nimbus perk). 60 for the first burst, 30 more each after. The burst lasts 8s, or scores 2,500,000 with no mode. Pops send a packet down their ray. | Bar's flickering edge (`Random`). Burst insert is a hand-made green and violet beat, not `heartbeat`. Swarm rustle and whoosh SFX. O: "Ready." |
+| **Charge** (`SporesSystem`) | A spin charges 1, a pop 3 (6 with the Nimbus perk). 60 for the first burst, 30 more each after. The burst lasts 8s, or scores 2,500,000 with no mode. Pops send a packet down their ray. | Bar's flickering edge (`Random`). Burst insert is a hand-made green and violet beat, not `heartbeat`. Swarm rustle and whoosh SFX. |
 | **Surveillance** | One hit per camera, one more each set. A set counts as a lit shot, but only between modes, as the scoop doesn't qualify during one. Every 3rd set lights an outlane. | Steady red today: add the slow scan, and a static glitch on a hit. Camera whir and lens crack SFX. |
 | **Sentinels** | Strips are red while their target is up. Locks are only an event until Groundswell. | Strips scan rather than glow, and spark on a drone down. Drone whine SFX. |
 | **Heartwood** (`HeartwoodCharge`) | 4 hits, then 2 more each time (×2 with the Solarium perk). The bolts beat from 1.4s down to 0.5s as it charges. | Sub heartbeat and wood knock SFX. |
@@ -621,7 +583,7 @@ six.
 |---|---|---|
 | In progress | = Path flow toward the flipper. = Continuing shots blink green. Speaker ring countdown | Engine note missing |
 | Route made | = `surge` shot to shot along the route, in green | Horn and screech missing |
-| Gridlock | = All routes light, shots stall red and pulse, then green | City-wide horn jam missing. O: "Stay." |
+| Gridlock | = All routes light, shots stall red and pulse, then green | `oak/stay`. City-wide horn jam missing |
 
 **Still to record:** all of it. `callouts/combos` is empty. One line per route plus Gridlock.
 
@@ -633,15 +595,15 @@ six.
 
 **Outlane saves:** `OutlaneSaveSystem` is built: sling hits fill the side's two post rings (8, then 12, 18, 24 hits), a
 lit side heartbeats its outlane LED, a drain within 3s of that outlane's switch is saved, multiball leaves it lit, and
-the right pass lane gives a 3s hidden save.
+the right pass lane's lower switch gives a 3s hidden save.
 
-- [ ] Check on the machine that the pass lane save catches what it's meant to. It starts on either pass lane switch.
+- [ ] Check on the machine that the pass lane save catches what it's meant to.
 
 | Moment | LEDs now | Sound now |
 |---|---|---|
 | Growing | = Rings fill a step per hit | Creak missing |
-| Lit | = Outlane LED green on a slow heartbeat | O: "Hold." missing |
-| Used | ≈ `surge` from outlane to plunger lane, rings empty | `retrieval-failed`. O: "Not yet." missing |
+| Lit | = Outlane LED green on a slow heartbeat | `oak/hold` |
+| Used | ≈ `surge` from outlane to plunger lane, rings empty | `oak/not-yet`, then `retrieval-failed` |
 
 **To fully finish:** `growth` for the rings and surge, and `dmd-player` plus art for the roots grabbing the ball.
 
@@ -650,13 +612,13 @@ the right pass lane gives a 3s hidden save.
 | Moment | LEDs now | Sound now | To fully finish |
 |---|---|---|---|
 | Attract | ≈ Existing 4 scenes, plus a city scan and a slow forest scene | none | `noise`, `growth` for roots from the spinner; themed DMD; breathing speaker rings |
-| Game start | ≈ `takeover`-style pulse from the spinner, wave to the flippers | `game-start` | O: "Wake." Roots through the title |
+| Game start | ≈ `takeover`-style pulse from the spinner, wave to the flippers | `steward-online`, then `oak/wake` | Roots through the title |
 | Ball start | = `city_scan`. ≈ `forest_ambient` by overgrowth level | `all-systems-within-operational-tolerance` early, `continuing-city-maintenance` later | "Overgrowth at N percent" lines, `noise` |
-| Ball save | ≈ Green radial from the drain; `ball_save.scene` today | O: "Again." missing | Art of roots catching the ball |
-| Extra ball | = `extra_ball_lit.scene` | `unregistered-resident` lit, `error-invalid-resident` collected, `extra-ball` on shoot again | DMD art |
+| Ball save | ≈ Green radial from the drain; `ball_save.scene` today | `oak/again`, in single-ball play only | Art of roots catching the ball |
+| Extra ball | = `extra_ball_lit.scene` | `unregistered-resident` lit, `error-invalid-resident` then `oak/extra-ball` collected, `oak/shoot-again` on its turn | DMD art |
 | Drain | ≈ Fade effects toward the roots, GI dims | `growth-contained` | `growth`, integrity on this line |
 | Tilt | = Exists (`TiltPresenter`). Add a white snap before dark | `thank-you-for-cooperation` | Clean city font |
-| Game over | ≈ Green map up to the districts taken | "Final overgrowth" missing. O: "Soon." missing | Summary screen first, as in 1.3 |
+| Game over | ≈ Green map up to the districts taken | "Final overgrowth" missing. `oak/soon` with 3 or more districts completed (decision 12) | Summary screen first, as in 1.3 |
 
 Speaker rings as an overgrowth gauge go on z 0 as their own small system, and everything else overlays them.
 
@@ -665,6 +627,7 @@ Speaker rings as an overgrowth gauge go on z 0 as their own small system, and ev
 - [ ] Register `HighScoresSystem` in `main.rs`, so scores are saved and entered, and set the custom categories at game
       end. Say `new-high-score`.
 - [ ] Compare by hand for lower-is-better Fastest Blackout, and format it as a time. Proper boards are `leaderboards`.
+- [ ] Record the mini-wizard totals (`MiniWizardRun::total`) and Blackout's time, which are kept but only logged.
 
 **Final wizard:** out of scope in `DESIGN.md`. `final/steward-core-breached` is ready for it. For now, finishing everything
 leaves the scoop unlit.
@@ -673,17 +636,17 @@ leaves the scoop unlit.
 
 # Part 6: Order of work
 
-Each milestone leaves a playable game. The progression, the first three districts, the side quests, combos and saves
-are in.
+Each milestone leaves a playable game. The progression, the rules for every district and mini-wizard, the side quests,
+combos and saves are in.
 
 1. **DMD foundations.** `DmdCard`, the layer plan, and a virtual DMD if it can be done cheaply, since everything after
    it needs testing.
 2. **Shared scenes.** Build `shot_wave`, `surge`, `takeover` and `city_scan`, then prove them on one mode.
-3. **Districts.** Skyrail, Apex, Solarium, then presentation for all six.
-4. **Multiballs.** Groundswell, then finish Heartwood.
+3. **District presentation** for all six.
+4. **Groundswell.**
 5. **Status and idle screens**, and the side quest row.
-6. **Mini-wizards.** Floodgates and Blackout, then Derailment and Canopy.
+6. **Mini-wizard presentation**, with their intros and finishes.
 7. **High scores and global moments.**
 8. **To fully finish.** Take the gaps in the order they unlock the most: `dmd-player`, `noise`, `growth`, `tempo`,
-   `glitch`, then the rest. Audio goes alongside: record the Oaks, fill in the Steward lines, build the palettes, then
+   `glitch`, then the rest. Audio goes alongside: fill in the Steward lines, build the palettes, then
    the music.

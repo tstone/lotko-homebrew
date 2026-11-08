@@ -1,205 +1,181 @@
-use std::collections::HashSet;
-
-use crate::{
-  hardware::{
-    center_orbit::CenterSpinnerHit,
-    left_inlane,
-    pop_cluster::{self, PopBumper, match_target_switch},
-  },
-  systems::{
-    Callout, SayExt,
-    game::{Mode, ModeManager, ModeRun},
-    sounds,
-  },
-};
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::GameManagementExt;
-use frontbox_sound::*;
+use frontbox_sound::SoundSystemExt;
+use rand::prelude::IndexedRandom;
 
-/// Lit target hits it takes to charge the center spinner
-const REQUIRED_CHARGE: u8 = 6;
-/// How long targets stay lit after an unlit target is hit
-const LIT_DURATION: Duration = Duration::from_secs(18);
-/// How long before lit targets go out that they start flashing as a warning
-const LIT_WARNING: Duration = Duration::from_secs(4);
-/// How long a charged spinner scores once it's first spun
-const SPINNING_DURATION: Duration = Duration::from_secs(15);
+use crate::hardware::main_shot::{MainShot, MainShotHit};
+use crate::systems::game::{
+  EffectsSystem, Mode, ModeManager, ModeRun, SporesSystem, TunnelCollected, flash_effect,
+  glow_effect, points,
+};
+use crate::systems::{Callout, SayExt, sounds};
 
-mod points {
-  pub static UNLIT_TARGET: u32 = 250_000;
-  pub static LIT_TARGET: u32 = 1_000_000;
-  pub static SPIN: u32 = 1_000_000;
-  pub static CHARGED_TARGET: u32 = 50_000;
-}
+/// Hits each terrace takes to burst, in order. Bursting them all completes the mode.
+const TERRACE_HITS: [u8; 3] = [3, 4, 5];
 
-/// Phase 1: hitting an unlit green target lights the others for a while. Hitting a lit one collects it and adds to the
-/// center spinner's charge, shown by the LED under it getting brighter.
-/// Phase 2: once fully charged, the spinner flashes green. The first spin starts a window where every spin scores big.
-/// The targets stay dimly lit and are worth a little.
-#[derive(Clone)]
+/// How long the ring holds a segment without a hit before losing it (start value)
+const DRAIN_TIME: Duration = Duration::from_secs(6);
+
+/// LEDs in a hex's outer ring
+const RING_LEDS: usize = 6;
+
+/// Overload (DESIGN.md). One main shot is lit gold, and each hit on it fills a segment of its hex's outer ring. A full
+/// ring bursts the terrace and the lit shot moves to the shot farthest away. The ring loses a segment after a while
+/// without a hit.
+///
+/// While it runs, the lit shot's ring shows overload over Root tunnels, a z above them.
 pub struct ApexTerracesMode {
   run: ModeRun,
-  phase: Phase,
-  charge: u8,
-  lit: HashSet<Target>,
-  lit_warning: bool,
-  lit_cue: Option<u64>,
-  target_effect: Option<LedPlayback>,
-  spinner_effect: Option<LedPlayback>,
-  start_effect: Option<LedPlayback>,
+  shot: MainShot,
+  /// Terraces burst, which a resume keeps
+  bursts: u8,
+  /// Segments filled on the current terrace's ring
+  filled: u8,
+  center_effect: LedPlayback,
+  ring_effect: LedPlayback,
+  drain_cue: Option<u64>,
 }
 
 impl ApexTerracesMode {
   pub fn new() -> Self {
+    let shot = *MainShot::ALL
+      .choose(&mut rand::rng())
+      .unwrap_or(&MainShot::CenterOrbit);
     Self {
-      run: ModeRun::new(Mode::ApexTerraces, REQUIRED_CHARGE),
-      phase: Phase::Charging,
-      charge: 0,
-      lit: HashSet::new(),
-      lit_warning: false,
-      lit_cue: None,
-      target_effect: None,
-      spinner_effect: None,
-      start_effect: None,
+      run: ModeRun::new(Mode::ApexTerraces, TERRACE_HITS.iter().sum()),
+      shot,
+      bursts: 0,
+      filled: 0,
+      center_effect: Self::center_effect(shot),
+      ring_effect: Self::ring_effect(shot, 0, TERRACE_HITS[0]),
+      drain_cue: None,
     }
   }
 
-  fn on_target_hit(&mut self, target: Target, ctx: &SystemContext) {
-    if self.phase != Phase::Charging {
-      ctx.add_points(points::CHARGED_TARGET);
-      ctx.play_sfx(sounds::HIT_ORGANIC_LOW2);
+  fn center_effect(shot: MainShot) -> LedPlayback {
+    glow_effect(shot.hex_center(), Mode::ApexTerraces.color())
+  }
+
+  /// The ring in dim gold, with `filled` of `needed` segments green
+  fn ring_effect(shot: MainShot, filled: u8, needed: u8) -> LedPlayback {
+    let lit = ring_leds(filled, needed);
+    let width = 2.0 * (lit as f32 - 0.5) / (RING_LEDS as f32 - 1.0);
+    led_playback!("apex_terraces/ring.scene", shot.hex_ring().clone())
+      .param("color", Rgba::green())
+      .param("width", width.max(0.0))
+  }
+
+  fn needed(&self) -> u8 {
+    TERRACE_HITS[(self.bursts as usize).min(TERRACE_HITS.len() - 1)]
+  }
+
+  /// Hits so far toward the end of the mode
+  fn done(&self) -> u8 {
+    TERRACE_HITS[..self.bursts as usize].iter().sum::<u8>() + self.filled
+  }
+
+  fn on_shot_hit(&mut self, shot: MainShot, ctx: &SystemContext) {
+    if shot == self.shot {
+      let hits = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
+      self.add_hits(hits, ctx);
+    }
+  }
+
+  /// Hits on the lit shot, or from a root tunnel
+  fn add_hits(&mut self, hits: u8, ctx: &SystemContext) {
+    if self.done() == 0 {
+      ctx.say(Callout::ThisIsAnExclusiveArea);
+    }
+    ctx.add_points(points::APEX_HIT);
+    self.filled = (self.filled + hits).min(self.needed());
+    log::info!(
+      "ApexTerraces: terrace {} at {} of {}",
+      self.bursts + 1,
+      self.filled,
+      self.needed()
+    );
+
+    if self.filled == self.needed() {
+      self.burst(ctx);
       return;
     }
 
-    if self.lit.remove(&target) {
-      ctx.add_points(points::LIT_TARGET);
-      self.charge += 1;
-      log::info!(
-        "ApexTerraces: spinner charge {}/{}",
-        self.charge,
-        REQUIRED_CHARGE
+    ctx.play_sfx(sounds::city_hit(self.filled as f32 / self.needed() as f32));
+    ctx
+      .systems
+      .expect::<EffectsSystem>()
+      .play(flash_effect(self.shot.hex_center(), Rgba::white()));
+    self.run.progress(self.done());
+    self.render_ring(ctx);
+    self.restart_drain(ctx);
+  }
+
+  fn burst(&mut self, ctx: &SystemContext) {
+    self.bursts += 1;
+    self.filled = 0;
+    log::info!("ApexTerraces: terrace {} burst", self.bursts);
+    ctx.add_points(points::APEX_BURST * self.bursts as u32);
+    ctx.play_sfx(sounds::IMPACT_DIRT);
+    ctx
+      .systems
+      .expect::<EffectsSystem>()
+      .play(flash_effect(self.shot.hex_ring(), Rgba::green()));
+
+    if self.bursts as usize == TERRACE_HITS.len() {
+      self.cancel_drain(ctx);
+      self.center_effect.stop(ctx);
+      self.ring_effect.stop(ctx);
+      self.run.complete(
+        points::EXL_COMPLETION,
+        led_playback!("apex_terraces/start.scene"),
+        ctx,
       );
-
-      if self.charge == REQUIRED_CHARGE {
-        self.charge_spinner(ctx);
-        return;
-      }
-
-      ctx.play_sfx(sounds::city_hit(
-        self.charge as f32 / REQUIRED_CHARGE as f32,
-      ));
-      if self.charge == 1 {
-        ctx.say(Callout::ThisIsAnExclusiveArea);
-      }
-      self.set_spinner_effect(Self::charge_effect(self.charge), ctx);
-
-      if self.lit.is_empty() {
-        self.clear_lit(ctx);
-      } else {
-        self.render_targets(ctx);
-      }
-    } else {
-      ctx.add_points(points::UNLIT_TARGET);
-      ctx.play_sfx(sounds::COUNTING);
-      self.light_others(&target, ctx);
-    }
-  }
-
-  fn light_others(&mut self, hit: &Target, ctx: &SystemContext) {
-    self.cancel_lit_cue(ctx);
-    self.lit = Target::ALL.into_iter().filter(|t| t != hit).collect();
-    self.lit_warning = false;
-    self.lit_cue = Some(
-      ctx
-        .cues
-        .start(LitTargetsWarned, (LIT_DURATION - LIT_WARNING).once()),
-    );
-    self.render_targets(ctx);
-  }
-
-  fn clear_lit(&mut self, ctx: &SystemContext) {
-    self.cancel_lit_cue(ctx);
-    self.lit.clear();
-    self.lit_warning = false;
-    self.render_targets(ctx);
-  }
-
-  fn cancel_lit_cue(&mut self, ctx: &SystemContext) {
-    if let Some(cue_id) = self.lit_cue.take() {
-      ctx.cues.cancel(cue_id);
-    }
-  }
-
-  fn render_targets(&mut self, ctx: &SystemContext) {
-    if let Some(effect) = self.target_effect.as_mut() {
-      effect.stop(ctx);
+      return;
     }
 
-    self.target_effect = if self.phase != Phase::Charging {
-      // once charged, the targets stay dimly lit since they're still worth a little
-      Some(led_playback!("apex_terraces/targets_charged.scene"))
-    } else if self.lit.is_empty() {
-      None
-    } else {
-      let q = LedQ::Or(self.lit.iter().map(Target::led).collect());
-      Some(if self.lit_warning {
-        led_playback!("apex_terraces/targets_warning.scene", q)
-      } else {
-        led_playback!("apex_terraces/targets_lit.scene", q)
-      })
-    };
-  }
-
-  fn set_spinner_effect(&mut self, effect: LedPlayback, ctx: &SystemContext) {
-    if let Some(effect) = self.spinner_effect.as_mut() {
-      effect.stop(ctx);
-    }
-    self.spinner_effect = Some(effect);
-  }
-
-  /// The LED under the spinner gets brighter with each charge
-  fn charge_effect(charge: u8) -> LedPlayback {
-    let dim = 0.4 * (1.0 - charge as f32 / REQUIRED_CHARGE as f32);
-    led_playback!("apex_terraces/spinner_charging.scene").param("brightness", 1.0 - 2.0 * dim)
-  }
-
-  fn charge_spinner(&mut self, ctx: &SystemContext) {
-    log::info!("ApexTerraces: spinner charged");
-    self.phase = Phase::Charged;
-    self.clear_lit(ctx);
-
-    ctx.play_sfx(sounds::EVOLUTION_COMPLETE);
     ctx.say(Callout::WarningStructuralConcern);
-    self.start_effect = Some(led_playback!("apex_terraces/start.scene"));
-    self.set_spinner_effect(led_playback!("apex_terraces/spinner_charged.scene"), ctx);
+    self.run.progress(self.done());
+    self.move_to(self.shot.farthest_from(), ctx);
+    self.cancel_drain(ctx);
   }
 
-  fn on_spin(&mut self, ctx: &SystemContext) {
-    match self.phase {
-      Phase::Charging => {}
-      Phase::Charged => {
-        log::info!("ApexTerraces: spinning started");
-        self.phase = Phase::Spinning;
-        ctx.cues.start(SpinningCompleted, SPINNING_DURATION.once());
-        ctx.add_points(points::SPIN);
-      }
-      Phase::Spinning => ctx.add_points(points::SPIN),
+  fn move_to(&mut self, shot: MainShot, ctx: &SystemContext) {
+    self.center_effect.stop(ctx);
+    self.ring_effect.stop(ctx);
+    self.shot = shot;
+    self.center_effect = Self::center_effect(shot);
+    self.render_ring(ctx);
+  }
+
+  fn render_ring(&mut self, ctx: &SystemContext) {
+    self.ring_effect.stop(ctx);
+    self.ring_effect = Self::ring_effect(self.shot, self.filled, self.needed());
+  }
+
+  fn drain(&mut self, ctx: &SystemContext) {
+    self.drain_cue = None;
+    if self.filled == 0 {
+      return;
+    }
+    self.filled -= 1;
+    log::info!("ApexTerraces: ring drained to {}", self.filled);
+    ctx.play_sfx(sounds::HIT_ORGANIC_LOW3);
+    self.render_ring(ctx);
+    if self.filled > 0 {
+      self.restart_drain(ctx);
     }
   }
 
-  fn complete(&mut self, ctx: &SystemContext) {
-    log::info!("ApexTerraces: complete");
-    for effect in [&mut self.target_effect, &mut self.spinner_effect]
-      .into_iter()
-      .flatten()
-    {
-      effect.stop(ctx);
-    }
+  fn restart_drain(&mut self, ctx: &SystemContext) {
+    self.cancel_drain(ctx);
+    self.drain_cue = Some(ctx.cues.start(DrainDue, DRAIN_TIME.once()));
+  }
 
-    self
-      .run
-      .complete(0, led_playback!("apex_terraces/start.scene"), ctx);
+  fn cancel_drain(&mut self, ctx: &SystemContext) {
+    if let Some(cue) = self.drain_cue.take() {
+      ctx.cues.cancel(cue);
+    }
   }
 }
 
@@ -212,49 +188,31 @@ impl System for ApexTerracesMode {
     self.run.begin(ctx);
   }
 
+  /// A resume keeps the terraces burst, and starts the current one's ring over
   fn on_reactivate(&mut self, ctx: &SystemContext) {
     ctx.activate_led_declarations();
+    self.filled = 0;
+    self.run.reset_progress();
+    self.render_ring(ctx);
     self.run.begin(ctx);
+  }
+
+  fn on_deactivate(&mut self, ctx: &SystemContext) {
+    self.cancel_drain(ctx);
+    self.run.interrupt(ctx);
+    ctx.deactivate_led_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     self.run.on_event(event, ctx);
 
-    if event.is::<LitTargetsWarned>() {
-      self.lit_warning = true;
-      self.lit_cue = Some(ctx.cues.start(LitTargetsTimedOut, LIT_WARNING.once()));
-      self.render_targets(ctx);
-    } else if event.is::<LitTargetsTimedOut>() {
-      self.lit_cue = None;
-      ctx.play_sfx(sounds::HIT_ORGANIC_LOW3);
-      self.clear_lit(ctx);
-    } else if event.is::<SpinningCompleted>() {
-      self.complete(ctx);
-    } else if event.is::<CenterSpinnerHit>() {
-      self.on_spin(ctx);
-    } else if let Some(event) = event.downcast_ref::<SwitchClosed>() {
-      let target = if let Some(pop) = match_target_switch(&event.switch) {
-        Some(Target::Pop(pop))
-      } else if event.switch.name == left_inlane::TARGET_SWITCH.name {
-        Some(Target::LowerSling)
-      } else {
-        None
-      };
-
-      if let Some(target) = target {
-        self.on_target_hit(target, ctx);
-      }
+    if event.is::<DrainDue>() {
+      self.drain(ctx);
+    } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
+      self.on_shot_hit(hit.shot, ctx);
+    } else if event.is::<TunnelCollected>() {
+      self.add_hits(1, ctx);
     }
-  }
-
-  fn on_deactivate(&mut self, ctx: &SystemContext) {
-    self.run.interrupt(ctx);
-    // lit targets and the spinning window end with the ball; a charged spinner waits for the next one
-    self.clear_lit(ctx);
-    if self.phase == Phase::Spinning {
-      self.complete(ctx);
-    }
-    ctx.deactivate_led_declarations();
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
@@ -262,56 +220,43 @@ impl System for ApexTerracesMode {
       return;
     }
 
-    for effect in [
-      &mut self.target_effect,
-      &mut self.spinner_effect,
-      &mut self.start_effect,
-    ]
-    .into_iter()
-    .flatten()
-    {
-      effect.apply(delta, ctx);
-    }
-  }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-enum Phase {
-  /// Hitting targets to charge the spinner
-  Charging,
-  /// The spinner is charged and waiting for its first spin
-  Charged,
-  /// Every spin scores until the window runs out
-  Spinning,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-enum Target {
-  Pop(PopBumper),
-  LowerSling,
-}
-
-impl Target {
-  const ALL: [Target; 4] = [
-    Target::Pop(PopBumper::Left),
-    Target::Pop(PopBumper::UpperRight),
-    Target::Pop(PopBumper::LowerRight),
-    Target::LowerSling,
-  ];
-
-  fn led(&self) -> LedQ {
-    match self {
-      Target::Pop(pop) => pop_cluster::target_led_for_pop(pop).q(),
-      Target::LowerSling => left_inlane::TARGET_LED.q(),
-    }
+    self.center_effect.apply(delta, ctx);
+    self.ring_effect.apply(delta, ctx);
   }
 }
 
 #[derive(serde::Serialize, Event)]
-struct LitTargetsWarned;
+struct DrainDue;
 
-#[derive(serde::Serialize, Event)]
-struct LitTargetsTimedOut;
+/// How many of the ring's LEDs show `filled` of `needed` segments
+fn ring_leds(filled: u8, needed: u8) -> usize {
+  (filled as usize * RING_LEDS + needed as usize / 2) / (needed as usize).max(1)
+}
 
-#[derive(serde::Serialize, Event)]
-struct SpinningCompleted;
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn the_scenes_load() {
+    ApexTerracesMode::ring_effect(MainShot::LeftOrbit, 2, 4);
+  }
+
+  #[test]
+  fn the_ring_fills_in_proportion_to_the_terrace() {
+    assert_eq!(ring_leds(0, 3), 0);
+    assert_eq!(ring_leds(1, 3), 2);
+    assert_eq!(ring_leds(2, 4), 3);
+    assert_eq!(ring_leds(4, 5), 5);
+    assert_eq!(ring_leds(5, 5), 6);
+  }
+
+  #[test]
+  fn progress_counts_burst_terraces_and_the_current_ring() {
+    let mut mode = ApexTerracesMode::new();
+    mode.bursts = 2;
+    mode.filled = 1;
+    assert_eq!(mode.done(), 8);
+    assert_eq!(mode.needed(), 5);
+  }
+}

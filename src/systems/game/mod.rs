@@ -6,9 +6,10 @@ mod effects;
 mod end_of_ball;
 mod extra_ball;
 mod game_greeting;
+mod heartwood_multiball;
 mod hydro_core;
 mod meridian_basins;
-mod mini_wizard;
+mod mini_wizards;
 mod mode;
 mod mode_manager;
 mod mode_run;
@@ -22,7 +23,6 @@ mod side_quests;
 mod skill_shots;
 mod skyrail_station;
 mod solarium_atrium;
-mod spore_multiball;
 mod spores;
 mod tilt_presenter;
 
@@ -34,9 +34,10 @@ pub use effects::*;
 pub use end_of_ball::*;
 pub use extra_ball::*;
 pub use game_greeting::*;
+pub use heartwood_multiball::*;
 pub use hydro_core::*;
 pub use meridian_basins::*;
-pub use mini_wizard::*;
+pub use mini_wizards::*;
 pub use mode::*;
 pub use mode_manager::*;
 pub use mode_run::*;
@@ -50,7 +51,6 @@ pub use side_quests::*;
 pub use skill_shots::*;
 pub use skyrail_station::*;
 pub use solarium_atrium::*;
-pub use spore_multiball::*;
 pub use spores::*;
 pub use tilt_presenter::*;
 
@@ -74,8 +74,29 @@ mod points {
   pub static SKYRAIL_SCOOP_ENTER: u32 = 500;
   pub static NIMBUS_HIT: u32 = 50_000;
   pub static NIMBUS_COMPLETION: u32 = 15_000_000;
-  /// Each hit in a mini-wizard, times its tier
-  pub static MINI_WIZARD_HIT: u32 = 1_000_000;
+  /// Each hit on Apex's lit terrace
+  pub static APEX_HIT: u32 = 250_000;
+  /// Bursting a terrace, times how many have burst
+  pub static APEX_BURST: u32 = 5_000_000;
+  /// Each orbit hit raising Floodgates' water
+  pub static FLOOD_HIT: u32 = 500_000;
+  /// A ramp at high water, times how many have been made
+  pub static FLOOD_SUPER_JACKPOT: u32 = 10_000_000;
+  /// Each shot Blackout puts out
+  pub static BLACKOUT_HIT: u32 = 1_000_000;
+  pub static BLACKOUT_SUPER_JACKPOT: u32 = 25_000_000;
+  /// Each drop target in Derailment, times the bank clears so far plus one
+  pub static DERAIL_JACKPOT: u32 = 2_000_000;
+  /// Each bank clear in Derailment, times how many there have been
+  pub static DERAIL_SUPER_JACKPOT: u32 = 10_000_000;
+  /// What Canopy's value builds from, and starts over at after a collect
+  pub static CANOPY_BASE: u32 = 2_000_000;
+  /// Each spin of either spinner, onto Canopy's value
+  pub static CANOPY_SPIN: u32 = 25_000;
+  /// Each pop, onto Canopy's value
+  pub static CANOPY_POP: u32 = 100_000;
+  /// A collected root tunnel, onto Canopy's value
+  pub static CANOPY_TUNNEL: u32 = 500_000;
   pub static HEARTWOOD_JACKPOT: u32 = 5_000_000;
   pub static HEARTWOOD_SUPER_JACKPOT: u32 = 25_000_000;
   /// Each captive ball hit toward the multiball

@@ -94,7 +94,7 @@ impl ExtraBallSystem {
     if ctx.grant_extra_ball() {
       log::info!("Extra ball collected");
       self.show("EXTRA BALL", ctx);
-      ctx.say(Callout::ExtraBall);
+      ctx.say(Callout::OakExtraBall);
       self.update_shoot_again(ctx);
     } else {
       log::info!("Extra ball collected past the limit, awarding points");
@@ -167,7 +167,7 @@ impl System for ExtraBallSystem {
       self.update_lit_effect(ctx);
       if routine.reason == TurnStartReason::ExtraBall {
         self.show("SHOOT AGAIN", ctx);
-        ctx.say(Callout::SamePlayerShootAgain);
+        ctx.say(Callout::OakShootAgain);
       }
     } else if event.is::<ScreenShown>() {
       self.screen_cue = None;

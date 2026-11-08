@@ -10,23 +10,30 @@ use crate::hardware::lower_scoop::LowerScoopEjected;
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
-  self, EffectsSystem, MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, SporesSystem, points,
+  self, EffectsSystem, Mode, ModeManager, ModeRun, SporesSystem, TunnelCollected, points,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
-/// Ramp shots and drop targets to the end of the mode
-const REQUIRED_HITS: u8 = 8;
+/// Drop target hits in the finale that complete the mode
+const FINALE_HITS: u8 = 5;
 
+/// Hits to the end of the mode: 3 ramp shots, a drop after each of the first two, then the finale
+const REQUIRED_HITS: u8 = 3 + 2 + FINALE_HITS;
+
+/// Signal failure (DESIGN.md). The shots go lift ramp, drops, lift ramp, drops, lift ramp, and the third ramp shot adds
+/// a ball for a 2-ball finale that's saved until the mode ends. The finale completes on 5 drop target hits, and the bank
+/// raises itself each time it's cleared.
 pub struct SkyrailStationMode {
   run: ModeRun,
   attention_effect: LedPlayback,
   hit_effect: LedPlayback,
   intensity_effect: LedPlayback,
+  /// Drop target hits before the finale
   target_hits: u8,
   ramp_hits: u8,
+  finale_hits: u8,
   state: State,
   ramp_up: bool,
-  eject_id: Option<u64>,
   /// The finale lost its second ball with the turn, so it needs it back on resuming
   needs_ball: bool,
 }
@@ -40,9 +47,9 @@ impl SkyrailStationMode {
       intensity_effect: Self::intensity_effect(),
       target_hits: 0,
       ramp_hits: 0,
+      finale_hits: 0,
       state: HitRamp,
       ramp_up: false,
-      eject_id: None,
       needs_ball: false,
     }
   }
@@ -71,6 +78,10 @@ impl SkyrailStationMode {
     city_map::mode_progress_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
   }
 
+  fn hits(&self) -> u8 {
+    self.ramp_hits + self.target_hits + self.finale_hits
+  }
+
   fn advance(&mut self, ctx: &SystemContext) {
     ctx.add_points(points::EXL_MODE_HIT);
     // each shot is a stage of its own, so a burst can't skip one
@@ -80,9 +91,7 @@ impl SkyrailStationMode {
       .systems
       .expect::<EffectsSystem>()
       .play(led_playback!("skyrail_station/flashers.scene"));
-    ctx.play_sfx(sounds::city_hit(
-      (self.target_hits + self.ramp_hits) as f32 / REQUIRED_HITS as f32,
-    ));
+    ctx.play_sfx(sounds::city_hit(self.hits() as f32 / REQUIRED_HITS as f32));
     ctx.play_sfx(if self.state == HitRamp {
       sounds::WOOSH_LIGHT
     } else {
@@ -91,11 +100,10 @@ impl SkyrailStationMode {
 
     match self.state {
       Final => {
-        self.target_hits += 1;
-        log::info!("Skyrail: Final - target hits {}", self.target_hits);
+        self.finale_hits += 1;
+        log::info!("Skyrail: Final - target hits {}", self.finale_hits);
 
-        // check for completion
-        if self.target_hits == 5 {
+        if self.finale_hits == FINALE_HITS {
           self.ramp_down(ctx);
           self.run.complete(
             game::points::EXL_COMPLETION,
@@ -122,7 +130,7 @@ impl SkyrailStationMode {
         }
 
         if self.ramp_hits == 3 {
-          // on the final round all 3 targets must be hit with a 2 ball multiball
+          // the finale is on the drops with a 2 ball multiball
           self.add_ball(ctx);
           self.state = Final;
           self.intensity_effect.play();
@@ -144,14 +152,17 @@ impl SkyrailStationMode {
       }
     }
 
+    self.run.progress(self.hits());
     ctx
       .systems
       .expect::<EffectsSystem>()
-      .play(Self::progress_effect(self.target_hits + self.ramp_hits));
+      .play(Self::progress_effect(self.hits()));
   }
 
+  /// The finale's second ball. It's saved until the mode ends, and completing despawns the mode, which takes the save
+  /// with it.
   fn add_ball(&mut self, ctx: &SystemContext) {
-    self.eject_id = ctx.eject_balls(1, Launch::Auto);
+    ctx.eject_balls(1, Launch::Auto);
     ctx.request_ball_save_until_released();
   }
 
@@ -204,15 +215,21 @@ impl System for SkyrailStationMode {
       self.advance(ctx);
     } else if event.is::<DropBankTargetHit>() && (self.state == HitTarget || self.state == Final) {
       self.advance(ctx);
-    } else if let Some(EjectCompleted { id, .. }) = event.downcast_ref::<EjectCompleted>()
-      && Some(*id) == self.eject_id
-    {
-      // time the ball save from when the ball is in play
-      ctx.request_ball_save(MULTIBALL_BALL_SAVE);
+    } else if event.is::<TunnelCollected>() {
+      // a root tunnel makes whichever shot is next
+      self.advance(ctx);
     }
   }
 
+  /// A resume picks up at the shot it was on, with the bank back up for a drop shot. The finale gets its second ball back
+  /// once the ball leaves the scoop.
   fn on_reactivate(&mut self, ctx: &SystemContext) {
+    if self.state != HitRamp {
+      ctx
+        .systems
+        .expect::<DropBankSystem>()
+        .raise_targets(ctx.into());
+    }
     if self.ramp_up {
       ctx
         .systems

@@ -56,6 +56,11 @@ pub fn fill_effect(leds: &LedQ, count: usize, lit: usize, color: Rgba<u8>) -> Le
     .param("width", width.max(0.0))
 }
 
+/// A slow pulse of `color` on `leds`, at the mode attention z, e.g. the shot a mode wants
+pub fn glow_effect(leds: &LedQ, color: Rgba<u8>) -> LedPlayback {
+  led_playback!("shared/glow.scene", leds.clone()).param("color", color)
+}
+
 /// A double pulse of `color` on `leds`, once every `beat`
 pub fn heartbeat_effect(leds: &LedQ, color: Rgba<u8>, beat: Duration) -> LedPlayback {
   led_playback!("shared/heartbeat.scene", leds.clone())
@@ -73,6 +78,7 @@ mod tests {
     let leds = MainShot::LeftOrbit.hex_ring();
     flash_effect(leds, Rgba::green());
     fill_effect(leds, 6, 3, Rgba::green());
+    glow_effect(leds, Rgba::green());
     heartbeat_effect(leds, Rgba::green(), Duration::from_secs(1));
     crate::hardware::city_map::mode_progress_effect(Rgba::green(), 0.5);
   }

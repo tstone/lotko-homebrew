@@ -6,8 +6,8 @@ use frontbox_led::prelude::*;
 use crate::hardware::city_map;
 use crate::systems::Callout;
 use crate::systems::game::{
-  ApexTerracesMode, HydroCoreMode, MeridianBasinsMode, MiniWizardMode, NimbusPromenadeMode,
-  SkyrailStationMode, SolariumAtriumMode,
+  ApexTerracesMode, BlackoutMode, CanopyMode, DerailmentMode, FloodgatesMode, HydroCoreMode,
+  MeridianBasinsMode, NimbusPromenadeMode, SkyrailStationMode, SolariumAtriumMode,
 };
 
 const MUSIC_FOLDER: &str = "/userdata/home/armsom/music";
@@ -123,7 +123,8 @@ impl Mode {
     Some(music_file(file))
   }
 
-  /// What the Steward says as the mode starts, in order. The ball waits in the scoop for the last of them.
+  /// What's said as the mode starts, in order. The ball waits in the scoop for the last of them. A mini-wizard is the
+  /// forest's, so the Oaks have their say.
   pub fn start_lines(&self) -> &'static [Callout] {
     match self {
       Self::MeridianBasins => &[Callout::RootIntrusion],
@@ -132,22 +133,26 @@ impl Mode {
       Self::SkyrailStation => &[Callout::SkyrailServiceSuspended, Callout::ClearThePlatform],
       Self::ApexTerraces => &[Callout::ResidentsEvacuateNow],
       Self::SolariumAtrium => &[Callout::AtriumIntegrityVerified],
-      Self::Floodgates => &[Callout::FloodBarriersEngaged],
-      Self::Derailment => &[Callout::TrainDerailmentSubverting],
-      Self::Blackout | Self::Canopy => &[],
+      Self::Floodgates => &[Callout::OakOpenTheGates, Callout::FloodBarriersEngaged],
+      Self::Blackout => &[Callout::OakDarkness],
+      Self::Derailment => &[Callout::TrainDerailmentSubverting, Callout::OakFall],
+      Self::Canopy => &[Callout::OakHigher],
     }
   }
 
-  /// What the Steward says as the mode is completed
-  pub fn completion_line(&self) -> Option<Callout> {
+  /// What's said as the mode is completed: the Steward's line, then the Oaks' for the districts that have one
+  pub fn completion_lines(&self) -> &'static [Callout] {
     match self {
-      Self::MeridianBasins => Some(Callout::BasinsReclassified),
-      Self::HydroCore => Some(Callout::CoreOffline),
-      Self::NimbusPromenade => Some(Callout::AccessToUpperCityRestricted),
-      Self::SkyrailStation => Some(Callout::AllLinesAreNowClosed),
-      Self::ApexTerraces => Some(Callout::ApexTerracesOffline),
-      Self::SolariumAtrium => Some(Callout::TheScienceWillNotBeLost),
-      Self::Floodgates | Self::Blackout | Self::Derailment | Self::Canopy => None,
+      Self::MeridianBasins => &[Callout::BasinsReclassified, Callout::OakOurs],
+      Self::HydroCore => &[Callout::CoreOffline, Callout::OakDrink],
+      Self::NimbusPromenade => &[
+        Callout::AccessToUpperCityRestricted,
+        Callout::OakTheWayIsOpen,
+      ],
+      Self::SkyrailStation => &[Callout::AllLinesAreNowClosed],
+      Self::ApexTerraces => &[Callout::ApexTerracesOffline, Callout::OakNothingIsYours],
+      Self::SolariumAtrium => &[Callout::TheScienceWillNotBeLost, Callout::OakOpenSky],
+      Self::Floodgates | Self::Blackout | Self::Derailment | Self::Canopy => &[],
     }
   }
 
@@ -160,7 +165,10 @@ impl Mode {
       Self::MeridianBasins => ctx.systems.spawn(MeridianBasinsMode::new()),
       Self::NimbusPromenade => ctx.systems.spawn(NimbusPromenadeMode::new()),
       Self::ApexTerraces => ctx.systems.spawn(ApexTerracesMode::new()),
-      mini_wizard => ctx.systems.spawn(MiniWizardMode::new(*mini_wizard)),
+      Self::Floodgates => ctx.systems.spawn(FloodgatesMode::new()),
+      Self::Blackout => ctx.systems.spawn(BlackoutMode::new()),
+      Self::Derailment => ctx.systems.spawn(DerailmentMode::new()),
+      Self::Canopy => ctx.systems.spawn(CanopyMode::new()),
     }
   }
 }
@@ -189,7 +197,7 @@ pub enum Multiball {
 impl Multiball {
   pub fn color(&self) -> Rgba<u8> {
     match self {
-      Self::Heartwood => Rgba::yellow(),
+      Self::Heartwood => Rgba::lime(),
       Self::Groundswell => Rgba::green(),
     }
   }
@@ -254,7 +262,7 @@ mod tests {
   fn districts_have_lines_for_their_start_and_completion() {
     for mode in Mode::DISTRICTS {
       assert!(!mode.start_lines().is_empty());
-      assert!(mode.completion_line().is_some());
+      assert!(!mode.completion_lines().is_empty());
     }
   }
 

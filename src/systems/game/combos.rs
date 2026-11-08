@@ -8,7 +8,7 @@ use frontbox_sound::SoundSystemExt;
 use crate::hardware::lower_scoop::{LowerScoopBallEnter, LowerScoopEjected};
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{EffectsSystem, flash_effect, points};
-use crate::systems::sounds;
+use crate::systems::{Callout, SayExt, sounds};
 
 /// How long after a shot the next one continues a route
 const WINDOW: Duration = Duration::from_secs(4);
@@ -52,7 +52,8 @@ impl ComboSystem {
     if self.routes.take_gridlock() {
       log::info!("Combos: gridlock");
       ctx.add_points(points::GRIDLOCK);
-      ctx.play_sfx(sounds::BRAAM_BIO2);
+      ctx.play_sfx(sounds::IMPACT_CINEMATIC_HEAVY);
+      ctx.say(Callout::OakStay);
       let shots: Vec<&LedQ> = MainShot::ALL.iter().map(|shot| shot.hex_center()).collect();
       ctx
         .systems

@@ -1,0 +1,46 @@
+Led(
+  version: 1,
+  params: {
+    "color": Color(255, 255, 255, 255),
+  },
+  timing: (
+    duration: 0.9,
+    cycle: Forever,
+  ),
+  layers: [
+    (
+      leds: Names([
+        "___child::l_orbit::6",
+      ]),
+      z: 41,
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Param("color")),
+          adjust: [
+            Opacity(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: EaseInOut,
+                ),
+                (
+                  at: 0.45,
+                  value: 0.35,
+                  curve: EaseInOut,
+                ),
+                (
+                  at: 0.9,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+      ),
+    ),
+  ],
+)

@@ -6,8 +6,12 @@ use frontbox_pinball::{
 use frontbox_sound::SoundSystem;
 
 use crate::hardware::cabinet;
+use crate::systems::game::ModeManager;
 use crate::systems::sounds::LANE_HIT_COMPLETE;
 use crate::systems::{Callout, SayExt};
+
+/// Districts completed by the player whose game ends that count as high overgrowth, which the Oaks answer (start value)
+const HIGH_OVERGROWTH: usize = 3;
 
 /// A participant in `TurnEnding` (end-of-ball sound) and `GameEnding` (high-score initials entry, skipped after a
 /// slam tilt)
@@ -89,6 +93,15 @@ impl System for EndOfBallSystem {
       // insert a slice delay to let hardware settle and final points come in
       ctx.cues.start(Continue, Duration::from_millis(500).once());
     } else if let Some(GameEnding { scores, reason }) = routine.downcast_ref::<GameEnding>() {
+      // the forest promises to be back once it has taken enough of the city
+      let overgrown = ctx
+        .systems
+        .get::<ModeManager>()
+        .is_some_and(|modes| modes.districts_completed() >= HIGH_OVERGROWTH);
+      if overgrown && *reason != GameEndReason::SlamTilted {
+        ctx.say(Callout::OakSoon);
+      }
+
       if *reason == GameEndReason::SlamTilted {
         log::info!("No high score entry after a slam tilt");
         ctx.routines.complete_step::<GameEnding>();

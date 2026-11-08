@@ -62,8 +62,11 @@ impl ModeSelectSystem {
   fn open_menu_or_eject(&mut self, ctx: &SystemContext) {
     let rows = {
       let mode_manager = ctx.systems.expect::<ModeManager>();
-      let lit = ctx.systems.expect::<ScoopQualifier>().is_lit(&mode_manager);
-      if lit && mode_manager.current_mode().is_none() && ctx.balls_in_play() <= 1 {
+      let opens = ctx
+        .systems
+        .expect::<ScoopQualifier>()
+        .opens_menu(&mode_manager, ctx.balls_in_play());
+      if opens {
         mode_manager.available_modes()
       } else {
         Vec::new()

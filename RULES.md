@@ -94,7 +94,7 @@ These run all the time, alongside the districts.
   10: extra ball lit. 15: big points.
 - **Heartwood — lime.** Hit the captive ball to charge the heart. A full charge starts **Heartwood multiball**. It
   needs more each time.
-- **Root tunnels — lime.** Orbits dig a tunnel at that shot's ring. A full ring scores and counts as a hit in the
+- **Root tunnels — brown.** Orbits dig a tunnel at that shot's ring. A full ring scores and counts as a hit in the
   current district.
 
 ## Combos

@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::{GameManagementExt, TurnPhase};
+use frontbox_pinball::{BallManagementExt, GameManagementExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::main_shot::{MainShot, MainShotHit};
@@ -36,9 +36,11 @@ impl ScoopQualifier {
     }
   }
 
-  /// Whether a ball in the scoop gets the mode select menu
-  pub fn is_lit(&self, mode_manager: &ModeManager) -> bool {
-    self.count.is_qualified() || mode_manager.mini_wizard_available()
+  /// Whether a ball in the scoop gets the mode select menu: it's qualified, and no mode or multiball is running
+  pub fn opens_menu(&self, mode_manager: &ModeManager, balls_in_play: u8) -> bool {
+    (self.count.is_qualified() || mode_manager.mini_wizard_available())
+      && mode_manager.current_mode().is_none()
+      && balls_in_play <= 1
   }
 
   /// A mode was chosen, so the scoop goes out and the next qualify needs another hit
@@ -94,7 +96,7 @@ impl ScoopQualifier {
         .available_modes()
         .first()
         .map(|mode| mode.color());
-      (self.is_lit(&mode_manager), color)
+      (self.opens_menu(&mode_manager, ctx.balls_in_play()), color)
     };
 
     if !lit {

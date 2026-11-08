@@ -49,6 +49,7 @@ pub mod sounds {
   pub const SCAN_LIGHT2: &str = "scan_light2";
   pub const SCAN_MED: &str = "scan_med";
   pub const WOOSH_LIGHT: &str = "woosh_light";
+  pub const CYMBAL_MID: &str = "cymbal_mid";
 
   pub const LANE_HITS: LazyLock<Vec<&'static str>> =
     LazyLock::new(|| vec![LANE_HIT1, LANE_HIT2, LANE_HIT3, LANE_HIT4]);
@@ -130,6 +131,7 @@ pub mod sounds_bytes {
   pub static SCAN_LIGHT2: &[u8] = include_bytes!("../assets/sfx/scan-light2.mp3");
   pub static SCAN_MED: &[u8] = include_bytes!("../assets/sfx/scan-med.mp3");
   pub static WOOSH_LIGHT: &[u8] = include_bytes!("../assets/sfx/woosh-light.mp3");
+  pub static CYMBAL_MID: &[u8] = include_bytes!("../assets/sfx/cymbal-mid.mp3");
 }
 
 impl System for SoundLoaderSystem {
@@ -181,6 +183,7 @@ impl System for SoundLoaderSystem {
     snd.preload_embedded(sounds::SCAN_LIGHT2, sounds_bytes::SCAN_LIGHT2);
     snd.preload_embedded(sounds::SCAN_MED, sounds_bytes::SCAN_MED);
     snd.preload_embedded(sounds::WOOSH_LIGHT, sounds_bytes::WOOSH_LIGHT);
+    snd.preload_embedded(sounds::CYMBAL_MID, sounds_bytes::CYMBAL_MID);
 
     for line in Callout::ALL {
       snd.preload_embedded(line.key(), line.bytes());

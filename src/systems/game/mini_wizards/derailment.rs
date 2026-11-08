@@ -6,7 +6,7 @@ use crate::hardware::drop_bank::{self, DropBankCleared, DropBankTargetHit};
 use crate::hardware::lift_ramp::{self, LiftRampSystem};
 use crate::systems::game::mini_wizards::MiniWizardRun;
 use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, TunnelCollected, flash_effect, glow_effect, points,
+  EffectsSystem, Mode, ModeManager, RootLashed, flash_effect, glow_effect, points,
 };
 use crate::systems::sounds;
 
@@ -129,8 +129,10 @@ impl System for DerailmentMode {
       self.jackpot(Some(*target), ctx);
     } else if event.is::<DropBankCleared>() {
       self.cleared(ctx);
-    } else if event.is::<TunnelCollected>() {
-      self.jackpot(None, ctx);
+    } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
+      for _ in 0..lash.hits {
+        self.jackpot(None, ctx);
+      }
     }
   }
 

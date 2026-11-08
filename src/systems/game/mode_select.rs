@@ -44,6 +44,11 @@ impl ModeSelectSystem {
     }
   }
 
+  /// The mode select menu is up, and the flippers and buttons are for it
+  pub fn is_menu_open(&self) -> bool {
+    matches!(self.state, State::Menu { .. })
+  }
+
   fn on_ball_enter(&mut self, subway_entry: bool, ctx: &SystemContext) {
     let collecting = !subway_entry
       && ctx

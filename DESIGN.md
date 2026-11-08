@@ -57,6 +57,28 @@ game end. Lines are one to three words.
 - **Music:** cyberpunk / synthwave for the city, with forest percussion and drones layering in.
   - Each district mode, mini-wizard and multiball has its own track.
   - Stretch goal: the base track is built from stems, and organic layers come in as more districts are played.
+- **Braams are for the biggest moments only:** the start of the tier-2 mini-wizard (`braam-bio1`, not on a resume) and
+  the start of the final wizard (`braam-bio2`). Completions don't get one.
+- **The Oaks' lines have no chime** and are never dropped for waiting. The Steward's passing commentary is dropped if it
+  waits more than 3s.
+
+### Stand-in SFX
+
+Until the palettes exist, the recorded SFX stand in like this:
+
+| SFX | Used for |
+|---|---|
+| `steward-chime` | Before every Steward line |
+| `latch-heavy1`–`3` | First two `city_hit` steps; Meridian's gate clunk; Nimbus seals; a camera blinded |
+| `impact-dirt` | Last `city_hit` step; spore burst; drone down; roots spread |
+| `impact-cinematic-heavy` | Choosing a mode in the menu; Gridlock; Floodgates and Derailment super jackpots |
+| `scan-light` | Ball start, with the status line |
+| `scan-heavy-stutter` | Surveillance set |
+| `woosh-light`, `latch-double` | Skyrail ramp (train past) and drop (signal clank); Nimbus reopen |
+| `arp_hit1` | Burst ready, outlane lit, combo route made, ArcStreak reflex shot |
+| `cymbal-mid` | Each vertical spinner spin |
+
+`hum`, `motor1`–`5`, `scan-light2` and `scan-med` are loaded but unused.
 
 ## Lighting language
 
@@ -67,7 +89,22 @@ game end. Lines are one to three words.
 - **The central motif is takeover:** a forest effect spreads over a city effect and replaces it. Every completion
   uses it.
 - **District accent colors** stay as they are now (Hydro cyan, Meridian orange, Nimbus magenta, Skyrail blue,
-  Solarium purple), except **Apex changes from green to gold**, so green belongs only to the forest.
+  Solarium purple), except **Apex changes from green to gold**, so green belongs only to the forest. Heartwood is lime.
+- **The system tick is 67ms** (about 15 updates a second), so anything strobing faster than about 7Hz aliases. Design
+  around it.
+
+**Z layers.** Side quests, modes and multiballs stack, so each keeps to its layer:
+
+| z | Use |
+|---|---|
+| -1 | Ambient: GI tint, arc and subway base |
+| 0 | Side quests: spore bar, hex rings, drop strips, sling rings, pop targets; the speaker overgrowth gauge |
+| 10 | Mode attention, hex centers |
+| 20 | Hits and short reactions, mode progress on the spore bar |
+| 30 | Full-field moments: starts, completions, multiball starts, spore burst |
+| 40 | Blackout's dark layer |
+| 41 | What Blackout leaves lit: roots and lit shots |
+| 50 | Tilt |
 
 ### Effect primitives (input to the 2D/3D LED roadmap)
 
@@ -78,7 +115,7 @@ speakers, cabinet), and all of them take part.
 |---|---|---|
 | Radial wave | A ring expanding from a point, with speed, width and falloff | Hits, spore burst, jackpots |
 | Plane sweep | A plane moving through space, e.g. from the playfield up into the backbox | Steward alerts, multiball starts, super jackpots |
-| Growth | Spreads from a seed along an LED nearest-neighbor graph, branching randomly; the trail fades or stays | Roots, completions, Charge, Root tunnels |
+| Growth | Spreads from a seed along an LED nearest-neighbor graph, branching randomly; the trail fades or stays | Roots, completions, Charge, Spread roots |
 | Path flow | Packets travel along an ordered path (pop rays, ramps, subway, orbits) | Charge, locks, Hydro, Skyrail |
 | Noise field | An animated simplex noise field for color and brightness | Ambient forest, intensity, Canopy |
 | Glitch | Random dropouts, stutter, wrong colors, hard cuts | Steward breakdown, Blackout, Hydro intensity |
@@ -89,9 +126,8 @@ speakers, cabinet), and all of them take part.
 
 ### Backbox speaker LEDs
 
-Each speaker has 25 LEDs. They're in the 3D space, so sweeps, waves and noise fields carry through them like any other
-LED. They also have jobs of their own, because they're the one place a player looks up at, next to the DMD. The ideas
-below assume a ring around each speaker; adjust them if the layout is different.
+Each speaker has a ring of 25 LEDs. They're in the 3D space, so sweeps, waves and noise fields carry through them like
+any other LED. They also have jobs of their own, because they're the one place a player looks up at, next to the DMD.
 
 - **Overgrowth gauge.** During no modes, both rings show the city's state for the current player: city white-blue,
   with green spreading in from the bottom as districts are played. It's the background layer and always comes back.
@@ -165,7 +201,8 @@ Ball paths that matter:
 Open:
 - Is the mini-wizard a required step, or can a player skip it and go up a tier? Draft: required, since it's the
   climax of the tier and keeps the route to 6 modes.
-- Final wizard after the tier-2 mini-wizard ("Last of the Kilmore Oaks"). Out of scope for now.
+- Final wizard after the tier-2 mini-wizard ("Last of the Kilmore Oaks"). Out of scope for now, and finishing
+  everything leaves the scoop unlit. `final/steward-core-breached` and `braam-bio2` are recorded for its start.
 - Hydro's timer currently restarts when it runs out. Leave it, and revisit once modes can be resumed.
 
 ### District modes
@@ -194,6 +231,7 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
 - A timed combo: lift ramp → arc ramp → left orbit → center orbit → dome ramp. Each shot has 25s.
 - When time runs out the combo restarts from the lift ramp, and each failed attempt adds 5s to the timer.
 - Complete: make the full combo.
+- Each hit of a Root Lash makes the shot the combo is on.
 
 **Skyrail Station: signal failure.** The forest shuts down the line, alternating between the tracks and the signals.
 - Shots go lift ramp, drops, lift ramp, drops, lift ramp.
@@ -207,18 +245,21 @@ of the upper city.
 - A lit shot is a hit: roots choke the walkway, and the shot stays green for the rest of the mode.
 - A sealed shot can't be choked. Hitting it reopens it and relights it.
 - Complete: choke 4 walkways. Nimbus is the gateway, so it's the easiest district.
+- Each hit of a Root Lash chokes a random open walkway.
 
 **Apex Terraces: overload.** The forest feeds one terrace until it bursts.
-- One shot is lit gold. Each hit on it fills one segment of its hex's outer ring.
+- One shot is lit gold, starting on a random main shot. Each hit on it fills one segment of its hex's outer ring.
 - A full ring bursts the terrace for a big award, and the lit shot moves to the shot farthest away.
 - Each terrace needs more hits than the last: 3, then 4, then 5.
 - Pressure: the ring loses one segment after a few seconds without a hit.
 - Complete: burst 3 terraces.
-- While the mode runs, the lit shot's outer ring shows overload instead of Root tunnel progress.
+- While the mode runs, the lit shot's outer ring shows overload instead of Spread roots progress.
 
 **Solarium Atrium: crawling vine.** A vine crawls across the glass dome, and you chase its head.
-- One shot is lit. Every few seconds the lit shot moves to a neighboring shot, and the next one pre-lights dimly.
-- Each hit speeds the vine up.
+- One shot is lit, starting on a random main shot. Every few seconds the lit shot moves to a neighboring shot, and the
+  next one pre-lights dimly. The shot it leaves flashes green as the trail.
+- A hit on the head moves the vine on at once, and speeds it up: it moves every 3.5s, 0.35s sooner per hit, down to
+  1.5s (start values).
 - Complete: 6 hits. Solarium is the last district before the tier-2 mini-wizard, so it's the hardest.
 
 ### Perks (from completing a district)
@@ -227,7 +268,7 @@ Each perk boosts a side quest, so the progression and the side quests feed each 
 
 | District | Perk |
 |---|---|
-| Meridian | Root tunnel hits count double |
+| Meridian | Spread roots grow twice as fast |
 | Hydro | +5s on all mode timers and hurry-ups |
 | Nimbus | Pops charge spores twice as fast |
 | Skyrail | One Sentinel clear lights a lock (normally two) |
@@ -238,16 +279,46 @@ Completing a district may also give its mini-wizard a bonus (e.g. a longer ball 
 
 ### Mini-wizards
 
-Tier 1 is 2-ball. Tier 2 is 3–4 ball with higher values.
+Tier 1 is 2-ball. Tier 2 is 3-ball with higher values. The balls are added as the ball leaves the scoop, with the
+multiball ball save (`MULTIBALL_BALL_SAVE`) timed from the eject. Completing one ends it while the balls play on, and
+marks it completed.
 
 - **Floodgates** (Meridian). The forest holds the basins and opens the gates. The arc ramp LEDs show a rising water
-  level. Orbit hits raise it, and at high water the ramps become super jackpots.
+  level in blue, and the orbits glow orange while it rises. Orbit hits raise it, and at high water the ramps glow
+  white as super jackpots. A super jackpot lets the water out to rise again. Complete: 3 super jackpots.
 - **Blackout** (Hydro). The forest cuts the city's power. GI goes off and the playfield goes dark except for the
-  roots and lit shots. Each hit darkens another shot. When they're all dark, the scoop is the super jackpot.
-- **Derailment** (Skyrail). The skyrail is cut. The balls on the wireform drop like falling railcars and feed the
-  upper flipper into the drops. Locked balls the player had are kept as virtual locks.
+  roots (the vertical spinner's ring and the pop rays) and lit shots. Each hit darkens another shot. When they're all
+  dark, the scoop is the super jackpot. Complete: the super jackpot.
+- **Derailment** (Skyrail). The skyrail is cut. The lift ramp is held up for the whole mode, and the balls feed the
+  upper flipper into the drops. Each drop target is a jackpot and each bank clear a super jackpot. Locked balls the
+  player had are kept as virtual locks. Complete: 3 bank clears.
 - **Canopy** (Apex). The forest reaches the tops of the towers. The spinner and pops build value; the ramps collect
-  it.
+  it, and the value starts over from its base. Complete: 3 collects.
+
+### Scoring
+
+A mode is worth more the higher up the city it is. Each step sets a district's shot value and every completion
+(`points::mode_hit` and `points::mode_completion`), with shots carrying about a third of a district. A full run is
+worth about 1B from the modes alone, before side quests and bonus.
+
+| Step | Shot | Completion | About |
+|---|---|---|---|
+| 1: Meridian, Hydro | 1.5M | 35M | 45M |
+| 2: Nimbus | 2.25M | 50M | 60M |
+| 3: Floodgates, Blackout | (own scoring) | 110M | 235–255M |
+| 4: Skyrail, Apex | 3.5M | 70M | 105M |
+| 5: Solarium | 5M | 90M | 120M |
+| 6: Derailment, Canopy | (own scoring) | 225M | 345–375M |
+
+- **Hydro** escalates: each combo shot is worth half a step shot more than the last, so the 5 come to 7.5 shots.
+- **Apex** takes 12 hits, so its hits are 2M, plus 2M times the bursts so far on each burst.
+- **Mini-wizards**, so the choices on a step match:
+  - **Floodgates:** 1M an orbit, super jackpots of 20M times how many.
+  - **Blackout:** 4M a shot, and a 120M super jackpot.
+  - **Derailment:** 3M a target times the clears so far plus one, and 16M times the clears on each clear.
+  - **Canopy:** builds from 25M, at 250K a spin, 1M a pop and 5M a Root Lash hit.
+- A burst or a Root Lash doubles a shot's points along with its progress. Where a shot can't count twice (Hydro,
+  Nimbus, Skyrail), it still scores double.
 
 ## Side quests
 
@@ -255,38 +326,54 @@ Side quests run all the time, on top of district modes. The DMD shows their stat
 
 ### Charge (spores)
 
-- Vertical spinner spins and pop hits fill the spore bar. The pop rays animate toward the spinner.
+- Vertical spinner spins and pop hits fill the spore bar: a spin charges 1, a pop 3 (6 with the Nimbus perk). The pop
+  rays animate toward the spinner.
 - A full bar lights the biospore insert: **spore burst ready**.
-- Hitting the left inlane target fires the burst. For a few seconds every mode shot counts double, both for spores
-  applied and for mode progress. With no mode running, it scores big points instead.
-- The bar empties, and each charge after that needs more.
+- Hitting the left inlane target fires the burst. For 8s every mode shot counts double: for spores applied, its points,
+  and its mode progress where the mode allows it, with S: *"Double score."* With no mode running, it scores 2,500,000
+  instead.
+- The bar empties, and each charge after that needs more: 60 for the first burst, 30 more each after.
+- While a mode is running, a mode hit shows the mode's progress on the bar in its color for 1.5s, then the bar goes
+  back to the charge.
 - **Spores applied:** every mode shot applies one spore, which a burst doubles. This replaces `SporeApplied` as it is
   today and feeds the high score.
 
 ### Surveillance (pop targets)
 
 The Steward watches the pops through three cameras, one on each pop target.
+- The cameras come online after 40 playfield switch hits in a player's game, and stay on for the rest of it.
 - The pop target LEDs are lit red while their camera is watching. Hitting a target blinds that camera, and its LED
   goes dark.
 - Blinding all 3 is a set. The cameras come back on, and each set needs one more hit per camera than the last.
-- Each set counts as one lit shot toward lighting the left scoop, so the pops help you reach the next district.
+- Each set counts as one lit shot toward lighting the left scoop, so the pops help you reach the next district. It only
+  counts between modes, as the scoop doesn't qualify during one.
 - Every third set lights an outlane save on a side that isn't already lit (see Outlane saves).
+- Blinding the second camera of the first set deploys the Sentinels, with S: *"Sentinels deployed."*
 
 ### Sentinels (city drones)
 
+- Nothing until Surveillance deploys them (above). Until then the drop strips are dark, and targets and clears only
+  score consolation points.
 - Each drop bank clear downs a drone. The target strips show progress to the next drone.
 - Every 2 drones lights a lock (1 with the Skyrail perk).
 - Awards at 5 / 10 / 15 drones: points, then extra ball lit (see Extra balls), then TBD.
 
 ### Heartwood (captive ball)
 
-- Captive ball hits charge the heart; the bolts show the charge.
-- Fully charged starts **Heartwood multiball** (replaces Spore Multiball). It needs more charge each time.
+- Captive ball hits charge the heart; the bolts show the charge, beating from 1.4s down to 0.5s as it charges.
+- Fully charged starts **Heartwood multiball** (replaces Spore Multiball). It needs more charge each time: 4 hits, then
+  2 more each time.
 
-### Root tunnels (orbits)
+### Spread roots (orbits)
 
-- Orbit hits dig tunnels. The orbit hexes' outer rings fill one segment per hit.
-- A full ring collects the tunnel's value and adds one hit of progress to the current district mode.
+- Orbit hits grow roots. The orbit hexes' outer rings fill one segment per hit, 6 to a ring. The rings start over
+  each ball.
+- A full ring spreads the roots, scoring their value, and arms **Root Lash** on the action button. It's bronze, and
+  pulses lime while a district mode or mini-wizard is running.
+- Pressing it during a mode counts as 2 shots in it. With no mode running, it stays armed. It doesn't fire while the ball is in the shooter lane (the button launches it) or the mode select menu is open.
+- After a lash, the roots stop growing until 50 more playfield switch hits. A spread while a lash is armed only
+  scores.
+- Spreading the roots on all three orbits in one ball lights an extra ball, once a game (see Extra balls).
 
 ## Combos: traffic routes
 
@@ -322,6 +409,21 @@ Shots that return the ball to a flipper start or continue a route:
   and the combo breaks.
 - Combos run alongside modes and score in multiball too.
 
+## ArcStreak: reflex shots
+
+Hit the ball straight off the lower scoop's eject and up the arc ramp, within about 2s of the eject, for a reflex shot.
+The arc ramp feeds the subway back to the scoop, so a good player can loop it.
+
+| Reflex shot | Award | Callout |
+|---|---|---|
+| First | 2,000,000 | S: *"Two million."* |
+| Second | 3,000,000 | S: *"Three million."* |
+| Each after | 5,000,000 | S: *"Five million."* |
+
+- The streak breaks when an eject goes by without a reflex shot, when the ball comes into the scoop any way but the
+  subway, or when the ball ends.
+- ArcStreak runs alongside modes and combos.
+
 ## Multiballs
 
 ### Groundswell (main lock)
@@ -341,6 +443,9 @@ the trough. Counts are read from the trough's occupancy, not kept as running tot
 ### Heartwood multiball
 
 - 2-ball, from the captive ball.
+- Every main shot is a jackpot. Every 5th jackpot lights the captive ball as a super jackpot for 20s.
+- Making the arc ramp all the way to the subway twice adds a ball, once a multiball, with S: *"Additional
+  deployment."*
 - Cannot stack with Groundswell but can stack with any mode
 
 ## Extra balls and saves
@@ -353,16 +458,17 @@ Ways to light one, each once per game:
 
 | Source | When |
 |---|---|
-| Progression | Completing your first district |
+| Mini-wizard | Completing your first mini-wizard |
 | Sentinels | 10 drones down |
 | Groundswell | Super jackpot in your first Groundswell |
+| Root network | Spreading the roots on all three orbits in one ball |
 
 - **Collect at the front of the left scoop.** It's the hardest shot on the playfield, so it suits the biggest award.
   A ball coming in from the arc ramp doesn't collect, since the subway opto shows it came in the back. The scoop then
   holds the ball for the animation.
 - If the extra ball and a mode are lit together, the extra ball is collected first, then the mode select menu opens.
-- **Operator settings:** most extra balls per game (default 2), and extra balls awarded as points instead (for
-  competition). Past the limit, each source awards points.
+- **Operator settings:** most extra balls per game (`MAX_EXTRA_BALLS`, framework default 5). Past the limit, each
+  source awards points, so setting it to 0 gives points instead (for competition).
 - The drain LED (shoot again) stays lit amber while an extra ball is waiting.
 
 ### Timed ball saves
@@ -372,6 +478,7 @@ These already exist through `BallSaveSystem`:
 - At the start of each ball.
 - At the start of each multiball, mini-wizard included (`MULTIBALL_BALL_SAVE`, 12s).
 - New: a short save (about 8s) when a district mode starts, since the scoop eject is a common drain.
+- Skyrail's 2-ball finale is saved until the mode ends.
 
 ### Outlane saves: roots catch the ball
 
@@ -381,20 +488,23 @@ re-served from the plunger and auto-launched.
 - **Earn them at the slings.** Each sling hit grows roots up that sling's two post LED rings (8 LEDs each). When both
   rings on a side are full, that side's outlane is lit. Every third Surveillance set also lights one.
 - One save per side at most. A save lasts until used, and carries over between balls for that player.
-- Each use raises the hits needed to relight that side (e.g. 12, then 18, then 24).
-- **Only outlane drains count.** A drain is an outlane drain if that outlane's switch fired just before it. A center
-  drain isn't saved.
+- Each use raises the hits needed to relight that side: 12, then 18, then 24, and it stays at 24.
+- **Only outlane drains count.** A drain is an outlane drain if that outlane's switch fired in the 3s before it. A
+  center drain isn't saved.
 - During multiball the outlane save isn't used and stays lit; multiball has its own timed save.
 
-Passing through the right pass lane grants a hidden, temporary right outlane ball save if the ball accidentally doesn't make it all the way through.
+The right pass lane's lower switch grants a hidden 3s right outlane save, for a ball that doesn't make it all the way
+through.
 
 ### Drain order
 
 Following the framework's `BallDraining` routine, the systems get the chance to save a drain in this order:
 
 1. `BallSaveSystem`: timed saves.
-2. Outlane save, so a lit outlane isn't spent while a timed save would have covered the drain.
-3. Extra ball.
+2. `OutlaneSaveSystem`, so a lit outlane isn't spent while a timed save would have covered the drain.
+
+An extra ball isn't a drain save. It's another turn for the same player after a normal `TurnEnding`, so bonus still
+runs.
 
 ## Presentation
 
@@ -507,8 +617,8 @@ These are the biggest moments in the game. Each has a long intro, music synced t
 
 | Mini-wizard | LEDs | Sound / callouts | DMD |
 |---|---|---|---|
-| **Floodgates** | A fill rises from the flippers up the playfield with a moving surface; the arc ramp LEDs are the gauge. Super jackpot: a wave crashes over everything from the top down | Gates grinding open; rushing water. O: *"Open the gates."* S: *"Flood barriers… engaged. Engaged. Engaged."* | The gates open; a water-level gauge |
-| **Blackout** | GI off; everything is dark except the roots and lit shots. Each hit kills a section. Super jackpot: one second of total darkness, then the roots explode with light from the spinner outward | A descending power-down whine and a clunk for each section; the Steward fragments. O: *"Darkness."* | The city grid, with sectors going black one by one |
+| **Floodgates** | A fill rises from the flippers up the playfield with a moving surface; the arc ramp LEDs are the gauge. Super jackpot: a wave crashes over everything from the top down | Gates grinding open; rushing water. O: *"Open the gates."* S: *"Flood barriers… engaged. Engaged. Engaged."* At high water, S: *"Shoot the ramps."* | The gates open; a water-level gauge |
+| **Blackout** | GI off; everything is dark except the roots and lit shots. Each hit kills a section. Super jackpot: one second of total darkness, then the roots explode with light from the spinner outward | A descending power-down whine and a clunk for each section; the Steward fragments, with S: *"System 67 invalid."* at 3 of 6 dark. O: *"Darkness."* | The city grid, with sectors going black one by one |
 | **Derailment** | The lock balls drop like falling railcars, a chase down the wireform for each ball. Jackpots at the drops shatter blue into green | Rail screech, metal tearing, crashes. S: *"Train… train… train."* O: *"Fall."* | Train cars tumbling off the elevated track |
 | **Canopy** | A green noise field climbs the playfield and up into the backbox speaker LEDs. Collects at the ramps send growth up into the backbox | Giant trunks creaking, a deep roar of wind high above the city. O: *"Higher."* | The forest canopy spreads across the skyline |
 
@@ -524,7 +634,7 @@ These are the biggest moments in the game. Each has a long intro, music synced t
 | **Lock lit** | The lift ramp hex's outer ring lights green; the ramp goes up | S: *"Restricted area. Do not use the Skyrail."* | — |
 | **Ball locked** | A pulse up the lift ramp to the wireform; the playfield's ambient throb gets stronger with each lock | A deep earth rumble that gets heavier with each lock | Lock count, with a seismograph |
 | **Heartwood** | The captive ball bolts heartbeat; each hit strengthens the beat and speeds it up | A sub heartbeat and wood knock | Heart charge in the side quest row |
-| **Root tunnels** | Each hit grows one segment on the orbit hex's outer ring. Collect: growth runs from the orbit down to the current district on the city map | A dirt crunch per segment; a deep tearing on collect | The tunnel's path to the district |
+| **Spread roots** | Each hit grows one segment on the orbit hex's outer ring. Lash: growth runs from the orbits down to the current district on the city map | A dirt crunch per segment; a deep tearing on a spread | The roots' path to the district |
 
 ### Combos
 
@@ -581,16 +691,16 @@ Most of these share a template with art swapped in, which cuts down the amount o
    - When nothing has scored for a few seconds, the score screen rotates through side quest status and, when there's
      more than one player, the other players' scores.
 4. **Score screen side quest row**
-   - A row of small icons, each with a few progress pips: Charge, Surveillance, Sentinels, Heartwood, Tunnels,
+   - A row of small icons, each with a few progress pips: Charge, Surveillance, Sentinels, Heartwood, Roots,
      Locks.
 5. **Scoop eject summary**
    - A quick quest summary while a scoop holds the ball.
 
-### Framework needs (frontbox-pin2dmd)
+### Framework needs (frontbox-dmd)
 
 - A screen stack with priority, so overlays (status, menu) cover the score and return to it.
 - In-game flipper input routed to the active DMD screen, separately from the flipper coils.
-- A list/selection widget. The operator menu in `frontbox_pin2dmd::menu` may be a starting point.
+- A list/selection widget. The operator menu in `frontbox_dmd::menu` may be a starting point.
 - Timed page rotation.
 
 ## High scores
@@ -607,13 +717,14 @@ Custom categories, stored with `HighScoresSystem::set_custom_score`:
 | Groundswell Champion | Highest Groundswell total |
 | Heartwood Champion | Highest Heartwood multiball total |
 | Sentinel Hunter | Most drones downed in a game |
-| Tunnel Rat | Most root tunnels collected in a game |
+| Deep Roots | Most roots spread in a game |
 | Overgrowth | Most districts completed (ties broken by score) |
 
 Notes:
 - "Fastest" scores are lower-is-better. The caller must compare before setting, and the DMD must show the value as a
   time.
 - Each category is a single entry today. That's fine to start with.
+- Fastest Blackout counts only the time it was running, from the dark coming down to the super jackpot.
 
 ## Code impact (lotko-homebrew)
 
@@ -622,16 +733,12 @@ Notes:
 - Add 4 mini-wizards to `ExclusiveMode`. Nimbus and Apex move from `NonExclusiveMode` to `ExclusiveMode`.
 - `LeftScoopStartable` hosts the mode select menu. `LiftRampStartable` becomes the Groundswell lock.
 - Spore Multiball becomes Heartwood. `SporesSystem` keeps counting spores applied and adds bursts.
-- New side quest systems: Charge, Surveillance, Sentinels, Heartwood, Root tunnels.
+- New side quest systems: Charge, Surveillance, Sentinels, Heartwood, Spread roots.
 - A combo tracker: listens for the shot hit events, tracks the timing window and the lift ramp state, and stores the
   routes made per player.
 - Nimbus, Apex and Solarium are rewritten on the main shots. The pops, pop targets and vertical spinner no longer
   count toward any district.
-- New `BallDraining` participants after `BallSaveSystem`: an outlane save and an extra ball. The framework's
-  `BallDraining` docs already list both as examples, but neither exists yet. Decide whether they belong in
-  frontbox-pinball or in lotko.
-- Open: an extra ball that halts the drain would skip end-of-ball bonus. Decide whether an extra ball is a drain save
-  or a repeat of the turn after bonus. Standard pinball counts bonus, then gives the player the next ball.
+- A new `BallDraining` participant after `BallSaveSystem`: `OutlaneSaveSystem`, in lotko.
 
 ## Build Order
 
@@ -646,7 +753,7 @@ Notes:
 1. Map progression with the single qualifier, played / completed state and resumable modes.
 2. Groundswell lock and Sentinels.
 3. Extra balls, outlane saves and the district start ball save.
-4. Charge, Surveillance, Heartwood, Root tunnels, combos, and the status / idle DMD screens.
+4. Charge, Surveillance, Heartwood, Spread roots, combos, and the status / idle DMD screens.
 5. Perks.
 6. Mini-wizards.
 7. High score categories.

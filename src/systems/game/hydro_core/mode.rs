@@ -7,7 +7,7 @@ use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{
-  self, EffectsSystem, Mode, ModeManager, ModeRun, SporesSystem, TunnelCollected,
+  self, EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -107,11 +107,9 @@ impl HydroCoreMode {
     self.hit_effect.stop(ctx);
 
     if shot == 6 {
-      self.run.complete(
-        game::points::EXL_COMPLETION,
-        led_playback!("hydro_core/complete.scene"),
-        ctx,
-      );
+      self
+        .run
+        .complete(led_playback!("hydro_core/complete.scene"), ctx);
       return;
     }
 
@@ -152,7 +150,8 @@ impl HydroCoreMode {
     }
   }
 
-  fn combo_hit(&mut self, ctx: &SystemContext) {
+  /// The shot the combo is on was made, scoring `times` over for a burst
+  fn combo_hit(&mut self, times: u8, ctx: &SystemContext) {
     log::info!("HydroCore: Combo shot hit");
 
     // Play SFX
@@ -165,9 +164,11 @@ impl HydroCoreMode {
       .expect::<EffectsSystem>()
       .play(led_playback!("hydro_core/flashers.scene"));
 
-    // a shot only scores the first time it's made, not again on a later attempt
+    // a shot only scores the first time it's made, not again on a later attempt. Each is worth half a shot more than
+    // the last, so the 5 come to as much as 7 and a half.
     if self.combo_shots_seen.insert(made) {
-      ctx.add_points(game::points::EXL_MODE_HIT * made as u32);
+      let value = game::points::mode_hit(Mode::HydroCore) / 2 * made as u32;
+      ctx.add_points(value * times as u32);
     }
 
     self.advance_combo(made + 1, ctx);
@@ -223,13 +224,15 @@ impl System for HydroCoreMode {
 
     if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       if hit.shot == COMBO[self.current_combo_shot as usize - 1] {
-        // the combo goes a shot at a time, so a burst can't skip one
-        ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
-        self.combo_hit(ctx);
+        // the combo goes a shot at a time, so a burst doubles the points rather than skipping one
+        let times = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
+        self.combo_hit(times, ctx);
       }
-    } else if event.is::<TunnelCollected>() {
-      // a root tunnel makes the shot the combo is on
-      self.combo_hit(ctx);
+    } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
+      // each hit of a lash makes the shot the combo is on
+      for _ in 0..lash.hits {
+        self.combo_hit(1, ctx);
+      }
     } else if event.is::<ComboTimeUp>() {
       self.combo_time_up(ctx);
     }

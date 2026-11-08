@@ -1,13 +1,10 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::*;
 
 use crate::hardware::city_map;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::meridian_basins::MODE_COLOR;
-use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, ModeRun, SporesSystem, TunnelCollected, points,
-};
+use crate::systems::game::{EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem};
 use crate::systems::{Callout, SayExt, sounds};
 use frontbox_sound::*;
 
@@ -64,11 +61,11 @@ impl MeridianBasinsMode {
       return;
     }
 
-    let progress = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
-    self.add_hits(progress, ctx);
+    let hits = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
+    self.add_hits(hits, ctx);
   }
 
-  /// Hits from a lit shot, or from a root tunnel
+  /// Hits from a lit shot, or from a Root Lash, each scoring
   fn add_hits(&mut self, hits: u8, ctx: &SystemContext) {
     self.hits = (self.hits + hits).min(REQUIRED_HITS);
     ctx
@@ -76,13 +73,11 @@ impl MeridianBasinsMode {
       .expect::<EffectsSystem>()
       .play(Self::progress_effect(self.hits));
     log::info!("MeridianBasins: hits = {}", self.hits);
-    ctx.add_points(points::EXL_MODE_HIT);
+    self.run.score_hit(hits, ctx);
 
     if self.hits == REQUIRED_HITS {
       log::info!("MeridianBasins: complete");
-      self
-        .run
-        .complete(points::EXL_COMPLETION, Self::complete_effect(), ctx);
+      self.run.complete(Self::complete_effect(), ctx);
       return;
     }
 
@@ -143,8 +138,8 @@ impl System for MeridianBasinsMode {
       self.advance(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       self.on_shot_hit(hit.shot, ctx);
-    } else if event.is::<TunnelCollected>() {
-      self.add_hits(1, ctx);
+    } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
+      self.add_hits(lash.hits, ctx);
     }
   }
 

@@ -8,7 +8,7 @@ use crate::hardware::pop_cluster;
 use crate::hardware::vspinner::VerticalSpinnerHit;
 use crate::systems::game::mini_wizards::MiniWizardRun;
 use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, TunnelCollected, flash_effect, glow_effect, points,
+  EffectsSystem, Mode, ModeManager, RootLashed, flash_effect, glow_effect, points,
 };
 use crate::systems::sounds;
 
@@ -101,8 +101,8 @@ impl System for CanopyMode {
       && pop_cluster::match_switch(&closed.switch).is_some()
     {
       self.build(points::CANOPY_POP);
-    } else if event.is::<TunnelCollected>() {
-      self.build(points::CANOPY_TUNNEL);
+    } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
+      self.build(points::CANOPY_ROOTS * lash.hits as u32);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>()
       && RAMPS.contains(&hit.shot)
     {

@@ -4,7 +4,7 @@ use frontbox_pinball::{BallSaveExt, GameManagementExt};
 use frontbox_sound::{CalloutCompleted, SoundSystemExt};
 
 use crate::hardware::lower_scoop::{LowerScoopEjected, LowerScoopSystem};
-use crate::systems::game::{EffectsSystem, Mode, ModeManager};
+use crate::systems::game::{EffectsSystem, Mode, ModeManager, points};
 use crate::systems::{SayExt, sounds};
 
 /// The ball save a mode starts with, as the scoop eject is a common drain
@@ -123,10 +123,15 @@ impl ModeRun {
     self.stage = 0;
   }
 
+  /// Score a shot in the mode at its step's value, `times` over for a burst or a Root Lash
+  pub fn score_hit(&self, times: u8, ctx: &SystemContext) {
+    ctx.add_points(points::mode_hit(self.mode) * times as u32);
+  }
+
   /// The completion phase: the mode ends here, and the takeover plays on without it, so a drain during `effect` can't
-  /// take the completion back.
-  pub fn complete(&self, points: u32, effect: LedPlayback, ctx: &SystemContext) {
-    ctx.add_points(points);
+  /// take the completion back. It's worth its step's completion value.
+  pub fn complete(&self, effect: LedPlayback, ctx: &SystemContext) {
+    ctx.add_points(points::mode_completion(self.mode));
     ctx.play_sfx(sounds::city_hit(1.0));
     for line in self.mode.completion_lines() {
       ctx.say(*line);

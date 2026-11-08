@@ -67,6 +67,11 @@ callouts! {
   Eight => "generic/eight",
   Of => "generic/of",
 
+  // awards
+  TwoMillion => "generic/two-million",
+  ThreeMillion => "generic/three-million",
+  FiveMillion => "generic/five-million",
+
   // side quests
   AirborneContaminantDetected => "side/airborne-contantaminant-detected",
   CameraNetworkOffline => "side/camera-network-offline",
@@ -77,8 +82,11 @@ callouts! {
   DecommissioningDroneFour => "side/decomissioning-drone-4",
   DroneDisengaged => "side/drone-disengaged",
   SurveillanceEnabled => "side/surveillance-enabled",
+  SentinelsDeployed => "side/sentinnels-deployed",
+  DoubleScore => "double-score",
 
   // multiballs
+  AdditionalDeployment => "additional-deployment",
   SeismicEventDetected => "multiball/seismic-event-detected",
   SeismicActivityAlert => "multiball/seismic-activity-alert",
   SeismicDamageIdentified => "multiball/seismic-damage-identified",
@@ -123,6 +131,8 @@ callouts! {
 
   // mini-wizards
   FloodBarriersEngaged => "floodgates/flood-barriers-engaged",
+  ShootTheRamps => "shoot-the-ramps",
+  System67Invalid => "system-67-invalid",
   TrainDerailmentSubverting => "derailment/train-derailment-subverting",
 
   // the Oaks
@@ -201,6 +211,7 @@ impl Callout {
         | Self::AtriumContainmentEnacted
         | Self::DroneDisengaged
         | Self::SeismicDamageIdentified
+        | Self::System67Invalid
         | Self::One
         | Self::Two
         | Self::Three

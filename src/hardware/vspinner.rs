@@ -1,9 +1,11 @@
 use frontbox_core::prelude::*;
 use frontbox_core::tags::*;
+use frontbox_sound::SoundSystemExt;
 use std::sync::LazyLock;
 
 use crate::hardware::more_tags::*;
 use crate::hardware::planes;
+use crate::systems::sounds;
 
 hardware_defs! {
   pub OPTO: SwitchDefinition = SwitchDefinition::new("vspinner")
@@ -135,6 +137,7 @@ impl System for VerticalSpinner {
     if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && event.switch.name == OPTO.name
     {
+      ctx.play_sfx(sounds::CYMBAL_MID);
       ctx.emit(VerticalSpinnerHit);
     }
   }

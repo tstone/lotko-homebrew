@@ -5,22 +5,26 @@ use frontbox_pinball::{GameManagementExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::pop_cluster::{self, PopBumper};
+use crate::systems::game::side_quests::SentinelsDeployed;
 use crate::systems::game::{
   EffectsSystem, ModeManager, OutlaneSaveSystem, ScoopQualifier, flash_effect, points, ray_effect,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
 /// Playfield switch hits in a player's game before the cameras come online
-const SWITCHES_TO_ENABLE: u32 = 50;
+const SWITCHES_TO_ENABLE: u32 = 40;
 
 /// Every this many sets lights an outlane save
 const SETS_PER_OUTLANE: u8 = 3;
+
+/// Cameras blinded in the first set that deploy the Sentinels
+const CAMERAS_TO_DEPLOY_SENTINELS: usize = 2;
 
 /// The Steward watches the pops through a camera on each pop target (DESIGN.md, Surveillance). The cameras come online
 /// after [`SWITCHES_TO_ENABLE`] playfield switch hits, and stay on for the rest of the player's game. A watching
 /// camera's target is red, and hitting it enough blinds it and puts it out. Blinding all 3 is a set: the cameras come
 /// back on, each needing one more hit than before, and the set counts as a lit shot toward the scoop. Every third set
-/// lights an outlane save.
+/// lights an outlane save. Blinding the second camera of the first set deploys the Sentinels.
 ///
 /// Belongs in the player template.
 #[derive(Clone)]
@@ -77,6 +81,12 @@ impl SurveillanceSystem {
 
     log::info!("Surveillance: {pop:?} camera blinded");
     ctx.play_sfx(sounds::rnd_latch());
+    // losing its eyes on the pops, the Steward sends out its drones
+    if self.cameras.sets == 0 && self.cameras.blinded() == CAMERAS_TO_DEPLOY_SENTINELS {
+      log::info!("Surveillance: sentinels deployed");
+      ctx.say(Callout::SentinelsDeployed);
+      ctx.emit(SentinelsDeployed);
+    }
     if self.cameras.all_blinded() {
       self.on_set(ctx);
     }
@@ -173,7 +183,15 @@ impl Cameras {
   }
 
   fn all_blinded(&self) -> bool {
-    PopBumper::ALL.iter().all(|pop| !self.is_watching(*pop))
+    self.blinded() == PopBumper::ALL.len()
+  }
+
+  /// Cameras blinded this set
+  fn blinded(&self) -> usize {
+    PopBumper::ALL
+      .iter()
+      .filter(|pop| !self.is_watching(**pop))
+      .count()
   }
 
   /// Returns whether the hit blinded the camera, or `None` if it was already blind
@@ -209,6 +227,7 @@ mod tests {
     assert_eq!(cameras.hit(PopBumper::Left), Some(true));
     assert_eq!(cameras.hit(PopBumper::Left), None);
     cameras.hit(PopBumper::UpperRight);
+    assert_eq!(cameras.blinded(), 2);
     assert!(!cameras.all_blinded());
     cameras.hit(PopBumper::LowerRight);
     assert!(cameras.all_blinded());

@@ -6,9 +6,9 @@ use crate::hardware::arc_ramp;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::mini_wizards::MiniWizardRun;
 use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, TunnelCollected, fill_effect, flash_effect, glow_effect, points,
+  EffectsSystem, Mode, ModeManager, RootLashed, fill_effect, flash_effect, glow_effect, points,
 };
-use crate::systems::sounds;
+use crate::systems::{Callout, SayExt, sounds};
 
 /// Orbit hits to high water (start value)
 const HIGH_WATER: u8 = 8;
@@ -90,6 +90,8 @@ impl FloodgatesMode {
 
     if self.high_water() {
       ctx.play_sfx(sounds::ARP_HIT1);
+      // the Steward wants the water out, which is what the forest wants too
+      ctx.say(Callout::ShootTheRamps);
     } else {
       ctx.play_sfx(sounds::city_hit(self.level as f32 / HIGH_WATER as f32));
     }
@@ -154,9 +156,11 @@ impl System for FloodgatesMode {
 
     if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       self.on_shot_hit(hit.shot, ctx);
-    } else if event.is::<TunnelCollected>() {
-      // the tunnels are on the orbits, and one is a rush of water of its own
-      self.raise(ctx);
+    } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
+      // the roots lash up from the orbits, and each hit is a rush of water of its own
+      for _ in 0..lash.hits {
+        self.raise(ctx);
+      }
     }
   }
 

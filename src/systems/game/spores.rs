@@ -131,6 +131,8 @@ impl SporesSystem {
     // with no mode to double, the burst is worth points of its own
     if ctx.systems.expect::<ModeManager>().current_mode().is_none() {
       ctx.add_points(points::BURST);
+    } else {
+      ctx.say(Callout::DoubleScore);
     }
   }
 }

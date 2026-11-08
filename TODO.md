@@ -1,3 +1,2 @@
 - Hydrocore mode hexes should flash faster as time runs out
-- Nimbus: hit each pop twice (6 total) => starts a 2 ball multiball on completion
 - Nice to have: After completing a mode it can be attempted again, but harder

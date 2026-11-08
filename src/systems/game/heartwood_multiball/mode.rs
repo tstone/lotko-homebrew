@@ -3,6 +3,7 @@ use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystemExt;
 
+use crate::hardware::arc_ramp::ArcRampSubwayHit;
 use crate::hardware::captive_ball::CaptiveBallHit;
 use crate::hardware::city_map;
 use crate::hardware::main_shot::MainShotHit;
@@ -15,9 +16,13 @@ const JACKPOTS_PER_SUPER: u8 = 5;
 /// How long the super jackpot stays lit
 const SUPER_JACKPOT_TIME: Duration = Duration::from_secs(20);
 
+/// Arc ramps all the way to the subway that add a ball, once a multiball
+const RAMPS_TO_ADD_A_BALL: u8 = 2;
+
 /// The Heartwood multiball (DESIGN.md, Multiballs), 2-ball, started by [`HeartwoodCharge`](crate::systems::game::HeartwoodCharge).
-/// Every main shot is a jackpot, and every 5th lights the captive ball as the super jackpot for a while. It ends when a
-/// drain that stands leaves one ball or none, or with the turn.
+/// Every main shot is a jackpot, and every 5th lights the captive ball as the super jackpot for a while. Making the arc
+/// ramp to the subway [`RAMPS_TO_ADD_A_BALL`] times adds a ball, once. It ends when a drain that stands leaves one ball
+/// or none, or with the turn.
 #[derive(Clone)]
 pub struct HeartwoodMultiballMode {
   attention_effect: LedPlayback,
@@ -25,6 +30,8 @@ pub struct HeartwoodMultiballMode {
   hit_effect: LedPlayback,
   super_jackpot_hit_effect: LedPlayback,
   hits: u8,
+  /// Arc ramps made to the subway, toward adding a ball
+  subway_ramps: u8,
   super_jackpot_active: bool,
   cue_id: Option<u64>,
   eject_id: Option<u64>,
@@ -38,6 +45,7 @@ impl HeartwoodMultiballMode {
       super_jackpot_attention_effect: Self::super_jackpot_attention_effect(),
       super_jackpot_hit_effect: Self::super_jackpot_hit_effect(),
       hits: 0,
+      subway_ramps: 0,
       super_jackpot_active: false,
       cue_id: None,
       eject_id: None,
@@ -112,6 +120,15 @@ impl HeartwoodMultiballMode {
     self.super_jackpot_attention_effect.stop(ctx);
   }
 
+  fn on_subway_ramp(&mut self, ctx: &SystemContext) {
+    self.subway_ramps += 1;
+    if self.subway_ramps == RAMPS_TO_ADD_A_BALL {
+      log::info!("HeartwoodMultiball: ball added");
+      ctx.say(Callout::AdditionalDeployment);
+      self.eject_id = ctx.eject_balls(1, Launch::Auto);
+    }
+  }
+
   fn shutdown(&mut self, ctx: &SystemContext) {
     ctx
       .systems
@@ -143,6 +160,8 @@ impl System for HeartwoodMultiballMode {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<MainShotHit>() {
       self.jackpot_hit(ctx)
+    } else if event.is::<ArcRampSubwayHit>() {
+      self.on_subway_ramp(ctx);
     } else if event.is::<CaptiveBallHit>() && self.super_jackpot_active {
       self.super_jackpot_hit(ctx);
     } else if event.is::<SuperJackpotOver>() && self.super_jackpot_active {

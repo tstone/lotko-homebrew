@@ -1,11 +1,11 @@
 mod heartwood;
-mod root_tunnels;
 mod sentinels;
+mod spread_roots;
 mod surveillance;
 
 pub use heartwood::*;
-pub use root_tunnels::*;
 pub use sentinels::*;
+pub use spread_roots::*;
 pub use surveillance::*;
 
 use frontbox_core::prelude::*;
@@ -14,6 +14,12 @@ use frontbox_core::prelude::*;
 #[derive(serde::Serialize, Event)]
 pub struct LockLit;
 
-/// A root tunnel was collected. The current district counts it as one hit of progress, if it has one.
+/// The second camera went dark, so the Steward sends out its drones and Sentinels starts
 #[derive(serde::Serialize, Event)]
-pub struct TunnelCollected;
+pub struct SentinelsDeployed;
+
+/// Root Lash was struck. The current mode counts it as `hits` shots, if it has any.
+#[derive(serde::Serialize, Event)]
+pub struct RootLashed {
+  pub hits: u8,
+}

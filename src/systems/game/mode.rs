@@ -75,6 +75,18 @@ impl Mode {
     }
   }
 
+  /// The step on the route it's on (DESIGN.md, Primary progression), from 1, which sets what it's worth
+  pub fn step(&self) -> u8 {
+    match self {
+      Self::MeridianBasins | Self::HydroCore => 1,
+      Self::NimbusPromenade => 2,
+      Self::Floodgates | Self::Blackout => 3,
+      Self::SkyrailStation | Self::ApexTerraces => 4,
+      Self::SolariumAtrium => 5,
+      Self::Derailment | Self::Canopy => 6,
+    }
+  }
+
   /// The district that leads to a mini-wizard
   pub fn district(&self) -> Mode {
     match self {
@@ -118,6 +130,8 @@ impl Mode {
       Self::SolariumAtrium => "fehrplay-arcadia.mp3",
       Self::MeridianBasins => "glitch-mob-cant-kill-us.mp3",
       Self::NimbusPromenade => "wice-5omething.mp3",
+      Self::Blackout => "65daysofstatic-crash-tactics.mp3",
+      Self::Derailment => "colyn-cyclone.mp3",
       _ => return None,
     };
     Some(music_file(file))
@@ -205,7 +219,7 @@ impl Multiball {
   pub fn music(&self) -> Option<PathBuf> {
     match self {
       Self::Heartwood => Some(music_file("rezmau5-infraliminal.mp3")),
-      Self::Groundswell => None,
+      Self::Groundswell => Some(music_file("inzo-im-dreaming.mp3")),
     }
   }
 
@@ -222,8 +236,8 @@ impl Multiball {
 /// What completing a district gives the player for the rest of the game (DESIGN.md, Perks)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize)]
 pub enum Perk {
-  /// Root tunnel hits count double
-  DoubleTunnels,
+  /// Spread roots grow twice as fast
+  DoubleRoots,
   /// +5s on mode timers
   LongerTimers,
   /// Pops charge twice as fast
@@ -240,7 +254,7 @@ impl Perk {
   /// The district that gives it
   pub fn district(&self) -> Mode {
     match self {
-      Self::DoubleTunnels => Mode::MeridianBasins,
+      Self::DoubleRoots => Mode::MeridianBasins,
       Self::LongerTimers => Mode::HydroCore,
       Self::FasterPopCharge => Mode::NimbusPromenade,
       Self::QuickLocks => Mode::SkyrailStation,

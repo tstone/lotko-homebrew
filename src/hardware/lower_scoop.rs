@@ -72,6 +72,8 @@ pub const LOWER_SCOOP_EJECT: &'static str = "lower_scoop_eject";
 #[derive(Clone)]
 pub struct LowerScoopSystem {
   eject_program: LedPlayback,
+  /// Plays each time the coil fires
+  after_eject_program: LedPlayback,
   subway_entry: bool,
   handle: SystemHandle,
   /// Who's holding the ball, by `ctx.id()`
@@ -88,6 +90,7 @@ impl LowerScoopSystem {
 
     Self {
       eject_program,
+      after_eject_program: led_playback!("lower_scoop/after_eject.scene").stopped(),
       subway_entry: false,
       holds: HashSet::new(),
       ball_waiting: false,
@@ -135,6 +138,8 @@ impl LowerScoopSystem {
     ctx.drivers.activate(COIL.name, ActivationMode::Tap);
     log::info!("Stopping LEDs after complete eject");
     self.eject_program.stop(ctx);
+    self.after_eject_program.reset();
+    self.after_eject_program.play();
     self.eject_pending = false;
     self.eject_cue = None;
     if self.ball_waiting {
@@ -207,6 +212,7 @@ impl System for LowerScoopSystem {
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
     self.eject_program.apply(delta, ctx);
+    self.after_eject_program.apply(delta, ctx);
   }
 }
 
@@ -227,3 +233,13 @@ struct EjectLowerScoop;
 
 #[derive(serde::Serialize, Event)]
 struct CheckVacated;
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn the_scenes_load() {
+    LowerScoopSystem::new();
+  }
+}

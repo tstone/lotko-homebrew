@@ -3,20 +3,22 @@ use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
-use crate::hardware::drop_bank::{self, DropBankCleared};
-use crate::systems::game::side_quests::LockLit;
+use crate::hardware::drop_bank::{self, DropBankCleared, DropBankTargetHit};
+use crate::systems::game::side_quests::{LockLit, SentinelsDeployed};
 use crate::systems::game::{
   EffectsSystem, ExtraBallSource, ExtraBallSystem, ModeManager, Perk, flash_effect, points,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
-/// The city's drones are the drop targets (DESIGN.md, Sentinels). Each bank clear downs a drone, and the strips show the
-/// targets still up toward the next. Every 2 drones lights a lock, or every one with the Skyrail perk, and 5, 10 and 15
+/// The city's drones are the drop targets (DESIGN.md, Sentinels). They're deployed once Surveillance loses its second
+/// camera ([`SentinelsDeployed`]), and until then the drops only score consolation points. Each bank clear downs a drone, and the
+/// strips show the targets still up toward the next. Every 2 drones lights a lock, or every one with the Skyrail perk, and 5, 10 and 15
 /// drones give awards, 10 being an extra ball.
 ///
 /// Belongs in the player template.
 #[derive(Clone)]
 pub struct SentinelsSystem {
+  deployed: bool,
   drones: u8,
   /// Drones toward the next lock
   toward_lock: u8,
@@ -25,9 +27,16 @@ pub struct SentinelsSystem {
 impl SentinelsSystem {
   pub fn new() -> Self {
     Self {
+      deployed: false,
       drones: 0,
       toward_lock: 0,
     }
+  }
+
+  fn deploy(&mut self, ctx: &SystemContext) {
+    log::info!("Sentinels: deployed");
+    self.deployed = true;
+    self.render(ctx);
   }
 
   fn drone_down(&mut self, ctx: &SystemContext) {
@@ -82,11 +91,11 @@ impl SentinelsSystem {
     }
   }
 
-  /// Peach on the targets still up
+  /// Peach on the targets still up, once deployed
   fn render(&self, ctx: &SystemContext) {
     for (target, switch) in targets() {
       let down = ctx.switches.is_closed(switch).unwrap_or(false);
-      if down {
+      if !self.deployed || down {
         ctx.undeclare_leds(&target.q());
       } else {
         ctx.declare_leds(&target.q(), ColorSequence::solid(Rgba::peach()));
@@ -106,8 +115,21 @@ impl System for SentinelsSystem {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    if event.is::<SentinelsDeployed>() {
+      self.deploy(ctx);
+      return;
+    }
     if event.is::<DropBankCleared>() {
-      self.drone_down(ctx);
+      if self.deployed {
+        self.drone_down(ctx);
+      } else {
+        ctx.add_points(points::BANK_CLEAR_UNDEPLOYED);
+      }
+    } else if event.is::<DropBankTargetHit>() && !self.deployed {
+      ctx.add_points(points::DROP_TARGET_UNDEPLOYED);
+    }
+    if !self.deployed {
+      return;
     }
 
     // the bank raises itself, so follow the targets rather than the hits

@@ -158,7 +158,9 @@ impl ModeManager {
       self.clear_mode(ctx);
     }
     self.render_map(ctx);
-    if !mode.is_mini_wizard() {
+    if mode.is_mini_wizard() {
+      ctx.emit(MiniWizardCompleted { mode });
+    } else {
       ctx.emit(DistrictCompleted {
         completed: self.progression.districts_completed(),
       });
@@ -395,6 +397,12 @@ pub struct DistrictCompleted {
   pub completed: usize,
 }
 
+/// A mini-wizard was completed
+#[derive(serde::Serialize, Event)]
+pub struct MiniWizardCompleted {
+  pub mode: Mode,
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -409,9 +417,13 @@ mod tests {
 
   #[test]
   fn a_mini_wizard_keeps_its_slot_in_the_music_over_a_multiball() {
-    // nothing recorded for one yet, so it's the default rather than the multiball's
     assert_eq!(
       music_for(Some(Mode::Blackout), Some(Multiball::Heartwood)),
+      Mode::Blackout.music().unwrap()
+    );
+    // nothing recorded for this one yet, so it's the default rather than the multiball's
+    assert_eq!(
+      music_for(Some(Mode::Floodgates), Some(Multiball::Heartwood)),
       music_file("colyn-rushing.mp3")
     );
   }

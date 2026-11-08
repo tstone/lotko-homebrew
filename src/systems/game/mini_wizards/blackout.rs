@@ -7,14 +7,17 @@ use crate::hardware::lower_scoop::{self, LowerScoopBallEnter, LowerScoopEjected}
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::hardware::vspinner;
 use crate::systems::game::mini_wizards::MiniWizardRun;
-use crate::systems::game::{Mode, ModeManager, TunnelCollected, points};
-use crate::systems::sounds;
+use crate::systems::game::{Mode, ModeManager, RootLashed, points};
+use crate::systems::{Callout, SayExt, sounds};
 
 /// Over everything on the playfield, so it all goes dark
 const DARK_Z: i8 = 40;
 
 /// What the dark leaves lit: the roots and the lit shots
 const LIT_Z: i8 = 41;
+
+/// Dark shots at which the Steward starts to break up
+const STEWARD_FRAGMENTS: u8 = 3;
 
 /// Hydro's mini-wizard (DESIGN.md, Mini-wizards), 2-ball. The playfield goes dark but for the roots and the lit shots,
 /// and each lit shot hit goes dark too. Once they're all dark the left scoop is the super jackpot, which completes it.
@@ -70,6 +73,9 @@ impl BlackoutMode {
     self.wizard.score(points::BLACKOUT_HIT, ctx);
     self.wizard.progress(dark);
     ctx.play_sfx(sounds::rnd_latch());
+    if dark == STEWARD_FRAGMENTS {
+      ctx.say(Callout::System67Invalid);
+    }
     if self.super_jackpot_lit() {
       ctx.play_sfx(sounds::ARP_HIT1);
     }
@@ -155,9 +161,11 @@ impl System for BlackoutMode {
       self.render(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       self.on_shot_hit(hit.shot, ctx);
-    } else if event.is::<TunnelCollected>() {
-      if let Some(shot) = self.lit_shots().choose(&mut rand::rng()).copied() {
-        self.darken(shot, ctx);
+    } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
+      for _ in 0..lash.hits {
+        if let Some(shot) = self.lit_shots().choose(&mut rand::rng()).copied() {
+          self.darken(shot, ctx);
+        }
       }
     } else if event.is::<LowerScoopBallEnter>() && self.super_jackpot_lit() {
       self.super_jackpot(ctx);

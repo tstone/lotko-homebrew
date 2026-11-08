@@ -8,7 +8,7 @@ use frontbox_pinball::{
 
 use crate::hardware::trough::DRAIN_LED;
 use crate::systems::dmd::ANNOUNCEMENT_DMD_LAYER;
-use crate::systems::game::{DistrictCompleted, points};
+use crate::systems::game::{MiniWizardCompleted, points};
 use crate::systems::{Callout, SayExt};
 
 /// How long the extra ball and shoot again screens are shown
@@ -17,12 +17,14 @@ const SCREEN_DURATION: Duration = Duration::from_secs(2);
 /// What lit an extra ball. Each lights at most one per game.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExtraBallSource {
-  /// Completing the first district
-  Progression,
+  /// Completing the first mini-wizard
+  MiniWizard,
   /// 10 drones down
   Sentinels,
   /// The super jackpot in the first Groundswell
   Groundswell,
+  /// Spreading the roots on all three orbits in one ball
+  RootNetwork,
 }
 
 /// Lights and collects extra balls (DESIGN.md, Extra balls). A source lights one (`light`), and a shot to the front of
@@ -156,8 +158,8 @@ impl System for ExtraBallSystem {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if let Some(DistrictCompleted { completed: 1 }) = event.downcast_ref::<DistrictCompleted>() {
-      self.light(ExtraBallSource::Progression, ctx.into());
+    if event.is::<MiniWizardCompleted>() {
+      self.light(ExtraBallSource::MiniWizard, ctx.into());
     } else if event.is::<ExtraBallGranted>() || event.is::<ExtraBallUsed>() {
       self.update_shoot_again(ctx);
     } else if let Some(RoutineStarted { routine }) =

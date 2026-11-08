@@ -10,7 +10,7 @@ use crate::hardware::lower_scoop::LowerScoopEjected;
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
-  self, EffectsSystem, Mode, ModeManager, ModeRun, SporesSystem, TunnelCollected, points,
+  EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem, points,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -83,9 +83,9 @@ impl SkyrailStationMode {
   }
 
   fn advance(&mut self, ctx: &SystemContext) {
-    ctx.add_points(points::EXL_MODE_HIT);
-    // each shot is a stage of its own, so a burst can't skip one
-    ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
+    // each shot is a stage of its own, so a burst doubles the points rather than skipping one
+    let times = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
+    self.run.score_hit(times, ctx);
     self.hit_effect.play();
     ctx
       .systems
@@ -105,11 +105,9 @@ impl SkyrailStationMode {
 
         if self.finale_hits == FINALE_HITS {
           self.ramp_down(ctx);
-          self.run.complete(
-            game::points::EXL_COMPLETION,
-            led_playback!("skyrail_station/complete.scene"),
-            ctx,
-          );
+          self
+            .run
+            .complete(led_playback!("skyrail_station/complete.scene"), ctx);
           return;
         }
       }
@@ -215,9 +213,11 @@ impl System for SkyrailStationMode {
       self.advance(ctx);
     } else if event.is::<DropBankTargetHit>() && (self.state == HitTarget || self.state == Final) {
       self.advance(ctx);
-    } else if event.is::<TunnelCollected>() {
-      // a root tunnel makes whichever shot is next
-      self.advance(ctx);
+    } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
+      // each hit of a lash makes whichever shot is next
+      for _ in 0..lash.hits {
+        self.advance(ctx);
+      }
     }
   }
 

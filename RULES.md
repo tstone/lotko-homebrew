@@ -63,7 +63,7 @@ hit speeds it up. Hit it 6 times.
 
 | Complete | Perk |
 |---|---|
-| Meridian Basins | Root tunnels dig twice as fast |
+| Meridian Basins | Roots spread twice as fast |
 | Hydro Core | +5 seconds on all mode timers |
 | Nimbus Promenade | Pops charge spores twice as fast |
 | Skyrail Station | Every drone downed lights a lock |
@@ -87,15 +87,16 @@ These run all the time, alongside the districts.
 - **Charge — green.** Spinner spins and pops fill the spore bar. A full bar lights the left inlane target. Hit it to
   fire a **spore burst**: for 8 seconds every district shot counts double. With no district running, it scores big
   points.
-- **Surveillance — red.** The pop targets are cameras. They come online after 50 playfield switch hits, and stay on
+- **Surveillance — red.** The pop targets are cameras. They come online after 40 playfield switch hits, and stay on
   for the rest of your game. Blind all three for a set. Each set needs one more hit per camera, counts toward
   lighting the scoop, and every third set lights an outlane save.
-- **Sentinels — peach.** Clear the drop targets to down a drone. Every 2 drones lights a lock. At 5 drones: points.
-  10: extra ball lit. 15: big points.
+- **Sentinels — peach.** Blinding your second camera deploys the drones. Clear the drop targets to down a drone.
+  Every 2 drones lights a lock. At 5 drones: points. 10: extra ball lit. 15: big points.
 - **Heartwood — lime.** Hit the captive ball to charge the heart. A full charge starts **Heartwood multiball**. It
   needs more each time.
-- **Root tunnels — brown.** Orbits dig a tunnel at that shot's ring. A full ring scores and counts as a hit in the
-  current district.
+- **Spread roots — brown.** Orbits grow roots around that shot's ring. A full ring arms **Root Lash**: press the
+  action button during a mode for 2 shots in it. The roots then rest for 50 switch hits. The rings start over each
+  ball, and spreading all three orbits in one ball lights an extra ball.
 
 ## Combos
 
@@ -114,17 +115,24 @@ Make a route of shots in a row, each within about 4 seconds of the last. Each ro
 
 Make all 8 for **Gridlock**. The lift ramp only counts with the ramp down.
 
+## ArcStreak
+
+Hit the ball straight off the lower scoop's eject up the arc ramp for a **reflex shot**: 2M, then 3M, then 5M for each
+one after. The ramp feeds back to the scoop, so keep looping it. Miss one and the streak starts over.
+
 ## Multiballs
 
 - **Groundswell.** Lock lit raises the lift ramp. Shoot it to lock. Lock 3 for 3-ball multiball: jackpots are on the
   main shots, and the super jackpot is the lift ramp, then the drops from the upper flipper. Your first super jackpot
   lights an extra ball.
-- **Heartwood.** 2-ball, from a full Heartwood charge. Main shots are jackpots.
+- **Heartwood.** 2-ball, from a full Heartwood charge. Main shots are jackpots. Make the arc ramp to the subway twice
+  to add a ball.
 
 ## Saves
 
 - **Ball save** at the start of every ball, multiball and district.
 - **Outlane saves.** Sling hits grow the roots up that side's posts. When they're full, that outlane is lit, and the
   next drain through it is saved. A lit save keeps until you use it, and each use makes that side harder to relight.
-- **Extra balls** are lit by your first district completion, 10 drones and your first Groundswell super jackpot.
-  Collect a lit extra ball with a shot to the front of the left scoop.
+- **Extra balls** are lit by your first mini-wizard completion, 10 drones, your first Groundswell super jackpot,
+  and spreading the roots on all three orbits in one ball. Collect a lit extra ball with a shot to the front of the
+  left scoop.

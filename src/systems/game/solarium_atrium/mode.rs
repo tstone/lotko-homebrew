@@ -1,6 +1,5 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::GameManagementExt;
 use frontbox_sound::SoundSystemExt;
 use rand::prelude::IndexedRandom;
 
@@ -9,8 +8,7 @@ use crate::hardware::city_map;
 use crate::hardware::lower_scoop::LowerScoopEjected;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{
-  self, EffectsSystem, Mode, ModeManager, ModeRun, SporesSystem, TunnelCollected, flash_effect,
-  glow_effect,
+  EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_effect, glow_effect,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -89,11 +87,11 @@ impl SolariumAtriumMode {
     }
   }
 
-  /// Hits on the head, or from a root tunnel
+  /// Hits on the head, or from a Root Lash, each scoring
   fn add_hits(&mut self, hits: u8, ctx: &SystemContext) {
     self.hits = (self.hits + hits).min(REQUIRED_HITS);
     log::info!("SolariumAtrium: hits = {}", self.hits);
-    ctx.add_points(game::points::EXL_MODE_HIT);
+    self.run.score_hit(hits, ctx);
     ctx
       .systems
       .expect::<EffectsSystem>()
@@ -111,9 +109,7 @@ impl SolariumAtriumMode {
       self.cancel_move(ctx);
       self.head_effect.stop(ctx);
       ctx.undeclare_leds(self.next.hex_center());
-      self
-        .run
-        .complete(game::points::EXL_COMPLETION, Self::complete_effect(), ctx);
+      self.run.complete(Self::complete_effect(), ctx);
       return;
     }
 
@@ -203,8 +199,8 @@ impl System for SolariumAtriumMode {
       self.schedule_move(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       self.on_shot_hit(hit.shot, ctx);
-    } else if event.is::<TunnelCollected>() {
-      self.add_hits(1, ctx);
+    } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
+      self.add_hits(lash.hits, ctx);
     }
   }
 

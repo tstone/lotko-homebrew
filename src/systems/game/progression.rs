@@ -243,6 +243,6 @@ mod tests {
 
     progression.complete(Mode::HydroCore);
     assert!(progression.has_perk(Perk::LongerTimers));
-    assert!(!progression.has_perk(Perk::DoubleTunnels));
+    assert!(!progression.has_perk(Perk::DoubleRoots));
   }
 }

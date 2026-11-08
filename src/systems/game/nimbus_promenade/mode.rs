@@ -1,13 +1,12 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::*;
 use frontbox_sound::SoundSystemExt;
 use rand::prelude::IndexedRandom;
 
 use crate::hardware::lower_scoop::LowerScoopEjected;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, ModeRun, SporesSystem, TunnelCollected, flash_effect, points,
+  EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_effect,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -81,24 +80,25 @@ impl NimbusPromenadeMode {
   fn on_shot_hit(&mut self, shot: MainShot, ctx: &SystemContext) {
     match self.walkway(shot) {
       Walkway::Open => {
-        // one walkway a hit, so a burst can't choke two
-        ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
-        self.choke(shot, ctx);
+        // one walkway a hit, so a burst doubles the points rather than choking two
+        let times = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
+        self.choke(shot, times, ctx);
       }
       Walkway::Sealed => self.reopen(shot, ctx),
       Walkway::Choked => {}
     }
   }
 
-  /// A root tunnel chokes an open walkway of its own
-  fn on_tunnel(&mut self, ctx: &SystemContext) {
+  /// Each hit of a Root Lash chokes an open walkway of its own
+  fn on_lash_hit(&mut self, ctx: &SystemContext) {
     if let Some(shot) = self.open_shots().choose(&mut rand::rng()).copied() {
-      self.choke(shot, ctx);
+      self.choke(shot, 1, ctx);
     }
   }
 
-  fn choke(&mut self, shot: MainShot, ctx: &SystemContext) {
-    ctx.add_points(points::NIMBUS_HIT);
+  /// Choke a walkway for good, scoring `times` over for a burst
+  fn choke(&mut self, shot: MainShot, times: u8, ctx: &SystemContext) {
+    self.run.score_hit(times, ctx);
 
     self.walkways[shot as usize] = Walkway::Choked;
     if self
@@ -118,11 +118,9 @@ impl NimbusPromenadeMode {
     log::info!("NimbusPromenade: {shot:?} choked, {chokes} of {REQUIRED_CHOKES}");
     if chokes >= REQUIRED_CHOKES {
       self.cancel_seal(ctx);
-      self.run.complete(
-        points::NIMBUS_COMPLETION,
-        led_playback!("nimbus_promenade/complete.scene"),
-        ctx,
-      );
+      self
+        .run
+        .complete(led_playback!("nimbus_promenade/complete.scene"), ctx);
       return;
     }
 
@@ -252,8 +250,10 @@ impl System for NimbusPromenadeMode {
       self.schedule_seal(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       self.on_shot_hit(hit.shot, ctx);
-    } else if event.is::<TunnelCollected>() {
-      self.on_tunnel(ctx);
+    } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
+      for _ in 0..lash.hits {
+        self.on_lash_hit(ctx);
+      }
     }
   }
 

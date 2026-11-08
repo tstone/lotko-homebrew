@@ -6,8 +6,8 @@ use rand::prelude::IndexedRandom;
 
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, ModeRun, SporesSystem, TunnelCollected, flash_effect,
-  glow_effect, points,
+  EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_effect, glow_effect,
+  points,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -24,7 +24,7 @@ const RING_LEDS: usize = 6;
 /// ring bursts the terrace and the lit shot moves to the shot farthest away. The ring loses a segment after a while
 /// without a hit.
 ///
-/// While it runs, the lit shot's ring shows overload over Root tunnels, a z above them.
+/// While it runs, the lit shot's ring shows overload over Spread roots, a z above them.
 pub struct ApexTerracesMode {
   run: ModeRun,
   shot: MainShot,
@@ -82,12 +82,12 @@ impl ApexTerracesMode {
     }
   }
 
-  /// Hits on the lit shot, or from a root tunnel
+  /// Hits on the lit shot, or from a Root Lash, each scoring
   fn add_hits(&mut self, hits: u8, ctx: &SystemContext) {
     if self.done() == 0 {
       ctx.say(Callout::ThisIsAnExclusiveArea);
     }
-    ctx.add_points(points::APEX_HIT);
+    ctx.add_points(points::APEX_HIT * hits as u32);
     self.filled = (self.filled + hits).min(self.needed());
     log::info!(
       "ApexTerraces: terrace {} at {} of {}",
@@ -126,11 +126,9 @@ impl ApexTerracesMode {
       self.cancel_drain(ctx);
       self.center_effect.stop(ctx);
       self.ring_effect.stop(ctx);
-      self.run.complete(
-        points::EXL_COMPLETION,
-        led_playback!("apex_terraces/start.scene"),
-        ctx,
-      );
+      self
+        .run
+        .complete(led_playback!("apex_terraces/start.scene"), ctx);
       return;
     }
 
@@ -210,8 +208,8 @@ impl System for ApexTerracesMode {
       self.drain(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       self.on_shot_hit(hit.shot, ctx);
-    } else if event.is::<TunnelCollected>() {
-      self.add_hits(1, ctx);
+    } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
+      self.add_hits(lash.hits, ctx);
     }
   }
 

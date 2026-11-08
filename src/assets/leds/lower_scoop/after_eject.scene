@@ -1,0 +1,59 @@
+Led(
+  version: 1,
+  timing: (
+    duration: 0.3,
+    cycle: Once,
+  ),
+  layers: [
+    (
+      leds: Tag("Playfield"),
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+          adjust: [
+            Opacity(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.3,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        shape: (
+          transform: [
+            Scale(Fixed(1.0, 1.0)),
+            Translate(Fixed(1.672, 25.88)),
+          ],
+          base: Ring(
+            radius: Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.01,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.3,
+                  value: 5.729,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+            thickness: Fixed(1.404),
+          ),
+        ),
+      ),
+    ),
+  ],
+)

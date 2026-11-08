@@ -90,9 +90,9 @@ impl MiniWizardRun {
   }
 
   pub fn complete(&mut self, effect: LedPlayback, ctx: &SystemContext) {
-    self.total += points::EXL_COMPLETION as u64;
+    self.total += points::mode_completion(self.mode) as u64;
     log::info!("{:?}: completed, {} scored", self.mode, self.total);
-    self.run.complete(points::EXL_COMPLETION, effect, ctx);
+    self.run.complete(effect, ctx);
   }
 
   fn add_balls(&mut self, ctx: &SystemContext) {

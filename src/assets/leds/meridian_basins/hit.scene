@@ -1,36 +1,44 @@
-Led(
-  version: 1,
-  timing: (
-    duration: 0.185,
-    cycle: Times(2),
-  ),
-  layers: [
-    (
-      leds: Tag("Playfield"),
-      z: -1,
-      surface: Sequence,
-      layer: (
-        fill: (
-          base: Solid(Fixed(255, 165, 0, 255)),
-          adjust: [
-            Opacity(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.185,
-                  value: 0.0,
-                  curve: EaseInOut,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-        ),
-      ),
-    ),
-  ],
+Led(
+  version: 1,
+  timing: (
+    duration: 0.3,
+    cycle: Times(2),
+  ),
+  layers: [
+    (
+      leds: Tag("Playfield"),
+      z: -1,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(255, 165, 0, 255)),
+        ),
+        shape: (
+          transform: [
+            Scale(Fixed(1.0, 1.0)),
+            Translate(Fixed(10.125, 22.5)),
+            Rotate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.3,
+                  value: 37.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Pinwheel(
+            blades: Fixed(6.0),
+            balance: Fixed(0.2),
+          ),
+        ),
+      ),
+    ),
+  ],
 )

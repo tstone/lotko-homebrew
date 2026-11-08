@@ -30,8 +30,7 @@ pub enum ExtraBallSource {
 /// coming in from the arc ramp's subway doesn't. Collecting grants the extra ball, or awards points once the player is
 /// at the `MAX_EXTRA_BALLS` limit.
 ///
-/// While one is lit, the scoop bolts flash white and the drain LED pulses. While the player has one to use, the drain
-/// LED (shoot again) stays lit.
+/// While one is lit, the scoop bolts flash white. While the player has one to use, the drain LED (shoot again) is amber.
 ///
 /// Belongs in the player template: what's lit, and which sources have been used, are the player's.
 #[derive(Clone)]
@@ -95,6 +94,8 @@ impl ExtraBallSystem {
     if ctx.grant_extra_ball() {
       log::info!("Extra ball collected");
       self.show("EXTRA BALL", ctx);
+      ctx.say(Callout::ExtraBall);
+      self.update_shoot_again(ctx);
     } else {
       log::info!("Extra ball collected past the limit, awarding points");
       ctx.add_points(points::EXTRA_BALL_AS_POINTS);
@@ -120,7 +121,7 @@ impl ExtraBallSystem {
   /// The drain LED stays lit while the player has an extra ball to use
   fn update_shoot_again(&self, ctx: &SystemContext) {
     if ctx.extra_balls() > 0 {
-      ctx.declare_leds(&DRAIN_LED.q(), ColorSequence::solid(Rgba::white()));
+      ctx.declare_leds(&DRAIN_LED.q(), ColorSequence::solid(Rgba::amber()));
     } else {
       ctx.undeclare_leds(&DRAIN_LED.q());
     }
@@ -166,7 +167,7 @@ impl System for ExtraBallSystem {
       self.update_lit_effect(ctx);
       if routine.reason == TurnStartReason::ExtraBall {
         self.show("SHOOT AGAIN", ctx);
-        ctx.say(Callout::ExtraBall);
+        ctx.say(Callout::SamePlayerShootAgain);
       }
     } else if event.is::<ScreenShown>() {
       self.screen_cue = None;

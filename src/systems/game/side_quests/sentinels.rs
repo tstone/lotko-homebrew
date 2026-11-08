@@ -35,11 +35,16 @@ impl SentinelsSystem {
     log::info!("Sentinels: {} drones down", self.drones);
     ctx.add_points(points::DRONE_DOWN);
     ctx.play_sfx(sounds::IMPACT_DIRT);
-    ctx.say(match self.drones {
-      1 => Callout::DecommissioningDroneOne,
-      3 => Callout::DecommissioningDroneThree,
-      _ => Callout::DroneDisengaged,
-    });
+    match self.drones {
+      1 => ctx.say(Callout::DecommissioningDroneOne),
+      2 => ctx.say(Callout::DecommissioningDroneTwo),
+      3 => ctx.say(Callout::DecommissioningDroneThree),
+      4 => ctx.say(Callout::DecommissioningDroneFour),
+      drones => match Callout::number(drones) {
+        Some(number) => ctx.say_all(&[Callout::DecommissioningDrones, number]),
+        None => ctx.say(Callout::DroneDisengaged),
+      },
+    }
 
     let mut effects = ctx.systems.expect::<EffectsSystem>();
     for (target, _) in targets() {

@@ -67,7 +67,7 @@ event.
 
 - [ ] Hex positions, with `HexTest`. The tip direction and the ring's winding were worked out from the code and
       artwork, not measured. Root tunnels fill the rings from `hex_ring()`'s first LED, so check that too.
-- [ ] Gold (255, 155, 0) reads apart from Meridian's orange on the inserts.
+- [x] Gold (255, 155, 0) reads apart from Meridian's orange on the inserts.
 - [ ] Whether the illumination fix helps the open console slowdown. That link is a guess, so test it rather than
       assuming.
 - [ ] The sling post rings fill from their first LED, assumed to be the bottom of each post.
@@ -76,7 +76,7 @@ event.
 
 - [ ] Give every GI LED a location, or positional scenes will skip them: `gi_l_sling`, `gi_r_sling`, `gi_drop1`,
       `gi_drop2`. `gi::LEFT_RAMP` is also defined but isn't wired to a port.
-- [ ] Measure the speaker rings' start and direction.
+- [x] Measure the speaker rings' start and direction.
 - [ ] Wire up the wireform post (decision 1). The post is physically there, but its driver probably isn't connected:
   - Check the wiring, then connect the coil to a driver and add it to `hardware` and `io_network.rs`.
   - Check whether the machine can tell how many balls are on the post. No switch for this is defined, so it may need one.

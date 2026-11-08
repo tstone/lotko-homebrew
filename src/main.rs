@@ -85,7 +85,7 @@ async fn main() {
     app.system(LedSystem::new());
     let mut sound = SoundSystem::by_name_or_default("Sound Blaster");
     // the Steward's lines get lost under the music and sfx
-    sound.set_callout_volume(7.0);
+    sound.set_callout_volume(8.0);
     app.system(sound);
     app.system(FreePlay::new(start_button::SWITCH.q()));
     app.system(SoundLoaderSystem::new());

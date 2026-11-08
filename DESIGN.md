@@ -363,7 +363,7 @@ Ways to light one, each once per game:
 - If the extra ball and a mode are lit together, the extra ball is collected first, then the mode select menu opens.
 - **Operator settings:** most extra balls per game (default 2), and extra balls awarded as points instead (for
   competition). Past the limit, each source awards points.
-- The drain LED (shoot again) stays lit while an extra ball is waiting.
+- The drain LED (shoot again) stays lit amber while an extra ball is waiting.
 
 ### Timed ball saves
 
@@ -417,8 +417,8 @@ Lines in quotes are callouts: **S** is the Steward, **O** is the Oaks. Lines are
 | Ball start | City-white scan down the playfield, then the forest ambient for the current overgrowth level | S: a status line, e.g. *"Overgrowth at twelve percent."* | Player / ball / overgrowth % |
 | Mode select | The scoop bolts pulse. Available districts on the city map pulse in their colors; the highlighted one is solid | Wooden clicks to move; a deep impact to choose | The currently selected city region. Name and perk |
 | Ball save | A green radial pulse from the drain | O: *"Again."* | Roots catch a falling ball |
-| Extra ball lit | The left scoop bolts flash white; the drain LED pulses | S: *"Unregistered resident detected near scoop."* | EXTRA BALL LIT |
-| Extra ball collected | A growth from the roots to the drain LED, which stays lit | S: *"Error. Invalid resident."* | A second root breaks the surface |
+| Extra ball lit | The left scoop bolts flash white | S: *"Unregistered resident detected near scoop."* | EXTRA BALL LIT |
+| Extra ball collected | A growth from the roots to the drain LED, which stays lit amber | S: *"Error. Invalid resident."* | A second root breaks the surface |
 | Outlane save growing | Each sling hit grows the roots a step up that side's post rings | A short creak | — |
 | Outlane save lit | Both post rings on that side are full; the outlane LED glows green with a slow heartbeat | O, whispered: *"Hold."* | — |
 | Outlane save used | Roots surge from the outlane up to the plunger lane; the post rings empty | O: *"Not yet."* S: *"Retrieval… failed."* | Roots grab the ball as it falls and throw it back |

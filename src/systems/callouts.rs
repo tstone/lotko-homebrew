@@ -43,10 +43,10 @@ callouts! {
   ErrorInvalidResident => "error-invalid-resident",
   RetrievalFailed => "retrieval-failed",
   ExtraBall => "extra-ball",
+  SamePlayerShootAgain => "same-player-shoot-again",
   NewHighScore => "new-high-score",
   AccessToCityRestricted => "generic/access-to-city-restricted",
   BiologicalContaminantIdentified => "generic/biological-contaminent-identified",
-  FourOfSix => "generic/four-of-six",
   StewardCoreBreached => "final/steward-core-breached",
   Alert => "generic/alert",
   Warning => "generic/warning",
@@ -56,11 +56,25 @@ callouts! {
   RestrictedArea => "generic/restricted-area",
   SkyrailUnavailable => "generic/skyrail-unavailable",
 
+  // words for building lines with `say_all`
+  One => "generic/one",
+  Two => "generic/two",
+  Three => "generic/three",
+  Four => "generic/four",
+  Five => "generic/five",
+  Six => "generic/six",
+  Seven => "generic/seven",
+  Eight => "generic/eight",
+  Of => "generic/of",
+
   // side quests
   AirborneContaminantDetected => "side/airborne-contantaminant-detected",
   CameraNetworkOffline => "side/camera-network-offline",
+  DecommissioningDrones => "side/decomissioning-drone",
   DecommissioningDroneOne => "side/decomissioning-drone-1",
+  DecommissioningDroneTwo => "side/decomissioning-drone-2",
   DecommissioningDroneThree => "side/decomissioning-drone-3",
+  DecommissioningDroneFour => "side/decomissioning-drone-4",
   DroneDisengaged => "side/drone-disengaged",
   SurveillanceEnabled => "side/surveillance-enabled",
 
@@ -113,6 +127,21 @@ callouts! {
 }
 
 impl Callout {
+  /// The word for a number from 1 to 8, the ones recorded
+  pub fn number(n: u8) -> Option<Callout> {
+    const NUMBERS: [Callout; 8] = [
+      Callout::One,
+      Callout::Two,
+      Callout::Three,
+      Callout::Four,
+      Callout::Five,
+      Callout::Six,
+      Callout::Seven,
+      Callout::Eight,
+    ];
+    NUMBERS.get((n as usize).checked_sub(1)?).copied()
+  }
+
   /// How the line is said. A run of lines starts with the chime. A passing line is dropped if it has to wait too long, and
   /// any other line takes the place of the passing lines waiting ahead of it.
   fn request(self) -> CalloutRequest {
@@ -130,7 +159,6 @@ impl Callout {
       self,
       Self::AllSystemsWithinOperationalTolerance
         | Self::ContinuingCityMaintenance
-        | Self::FourOfSix
         | Self::ChannelBreach
         | Self::MeridianBasinsUninhabitable
         | Self::CoreTemperatureRising
@@ -143,6 +171,14 @@ impl Callout {
         | Self::AtriumContainmentEnacted
         | Self::DroneDisengaged
         | Self::SeismicDamageIdentified
+        | Self::One
+        | Self::Two
+        | Self::Three
+        | Self::Four
+        | Self::Five
+        | Self::Six
+        | Self::Seven
+        | Self::Eight
     )
   }
 }
@@ -150,11 +186,32 @@ impl Callout {
 pub trait SayExt {
   /// Have the Steward say a line. Lines are said one at a time, and `CalloutCompleted` reports the line's `key`.
   fn say(&self, line: Callout);
+
+  /// Have the Steward say several lines back to back as one, such as "four", "of", "six". It's said the way the first
+  /// is, and `CalloutCompleted` reports the first's `key`.
+  fn say_all(&self, lines: &[Callout]);
+
+  /// "Four of six", said as passing commentary. Says nothing for a number that wasn't recorded.
+  fn say_count(&self, count: u8, of: u8) {
+    if let (Some(count), Some(of)) = (Callout::number(count), Callout::number(of)) {
+      self.say_all(&[count, Callout::Of, of]);
+    }
+  }
 }
 
 impl<'a> SayExt for SystemContext<'a> {
   fn say(&self, line: Callout) {
     self.play_callout(line.request());
+  }
+
+  fn say_all(&self, lines: &[Callout]) {
+    let Some((first, rest)) = lines.split_first() else {
+      return;
+    };
+    let request = rest
+      .iter()
+      .fold(first.request(), |request, line| request.then(line.key()));
+    self.play_callout(request);
   }
 }
 
@@ -168,5 +225,13 @@ mod tests {
   fn each_line_is_its_own_sound() {
     let keys: HashSet<_> = Callout::ALL.iter().map(|line| line.key()).collect();
     assert_eq!(keys.len(), Callout::ALL.len());
+  }
+
+  #[test]
+  fn only_the_recorded_numbers_have_words() {
+    assert_eq!(Callout::number(0), None);
+    assert_eq!(Callout::number(1), Some(Callout::One));
+    assert_eq!(Callout::number(8), Some(Callout::Eight));
+    assert_eq!(Callout::number(9), None);
   }
 }

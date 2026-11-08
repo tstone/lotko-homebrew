@@ -87,11 +87,12 @@ impl MeridianBasinsMode {
     }
 
     ctx.play_sfx(sounds::city_hit(self.hits as f32 / REQUIRED_HITS as f32));
-    ctx.say(if self.hits == 4 {
-      Callout::FourOfSix
+    // the first hit gets the mode's line, and after that the Steward counts them
+    if self.hits == 1 {
+      ctx.say(Callout::ChannelBreach);
     } else {
-      Callout::ChannelBreach
-    });
+      ctx.say_count(self.hits, REQUIRED_HITS);
+    }
 
     if self.run.progress(self.hits) == Some(50) {
       self.intensity_effect.play();
@@ -103,7 +104,10 @@ impl MeridianBasinsMode {
   fn advance(&mut self, ctx: &SystemContext) {
     self.window = (self.window + 1) % MainShot::ALL.len();
 
-    ctx.play_sfx(sounds::rnd_latch());
+    // the gate moves quietly while the Steward is talking
+    if !ctx.callout_pending() {
+      ctx.play_sfx(sounds::rnd_latch());
+    }
     self.attention_effect.stop(ctx);
     self.attention_effect = Self::attention_effect(&lit_shots(self.window));
   }

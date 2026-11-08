@@ -34,7 +34,7 @@ macro_rules! callouts {
 
 callouts! {
   // global moments
-  GameStart => "game-start",
+  GameStart => "steward-online",
   AllSystemsWithinOperationalTolerance => "all-systems-within-operational-tolerance",
   ContinuingCityMaintenance => "generic/continuing-city-maintenance",
   GrowthContained => "growth-contained",

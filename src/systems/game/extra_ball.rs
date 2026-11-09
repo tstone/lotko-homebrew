@@ -123,7 +123,7 @@ impl ExtraBallSystem {
   /// The drain LED stays lit while the player has an extra ball to use
   fn update_shoot_again(&self, ctx: &SystemContext) {
     if ctx.extra_balls() > 0 {
-      ctx.declare_leds(&DRAIN_LED.q(), ColorSequence::solid(Rgba::amber()));
+      ctx.declare_leds(&DRAIN_LED.q(), Rgba::amber());
     } else {
       ctx.undeclare_leds(&DRAIN_LED.q());
     }

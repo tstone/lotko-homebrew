@@ -48,10 +48,7 @@ impl TiltPresenter {
     if let Some(cue) = self.warning_cue.take() {
       ctx.cues.cancel(cue);
     }
-    ctx.declare_leds(
-      &LedQ::tag::<tags::Playfield>().at_z(50),
-      ColorSequence::solid(Rgba::black()),
-    );
+    ctx.declare_leds(&LedQ::tag::<tags::Playfield>().at_z(50), Rgba::black());
     self.show("TILT".to_string(), ctx);
     ctx.say(Callout::ThankYouForCooperation);
   }

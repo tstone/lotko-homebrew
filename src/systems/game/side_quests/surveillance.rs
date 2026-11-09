@@ -124,7 +124,7 @@ impl SurveillanceSystem {
     for pop in PopBumper::ALL {
       let led = pop_cluster::target_led_for_pop(&pop).q();
       if self.is_enabled() && self.cameras.is_watching(pop) {
-        ctx.declare_leds(&led, ColorSequence::solid(Rgba::red()));
+        ctx.declare_leds(&led, Rgba::red());
       } else {
         ctx.undeclare_leds(&led);
       }

@@ -293,7 +293,7 @@ impl ModeManager {
         _ if self.highlighted == Some(mode) => mode.color(),
         _ => Rgba::default(),
       };
-      ctx.declare_leds(&led, ColorSequence::from(color));
+      ctx.declare_leds(&led, color);
     }
   }
 

@@ -82,7 +82,7 @@ impl ScoopQualifier {
     for shot in MainShot::ALL {
       let center = shot.hex_center().at_z(LIT_SHOT_Z);
       if self.count.is_lit(shot) {
-        ctx.declare_leds(&center, ColorSequence::solid(Rgba::white()));
+        ctx.declare_leds(&center, Rgba::white());
       } else {
         ctx.undeclare_leds(&center);
       }

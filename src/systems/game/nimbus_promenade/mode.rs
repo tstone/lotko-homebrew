@@ -205,7 +205,7 @@ impl NimbusPromenadeMode {
     // after the attention stops, as that gives up every LED it had, which a newly choked one was among
     for shot in MainShot::ALL {
       if self.walkway(shot) == Walkway::Choked {
-        ctx.declare_leds(shot.hex_center(), ColorSequence::solid(Rgba::green()));
+        ctx.declare_leds(shot.hex_center(), Rgba::green());
       }
     }
   }

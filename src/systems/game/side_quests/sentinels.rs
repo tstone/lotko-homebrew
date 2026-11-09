@@ -98,7 +98,7 @@ impl SentinelsSystem {
       if !self.deployed || down {
         ctx.undeclare_leds(&target.q());
       } else {
-        ctx.declare_leds(&target.q(), ColorSequence::solid(Rgba::peach()));
+        ctx.declare_leds(&target.q(), Rgba::peach());
       }
     }
   }

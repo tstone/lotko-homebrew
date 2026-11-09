@@ -150,7 +150,7 @@ impl SolariumAtriumMode {
     }
     ctx.declare_leds(
       self.next.hex_center(),
-      ColorSequence::solid(MODE_COLOR.mix_with(Rgba::black(), 0.8)),
+      MODE_COLOR.mix_with(Rgba::black(), 0.8),
     );
   }
 

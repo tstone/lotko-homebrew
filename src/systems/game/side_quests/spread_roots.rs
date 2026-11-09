@@ -175,7 +175,7 @@ impl SpreadRootsSystem {
       glow.stop(ctx);
     }
     if armed {
-      ctx.declare_leds(&led, ColorSequence::solid(Rgba::bronze()));
+      ctx.declare_leds(&led, Rgba::bronze());
     } else {
       ctx.undeclare_leds(&led);
     }

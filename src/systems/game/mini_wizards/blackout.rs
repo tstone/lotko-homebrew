@@ -96,13 +96,10 @@ impl BlackoutMode {
   }
 
   fn render(&mut self, ctx: &SystemContext) {
-    ctx.declare_leds(
-      &LedQ::tag::<tags::Playfield>().at_z(DARK_Z),
-      ColorSequence::solid(Rgba::black()),
-    );
+    ctx.declare_leds(&LedQ::tag::<tags::Playfield>().at_z(DARK_Z), Rgba::black());
     ctx.declare_leds(
       &roots().at_z(LIT_Z),
-      ColorSequence::solid(Rgba::green().mix_with(Rgba::black(), 0.6)),
+      Rgba::green().mix_with(Rgba::black(), 0.6),
     );
 
     if let Some(mut effect) = self.lit_effect.take() {

@@ -36,18 +36,9 @@ impl System for PlayfieldIllumination {
     // a declaration stands until it's replaced, so it only needs making when the color changes
     if self.update {
       self.update = false;
-      ctx.declare_leds(
-        &LedQ::tag::<GeneralIllumination>(),
-        ColorSequence::solid(self.color),
-      );
-      ctx.declare_leds(
-        &arc_ramp::ARC_LEDS.q().at_z(-1),
-        ColorSequence::solid(self.color),
-      );
-      ctx.declare_leds(
-        &arc_ramp::SUBWAY_LEDS.q().at_z(-1),
-        ColorSequence::solid(self.color),
-      );
+      ctx.declare_leds(&LedQ::tag::<GeneralIllumination>(), self.color);
+      ctx.declare_leds(&arc_ramp::ARC_LEDS.q().at_z(-1), self.color);
+      ctx.declare_leds(&arc_ramp::SUBWAY_LEDS.q().at_z(-1), self.color);
     }
   }
 }

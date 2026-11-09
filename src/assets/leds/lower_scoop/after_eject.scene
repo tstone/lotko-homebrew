@@ -1,7 +1,7 @@
 Led(
   version: 1,
   timing: (
-    duration: 0.3,
+    duration: 0.45,
     cycle: Once,
   ),
   layers: [
@@ -20,7 +20,7 @@ Led(
                   curve: Linear,
                 ),
                 (
-                  at: 0.3,
+                  at: 0.45,
                   value: 0.0,
                   curve: Linear,
                 ),
@@ -35,7 +35,7 @@ Led(
             Translate(Fixed(1.672, 25.88)),
           ],
           base: Ring(
-            radius: Track(
+            inner_radius: Track(
               keys: [
                 (
                   at: 0.0,
@@ -43,8 +43,8 @@ Led(
                   curve: Linear,
                 ),
                 (
-                  at: 0.3,
-                  value: 5.729,
+                  at: 0.45,
+                  value: 8.972,
                   curve: Linear,
                 ),
               ],

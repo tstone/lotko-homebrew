@@ -30,7 +30,7 @@ Led(
             Translate(Fixed(10.125, 22.5)),
           ],
           base: Ring(
-            radius: Fixed(0.609),
+            inner_radius: Fixed(0.609),
             thickness: Track(
               keys: [
                 (

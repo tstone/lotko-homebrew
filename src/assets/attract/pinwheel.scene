@@ -76,7 +76,7 @@ Led(
           ],
           base: Pinwheel(
             blades: Fixed(8.0),
-            balance: Fixed(0.4),
+            blade_fraction: Fixed(0.4),
           ),
         ),
       ),

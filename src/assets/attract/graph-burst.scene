@@ -1,0 +1,58 @@
+Led(
+  version: 1,
+  timing: (
+    duration: 1.0,
+    cycle: Forever,
+  ),
+  layers: [
+    (
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          transform: [
+            Rotate(Fixed(45.0)),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(255, 0, 0, 255),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 255, 255),
+              ),
+            ],
+            style: Linear,
+          ),
+          adjust: [
+            Opacity(Visit(
+              traversal: "walk",
+              from: 0.0,
+              to: 1.0,
+              smooth_in: 1.0,
+              hold: 2.1,
+              smooth_out: 1.0,
+              curve_in: Linear,
+              curve_out: Linear,
+              overlap: Max,
+            )),
+          ],
+        ),
+        graph: (
+          traversals: [
+            (
+              name: "walk",
+              from: Nearest(Fixed(10.125, 22.5)),
+              algorithm: BreadthFirst(
+                wander: Fixed(0.0),
+              ),
+              speed: Duration(None),
+              start: 0.0,
+            ),
+          ],
+        ),
+      ),
+    ),
+  ],
+)

@@ -1,8 +1,8 @@
 Led(
   version: 1,
   timing: (
-    duration: 0.185,
-    cycle: Times(2),
+    duration: 0.6,
+    cycle: Once,
   ),
   layers: [
     (
@@ -11,7 +11,7 @@ Led(
       layer: (
         fill: (
           transform: [
-            Rotate(Fixed(90.0)),
+            Fit("growth"),
           ],
           base: Gradient(
             stops: [
@@ -21,27 +21,29 @@ Led(
               ),
               (
                 at: 1.0,
-                color: Fixed(0, 0, 0, 0),
+                color: Fixed(255, 255, 255, 255),
               ),
             ],
             style: Linear,
           ),
           adjust: [
-            Opacity(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.185,
-                  value: 0.0,
-                  curve: EaseInOut,
-                ),
-              ],
-              cycle: Once,
-            )),
+            Opacity(Visit(traversal: "growth", from: 0.0, to: 1.0, smooth_out: 2.0, curve_out: EaseIn)),
+          ],
+        ),
+        graph: (
+          traversals: [
+            (
+              name: "growth",
+              from: Nearest(Fixed(10.125, 2.0)),
+              algorithm: Growth(
+                to: Nearest(Fixed(10.125, 43.0)),
+                reach: Fixed(4.0),
+                density: Fixed(5.0),
+                branching: Fixed(0.3),
+                wander: Fixed(0.6),
+              ),
+              speed: Duration(None),
+            ),
           ],
         ),
       ),

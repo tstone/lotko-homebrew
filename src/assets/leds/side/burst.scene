@@ -11,6 +11,9 @@ Led(
       surface: Area("Playfield"),
       layer: (
         fill: (
+          transform: [
+            Fit("burst"),
+          ],
           base: Gradient(
             stops: [
               (
@@ -23,31 +26,26 @@ Led(
               ),
             ],
             space: Rgb,
-            style: Radial,
+            style: Linear,
           ),
-        ),
-        shape: (
-          transform: [
-            Translate(Fixed(3.088, 31.606)),
+          adjust: [
+            Opacity(Visit(traversal: "burst", from: 0.0, to: 1.0, smooth_out: 4.0, curve_out: EaseIn)),
           ],
-          base: Ring(
-            inner_radius: Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.5,
-                  curve: Linear,
-                ),
-                (
-                  at: 1.2,
-                  value: 40.0,
-                  curve: EaseOut,
-                ),
-              ],
-              cycle: Once,
+        ),
+        graph: (
+          traversals: [
+            (
+              name: "burst",
+              from: Nearest(Fixed(3.088, 31.606)),
+              algorithm: FanOut(
+                to: Nearest(Fixed(10.125, 22.5)),
+                angle: Fixed(120.0),
+                count: Fixed(4.0),
+                wander: Fixed(0.5),
+              ),
+              speed: Duration(Some(0.9)),
             ),
-            thickness: Fixed(3.0),
-          ),
+          ],
         ),
       ),
     ),

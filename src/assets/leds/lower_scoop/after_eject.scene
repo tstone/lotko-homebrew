@@ -12,46 +12,18 @@ Led(
         fill: (
           base: Solid(Fixed(255, 255, 255, 255)),
           adjust: [
-            Opacity(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.45,
-                  value: 0.0,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
-            )),
+            Opacity(Visit(traversal: "spread", from: 0.0, to: 1.0, smooth_out: 3.0, curve_out: EaseIn)),
           ],
         ),
-        shape: (
-          transform: [
-            Scale(Fixed(1.0, 1.0)),
-            Translate(Fixed(1.672, 25.88)),
-          ],
-          base: Ring(
-            inner_radius: Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.01,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.45,
-                  value: 8.972,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Once,
+        graph: (
+          traversals: [
+            (
+              name: "spread",
+              from: Nearest(Fixed(1.672, 25.88)),
+              algorithm: Dijkstra(wander: Fixed(0.4)),
+              speed: Rate(Fixed(20.0)),
             ),
-            thickness: Fixed(1.404),
-          ),
+          ],
         ),
       ),
     ),

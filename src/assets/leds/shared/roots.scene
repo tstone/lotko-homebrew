@@ -1,0 +1,52 @@
+Led(
+  version: 1,
+  timing: (
+    duration: 2.0,
+    cycle: Once,
+  ),
+  layers: [
+    (
+      leds: Tag("Playfield"),
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          transform: [
+            Fit("roots"),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(140, 255, 0, 255),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(255, 180, 0, 255),
+              ),
+            ],
+            style: Linear,
+          ),
+          adjust: [
+            Opacity(Visit(traversal: "roots", from: 0.0, to: 1.0, smooth_in: 0.5, curve_in: EaseOut)),
+          ],
+        ),
+        graph: (
+          traversals: [
+            (
+              name: "roots",
+              from: Nearest(Fixed(10.125, 2.0)),
+              algorithm: Growth(
+                to: Nearest(Fixed(10.125, 43.0)),
+                reach: Fixed(6.0),
+                density: Fixed(6.0),
+                branching: Fixed(0.4),
+                wander: Fixed(0.6),
+              ),
+              speed: Duration(Some(1.5)),
+            ),
+          ],
+        ),
+      ),
+    ),
+  ],
+)

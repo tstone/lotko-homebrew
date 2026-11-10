@@ -1,48 +1,57 @@
-Led(
-  version: 1,
-  timing: (
-    duration: 0.185,
-    cycle: Times(7),
-  ),
-  layers: [
-    (
-      leds: Every,
-      surface: Sequence,
-      layer: (
-        fill: (
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(0, 255, 255, 255),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(0, 0, 255, 255),
-              ),
-            ],
-            space: Rgb,
-            style: Linear,
-          ),
-          adjust: [
-            Opacity(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.185,
-                  value: 0.0,
-                  curve: EaseInOut,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-        ),
-      ),
-    ),
-  ],
+Led(
+  version: 1,
+  timing: (
+    duration: 0.4,
+    cycle: Times(3),
+  ),
+  layers: [
+    (
+      leds: Every,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          transform: [
+            Rotate(Fixed(75.0)),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(0, 255, 255, 255),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 255, 255),
+              ),
+            ],
+            style: Linear,
+          ),
+        ),
+        region: (
+          transform: [
+            Scale(Fixed(1.0, 1.0)),
+            Translate(Track(
+              keys: [
+                (
+                  at: 0.0,
+                  value: (10.522, -22.3),
+                  curve: Linear,
+                ),
+                (
+                  at: 0.31,
+                  value: (8.933, 62.683),
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Rect(
+            width: Fixed(32.946),
+            height: Fixed(43.903),
+          ),
+        ),
+      ),
+    ),
+  ],
 )

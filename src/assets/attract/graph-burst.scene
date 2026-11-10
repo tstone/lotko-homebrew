@@ -1,11 +1,12 @@
 Led(
   version: 1,
   timing: (
-    duration: 1.0,
-    cycle: Forever,
+    duration: 1.51,
+    cycle: Times(5),
   ),
   layers: [
     (
+      leds: Every,
       surface: Area("Playfield"),
       layer: (
         fill: (
@@ -16,11 +17,41 @@ Led(
             stops: [
               (
                 at: 0.0,
-                color: Fixed(255, 0, 0, 255),
+                color: Random(
+                  picks: [
+                    (
+                      at: 0.0,
+                      smooth_in: 0.0,
+                      smooth_out: 0.0,
+                    ),
+                  ],
+                  spread: Color(
+                    hue: (0.0, 109.0),
+                    brightness: (0.68, 1.0),
+                    alpha: (1.0, 1.0),
+                  ),
+                  seed: 3394521963,
+                  force_unique: true,
+                ),
               ),
               (
                 at: 1.0,
-                color: Fixed(0, 0, 255, 255),
+                color: Random(
+                  picks: [
+                    (
+                      at: 0.0,
+                      smooth_in: 0.0,
+                      smooth_out: 0.0,
+                    ),
+                  ],
+                  spread: Color(
+                    hue: (163.0, 269.0),
+                    brightness: (0.77, 1.0),
+                    alpha: (1.0, 1.0),
+                  ),
+                  seed: 4238376293,
+                  force_unique: true,
+                ),
               ),
             ],
             style: Linear,
@@ -43,7 +74,21 @@ Led(
           traversals: [
             (
               name: "walk",
-              from: Nearest(Fixed(10.125, 22.5)),
+              from: Nearest(Random(
+                picks: [
+                  (
+                    at: 0.0,
+                    smooth_in: 0.0,
+                    smooth_out: 0.0,
+                  ),
+                ],
+                spread: Vec2(
+                  x: (0.0, 20.25),
+                  y: (0.0, 45.0),
+                ),
+                seed: 3107479734,
+                force_unique: true,
+              )),
               algorithm: BreadthFirst(
                 wander: Fixed(0.0),
               ),

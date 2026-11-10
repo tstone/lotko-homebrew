@@ -1,0 +1,125 @@
+Led(
+  version: 1,
+  timing: (
+    duration: 2.25,
+    cycle: Times(3),
+  ),
+  layers: [
+    (
+      leds: Every,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          transform: [
+            Rotate(Fixed(90.0)),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Random(
+                  picks: [
+                    (
+                      at: 0.0,
+                      smooth_in: 0.0,
+                      smooth_out: 0.0,
+                    ),
+                  ],
+                  spread: Color(
+                    hue: (76.0, 206.0),
+                    brightness: (0.63, 1.0),
+                    alpha: (1.0, 1.0),
+                  ),
+                  seed: 1813778996,
+                  force_unique: true,
+                ),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 0, 255, 255),
+              ),
+            ],
+            style: Linear,
+          ),
+          adjust: [
+            Opacity(Visit(
+              traversal: "walk",
+              from: 1.0,
+              to: 0.0,
+              smooth_in: 4.6,
+              hold: 5.8,
+              smooth_out: 4.2,
+              curve_in: Linear,
+              curve_out: Linear,
+              overlap: Max,
+            )),
+          ],
+        ),
+        graph: (
+          traversals: [
+            (
+              name: "walk",
+              from: Nearest(Fixed(9.5, 41.736)),
+              algorithm: Growth(
+                to: Nearest(Random(
+                  picks: [
+                    (
+                      at: 0.0,
+                      smooth_in: 0.0,
+                      smooth_out: 0.0,
+                    ),
+                  ],
+                  spread: Vec2(
+                    x: (0.0, 20.2),
+                    y: (0.0, 15.5),
+                  ),
+                  seed: 190007651,
+                  force_unique: true,
+                )),
+                reach: Fixed(7.0),
+                density: Random(
+                  picks: [
+                    (
+                      at: 0.0,
+                      smooth_in: 0.0,
+                      smooth_out: 0.0,
+                    ),
+                  ],
+                  spread: Float(10.0, 20.0),
+                  seed: 4151935040,
+                  force_unique: true,
+                ),
+                branching: Random(
+                  picks: [
+                    (
+                      at: 0.0,
+                      smooth_in: 0.0,
+                      smooth_out: 0.0,
+                    ),
+                  ],
+                  spread: Float(0.28, 0.58),
+                  seed: 1282961988,
+                  force_unique: true,
+                ),
+                wander: Random(
+                  picks: [
+                    (
+                      at: 0.0,
+                      smooth_in: 0.0,
+                      smooth_out: 0.0,
+                    ),
+                  ],
+                  spread: Float(0.45, 1.61),
+                  seed: 1742930201,
+                  force_unique: true,
+                ),
+              ),
+              speed: Duration(None),
+              start: 0.0,
+            ),
+          ],
+        ),
+      ),
+    ),
+  ],
+)

@@ -1,12 +1,12 @@
 Led(
   version: 1,
   timing: (
-    duration: 1.0,
-    cycle: Times(3),
+    duration: 1.7,
+    cycle: Times(2),
   ),
   layers: [
     (
-      leds: Every,
+      leds: Tag("Playfield"),
       surface: Area("Playfield"),
       layer: (
         fill: (
@@ -14,38 +14,43 @@ Led(
             stops: [
               (
                 at: 0.0,
-                color: Fixed(255, 0, 166, 255),
+                color: Fixed(0, 255, 255, 255),
               ),
               (
                 at: 1.0,
                 color: Fixed(255, 212, 0, 255),
               ),
             ],
-            style: Radial,
+            style: Conical,
           ),
         ),
-        shape: (
+        region: (
           transform: [
             Scale(Fixed(1.0, 1.0)),
-            Translate(Fixed(10.125, 22.5)),
+            Translate(Fixed(13.814, 17.917)),
           ],
           base: Ring(
-            inner_radius: Fixed(0.609),
-            thickness: Track(
+            inner_radius: Track(
               keys: [
                 (
                   at: 0.0,
-                  value: 1.316,
+                  value: 22.03,
                   curve: Linear,
                 ),
                 (
-                  at: 1.0,
-                  value: 19.941,
+                  at: 0.4156,
+                  value: 21.055,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.7,
+                  value: 0.523,
                   curve: Linear,
                 ),
               ],
               cycle: Once,
             ),
+            thickness: Fixed(1.316),
           ),
         ),
       ),

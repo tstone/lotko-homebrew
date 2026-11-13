@@ -5,19 +5,24 @@ use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManager, TurnEnding};
 use frontbox_sound::SoundSystemExt;
 
+use crate::hardware::cabinet::DoubleFlipped;
 use crate::systems::dmd::TURN_END_DMD_LAYER;
 use crate::systems::sounds;
 
-/// A participant in `TurnEnding`: shows the player's score for the turn that's ending on the DMD
+/// A participant in `TurnEnding`: shows the player's score for the turn that's ending on the DMD. A double flip moves
+/// on early.
 #[derive(Clone)]
-pub struct TurnEndScoreSystem;
+pub struct TurnEndScoreSystem {
+  /// The cue for moving off the score, while it's shown
+  score_cue: Option<u64>,
+}
 
 impl TurnEndScoreSystem {
   pub fn new() -> Self {
-    Self
+    Self { score_cue: None }
   }
 
-  fn on_turn_ending(&self, turn_ending: &TurnEnding, ctx: &SystemContext) {
+  fn on_turn_ending(&mut self, turn_ending: &TurnEnding, ctx: &SystemContext) {
     let score = ctx
       .systems
       .get::<GameManager>()
@@ -35,7 +40,14 @@ impl TurnEndScoreSystem {
       );
     }
     ctx.play_sfx(sounds::QUEST_COMPLETE);
-    ctx.cues.start(ScoreShown, Duration::from_secs(2).once());
+    self.score_cue = Some(ctx.cues.start(ScoreShown, Duration::from_secs(2).once()));
+  }
+
+  /// Clears the score and completes this step of the turn ending
+  fn complete(&mut self, ctx: &SystemContext) {
+    ctx.cues.cancel(self.score_cue.take());
+    self.clear_screen(ctx);
+    ctx.routines.complete_step::<TurnEnding>();
   }
 
   fn draw(player: u8, score: u64) -> Container {
@@ -71,9 +83,16 @@ impl System for TurnEndScoreSystem {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
+    // the score isn't up until this step starts, so a double flip that skipped the bonus doesn't skip it too
+    if self.score_cue.is_none() {
+      return;
+    }
+
     if event.is::<ScoreShown>() {
-      self.clear_screen(ctx);
-      ctx.routines.complete_step::<TurnEnding>();
+      self.complete(ctx);
+    } else if event.is::<DoubleFlipped>() {
+      log::info!("Turn end score: skipped");
+      self.complete(ctx);
     }
   }
 

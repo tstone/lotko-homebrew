@@ -62,7 +62,9 @@ impl BonusSystem {
     format!("{} x {}", count, TextFormatting::number(value))
   }
 
-  /// Shows the next screen, or once they've all been shown, completes this step of the turn ending
+  /// Shows the next screen, or once they've all been shown, completes this step of the turn ending. The last screen is
+  /// left up for `TurnEndScoreSystem` to replace: the next step starts after this tick renders, so clearing it here
+  /// would flash the game score in between.
   fn show_next_screen(&mut self, ctx: &SystemContext) {
     if let Some((amount, label)) = self.screens.pop_front() {
       if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
@@ -74,7 +76,6 @@ impl BonusSystem {
       self.screen_cue = Some(ctx.cues.start(BonusScreenShown, SCREEN_DURATION.once()));
     } else {
       self.screen_cue = None;
-      self.clear_screen(ctx);
       ctx.routines.complete_step::<TurnEnding>();
     }
   }

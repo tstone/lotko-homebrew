@@ -4,7 +4,9 @@ use std::sync::LazyLock;
 use frontbox_core::prelude::*;
 use frontbox_core::tags::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::{GameManagementExt, PlayerTilted, TurnEnding};
+use frontbox_pinball::{
+  BallManagementExt, BallSearching, GameManagementExt, PlayerTilted, TurnEnding,
+};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::arc_ramp::ArcRampSubwayHit;
@@ -69,6 +71,8 @@ pub const LOWER_SCOOP_EJECT: &'static str = "lower_scoop_eject";
 /// Ejects a ball that lands in the scoop, unless something is holding the ball there. Anything that needs the ball to
 /// wait (the mode select menu, a mode's intro, the extra ball animation) calls [`Self::hold`], and the ball ejects once
 /// the last of them calls [`Self::release`]. A tilt or the end of a turn clears every hold.
+///
+/// Kicks during a ball search, unless its ball is being held or is about to eject.
 #[derive(Clone)]
 pub struct LowerScoopSystem {
   eject_program: LedPlayback,
@@ -171,6 +175,7 @@ impl LowerScoopSystem {
 
     self.subway_entry = false;
     self.ball_waiting = true;
+    ctx.set_balls_held(1);
 
     // whatever wants to hold the ball hears about it first, and the eject starts if nothing did
     ctx.emit(event);
@@ -185,7 +190,18 @@ impl System for LowerScoopSystem {
     // check if there is a ball at startup and eject if so
     if ctx.switches.is_closed(OPTO.name).unwrap_or(false) {
       log::debug!("Lower scoop is occupied. Ejecting.");
+      ctx.set_balls_held(1);
       self.complete_eject(ctx);
+    }
+  }
+
+  fn on_routine(&mut self, routine: &dyn Event, ctx: &SystemContext) {
+    if routine.is::<BallSearching>() {
+      // not while its ball is being held, or is about to eject
+      if !self.ball_waiting || (self.holds.is_empty() && !self.eject_pending) {
+        ctx.drivers.activate(COIL.name, ActivationMode::Tap);
+      }
+      ctx.routines.complete_step::<BallSearching>();
     }
   }
 
@@ -196,6 +212,10 @@ impl System for LowerScoopSystem {
       && event.switch.name == OPTO.name
     {
       self.on_ball_enter(ctx);
+    } else if let Some(event) = event.downcast_ref::<SwitchOpened>()
+      && event.switch.name == OPTO.name
+    {
+      ctx.set_balls_held(0);
     } else if event.is::<BeginEject>() {
       self.begin_eject(ctx);
     } else if event.is::<EjectLowerScoop>() {

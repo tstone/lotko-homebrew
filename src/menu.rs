@@ -33,7 +33,7 @@ pub static MENU: LazyLock<MenuSection> = LazyLock::new(|| {
         .section(MenuSection::new("Autoplunger").configs(plunge_lane::COIL.configs()))
         .section(MenuSection::new("Lower Scoop").configs(lower_scoop::COIL.configs()))
         .section(MenuSection::new("Lift Ramp").configs(lift_ramp::RAMP_COIL.configs()))
-        .section(MenuSection::new("Rear Scoop").configs(lift_ramp::EJECT_COIL.configs()))
+        .section(MenuSection::new("Rear Scoop").configs(rear_scoop::COIL.configs()))
         .section(MenuSection::new("Drop Targets").configs(drop_bank::COIL.configs())),
     )
     .section(MenuSection::new("Game").configs(vec![

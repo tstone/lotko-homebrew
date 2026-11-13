@@ -6,7 +6,7 @@ use frontbox_core::prelude::DeactivationMode::VirtualSwitchOff;
 use frontbox_core::prelude::DriverTriggerMode::VirtualSwitchTrue;
 use frontbox_core::prelude::*;
 use frontbox_core::tags::*;
-use frontbox_pinball::TurnPhase;
+use frontbox_pinball::{BallSearching, TurnPhase};
 
 use crate::hardware::more_tags::*;
 use crate::hardware::planes;
@@ -34,36 +34,6 @@ hardware_defs! {
         .build(),
     )
     .location(Vec3::new(14.211, 5.726, -1.0).relative_to(&planes::PLAYFIELD));
-
-  pub EJECT_COIL: DriverDefinition = DriverDefinition::new("lift_ramp_eject")
-    .tag(Playfield)
-    .mode(
-      DriverMode::pulse_kick()
-        .trigger_mode(VirtualSwitchTrue)
-        .initial_pwm_length(HardwareValue::config(
-          "Rear Scoop Touch Time",
-          "Duration by which the eject plunger is brought into contact with the ball, before full eject",
-          Duration::from_millis(2),
-          Ranges::duration(0, 100),
-        ))
-        .initial_pwm_power(HardwareValue::fixed(Power::HALF))
-        .secondary_pwm_power(HardwareValue::Fixed(Power::ZERO))
-        .secondary_pwm_length(HardwareValue::Fixed(Duration::ZERO))
-        .kick_length(HardwareValue::config(
-          "Rear Scoop Eject Time",
-          "Duration that the plunger exert full power onto the ball (kick)",
-          Duration::from_millis(12),
-          Ranges::duration(10, 100),
-        ))
-        .build(),
-    )
-    .location(Vec3::new(17.424, 1.428, -2.5).relative_to(&planes::PLAYFIELD));
-
-  pub SCOOP_OPTO: SwitchDefinition = SwitchDefinition::new("lift_ramp_scoop_opto")
-    .inverted()
-    .debounce_close(Duration::from_millis(10))
-    .tag(Playfield)
-    .location(Vec3::new(17.424, 1.428, -1.5).relative_to(&planes::PLAYFIELD));
 
   pub RAMP_OPTO: SwitchDefinition = SwitchDefinition::new("lift_ramp_opto")
     .inverted()
@@ -108,13 +78,17 @@ pub static HEX_CIRCLE_LEDS: LazyLock<LedQ> = LazyLock::new(|| {
   ])
 });
 
+/// How long a ball search keeps the ramp up, for a ball stuck under it to roll out
+const SEARCH_LIFT_TIME: Duration = Duration::from_secs(3);
+
+/// Lifts the ramp while anything asks for it during an active turn, and reports ramp hits during one. During a ball
+/// search it lifts the ramp if it's down, and lowers it again a few seconds later unless it's wanted up by then.
 #[derive(Clone)]
 pub struct LiftRampSystem {
   /// Who wants the ramp up, by `ctx.id()`. It stays up while anyone does.
   requests: HashSet<u64>,
   ramp_lifted: bool,
   close_cue_id: Option<u64>,
-  ball_present: bool,
   handle: SystemHandle,
 }
 
@@ -124,7 +98,6 @@ impl LiftRampSystem {
       requests: HashSet::new(),
       ramp_lifted: false,
       close_cue_id: None,
-      ball_present: false,
       handle: SystemHandle::default(),
     }
   }
@@ -171,62 +144,57 @@ impl LiftRampSystem {
     }
   }
 
-  pub fn eject(&mut self, ctx: &ServiceContext) {
-    let ctx = ctx.for_system(self.handle);
-    ctx.drivers.activate(EJECT_COIL.name, ActivationMode::Tap);
-    ctx
-      .cues
-      .start(VerifyVacancy, Duration::from_millis(1200).once());
+  fn search_lift(&mut self, ctx: &SystemContext) {
+    if !self.ramp_lifted {
+      self.lift_up(ctx.into());
+      ctx.cues.start(SearchLowerDue, SEARCH_LIFT_TIME.once());
+    }
+    ctx.routines.complete_step::<BallSearching>();
   }
 
-  fn verify_vacancy(&mut self, ctx: &SystemContext) {
-    if ctx.switches.is_closed(SCOOP_OPTO.name).unwrap_or(false) {
-      self.eject(ctx.into());
-    }
+  /// Someone asked for the ramp, and the turn is active
+  fn is_wanted_up(&self, ctx: &SystemContext) -> bool {
+    !self.requests.is_empty() && ctx.states.is(TurnPhase::Active)
   }
 }
 
 impl System for LiftRampSystem {
-  fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.states.is(TurnPhase::Active)
-  }
-
   fn on_spawn(&mut self, ctx: &SystemContext) {
     self.handle = ctx.handle();
-    self.ball_present = ctx.switches.is_closed(SCOOP_OPTO.name).unwrap_or(false);
+  }
+
+  fn on_routine(&mut self, routine: &dyn Event, ctx: &SystemContext) {
+    if routine.is::<BallSearching>() {
+      self.search_lift(ctx);
+    }
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<CloseRamp>() {
       log::info!("Lift ramp: Max time expired");
       self.lift_down(ctx.into());
-    } else if let Some(event) = event.downcast_ref::<SwitchClosed>() {
-      if event.switch.name == RAMP_OPTO.name {
-        log::info!("Lift ramp hit");
-        ctx.emit(LiftRampHit);
-      } else if event.switch.name == SCOOP_OPTO.name {
-        log::info!("Ball entered lift ramp scoop");
-        ctx.emit(LiftRampScoopBallEnter);
-        self.eject(ctx.into());
+    } else if let Some(changed) = event.downcast_ref::<StateChanged<TurnPhase>>() {
+      // The ramp is only up during an active turn. Whoever still wants it up gets it back on the next.
+      if changed.to == TurnPhase::Active {
+        if !self.requests.is_empty() {
+          self.lift_up(ctx.into());
+        }
+      } else if changed.from == TurnPhase::Active {
+        self.lift_down(ctx.into());
       }
-    } else if event.is::<VerifyVacancy>() {
-      self.verify_vacancy(ctx);
+    } else if event.is::<SearchLowerDue>() && !self.is_wanted_up(ctx) {
+      self.lift_down(ctx.into());
+    } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
+      && event.switch.name == RAMP_OPTO.name
+      && ctx.states.is(TurnPhase::Active)
+    {
+      log::info!("Lift ramp hit");
+      ctx.emit(LiftRampHit);
     }
   }
 
   fn on_despawn(&mut self, ctx: &SystemContext) {
     self.lift_down(ctx.into());
-  }
-
-  fn on_deactivate(&mut self, ctx: &SystemContext) {
-    self.lift_down(ctx.into());
-  }
-
-  fn on_reactivate(&mut self, ctx: &SystemContext) {
-    // Whoever still wants the ramp up gets it back
-    if !self.requests.is_empty() {
-      self.lift_up(ctx.into());
-    }
   }
 }
 
@@ -234,16 +202,13 @@ impl System for LiftRampSystem {
 struct CloseRamp;
 
 #[derive(serde::Serialize, Event)]
-pub struct LiftRampHit;
+struct SearchLowerDue;
 
 #[derive(serde::Serialize, Event)]
-pub struct LiftRampScoopBallEnter;
+pub struct LiftRampHit;
 
 #[derive(serde::Serialize, Event)]
 pub struct LiftRampUp;
 
 #[derive(serde::Serialize, Event)]
 pub struct LiftRampDown;
-
-#[derive(serde::Serialize, Event)]
-struct VerifyVacancy;

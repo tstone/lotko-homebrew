@@ -2,6 +2,7 @@ use crate::hardware::more_tags::DropBank;
 use crate::hardware::planes;
 use frontbox_core::prelude::*;
 use frontbox_core::tags::*;
+use frontbox_pinball::BallSearching;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum DropBankTarget {
@@ -147,6 +148,13 @@ impl DropBankSystem {
 impl System for DropBankSystem {
   fn on_spawn(&mut self, ctx: &SystemContext) {
     self.handle = ctx.handle();
+  }
+
+  fn on_routine(&mut self, routine: &dyn Event, ctx: &SystemContext) {
+    if routine.is::<BallSearching>() {
+      self.raise_targets(ctx.into());
+      ctx.routines.complete_step::<BallSearching>();
+    }
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

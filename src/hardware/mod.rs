@@ -21,6 +21,7 @@ pub mod more_tags;
 pub mod planes;
 pub mod plunge_lane;
 pub mod pop_cluster;
+pub mod rear_scoop;
 pub mod right_inlane;
 pub mod right_orbit;
 pub mod right_outlane;

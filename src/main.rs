@@ -83,15 +83,15 @@ async fn main() {
 
     // core
     app.system(LedSystem::new());
-    let mut sound = SoundSystem::by_name_or_default("Sound Blaster");
+    let mut sound = SoundSystem::new("Sound Blaster");
     sound.set_callout_volume(9.0);
 
     app.system(sound);
     app.system(FreePlay::new(start_button::SWITCH.q()));
+    app.system(CoinDoorSystem::new(coin_door::OPEN_SWITCH.name));
     app.system(SoundLoaderSystem::new());
     app.system(game_startable());
     app.system(attract_mode_leds());
-    app.system(StartupEject::new());
     app.system(quit_game_combo(vec![
       &cabinet::LEFT_FLIPPER_SWITCH1,
       &start_button::SWITCH,
@@ -122,6 +122,7 @@ async fn main() {
     app.system(lower_scoop::LowerScoopSystem::new());
     app.system(dome_ramp::DomeRampSystem::new());
     app.system(lift_ramp::LiftRampSystem::new());
+    app.system(rear_scoop::RearScoopSystem::new());
     app.system(left_orbit::LeftOrbitSystem::new());
     app.system(center_orbit::CenterOrbitSystem::new());
     app.system(right_orbit::RightOrbitSystem::new());
@@ -158,6 +159,28 @@ async fn main() {
     app.routine::<TurnEnding>(routine![EndOfBallSystem, BonusSystem, TurnEndScoreSystem]);
     app.routine::<BallDraining>(routine![BallSaveSystem, OutlaneSaveSystem]);
     app.routine::<GameEnding>(routine![EndOfBallSystem]);
+
+    // ball search
+    app.system(
+      BallSearchSystem::new(SwitchQ::tag::<tags::Playfield>())
+        .hold_switches(SwitchQ::names([
+          cabinet::LEFT_FLIPPER_SWITCH1.name,
+          cabinet::RIGHT_FLIPPER_SWITCH1.name,
+        ]))
+        .coils(DriverQ::names([
+          pop_cluster::left::COIL.name,
+          pop_cluster::upper_right::COIL.name,
+          pop_cluster::lower_right::COIL.name,
+          slingshots::LEFT_COIL.name,
+          slingshots::RIGHT_COIL.name,
+        ])),
+    );
+    app.routine::<BallSearching>(routine![
+      lower_scoop::LowerScoopSystem,
+      rear_scoop::RearScoopSystem,
+      lift_ramp::LiftRampSystem,
+      drop_bank::DropBankSystem,
+    ]);
 
     app.system(EndOfBallSystem::new());
     app.system(GameGreeting::new());

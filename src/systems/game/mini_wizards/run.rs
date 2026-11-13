@@ -79,7 +79,7 @@ impl MiniWizardRun {
     }
   }
 
-  pub fn score(&mut self, points: u32, ctx: &SystemContext) {
+  pub fn score(&mut self, points: u64, ctx: &SystemContext) {
     ctx.add_points(points);
     self.total += points as u64;
   }

@@ -101,7 +101,7 @@ impl FloodgatesMode {
     self.super_jackpots += 1;
     log::info!("Floodgates: super jackpot {}", self.super_jackpots);
     self.wizard.score(
-      points::FLOOD_SUPER_JACKPOT * self.super_jackpots as u32,
+      points::FLOOD_SUPER_JACKPOT * self.super_jackpots as u64,
       ctx,
     );
     ctx.play_sfx(sounds::IMPACT_CINEMATIC_HEAVY);

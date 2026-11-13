@@ -38,7 +38,7 @@ impl GamePointsDmdSystem {
   fn draw_competitive(
     &self,
     player_count: u8,
-    player_scores: &Vec<u32>,
+    player_scores: &Vec<u64>,
     current_player: u8,
     current_player_turn: u8,
   ) -> Container {
@@ -78,7 +78,7 @@ impl GamePointsDmdSystem {
         player_scores_row.add(
           SIGI_REGULAR_5PX_FONT
             .left_aligned(
-              format!("{}", TextFormatting::abbreviate_num(*score, 4)),
+              format!("{}", TextFormatting::abbreviate_num(*score as f64, 4)),
               Rgba::white().darken(0.4),
             )
             .left_offset(i as f32 / player_count as f32),

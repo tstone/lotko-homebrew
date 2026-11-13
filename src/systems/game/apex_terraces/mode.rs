@@ -87,7 +87,7 @@ impl ApexTerracesMode {
     if self.done() == 0 {
       ctx.say(Callout::ThisIsAnExclusiveArea);
     }
-    ctx.add_points(points::APEX_HIT * hits as u32);
+    ctx.add_points(points::APEX_HIT * hits as u64);
     self.filled = (self.filled + hits).min(self.needed());
     log::info!(
       "ApexTerraces: terrace {} at {} of {}",
@@ -115,7 +115,7 @@ impl ApexTerracesMode {
     self.bursts += 1;
     self.filled = 0;
     log::info!("ApexTerraces: terrace {} burst", self.bursts);
-    ctx.add_points(points::APEX_BURST * self.bursts as u32);
+    ctx.add_points(points::APEX_BURST * self.bursts as u64);
     ctx.play_sfx(sounds::IMPACT_DIRT);
     ctx
       .systems

@@ -21,7 +21,7 @@ const RAMPS: [MainShot; 3] = [MainShot::DomeRamp, MainShot::ArcRamp, MainShot::L
 /// the ramps collect it, which starts it building again from the base.
 pub struct CanopyMode {
   wizard: MiniWizardRun,
-  value: u32,
+  value: u64,
   collects: u8,
   attention_effect: LedPlayback,
 }
@@ -41,7 +41,7 @@ impl CanopyMode {
     glow_effect(&LedQ::any(qs), Mode::Canopy.color())
   }
 
-  fn build(&mut self, amount: u32) {
+  fn build(&mut self, amount: u64) {
     self.value += amount;
   }
 
@@ -102,7 +102,7 @@ impl System for CanopyMode {
     {
       self.build(points::CANOPY_POP);
     } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
-      self.build(points::CANOPY_ROOTS * lash.hits as u32);
+      self.build(points::CANOPY_ROOTS * lash.hits as u64);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>()
       && RAMPS.contains(&hit.shot)
     {

@@ -48,7 +48,7 @@ impl DerailmentMode {
     log::info!("Derailment: jackpot");
     self
       .wizard
-      .score(points::DERAIL_JACKPOT * (self.clears as u32 + 1), ctx);
+      .score(points::DERAIL_JACKPOT * (self.clears as u64 + 1), ctx);
     ctx.play_sfx(sounds::LATCH_DOUBLE);
     let strip = match target {
       Some(1) => Some(&drop_bank::TARGET1_LEDS),
@@ -69,7 +69,7 @@ impl DerailmentMode {
     log::info!("Derailment: bank cleared {} of {CLEARS}", self.clears);
     self
       .wizard
-      .score(points::DERAIL_SUPER_JACKPOT * self.clears as u32, ctx);
+      .score(points::DERAIL_SUPER_JACKPOT * self.clears as u64, ctx);
     self.wizard.progress(self.clears * 3);
 
     if self.clears == CLEARS {

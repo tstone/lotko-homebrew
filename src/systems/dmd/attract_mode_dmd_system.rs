@@ -24,7 +24,7 @@ pub struct AttractModeDmdSystem {
   bio_spore: Vec<Frame>,
   spore_anim: Sequence<Duration, RgbaImage>,
   press_start_anim: Tween<Duration, Rgba<u8>>,
-  last_scores: Option<Vec<(&'static str, u32)>>,
+  last_scores: Option<Vec<(&'static str, u64)>>,
   state: AttractDmdScreen,
   cue_id: Option<u64>,
 }
@@ -111,7 +111,7 @@ impl AttractModeDmdSystem {
     )
   }
 
-  fn draw_last_score(&mut self, text: &'static str, score: u32) -> Container {
+  fn draw_last_score(&mut self, text: &'static str, score: u64) -> Container {
     let mut window = Container::transparent().with_padding(5, 5, 5, 5);
 
     window.add(

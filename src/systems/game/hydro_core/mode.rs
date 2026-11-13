@@ -167,8 +167,8 @@ impl HydroCoreMode {
     // a shot only scores the first time it's made, not again on a later attempt. Each is worth half a shot more than
     // the last, so the 5 come to as much as 7 and a half.
     if self.combo_shots_seen.insert(made) {
-      let value = game::points::mode_hit(Mode::HydroCore) / 2 * made as u32;
-      ctx.add_points(value * times as u32);
+      let value = game::points::mode_hit(Mode::HydroCore) / 2 * made as u64;
+      ctx.add_points(value * times as u64);
     }
 
     self.advance_combo(made + 1, ctx);

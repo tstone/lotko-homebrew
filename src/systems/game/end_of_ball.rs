@@ -18,7 +18,7 @@ const HIGH_OVERGROWTH: usize = 3;
 #[derive(Default)]
 pub struct EndOfBallSystem {
   /// Players still to enter initials, in player order
-  initials_needed: Vec<(HighScoreSlot, &'static str, u32)>,
+  initials_needed: Vec<(HighScoreSlot, &'static str, u64)>,
 }
 
 impl EndOfBallSystem {
@@ -38,7 +38,7 @@ impl EndOfBallSystem {
     ctx.routines.complete_step::<TurnEnding>();
   }
 
-  fn on_game_end(&mut self, scores: &[(&'static str, u32)], ctx: &SystemContext) {
+  fn on_game_end(&mut self, scores: &[(&'static str, u64)], ctx: &SystemContext) {
     self.initials_needed = match ctx.systems.get::<HighScoresSystem>() {
       Some(high_scores) => scores
         .iter()

@@ -38,7 +38,7 @@ impl TurnEndScoreSystem {
     ctx.cues.start(ScoreShown, Duration::from_secs(2).once());
   }
 
-  fn draw(player: u8, score: u32) -> Container {
+  fn draw(player: u8, score: u64) -> Container {
     let mut frame = Container::new(Fill2d::Solid(Rgba::black()));
     frame.add(
       SIGI_BOLD_7PX_FONT

@@ -33,8 +33,8 @@ impl BonusSystem {
   }
 
   fn on_turn_ending(&mut self, ctx: &SystemContext) {
-    let spores = ctx.systems.expect::<SporesSystem>().count();
-    let completed = ctx.systems.expect::<ModeManager>().districts_completed() as u32;
+    let spores = ctx.systems.expect::<SporesSystem>().count() as u64;
+    let completed = ctx.systems.expect::<ModeManager>().districts_completed() as u64;
     let bonus = spores * points::BONUS_PER_SPORE + completed * points::BONUS_PER_CITY_MODE;
     log::info!(
       "Bonus: {} spores applied, {} city modes completed, awarding {}",
@@ -58,7 +58,7 @@ impl BonusSystem {
     self.show_next_screen(ctx);
   }
 
-  fn multiplied(count: u32, value: u32) -> String {
+  fn multiplied(count: u64, value: u64) -> String {
     format!("{} x {}", count, TextFormatting::number(value))
   }
 

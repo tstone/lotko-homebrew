@@ -63,7 +63,7 @@ mod points {
   use super::Mode;
 
   /// A district shot, by the district's step (DESIGN.md, Scoring)
-  pub fn mode_hit(mode: Mode) -> u32 {
+  pub fn mode_hit(mode: Mode) -> u64 {
     match mode.step() {
       1 => 1_500_000,
       2 => 2_250_000,
@@ -73,7 +73,7 @@ mod points {
   }
 
   /// Completing a district or a mini-wizard, by its step (DESIGN.md, Scoring)
-  pub fn mode_completion(mode: Mode) -> u32 {
+  pub fn mode_completion(mode: Mode) -> u64 {
     match mode.step() {
       1 => 35_000_000,
       2 => 50_000_000,
@@ -84,65 +84,65 @@ mod points {
     }
   }
 
-  pub static EXCL_QUAL_HIT: u32 = 50_250;
-  pub static EXCL_START: u32 = 350_000;
-  pub static BONUS_PER_CITY_MODE: u32 = 5_000_000;
-  pub static BONUS_PER_SPORE: u32 = 15_000;
+  pub static EXCL_QUAL_HIT: u64 = 50_250;
+  pub static EXCL_START: u64 = 350_000;
+  pub static BONUS_PER_CITY_MODE: u64 = 5_000_000;
+  pub static BONUS_PER_SPORE: u64 = 15_000;
   /// Awarded for collecting an extra ball once the player is at the limit
-  pub static EXTRA_BALL_AS_POINTS: u32 = 10_000_000;
+  pub static EXTRA_BALL_AS_POINTS: u64 = 10_000_000;
   /// Each spin of the center spinner, doubled by the Apex perk
-  pub static CENTER_SPIN: u32 = 10_000;
-  pub static SKILL_SHOT: u32 = 500_000;
+  pub static CENTER_SPIN: u64 = 10_000;
+  pub static SKILL_SHOT: u64 = 500_000;
   /// The drop bank skill shot's consolation for hitting the bank but missing the lit target
-  pub static SKILL_SHOT_MISSED: u32 = 50_000;
-  pub static SKYRAIL_SCOOP_ENTER: u32 = 500;
+  pub static SKILL_SHOT_MISSED: u64 = 50_000;
+  pub static SKYRAIL_SCOOP_ENTER: u64 = 500;
   /// Each hit on Apex's lit terrace, below its step's shot as it takes 12
-  pub static APEX_HIT: u32 = 2_000_000;
+  pub static APEX_HIT: u64 = 2_000_000;
   /// Bursting a terrace, times how many have burst
-  pub static APEX_BURST: u32 = 2_000_000;
+  pub static APEX_BURST: u64 = 2_000_000;
   /// Each orbit hit raising Floodgates' water
-  pub static FLOOD_HIT: u32 = 1_000_000;
+  pub static FLOOD_HIT: u64 = 1_000_000;
   /// A ramp at high water, times how many have been made
-  pub static FLOOD_SUPER_JACKPOT: u32 = 20_000_000;
+  pub static FLOOD_SUPER_JACKPOT: u64 = 20_000_000;
   /// Each shot Blackout puts out
-  pub static BLACKOUT_HIT: u32 = 4_000_000;
-  pub static BLACKOUT_SUPER_JACKPOT: u32 = 120_000_000;
+  pub static BLACKOUT_HIT: u64 = 4_000_000;
+  pub static BLACKOUT_SUPER_JACKPOT: u64 = 120_000_000;
   /// Each drop target in Derailment, times the bank clears so far plus one
-  pub static DERAIL_JACKPOT: u32 = 3_000_000;
+  pub static DERAIL_JACKPOT: u64 = 3_000_000;
   /// Each bank clear in Derailment, times how many there have been
-  pub static DERAIL_SUPER_JACKPOT: u32 = 16_000_000;
+  pub static DERAIL_SUPER_JACKPOT: u64 = 16_000_000;
   /// What Canopy's value builds from, and starts over at after a collect
-  pub static CANOPY_BASE: u32 = 25_000_000;
+  pub static CANOPY_BASE: u64 = 25_000_000;
   /// Each spin of either spinner, onto Canopy's value
-  pub static CANOPY_SPIN: u32 = 250_000;
+  pub static CANOPY_SPIN: u64 = 250_000;
   /// Each pop, onto Canopy's value
-  pub static CANOPY_POP: u32 = 1_000_000;
+  pub static CANOPY_POP: u64 = 1_000_000;
   /// Each hit of a Root Lash, onto Canopy's value
-  pub static CANOPY_ROOTS: u32 = 5_000_000;
-  pub static HEARTWOOD_JACKPOT: u32 = 5_000_000;
-  pub static HEARTWOOD_SUPER_JACKPOT: u32 = 25_000_000;
+  pub static CANOPY_ROOTS: u64 = 5_000_000;
+  pub static HEARTWOOD_JACKPOT: u64 = 5_000_000;
+  pub static HEARTWOOD_SUPER_JACKPOT: u64 = 25_000_000;
   /// Each captive ball hit toward the multiball
-  pub static HEARTWOOD_CHARGE: u32 = 50_000;
+  pub static HEARTWOOD_CHARGE: u64 = 50_000;
   /// A spore burst with no mode running for it to double
-  pub static BURST: u32 = 2_500_000;
-  pub static SURVEILLANCE_HIT: u32 = 25_000;
-  pub static SURVEILLANCE_SET: u32 = 500_000;
-  pub static DRONE_DOWN: u32 = 250_000;
+  pub static BURST: u64 = 2_500_000;
+  pub static SURVEILLANCE_HIT: u64 = 25_000;
+  pub static SURVEILLANCE_SET: u64 = 500_000;
+  pub static DRONE_DOWN: u64 = 250_000;
   /// Each drop target before the Sentinels are deployed
-  pub static DROP_TARGET_UNDEPLOYED: u32 = 10_000;
+  pub static DROP_TARGET_UNDEPLOYED: u64 = 10_000;
   /// A bank clear before the Sentinels are deployed
-  pub static BANK_CLEAR_UNDEPLOYED: u32 = 100_000;
+  pub static BANK_CLEAR_UNDEPLOYED: u64 = 100_000;
   /// 5 drones down
-  pub static SENTINELS_FIRST_AWARD: u32 = 5_000_000;
+  pub static SENTINELS_FIRST_AWARD: u64 = 5_000_000;
   /// 15 drones down, until DESIGN.md settles what it is
-  pub static SENTINELS_THIRD_AWARD: u32 = 15_000_000;
-  pub static ROOT_SEGMENT: u32 = 25_000;
-  pub static ROOTS_SPREAD: u32 = 1_000_000;
+  pub static SENTINELS_THIRD_AWARD: u64 = 15_000_000;
+  pub static ROOT_SEGMENT: u64 = 25_000;
+  pub static ROOTS_SPREAD: u64 = 1_000_000;
   /// A 2 shot route
-  pub static COMBO: u32 = 1_000_000;
+  pub static COMBO: u64 = 1_000_000;
   /// A 3 shot route
-  pub static COMBO_LONG: u32 = 2_500_000;
-  pub static GRIDLOCK: u32 = 25_000_000;
+  pub static COMBO_LONG: u64 = 2_500_000;
+  pub static GRIDLOCK: u64 = 25_000_000;
   /// ArcStreak reflex shots: the first, the second, and each after
-  pub static ARC_STREAK: [u32; 3] = [2_000_000, 3_000_000, 5_000_000];
+  pub static ARC_STREAK: [u64; 3] = [2_000_000, 3_000_000, 5_000_000];
 }

@@ -2,11 +2,14 @@ use frontbox_core::prelude::*;
 use frontbox_dmd::*;
 use frontbox_gfx::canvas::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::{BallManagementExt, GameManagementExt, PlayerEntry, TurnPhase};
+use frontbox_pinball::{
+  BallManagementExt, GameManagementExt, PlayerEntry, ScoopBallEntered, ScoopEntry, ScoopSystem,
+  TurnPhase,
+};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::cabinet::{self, action_button, start_button};
-use crate::hardware::lower_scoop::{LowerScoopBallEnter, LowerScoopSystem};
+use crate::hardware::lower_scoop::Lower;
 use crate::systems::dmd::MENU_DMD_LAYER;
 use crate::systems::game::{
   self, ExtraBallCollected, ExtraBallSystem, Mode, ModeManager, ScoopQualifier,
@@ -49,8 +52,8 @@ impl ModeSelectSystem {
     matches!(self.state, State::Menu { .. })
   }
 
-  fn on_ball_enter(&mut self, subway_entry: bool, ctx: &SystemContext) {
-    let collecting = !subway_entry
+  fn on_ball_enter(&mut self, entry: ScoopEntry, ctx: &SystemContext) {
+    let collecting = entry == ScoopEntry::Direct
       && ctx
         .systems
         .expect::<ExtraBallSystem>()
@@ -160,14 +163,14 @@ impl ModeSelectSystem {
   fn hold_ball(&self, ctx: &SystemContext) {
     ctx
       .systems
-      .expect::<LowerScoopSystem>()
+      .expect::<ScoopSystem<Lower>>()
       .hold(ctx.id(), ctx.into());
   }
 
   fn release_ball(&self, ctx: &SystemContext) {
     ctx
       .systems
-      .expect::<LowerScoopSystem>()
+      .expect::<ScoopSystem<Lower>>()
       .release(ctx.id(), ctx.into());
   }
 
@@ -213,8 +216,8 @@ impl System for ModeSelectSystem {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if let Some(enter) = event.downcast_ref::<LowerScoopBallEnter>() {
-      self.on_ball_enter(enter.subway_entry, ctx);
+    if let Some(enter) = event.downcast_ref::<ScoopBallEntered<Lower>>() {
+      self.on_ball_enter(enter.entry, ctx);
     } else if event.is::<ExtraBallCollected>() && self.state == State::CollectingExtraBall {
       self.open_menu_or_eject(ctx);
     } else if event.is::<MenuTimedOut>() {

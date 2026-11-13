@@ -1,9 +1,10 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
+use frontbox_pinball::ScoopEjected;
 use frontbox_sound::SoundSystemExt;
 use rand::prelude::IndexedRandom;
 
-use crate::hardware::lower_scoop::LowerScoopEjected;
+use crate::hardware::lower_scoop::Lower;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{
   EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_effect,
@@ -245,7 +246,7 @@ impl System for NimbusPromenadeMode {
       self.warn_seal(ctx);
     } else if event.is::<SealLanded>() {
       self.seal(ctx);
-    } else if event.is::<LowerScoopEjected>() && self.seal_cue.is_none() {
+    } else if event.is::<ScoopEjected<Lower>>() && self.seal_cue.is_none() {
       // the Steward starts sealing once the ball is in play
       self.schedule_seal(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {

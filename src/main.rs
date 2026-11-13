@@ -119,10 +119,11 @@ async fn main() {
 
     // hardware ops
     app.system(drop_bank::DropBankSystem::new());
-    app.system(lower_scoop::LowerScoopSystem::new());
+    app.system(lower_scoop::system());
+    app.system(lower_scoop::LowerScoopFeedback);
     app.system(dome_ramp::DomeRampSystem::new());
     app.system(lift_ramp::LiftRampSystem::new());
-    app.system(rear_scoop::RearScoopSystem::new());
+    app.system(rear_scoop::system());
     app.system(left_orbit::LeftOrbitSystem::new());
     app.system(center_orbit::CenterOrbitSystem::new());
     app.system(right_orbit::RightOrbitSystem::new());
@@ -176,8 +177,8 @@ async fn main() {
         ])),
     );
     app.routine::<BallSearching>(routine![
-      lower_scoop::LowerScoopSystem,
-      rear_scoop::RearScoopSystem,
+      ScoopSystem<lower_scoop::Lower>,
+      ScoopSystem<rear_scoop::Rear>,
       lift_ramp::LiftRampSystem,
       drop_bank::DropBankSystem,
     ]);

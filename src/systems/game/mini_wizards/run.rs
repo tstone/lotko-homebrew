@@ -2,7 +2,7 @@ use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
-use crate::hardware::lower_scoop::LowerScoopEjected;
+use crate::hardware::lower_scoop::Lower;
 use crate::systems::game::{MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, points};
 
 /// What every mini-wizard shares on top of its [`ModeRun`]: the balls, the ball save, the end and the total.
@@ -60,7 +60,7 @@ impl MiniWizardRun {
   pub fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     self.run.on_event(event, ctx);
 
-    if event.is::<LowerScoopEjected>() && !self.balls_added {
+    if event.is::<ScoopEjected<Lower>>() && !self.balls_added {
       self.add_balls(ctx);
     } else if let Some(EjectCompleted { id, .. }) = event.downcast_ref::<EjectCompleted>()
       && Some(*id) == self.eject_id

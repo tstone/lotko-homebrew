@@ -1,9 +1,9 @@
 use frontbox_core::prelude::*;
-use frontbox_pinball::{GameManagementExt, TurnPhase};
+use frontbox_pinball::{GameManagementExt, ScoopBallEntered, ScoopEjected, ScoopEntry, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::arc_ramp::ArcRampHit;
-use crate::hardware::lower_scoop::{LowerScoopBallEnter, LowerScoopEjected};
+use crate::hardware::lower_scoop::Lower;
 use crate::systems::game::points;
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -72,15 +72,15 @@ impl System for ArcStreakSystem {
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<LowerScoopEjected>() {
+    if event.is::<ScoopEjected<Lower>>() {
       self.window_cue = Some(ctx.cues.start(ReflexWindowClosed, REFLEX_WINDOW.once()));
     } else if event.is::<ArcRampHit>() {
       self.on_ramp_hit(ctx);
     } else if event.is::<ReflexWindowClosed>() {
       self.window_cue = None;
       self.break_streak(ctx);
-    } else if let Some(enter) = event.downcast_ref::<LowerScoopBallEnter>()
-      && !enter.subway_entry
+    } else if let Some(enter) = event.downcast_ref::<ScoopBallEntered<Lower>>()
+      && enter.entry == ScoopEntry::Direct
     {
       self.break_streak(ctx);
     }

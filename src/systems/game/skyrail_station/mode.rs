@@ -6,8 +6,8 @@ use frontbox_sound::SoundSystemExt;
 use crate::hardware::city_map;
 use crate::hardware::drop_bank::{DropBankSystem, DropBankTargetHit};
 use crate::hardware::lift_ramp::{LiftRampHit, LiftRampSystem};
-use crate::hardware::lower_scoop::LowerScoopEjected;
-use crate::hardware::rear_scoop::RearScoopBallEnter;
+use crate::hardware::lower_scoop::Lower;
+use crate::hardware::rear_scoop::Rear;
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
 use crate::systems::game::{
@@ -203,9 +203,9 @@ impl System for SkyrailStationMode {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     self.run.on_event(event, ctx);
 
-    if event.is::<RearScoopBallEnter>() {
+    if event.is::<ScoopBallEntered<Rear>>() {
       ctx.add_points(points::SKYRAIL_SCOOP_ENTER);
-    } else if event.is::<LowerScoopEjected>() && self.needs_ball {
+    } else if event.is::<ScoopEjected<Lower>>() && self.needs_ball {
       self.needs_ball = false;
       self.add_ball(ctx);
     } else if event.is::<RampUp>() {

@@ -1,9 +1,10 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
+use frontbox_pinball::{ScoopBallEntered, ScoopEjected};
 use frontbox_sound::SoundSystemExt;
 use rand::prelude::IndexedRandom;
 
-use crate::hardware::lower_scoop::{self, LowerScoopBallEnter, LowerScoopEjected};
+use crate::hardware::lower_scoop::{self, Lower};
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::hardware::vspinner;
 use crate::systems::game::mini_wizards::MiniWizardRun;
@@ -153,7 +154,7 @@ impl System for BlackoutMode {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     self.wizard.on_event(event, ctx);
 
-    if event.is::<LowerScoopEjected>() && !self.darkened {
+    if event.is::<ScoopEjected<Lower>>() && !self.darkened {
       // the lights go out as the ball leaves the scoop
       self.render(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
@@ -164,7 +165,7 @@ impl System for BlackoutMode {
           self.darken(shot, ctx);
         }
       }
-    } else if event.is::<LowerScoopBallEnter>() && self.super_jackpot_lit() {
+    } else if event.is::<ScoopBallEntered<Lower>>() && self.super_jackpot_lit() {
       self.super_jackpot(ctx);
     }
   }

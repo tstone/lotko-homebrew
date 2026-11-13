@@ -1,11 +1,12 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
+use frontbox_pinball::ScoopEjected;
 use frontbox_sound::SoundSystemExt;
 use rand::prelude::IndexedRandom;
 
 use crate::game::solarium_atrium::MODE_COLOR;
 use crate::hardware::city_map;
-use crate::hardware::lower_scoop::LowerScoopEjected;
+use crate::hardware::lower_scoop::Lower;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{
   EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_effect, glow_effect,
@@ -194,7 +195,7 @@ impl System for SolariumAtriumMode {
     if event.is::<VineMoveDue>() {
       self.move_cue = None;
       self.move_vine(ctx);
-    } else if event.is::<LowerScoopEjected>() && self.move_cue.is_none() {
+    } else if event.is::<ScoopEjected<Lower>>() && self.move_cue.is_none() {
       // the vine starts crawling once the ball is in play
       self.schedule_move(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {

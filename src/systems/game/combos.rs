@@ -2,10 +2,10 @@ use std::collections::HashSet;
 
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::{GameManagementExt, TurnPhase};
+use frontbox_pinball::{GameManagementExt, ScoopBallEntered, ScoopEjected, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
-use crate::hardware::lower_scoop::{LowerScoopBallEnter, LowerScoopEjected};
+use crate::hardware::lower_scoop::Lower;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{EffectsSystem, flash_effect, points};
 use crate::systems::{Callout, SayExt, sounds};
@@ -102,11 +102,11 @@ impl System for ComboSystem {
     } else if event.is::<WindowClosed>() {
       self.window_cue = None;
       self.routes.break_route();
-    } else if event.is::<LowerScoopBallEnter>() && self.window_cue.is_some() {
+    } else if event.is::<ScoopBallEntered<Lower>>() && self.window_cue.is_some() {
       // the window waits while the ball is held
       self.cancel_window(ctx);
       self.in_scoop = true;
-    } else if event.is::<LowerScoopEjected>() && self.in_scoop {
+    } else if event.is::<ScoopEjected<Lower>>() && self.in_scoop {
       self.in_scoop = false;
       self.window_cue = Some(ctx.cues.start(WindowClosed, WINDOW.once()));
     }

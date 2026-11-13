@@ -1,9 +1,9 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::{BallSaveExt, GameManagementExt};
+use frontbox_pinball::{BallSaveExt, GameManagementExt, ScoopEjected, ScoopSystem};
 use frontbox_sound::{CalloutCompleted, SoundSystemExt};
 
-use crate::hardware::lower_scoop::{LowerScoopEjected, LowerScoopSystem};
+use crate::hardware::lower_scoop::Lower;
 use crate::systems::game::{EffectsSystem, Mode, ModeManager, points};
 use crate::systems::{SayExt, sounds};
 
@@ -53,7 +53,7 @@ impl ModeRun {
     log::info!("ModeRun: {:?} begins", self.mode);
     ctx
       .systems
-      .expect::<LowerScoopSystem>()
+      .expect::<ScoopSystem<Lower>>()
       .hold(ctx.id(), ctx.into());
     for line in self.mode.start_lines() {
       ctx.say(*line);
@@ -81,7 +81,7 @@ impl ModeRun {
   }
 
   pub fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if self.awaiting_eject && event.is::<LowerScoopEjected>() {
+    if self.awaiting_eject && event.is::<ScoopEjected<Lower>>() {
       self.awaiting_eject = false;
       ctx.request_ball_save(START_BALL_SAVE);
     } else if let Some(line) = event.downcast_ref::<CalloutCompleted>() {
@@ -148,7 +148,7 @@ impl ModeRun {
   fn release_ball(&self, ctx: &SystemContext) {
     ctx
       .systems
-      .expect::<LowerScoopSystem>()
+      .expect::<ScoopSystem<Lower>>()
       .release(ctx.id(), ctx.into());
   }
 }

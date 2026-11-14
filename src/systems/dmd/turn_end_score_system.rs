@@ -1,12 +1,12 @@
 use frontbox_core::prelude::*;
-use frontbox_dmd::*;
+use frontbox_display::*;
 use frontbox_gfx::canvas::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManager, TurnEnding};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::cabinet::DoubleFlipped;
-use crate::systems::dmd::TURN_END_DMD_LAYER;
+use crate::systems::dmd::{CanvasScreen, TURN_END_DMD_LAYER};
 use crate::systems::sounds;
 
 /// A participant in `TurnEnding`: shows the player's score for the turn that's ending on the DMD. A double flip moves
@@ -15,11 +15,12 @@ use crate::systems::sounds;
 pub struct TurnEndScoreSystem {
   /// The cue for moving off the score, while it's shown
   score_cue: Option<u64>,
+  screen: CanvasScreen,
 }
 
 impl TurnEndScoreSystem {
   pub fn new() -> Self {
-    Self { score_cue: None }
+    Self { score_cue: None, screen: CanvasScreen::new(TURN_END_DMD_LAYER) }
   }
 
   fn on_turn_ending(&mut self, turn_ending: &TurnEnding, ctx: &SystemContext) {
@@ -33,12 +34,7 @@ impl TurnEndScoreSystem {
       })
       .unwrap_or(0);
 
-    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
-      dmd.insert_layer(
-        TURN_END_DMD_LAYER,
-        Self::draw(turn_ending.current_player, score).default_position(),
-      );
-    }
+    self.screen.show(Self::draw(turn_ending.current_player, score).default_position(), ctx);
     ctx.play_sfx(sounds::QUEST_COMPLETE);
     self.score_cue = Some(ctx.cues.start(ScoreShown, Duration::from_secs(2).once()));
   }
@@ -68,10 +64,8 @@ impl TurnEndScoreSystem {
     frame
   }
 
-  fn clear_screen(&self, ctx: &SystemContext) {
-    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
-      dmd.remove_layer(TURN_END_DMD_LAYER);
-    }
+  fn clear_screen(&mut self, ctx: &SystemContext) {
+    self.screen.clear(ctx);
   }
 }
 

@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_dmd::{InitialsEntered, InitialsEntrySystem};
+use frontbox_display::{InitialsEntered, InitialsEntrySystem};
 use frontbox_pinball::{
   GameEndReason, GameEnding, HighScoreSlot, HighScoresSystem, TurnEndReason, TurnEnding,
 };

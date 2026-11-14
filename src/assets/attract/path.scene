@@ -1,11 +1,11 @@
-Led(
-  version: 1,
+Scene(
+  version: 2,
   timing: (
     duration: 2.25,
     cycle: Times(3),
   ),
   layers: [
-    (
+    Leds(
       leds: Every,
       surface: Area("Playfield"),
       layer: (

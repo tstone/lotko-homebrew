@@ -1,11 +1,11 @@
-Led(
-  version: 1,
+Scene(
+  version: 2,
   timing: (
     duration: 0.3,
     cycle: Times(2),
   ),
   layers: [
-    (
+    Leds(
       leds: Names([
         "___child::l_flasher::0",
         "___child::l_flasher::1",
@@ -19,7 +19,7 @@ Led(
       surface: Sequence,
       layer: (
         fill: (
-          base: Solid(Track(
+          base: Solid(Keyframes(
             keys: [
               (
                 at: 0.0,
@@ -47,7 +47,7 @@ Led(
         ),
       ),
     ),
-    (
+    Leds(
       leds: Names([
         "___child::c_flasher::0",
         "___child::c_flasher::1",
@@ -61,7 +61,7 @@ Led(
       surface: Sequence,
       layer: (
         fill: (
-          base: Solid(Track(
+          base: Solid(Keyframes(
             keys: [
               (
                 at: 0.0,
@@ -89,16 +89,16 @@ Led(
         ),
       ),
     ),
-    (
+    Leds(
       leds: Tag("Playfield"),
       surface: Area("Playfield"),
       layer: (
         fill: (
           base: Solid(Fixed(255, 0, 0, 255)),
         ),
-        shape: (
+        region: (
           transform: [
-            Scale(Fixed(1.0, 1.0)),
+            Scale(Fixed(1.0)),
             Translate(Sweep(
               path: (
                 transform: [
@@ -111,8 +111,12 @@ Led(
                   ],
                 ),
               ),
-              start: 0.0,
-              end: 0.3,
+              position: Keyframes(
+                keys: [
+                  (at: 0.0, value: 0.0),
+                  (at: 0.3, value: 1.0),
+                ],
+              ),
             )),
             Rotate(Fixed(49.0)),
           ],

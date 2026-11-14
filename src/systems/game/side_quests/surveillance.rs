@@ -7,7 +7,7 @@ use frontbox_sound::SoundSystemExt;
 use crate::hardware::pop_cluster::{self, PopBumper};
 use crate::systems::game::side_quests::SentinelsDeployed;
 use crate::systems::game::{
-  EffectsSystem, ModeManager, OutlaneSaveSystem, ScoopQualifier, flash_effect, points, ray_effect,
+  ModeManager, OutlaneSaveSystem, ScoopQualifier, flash_scene, points, ray_scene,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -56,10 +56,7 @@ impl SurveillanceSystem {
   fn enable(&mut self, ctx: &SystemContext) {
     log::info!("Surveillance: enabled");
     ctx.say(Callout::SurveillanceEnabled);
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(led_playback!("side/surveillance_enabled.scene"));
+    ctx.play_scene(&completing_scene!("side/surveillance_enabled.scene"));
     self.render(ctx);
   }
 
@@ -69,10 +66,7 @@ impl SurveillanceSystem {
     };
     ctx.add_points(points::SURVEILLANCE_HIT);
     let led = pop_cluster::target_led_for_pop(&pop).q();
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(flash_effect(&led, Rgba::white()));
+    ctx.play_scene(&flash_scene(&led, Rgba::white()));
 
     if !blinded {
       ctx.play_sfx(sounds::HIT_ORGANIC1);
@@ -100,11 +94,9 @@ impl SurveillanceSystem {
     ctx.play_sfx(sounds::SCAN_HEAVY_STUTTER);
     ctx.say(Callout::CameraNetworkOffline);
 
-    let mut effects = ctx.systems.expect::<EffectsSystem>();
     for pop in PopBumper::ALL {
-      effects.play(ray_effect(&pop, Rgba::white()));
+      ctx.play_scene(&ray_scene(&pop, Rgba::white()));
     }
-    drop(effects);
 
     // the scoop only qualifies between modes
     if ctx.systems.expect::<ModeManager>().current_mode().is_none() {
@@ -218,7 +210,7 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    led_playback!("side/surveillance_enabled.scene");
+    scene!("side/surveillance_enabled.scene");
   }
 
   #[test]

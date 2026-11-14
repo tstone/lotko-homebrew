@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_dmd::*;
+use frontbox_display::*;
 use frontbox_gfx::canvas::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{
@@ -7,7 +7,7 @@ use frontbox_pinball::{
 };
 
 use crate::hardware::trough::DRAIN_LED;
-use crate::systems::dmd::ANNOUNCEMENT_DMD_LAYER;
+use crate::systems::dmd::{ANNOUNCEMENT_DMD_LAYER, CanvasScreen};
 use crate::systems::game::{MiniWizardCompleted, points};
 use crate::systems::{Callout, SayExt};
 
@@ -41,26 +41,26 @@ pub struct ExtraBallSystem {
   lit: u8,
   /// Sources that have lit one this game
   sources_used: Vec<ExtraBallSource>,
-  lit_effect: LedPlayback,
-  lit_effect_playing: bool,
+  lit_scene: ScenePlayer,
   screen_cue: Option<u64>,
   /// The screen showing is a collect, which the scoop is waiting on
   collecting: bool,
   handle: SystemHandle,
+  screen: CanvasScreen,
 }
 
 impl ExtraBallSystem {
   pub fn new() -> Self {
-    let lit_effect = led_playback!("extra_ball_lit.scene").stopped();
+    let lit_scene = ScenePlayer::new(scene!("extra_ball_lit.scene"));
 
     Self {
       lit: 0,
       sources_used: Vec::new(),
-      lit_effect,
-      lit_effect_playing: false,
+      lit_scene,
       screen_cue: None,
       collecting: false,
       handle: SystemHandle::default(),
+      screen: CanvasScreen::new(ANNOUNCEMENT_DMD_LAYER),
     }
   }
 
@@ -75,7 +75,7 @@ impl ExtraBallSystem {
     log::info!("Extra ball lit by {:?}, {} lit", source, self.lit);
     self.show("EXTRA BALL LIT", ctx);
     ctx.say(Callout::UnregisteredResident);
-    self.update_lit_effect(ctx);
+    self.update_lit_scene(ctx);
     true
   }
 
@@ -103,20 +103,14 @@ impl ExtraBallSystem {
       ctx.add_points(points::EXTRA_BALL_AS_POINTS);
       self.show(&TextFormatting::number(points::EXTRA_BALL_AS_POINTS), ctx);
     }
-    self.update_lit_effect(ctx);
+    self.update_lit_scene(ctx);
   }
 
-  fn update_lit_effect(&mut self, ctx: &SystemContext) {
-    let lit = self.lit > 0;
-    if lit == self.lit_effect_playing {
-      return;
-    }
-    self.lit_effect_playing = lit;
-    if lit {
-      self.lit_effect.reset();
-      self.lit_effect.play();
+  fn update_lit_scene(&mut self, ctx: &SystemContext) {
+    if self.lit > 0 {
+      self.lit_scene.start(ctx);
     } else {
-      self.lit_effect.stop(ctx);
+      self.lit_scene.stop(ctx);
     }
   }
 
@@ -130,25 +124,21 @@ impl ExtraBallSystem {
   }
 
   fn show(&mut self, label: &str, ctx: &SystemContext) {
-    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
-      let mut frame = Container::new(Fill2d::Solid(Rgba::black()));
-      frame.add(
-        BOLD_PIXELS_10PX_REGULAR_FONT
-          .center_aligned(label.to_string(), Rgba::white())
-          .top_offset(11),
-      );
-      dmd.insert_layer(ANNOUNCEMENT_DMD_LAYER, frame.default_position());
-    }
+    let mut frame = Container::new(Fill2d::Solid(Rgba::black()));
+    frame.add(
+      BOLD_PIXELS_10PX_REGULAR_FONT
+        .center_aligned(label.to_string(), Rgba::white())
+        .top_offset(11),
+    );
+    self.screen.show(frame.default_position(), ctx);
     if let Some(cue) = self.screen_cue.take() {
       ctx.cues.cancel(cue);
     }
     self.screen_cue = Some(ctx.cues.start(ScreenShown, SCREEN_DURATION.once()));
   }
 
-  fn remove_screen(&self, ctx: &SystemContext) {
-    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
-      dmd.remove_layer(ANNOUNCEMENT_DMD_LAYER);
-    }
+  fn remove_screen(&mut self, ctx: &SystemContext) {
+    self.screen.clear(ctx);
   }
 }
 
@@ -166,7 +156,7 @@ impl System for ExtraBallSystem {
       event.downcast_ref::<RoutineStarted<TurnStarting>>()
     {
       self.update_shoot_again(ctx);
-      self.update_lit_effect(ctx);
+      self.update_lit_scene(ctx);
       if routine.reason == TurnStartReason::ExtraBall {
         self.show("SHOOT AGAIN", ctx);
         ctx.say(Callout::OakShootAgain);
@@ -179,10 +169,6 @@ impl System for ExtraBallSystem {
         ctx.emit(ExtraBallCollected);
       }
     }
-  }
-
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.lit_effect.apply(delta, ctx);
   }
 
   fn on_despawn(&mut self, ctx: &SystemContext) {

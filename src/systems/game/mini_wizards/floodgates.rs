@@ -6,7 +6,7 @@ use crate::hardware::arc_ramp;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::mini_wizards::MiniWizardRun;
 use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, RootLashed, fill_effect, flash_effect, glow_effect, points,
+  Mode, ModeManager, RootLashed, fill_scene, flash_scene, glow_scene, points,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -34,8 +34,8 @@ pub struct FloodgatesMode {
   level: u8,
   super_jackpots: u8,
   /// The orbits while the water rises, the ramps at high water
-  attention_effect: LedPlayback,
-  gauge_effect: LedPlayback,
+  attention_scene: ScenePlayer,
+  gauge_scene: ScenePlayer,
 }
 
 impl FloodgatesMode {
@@ -44,24 +44,24 @@ impl FloodgatesMode {
       wizard: MiniWizardRun::new(Mode::Floodgates, HIGH_WATER * SUPER_JACKPOTS),
       level: 0,
       super_jackpots: 0,
-      attention_effect: Self::attention_effect(false),
-      gauge_effect: Self::gauge_effect(0),
+      attention_scene: ScenePlayer::new(Self::attention_scene(false)),
+      gauge_scene: ScenePlayer::new(Self::gauge_scene(0)),
     }
   }
 
-  fn attention_effect(high_water: bool) -> LedPlayback {
+  fn attention_scene(high_water: bool) -> PlayableScene {
     let (shots, color) = if high_water {
       (RAMPS, Rgba::white())
     } else {
       (ORBITS, Mode::Floodgates.color())
     };
     let qs: Vec<&LedQ> = shots.iter().map(|shot| shot.hex_center()).collect();
-    glow_effect(&LedQ::any(qs), color)
+    glow_scene(&LedQ::any(qs), color)
   }
 
-  fn gauge_effect(level: u8) -> LedPlayback {
+  fn gauge_scene(level: u8) -> PlayableScene {
     let lit = level as usize * ARC_LEDS / HIGH_WATER as usize;
-    fill_effect(&arc_ramp::ARC_LEDS.q(), ARC_LEDS, lit, Rgba::blue())
+    fill_scene(&arc_ramp::ARC_LEDS.q(), ARC_LEDS, lit, Rgba::blue())
   }
 
   fn high_water(&self) -> bool {
@@ -105,17 +105,14 @@ impl FloodgatesMode {
       ctx,
     );
     ctx.play_sfx(sounds::IMPACT_CINEMATIC_HEAVY);
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(flash_effect(shot.hex_ring(), Rgba::white()));
+    ctx.play_scene(&flash_scene(shot.hex_ring(), Rgba::white()));
 
     self.level = 0;
     if self.super_jackpots == SUPER_JACKPOTS {
-      self.attention_effect.stop(ctx);
-      self.gauge_effect.stop(ctx);
+      self.attention_scene.stop(ctx);
+      self.gauge_scene.stop(ctx);
       self.wizard.complete(
-        led_playback!("startable/hit.scene").param("color", Rgba::blue()),
+        completing_scene!("startable/hit.scene").param("color", Rgba::blue()),
         ctx,
       );
       return;
@@ -124,10 +121,12 @@ impl FloodgatesMode {
   }
 
   fn render(&mut self, ctx: &SystemContext) {
-    self.attention_effect.stop(ctx);
-    self.attention_effect = Self::attention_effect(self.high_water());
-    self.gauge_effect.stop(ctx);
-    self.gauge_effect = Self::gauge_effect(self.level);
+    self
+      .attention_scene
+      .replace_scene(Self::attention_scene(self.high_water()), ctx);
+    self
+      .gauge_scene
+      .replace_scene(Self::gauge_scene(self.level), ctx);
   }
 }
 
@@ -164,13 +163,13 @@ impl System for FloodgatesMode {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if self.wizard.apply(delta, ctx) {
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    if self.wizard.apply(ctx) {
       return;
     }
 
-    self.attention_effect.apply(delta, ctx);
-    self.gauge_effect.apply(delta, ctx);
+    self.attention_scene.start(ctx);
+    self.gauge_scene.start(ctx);
   }
 }
 
@@ -180,7 +179,7 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    FloodgatesMode::attention_effect(true);
-    FloodgatesMode::gauge_effect(HIGH_WATER);
+    FloodgatesMode::attention_scene(true);
+    FloodgatesMode::gauge_scene(HIGH_WATER);
   }
 }

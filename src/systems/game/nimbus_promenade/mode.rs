@@ -6,9 +6,7 @@ use rand::prelude::IndexedRandom;
 
 use crate::hardware::lower_scoop::Lower;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
-use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_effect,
-};
+use crate::systems::game::{Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_scene};
 use crate::systems::{Callout, SayExt, sounds};
 
 const REQUIRED_CHOKES: u8 = 4;
@@ -29,9 +27,9 @@ pub struct NimbusPromenadeMode {
   /// By shot, in [`MainShot::ALL`] order
   walkways: [Walkway; 6],
   /// The open walkways, other than one about to be sealed
-  attention_effect: LedPlayback,
+  attention_scene: ScenePlayer,
   /// The walkway about to be sealed, and its warning
-  sealing: Option<(MainShot, LedPlayback)>,
+  sealing: Option<(MainShot, ScenePlayer)>,
   /// The next seal or its warning, while they're running
   seal_cue: Option<u64>,
 }
@@ -41,19 +39,19 @@ impl NimbusPromenadeMode {
     Self {
       run: ModeRun::new(Mode::NimbusPromenade, REQUIRED_CHOKES),
       walkways: [Walkway::Open; 6],
-      attention_effect: Self::attention_effect(&MainShot::ALL),
+      attention_scene: ScenePlayer::new(Self::attention_scene(&MainShot::ALL)),
       sealing: None,
       seal_cue: None,
     }
   }
 
-  fn attention_effect(shots: &[MainShot]) -> LedPlayback {
+  fn attention_scene(shots: &[MainShot]) -> PlayableScene {
     let qs: Vec<&LedQ> = shots.iter().map(|shot| shot.hex_center()).collect();
-    led_playback!("nimbus_promenade/attention.scene", LedQ::any(qs))
+    scene!("nimbus_promenade/attention.scene", LedQ::any(qs))
   }
 
-  fn seal_warning_effect(shot: MainShot) -> LedPlayback {
-    led_playback!(
+  fn seal_warning_scene(shot: MainShot) -> PlayableScene {
+    scene!(
       "nimbus_promenade/seal_warning.scene",
       shot.hex_center().clone()
     )
@@ -110,10 +108,7 @@ impl NimbusPromenadeMode {
       self.stop_warning(ctx);
     }
     self.refresh(ctx);
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(flash_effect(shot.hex_ring(), Rgba::green()));
+    ctx.play_scene(&flash_scene(shot.hex_ring(), Rgba::green()));
 
     let chokes = self.chokes();
     log::info!("NimbusPromenade: {shot:?} choked, {chokes} of {REQUIRED_CHOKES}");
@@ -121,7 +116,7 @@ impl NimbusPromenadeMode {
       self.cancel_seal(ctx);
       self
         .run
-        .complete(led_playback!("nimbus_promenade/complete.scene"), ctx);
+        .complete(completing_scene!("nimbus_promenade/complete.scene"), ctx);
       return;
     }
 
@@ -134,10 +129,7 @@ impl NimbusPromenadeMode {
     self.walkways[shot as usize] = Walkway::Open;
     self.refresh(ctx);
     ctx.play_sfx(sounds::WOOSH_LIGHT);
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(flash_effect(shot.hex_ring(), Rgba::white()));
+    ctx.play_scene(&flash_scene(shot.hex_ring(), Rgba::white()));
   }
 
   /// Telegraph a seal on a random open walkway, as long as it wouldn't be the last one open
@@ -149,7 +141,7 @@ impl NimbusPromenadeMode {
       return;
     };
 
-    self.sealing = Some((shot, Self::seal_warning_effect(shot)));
+    self.sealing = Some((shot, ScenePlayer::started(Self::seal_warning_scene(shot), ctx)));
     self.refresh(ctx);
     self.seal_cue = Some(ctx.cues.start(SealLanded, SEAL_WARNING.once()));
   }
@@ -200,10 +192,10 @@ impl NimbusPromenadeMode {
       .into_iter()
       .filter(|shot| Some(*shot) != sealing)
       .collect();
-    self.attention_effect.stop(ctx);
-    self.attention_effect = Self::attention_effect(&open);
+    self
+      .attention_scene
+      .replace_scene(Self::attention_scene(&open), ctx);
 
-    // after the attention stops, as that gives up every LED it had, which a newly choked one was among
     for shot in MainShot::ALL {
       if self.walkway(shot) == Walkway::Choked {
         ctx.declare_leds(shot.hex_center(), Rgba::green());
@@ -258,15 +250,12 @@ impl System for NimbusPromenadeMode {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if self.run.apply(delta, ctx) {
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    if self.run.apply(ctx) {
       return;
     }
 
-    self.attention_effect.apply(delta, ctx);
-    if let Some((_, warning)) = self.sealing.as_mut() {
-      warning.apply(delta, ctx);
-    }
+    self.attention_scene.start(ctx);
   }
 }
 
@@ -291,7 +280,7 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    NimbusPromenadeMode::seal_warning_effect(MainShot::LeftOrbit);
+    NimbusPromenadeMode::seal_warning_scene(MainShot::LeftOrbit);
   }
 
   #[test]

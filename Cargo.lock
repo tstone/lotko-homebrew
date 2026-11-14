@@ -999,11 +999,13 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "frontbox-core",
- "frontbox-dmd",
+ "frontbox-display",
  "frontbox-gfx",
  "frontbox-led",
  "frontbox-metrics",
  "frontbox-pinball",
+ "frontbox-scene",
+ "image",
  "log",
  "mime_guess",
  "rust-embed",
@@ -1051,19 +1053,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "frontbox-dmd"
+name = "frontbox-display"
 version = "0.1.0"
 dependencies = [
  "frontbox-core",
  "frontbox-gfx",
+ "frontbox-scene",
  "frontbox-sound",
  "image",
  "log",
  "rand 0.10.2",
- "rusb",
  "serde",
  "serde_json",
- "ts-rs",
+]
+
+[[package]]
+name = "frontbox-dmd"
+version = "0.1.0"
+dependencies = [
+ "frontbox-display",
+ "image",
+ "rusb",
 ]
 
 [[package]]
@@ -1076,7 +1086,6 @@ dependencies = [
  "log",
  "num-traits",
  "palette",
- "rand 0.10.2",
  "ron",
  "serde",
  "ts-rs",
@@ -1090,12 +1099,10 @@ dependencies = [
  "fast-protocol",
  "frontbox-core",
  "frontbox-gfx",
+ "frontbox-scene",
  "image",
  "itertools 0.14.0",
  "log",
- "rand 0.10.2",
- "serde",
- "ts-rs",
 ]
 
 [[package]]
@@ -1119,10 +1126,24 @@ dependencies = [
  "frontbox-core",
  "frontbox-gfx",
  "frontbox-led",
+ "frontbox-scene",
  "log",
  "serde",
  "serde_json",
  "tokio",
+]
+
+[[package]]
+name = "frontbox-scene"
+version = "0.1.0"
+dependencies = [
+ "frontbox-core",
+ "frontbox-gfx",
+ "log",
+ "rand 0.10.2",
+ "serde",
+ "serde_json",
+ "ts-rs",
 ]
 
 [[package]]
@@ -1132,6 +1153,8 @@ dependencies = [
  "cpal",
  "dyn-clone",
  "frontbox-core",
+ "frontbox-gfx",
+ "frontbox-scene",
  "kira",
  "log",
  "serde",
@@ -1815,10 +1838,12 @@ dependencies = [
  "env_logger",
  "frontbox-console",
  "frontbox-core",
+ "frontbox-display",
  "frontbox-dmd",
  "frontbox-gfx",
  "frontbox-led",
  "frontbox-pinball",
+ "frontbox-scene",
  "frontbox-sound",
  "image",
  "itertools 0.15.0",

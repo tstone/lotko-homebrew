@@ -6,9 +6,7 @@ use frontbox_pinball::GameManagementExt;
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::main_shot::{MainShot, MainShotHit};
-use crate::systems::game::{
-  self, EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem,
-};
+use crate::systems::game::{self, Mode, ModeManager, ModeRun, RootLashed, SporesSystem};
 use crate::systems::{Callout, SayExt, sounds};
 
 /// The time for each shot after the first
@@ -28,11 +26,11 @@ const COMBO: [MainShot; 5] = [
 #[derive(Clone)]
 pub struct HydroCoreMode {
   run: ModeRun,
-  attention_effect: LedPlayback,
-  intensity_effect: LedPlayback,
-  hit_effect: LedPlayback,
-  arc_effect: LedPlayback,
-  progress_effect: Option<LedPlayback>,
+  attention_scene: ScenePlayer,
+  intensity_scene: ScenePlayer,
+  hit_scene: ScenePlayer,
+  arc_scene: ScenePlayer,
+  progress_scene: Option<ScenePlayer>,
   current_combo_shot: u8,
   /// The combo shots, by number, that have been made and scored
   combo_shots_seen: HashSet<u8>,
@@ -45,11 +43,11 @@ impl HydroCoreMode {
   pub fn new() -> Self {
     Self {
       run: ModeRun::new(Mode::HydroCore, COMBO.len() as u8),
-      attention_effect: Self::attention_effect(COMBO[0].hex_center()),
-      hit_effect: Self::hit_effect(),
-      arc_effect: Self::arc_effect(),
-      intensity_effect: Self::intensity_effect(),
-      progress_effect: None,
+      attention_scene: ScenePlayer::new(Self::attention_scene(COMBO[0].hex_center())),
+      hit_scene: ScenePlayer::new(Self::hit_scene()),
+      arc_scene: ScenePlayer::new(Self::arc_scene()),
+      intensity_scene: ScenePlayer::new(Self::intensity_scene()),
+      progress_scene: None,
       current_combo_shot: 1,
       combo_shots_seen: HashSet::new(),
       combo_attempts: 0,
@@ -57,37 +55,35 @@ impl HydroCoreMode {
     }
   }
 
-  fn attention_effect(target: &LedQ) -> LedPlayback {
-    led_playback!("hydro_core/attention.scene", target.clone())
+  fn attention_scene(target: &LedQ) -> PlayableScene {
+    scene!("hydro_core/attention.scene", target.clone())
   }
 
-  fn attention_ring(target: &LedQ) -> LedPlayback {
-    led_playback!("hydro_core/attention_ring.scene", target.clone())
+  fn attention_ring(target: &LedQ) -> PlayableScene {
+    scene!("hydro_core/attention_ring.scene", target.clone())
   }
 
-  fn intensity_effect() -> LedPlayback {
-    led_playback!("hydro_core/intensity.scene").stopped()
+  fn intensity_scene() -> PlayableScene {
+    scene!("hydro_core/intensity.scene")
   }
 
-  fn hit_effect() -> LedPlayback {
-    led_playback!("hydro_core/hit.scene")
+  fn hit_scene() -> PlayableScene {
+    scene!("hydro_core/hit.scene")
   }
 
-  fn arc_effect() -> LedPlayback {
-    led_playback!("hydro_core/arc.scene")
+  fn arc_scene() -> PlayableScene {
+    scene!("hydro_core/arc.scene")
   }
 
-  fn progress_effect(duration: Duration) -> LedPlayback {
-    led_playback!("hydro_core/progress.scene")
-      .over(duration)
-      .end_behavior(EndBehavior::Hold)
+  fn progress_scene(duration: Duration) -> PlayableScene {
+    scene!("hydro_core/progress.scene").over(duration)
   }
 
   /// Start the combo from the lift ramp, as the mode starts or resumes, or after a failed attempt
   fn start_combo(&mut self, ctx: &SystemContext) {
     self.run.reset_progress();
     self.advance_combo(1, ctx);
-    self.intensity_effect.stop(ctx);
+    self.intensity_scene.stop(ctx);
   }
 
   fn clear_cue(&mut self, ctx: &SystemContext) {
@@ -100,16 +96,16 @@ impl HydroCoreMode {
   fn advance_combo(&mut self, shot: u8, ctx: &SystemContext) {
     self.clear_cue(ctx);
 
-    if let Some(effect) = self.progress_effect.as_mut() {
-      effect.stop(ctx);
+    if let Some(scene) = self.progress_scene.as_mut() {
+      scene.stop(ctx);
     }
-    self.attention_effect.stop(ctx);
-    self.hit_effect.stop(ctx);
+    self.attention_scene.stop(ctx);
+    self.hit_scene.stop(ctx);
 
     if shot == 6 {
       self
         .run
-        .complete(led_playback!("hydro_core/complete.scene"), ctx);
+        .complete(completing_scene!("hydro_core/complete.scene"), ctx);
       return;
     }
 
@@ -133,18 +129,22 @@ impl HydroCoreMode {
         handicap,
         final_time
       );
-      self.progress_effect = Some(Self::progress_effect(final_time));
+      self.progress_scene = Some(ScenePlayer::started(Self::progress_scene(final_time), ctx));
       self.cue_id = Some(ctx.cues.start(ComboTimeUp, final_time.once()));
     }
 
     self.current_combo_shot = shot;
 
     let target = COMBO[shot as usize - 1];
-    self.attention_effect = Self::attention_effect(target.hex_center());
-    self.hit_effect = Self::attention_ring(target.hex_ring());
+    self
+      .attention_scene
+      .replace_scene(Self::attention_scene(target.hex_center()), ctx);
+    self
+      .hit_scene
+      .replace_scene(Self::attention_ring(target.hex_ring()), ctx);
 
     match self.run.progress(shot - 1) {
-      Some(50) => self.intensity_effect.play(),
+      Some(50) => self.intensity_scene.start(ctx),
       Some(75) => ctx.say(Callout::CoreTemperatureRising),
       _ => {}
     }
@@ -155,14 +155,10 @@ impl HydroCoreMode {
     log::info!("HydroCore: Combo shot hit");
 
     // Play SFX
-    self.hit_effect.reset();
-    self.hit_effect.play();
+    self.hit_scene.restart(ctx);
 
     let made = self.current_combo_shot;
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(led_playback!("hydro_core/flashers.scene"));
+    ctx.play_scene(&completing_scene!("hydro_core/flashers.scene"));
 
     // a shot only scores the first time it's made, not again on a later attempt. Each is worth half a shot more than
     // the last, so the 5 come to as much as 7 and a half.
@@ -204,19 +200,14 @@ impl System for HydroCoreMode {
     ctx.deactivate_led_declarations();
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if self.run.apply(delta, ctx) {
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    if self.run.apply(ctx) {
       return;
     }
 
-    self.attention_effect.apply(delta, ctx);
-    self.hit_effect.apply(delta, ctx);
-    self.arc_effect.apply(delta, ctx);
-    self.intensity_effect.apply(delta, ctx);
-
-    if let Some(effect) = self.progress_effect.as_mut() {
-      effect.apply(delta, ctx);
-    }
+    self.attention_scene.start(ctx);
+    self.hit_scene.start(ctx);
+    self.arc_scene.start(ctx);
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

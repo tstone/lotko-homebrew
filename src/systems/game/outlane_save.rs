@@ -8,7 +8,7 @@ use crate::hardware::left_outlane::{self, LeftOutlaneRollover};
 use crate::hardware::right_outlane::{self, RightOutlaneRollover};
 use crate::hardware::right_pass_lane::RightPassLaneHit;
 use crate::hardware::slingshots::{self, LeftSlingHit, RightSlingHit};
-use crate::systems::game::{fill_effect, heartbeat_effect};
+use crate::systems::game::{fill_scene, heartbeat_scene};
 use crate::systems::{Callout, SayExt, sounds};
 
 /// Sling hits to light a side, for its first save and each after (start values). Past the last, it stays there.
@@ -43,8 +43,8 @@ pub struct OutlaneSaveSystem {
   recent: Option<(Side, u64)>,
   /// While the hidden pass lane save lasts
   pass_lane_cue: Option<u64>,
-  ring_effects: [[LedPlayback; 2]; 2],
-  lit_effects: [Option<LedPlayback>; 2],
+  ring_scenes: [[ScenePlayer; 2]; 2],
+  lit_scenes: [Option<ScenePlayer>; 2],
   handle: SystemHandle,
 }
 
@@ -54,17 +54,18 @@ impl OutlaneSaveSystem {
       sides: [Outlane::new(), Outlane::new()],
       recent: None,
       pass_lane_cue: None,
-      ring_effects: Side::ALL.map(|side| Self::ring_effects(side, &Outlane::new())),
-      lit_effects: [None, None],
+      ring_scenes: Side::ALL
+        .map(|side| Self::ring_scenes(side, &Outlane::new()).map(ScenePlayer::new)),
+      lit_scenes: [None, None],
       handle: SystemHandle::default(),
     }
   }
 
-  fn ring_effects(side: Side, outlane: &Outlane) -> [LedPlayback; 2] {
+  fn ring_scenes(side: Side, outlane: &Outlane) -> [PlayableScene; 2] {
     let lit = outlane.grown(RING_LEDS);
     side
       .rings()
-      .map(|ring| fill_effect(&ring.q(), RING_LEDS, lit, Rgba::lime()))
+      .map(|ring| fill_scene(&ring.q(), RING_LEDS, lit, Rgba::lime()))
   }
 
   /// Light a side that isn't lit, if there is one. Returns whether one was.
@@ -138,18 +139,22 @@ impl OutlaneSaveSystem {
 
   fn render(&mut self, side: Side, ctx: &SystemContext) {
     let outlane = &self.sides[side as usize];
-    self.ring_effects[side as usize] = Self::ring_effects(side, outlane);
-    let lit_effect = &mut self.lit_effects[side as usize];
-    if outlane.lit && lit_effect.is_none() {
-      *lit_effect = Some(heartbeat_effect(
-        &side.led().q(),
-        Rgba::lime(),
-        Duration::from_millis(1600),
+    for (player, scene) in self.ring_scenes[side as usize]
+      .iter_mut()
+      .zip(Self::ring_scenes(side, outlane))
+    {
+      player.replace_scene(scene, ctx);
+    }
+    let lit_scene = &mut self.lit_scenes[side as usize];
+    if outlane.lit && lit_scene.is_none() {
+      *lit_scene = Some(ScenePlayer::started(
+        heartbeat_scene(&side.led().q(), Rgba::lime(), Duration::from_millis(1600)),
+        ctx,
       ));
     } else if !outlane.lit
-      && let Some(mut effect) = lit_effect.take()
+      && let Some(mut scene) = lit_scene.take()
     {
-      effect.stop(ctx);
+      scene.stop(ctx);
     }
   }
 }
@@ -207,12 +212,9 @@ impl System for OutlaneSaveSystem {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    for effect in self.ring_effects.iter_mut().flatten() {
-      effect.apply(delta, ctx);
-    }
-    for effect in self.lit_effects.iter_mut().flatten() {
-      effect.apply(delta, ctx);
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    for scene in self.ring_scenes.iter_mut().flatten() {
+      scene.start(ctx);
     }
   }
 }

@@ -9,8 +9,8 @@ use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::hardware::plunge_lane;
 use crate::systems::game::side_quests::RootLashed;
 use crate::systems::game::{
-  EffectsSystem, ExtraBallSource, ExtraBallSystem, ModeManager, ModeSelectSystem, ModeSlotsChanged,
-  Perk, fill_effect, flash_effect, glow_effect, points,
+  ExtraBallSource, ExtraBallSystem, ModeManager, ModeSelectSystem, ModeSlotsChanged, Perk,
+  fill_scene, flash_scene, glow_scene, points,
 };
 use crate::systems::sounds;
 
@@ -48,9 +48,9 @@ pub struct SpreadRootsSystem {
   /// Orbits spread this ball, in [`ORBITS`] order
   spread_this_ball: [bool; 3],
   lash: Lash,
-  ring_effects: [LedPlayback; 3],
+  ring_scenes: [ScenePlayer; 3],
   /// On the action button while a lash is armed and a mode is running
-  lash_glow: Option<LedPlayback>,
+  lash_glow: Option<ScenePlayer>,
 }
 
 impl SpreadRootsSystem {
@@ -59,13 +59,13 @@ impl SpreadRootsSystem {
       grown: [0; 3],
       spread_this_ball: [false; 3],
       lash: Lash::Ready,
-      ring_effects: ORBITS.map(|orbit| Self::ring_effect(orbit, 0)),
+      ring_scenes: ORBITS.map(|orbit| ScenePlayer::new(Self::ring_scene(orbit, 0))),
       lash_glow: None,
     }
   }
 
-  fn ring_effect(orbit: MainShot, grown: u8) -> LedPlayback {
-    fill_effect(
+  fn ring_scene(orbit: MainShot, grown: u8) -> PlayableScene {
+    fill_scene(
       orbit.hex_ring(),
       SEGMENTS as usize,
       grown as usize,
@@ -95,7 +95,7 @@ impl SpreadRootsSystem {
       self.spread(index, ctx);
       self.grown[index] = 0;
     }
-    self.ring_effects[index] = Self::ring_effect(shot, self.grown[index]);
+    self.ring_scenes[index].replace_scene(Self::ring_scene(shot, self.grown[index]), ctx);
   }
 
   fn spread(&mut self, index: usize, ctx: &SystemContext) {
@@ -103,10 +103,7 @@ impl SpreadRootsSystem {
     log::info!("SpreadRoots: {shot:?} spread");
     ctx.add_points(points::ROOTS_SPREAD);
     ctx.play_sfx(sounds::IMPACT_DIRT);
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(flash_effect(shot.hex_ring(), Rgba::bronze()));
+    ctx.play_scene(&flash_scene(shot.hex_ring(), Rgba::bronze()));
 
     if self.lash == Lash::Ready {
       log::info!("SpreadRoots: root lash armed");
@@ -139,11 +136,9 @@ impl SpreadRootsSystem {
     log::info!("SpreadRoots: root lash");
     self.lash = Lash::CoolingDown(0);
     ctx.play_sfx(sounds::IMPACT_DIRT);
-    let mut effects = ctx.systems.expect::<EffectsSystem>();
     for orbit in ORBITS {
-      effects.play(flash_effect(orbit.hex_ring(), Rgba::bronze()));
+      ctx.play_scene(&flash_scene(orbit.hex_ring(), Rgba::bronze()));
     }
-    drop(effects);
     ctx.emit(RootLashed { hits: LASH_HITS });
     self.render(ctx);
   }
@@ -168,7 +163,7 @@ impl SpreadRootsSystem {
       ctx.undeclare_leds(&led);
       self
         .lash_glow
-        .get_or_insert_with(|| glow_effect(&led, Rgba::lime()));
+        .get_or_insert_with(|| ScenePlayer::started(glow_scene(&led, Rgba::lime()), ctx));
       return;
     }
     if let Some(mut glow) = self.lash_glow.take() {
@@ -181,9 +176,13 @@ impl SpreadRootsSystem {
     }
   }
 
-  fn reset_rings(&mut self) {
+  /// Stopped, to start again on the next tick it's active
+  fn reset_rings(&mut self, ctx: &SystemContext) {
     self.grown = [0; 3];
-    self.ring_effects = ORBITS.map(|orbit| Self::ring_effect(orbit, 0));
+    for (scene, orbit) in self.ring_scenes.iter_mut().zip(ORBITS) {
+      scene.stop(ctx);
+      scene.replace_scene(Self::ring_scene(orbit, 0), ctx);
+    }
   }
 }
 
@@ -211,19 +210,16 @@ impl System for SpreadRootsSystem {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    for effect in self.ring_effects.iter_mut() {
-      effect.apply(delta, ctx);
-    }
-    if let Some(glow) = &mut self.lash_glow {
-      glow.apply(delta, ctx);
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    for scene in self.ring_scenes.iter_mut() {
+      scene.start(ctx);
     }
   }
 
   /// The ball is over, and the rings and the network start over in the next
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     self.spread_this_ball = [false; 3];
-    self.reset_rings();
+    self.reset_rings(ctx);
     if let Some(mut glow) = self.lash_glow.take() {
       glow.stop(ctx);
     }

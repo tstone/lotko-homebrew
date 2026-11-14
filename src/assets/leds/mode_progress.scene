@@ -1,5 +1,5 @@
-Led(
-  version: 1,
+Scene(
+  version: 2,
   params: {
     "color": Color(255, 255, 255, 255),
     "width": Float(2.0),
@@ -9,7 +9,7 @@ Led(
     cycle: Once,
   ),
   layers: [
-    (
+    Leds(
       leds: Names([
         "___child::spore_count::15",
         "___child::spore_count::14",
@@ -34,7 +34,7 @@ Led(
         fill: (
           base: Solid(Param("color")),
           adjust: [
-            Opacity(Track(
+            Opacity(Keyframes(
               keys: [
                 (
                   at: 0.0,
@@ -56,7 +56,7 @@ Led(
             )),
           ],
         ),
-        shape: (
+        region: (
           base: Rect(
             width: Param("width"),
             height: Fixed(1.0),

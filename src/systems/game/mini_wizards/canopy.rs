@@ -7,9 +7,7 @@ use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::hardware::pop_cluster;
 use crate::hardware::vspinner::VerticalSpinnerHit;
 use crate::systems::game::mini_wizards::MiniWizardRun;
-use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, RootLashed, flash_effect, glow_effect, points,
-};
+use crate::systems::game::{Mode, ModeManager, RootLashed, flash_scene, glow_scene, points};
 use crate::systems::sounds;
 
 /// Collects that complete it (start value)
@@ -23,7 +21,7 @@ pub struct CanopyMode {
   wizard: MiniWizardRun,
   value: u64,
   collects: u8,
-  attention_effect: LedPlayback,
+  attention_scene: ScenePlayer,
 }
 
 impl CanopyMode {
@@ -32,13 +30,13 @@ impl CanopyMode {
       wizard: MiniWizardRun::new(Mode::Canopy, COLLECTS),
       value: points::CANOPY_BASE,
       collects: 0,
-      attention_effect: Self::attention_effect(),
+      attention_scene: ScenePlayer::new(Self::attention_scene()),
     }
   }
 
-  fn attention_effect() -> LedPlayback {
+  fn attention_scene() -> PlayableScene {
     let qs: Vec<&LedQ> = RAMPS.iter().map(|shot| shot.hex_center()).collect();
-    glow_effect(&LedQ::any(qs), Mode::Canopy.color())
+    glow_scene(&LedQ::any(qs), Mode::Canopy.color())
   }
 
   fn build(&mut self, amount: u64) {
@@ -55,15 +53,12 @@ impl CanopyMode {
     self.wizard.score(self.value, ctx);
     self.value = points::CANOPY_BASE;
     self.wizard.progress(self.collects);
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(flash_effect(shot.hex_ring(), Rgba::green()));
+    ctx.play_scene(&flash_scene(shot.hex_ring(), Rgba::green()));
 
     if self.collects == COLLECTS {
-      self.attention_effect.stop(ctx);
+      self.attention_scene.stop(ctx);
       self.wizard.complete(
-        led_playback!("startable/hit.scene").param("color", Rgba::green()),
+        completing_scene!("startable/hit.scene").param("color", Rgba::green()),
         ctx,
       );
       return;
@@ -110,12 +105,12 @@ impl System for CanopyMode {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if self.wizard.apply(delta, ctx) {
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    if self.wizard.apply(ctx) {
       return;
     }
 
-    self.attention_effect.apply(delta, ctx);
+    self.attention_scene.start(ctx);
   }
 }
 
@@ -125,7 +120,7 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    CanopyMode::attention_effect();
+    CanopyMode::attention_scene();
   }
 
   #[test]

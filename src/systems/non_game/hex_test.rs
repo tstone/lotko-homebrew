@@ -4,7 +4,7 @@ use frontbox_led::prelude::*;
 use crate::hardware::cabinet::RIGHT_FLIPPER_SWITCH1;
 
 pub struct HexTest {
-  program: LedPlayback,
+  program: ScenePlayer,
   state: State,
 }
 
@@ -12,20 +12,20 @@ impl HexTest {
   pub fn new() -> Self {
     Self {
       state: State::Center,
-      program: Self::center_program(),
+      program: ScenePlayer::new(Self::center_program()),
     }
   }
 
-  fn center_program() -> LedPlayback {
-    led_playback!("hex_test/center.scene")
+  fn center_program() -> PlayableScene {
+    scene!("hex_test/center.scene")
   }
 
-  fn line_program() -> LedPlayback {
-    led_playback!("hex_test/line.scene")
+  fn line_program() -> PlayableScene {
+    scene!("hex_test/line.scene")
   }
 
-  fn circle_program() -> LedPlayback {
-    led_playback!("hex_test/circle.scene")
+  fn circle_program() -> PlayableScene {
+    scene!("hex_test/circle.scene")
   }
 }
 
@@ -36,26 +36,23 @@ impl System for HexTest {
     {
       match self.state {
         State::Center => {
-          self.program.stop(ctx);
-          self.program = Self::line_program();
+          self.program.replace_scene(Self::line_program(), ctx);
           self.state = State::Line;
         }
         State::Line => {
-          self.program.stop(ctx);
-          self.program = Self::circle_program();
+          self.program.replace_scene(Self::circle_program(), ctx);
           self.state = State::Circle;
         }
         State::Circle => {
-          self.program.stop(ctx);
-          self.program = Self::center_program();
+          self.program.replace_scene(Self::center_program(), ctx);
           self.state = State::Center;
         }
       }
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.program.apply(delta, ctx);
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    self.program.start(ctx);
   }
 }
 

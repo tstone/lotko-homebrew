@@ -1,5 +1,5 @@
-Led(
-  version: 1,
+Scene(
+  version: 2,
   params: {
     "color": Color(140, 0, 255, 255),
   },
@@ -8,7 +8,7 @@ Led(
     cycle: Once,
   ),
   layers: [
-    (
+    Leds(
       leds: Names([
         "___child::vs_left_ray1::0",
         "___child::vs_left_ray2::0",
@@ -20,7 +20,7 @@ Led(
       layer: (
         fill: (
           transform: [
-            Rotate(Track(
+            Rotate(Keyframes(
               keys: [
                 (
                   at: 0.0,
@@ -55,7 +55,6 @@ Led(
                 color: Fixed(0, 0, 0, 0),
               ),
             ],
-            space: Rgb,
             style: Linear,
           ),
         ),

@@ -1,0 +1,7 @@
+Scene(
+  version: 2,
+  layers: [Leds(leds: Every, surface: Area("Playfield"), layer: (fill: (base: Gradient(stops: [
+      (at: 0.0, color: Fixed(255, 0, 0, 255)),
+      (at: 1.0, color: Fixed(0, 0, 255, 255)),
+    ]))))],
+)

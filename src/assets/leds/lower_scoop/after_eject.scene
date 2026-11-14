@@ -1,18 +1,28 @@
-Led(
-  version: 1,
+Scene(
+  version: 2,
   timing: (
     duration: 0.45,
     cycle: Once,
   ),
   layers: [
-    (
+    Leds(
       leds: Tag("Playfield"),
       surface: Area("Playfield"),
       layer: (
         fill: (
           base: Solid(Fixed(255, 255, 255, 255)),
           adjust: [
-            Opacity(Visit(traversal: "spread", from: 0.0, to: 1.0, smooth_out: 3.0, curve_out: EaseIn)),
+            Opacity(Visit(
+              traversal: "spread",
+              from: 0.0,
+              to: 1.0,
+              smooth_in: 0.0,
+              hold: 0.0,
+              smooth_out: 3.0,
+              curve_in: Linear,
+              curve_out: EaseIn,
+              overlap: Max,
+            )),
           ],
         ),
         graph: (
@@ -20,8 +30,11 @@ Led(
             (
               name: "spread",
               from: Nearest(Fixed(1.672, 25.88)),
-              algorithm: Dijkstra(wander: Fixed(0.4)),
+              algorithm: Dijkstra(
+                wander: Fixed(0.4),
+              ),
               speed: Rate(Fixed(20.0)),
+              start: 0.0,
             ),
           ],
         ),

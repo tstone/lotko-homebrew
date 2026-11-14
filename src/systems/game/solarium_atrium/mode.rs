@@ -9,7 +9,7 @@ use crate::hardware::city_map;
 use crate::hardware::lower_scoop::Lower;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_effect, glow_effect,
+  Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_scene, glow_scene,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -31,9 +31,9 @@ pub struct SolariumAtriumMode {
   run: ModeRun,
   head: MainShot,
   next: MainShot,
-  head_effect: LedPlayback,
-  hit_effect: LedPlayback,
-  intensity_effect: LedPlayback,
+  head_scene: ScenePlayer,
+  hit_scene: ScenePlayer,
+  intensity_scene: ScenePlayer,
   hits: u8,
   move_cue: Option<u64>,
 }
@@ -47,32 +47,32 @@ impl SolariumAtriumMode {
       run: ModeRun::new(Mode::SolariumAtrium, REQUIRED_HITS),
       head,
       next: next_shot(head, None),
-      head_effect: Self::head_effect(head),
-      hit_effect: Self::hit_effect(),
-      intensity_effect: Self::intensity_effect(),
+      head_scene: ScenePlayer::new(Self::head_scene(head)),
+      hit_scene: ScenePlayer::new(Self::hit_scene()),
+      intensity_scene: ScenePlayer::new(Self::intensity_scene()),
       hits: 0,
       move_cue: None,
     }
   }
 
-  fn head_effect(head: MainShot) -> LedPlayback {
-    glow_effect(head.hex_center(), *MODE_COLOR)
+  fn head_scene(head: MainShot) -> PlayableScene {
+    glow_scene(head.hex_center(), *MODE_COLOR)
   }
 
-  fn hit_effect() -> LedPlayback {
-    led_playback!("solarium_atrium/hit.scene").stopped()
+  fn hit_scene() -> PlayableScene {
+    scene!("solarium_atrium/hit.scene")
   }
 
-  fn complete_effect() -> LedPlayback {
-    led_playback!("solarium_atrium/complete.scene").stopped()
+  fn complete_scene() -> PlayableScene<Completes> {
+    completing_scene!("solarium_atrium/complete.scene")
   }
 
-  fn intensity_effect() -> LedPlayback {
-    led_playback!("solarium_atrium/intensity.scene").stopped()
+  fn intensity_scene() -> PlayableScene {
+    scene!("solarium_atrium/intensity.scene")
   }
 
-  fn progress_effect(hits: u8) -> LedPlayback {
-    city_map::mode_progress_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
+  fn progress_scene(hits: u8) -> PlayableScene<Completes> {
+    city_map::mode_progress_scene(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
   }
 
   fn interval(&self) -> Duration {
@@ -93,24 +93,15 @@ impl SolariumAtriumMode {
     self.hits = (self.hits + hits).min(REQUIRED_HITS);
     log::info!("SolariumAtrium: hits = {}", self.hits);
     self.run.score_hit(hits, ctx);
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(led_playback!("solarium_atrium/flashers.scene"));
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(flash_effect(self.head.hex_ring(), Rgba::white()));
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(Self::progress_effect(self.hits));
+    ctx.play_scene(&completing_scene!("solarium_atrium/flashers.scene"));
+    ctx.play_scene(&flash_scene(self.head.hex_ring(), Rgba::white()));
+    ctx.play_scene(&Self::progress_scene(self.hits));
 
     if self.hits == REQUIRED_HITS {
       self.cancel_move(ctx);
-      self.head_effect.stop(ctx);
+      self.head_scene.stop(ctx);
       ctx.undeclare_leds(self.next.hex_center());
-      self.run.complete(Self::complete_effect(), ctx);
+      self.run.complete(Self::complete_scene(), ctx);
       return;
     }
 
@@ -119,23 +110,19 @@ impl SolariumAtriumMode {
       Some(25) => ctx.say(Callout::AtriumIntegrityFailing),
       Some(50) => {
         ctx.say(Callout::TestLabShutdownInitiated);
-        self.intensity_effect.play();
+        self.intensity_scene.start(ctx);
       }
       Some(75) => ctx.say(Callout::AtriumContainmentEnacted),
       _ => {}
     }
-    self.hit_effect.reset();
-    self.hit_effect.play();
+    self.hit_scene.restart(ctx);
     self.move_vine(ctx);
   }
 
   /// The head moves to the shot that was pre-lit, leaving a fading green trail, and the next one is chosen
   fn move_vine(&mut self, ctx: &SystemContext) {
     let from = self.head;
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(flash_effect(from.hex_center(), Rgba::green()));
+    ctx.play_scene(&flash_scene(from.hex_center(), Rgba::green()));
     self.head = self.next;
     self.next = next_shot(self.head, Some(from));
     self.render(ctx);
@@ -144,8 +131,7 @@ impl SolariumAtriumMode {
 
   /// The head glows, and the shot it's moving to next is dimly lit beneath it
   fn render(&mut self, ctx: &SystemContext) {
-    self.head_effect.stop(ctx);
-    self.head_effect = Self::head_effect(self.head);
+    self.head_scene.replace_scene(Self::head_scene(self.head), ctx);
     for shot in MainShot::ALL {
       ctx.undeclare_leds(shot.hex_center());
     }
@@ -205,13 +191,11 @@ impl System for SolariumAtriumMode {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if self.run.apply(delta, ctx) {
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    if self.run.apply(ctx) {
       return;
     }
-    self.head_effect.apply(delta, ctx);
-    self.hit_effect.apply(delta, ctx);
-    self.intensity_effect.apply(delta, ctx);
+    self.head_scene.start(ctx);
   }
 }
 

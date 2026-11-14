@@ -1,35 +1,35 @@
-Led(
-  version: 1,
-  timing: (
-    duration: 0.185,
-    cycle: Times(4),
-  ),
-  layers: [
-    (
-      leds: Every,
-      surface: Sequence,
-      layer: (
-        fill: (
-          base: Solid(Fixed(255, 155, 0, 255)),
-          adjust: [
-            Opacity(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.185,
-                  value: 0.0,
-                  curve: EaseInOut,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
-        ),
-      ),
-    ),
-  ],
+Scene(
+  version: 2,
+  timing: (
+    duration: 0.185,
+    cycle: Times(4),
+  ),
+  layers: [
+    Leds(
+      leds: Every,
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Fixed(255, 155, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.185,
+                  value: 0.0,
+                  curve: EaseInOut,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+      ),
+    ),
+  ],
 )

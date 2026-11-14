@@ -21,8 +21,8 @@ const LIT_SHOT_Z: i8 = 10;
 pub struct ScoopQualifier {
   count: QualifyCount,
   /// What the scoop is showing, as the color it's lit in
-  lit_effect: Option<LedPlayback>,
-  hit_effect: LedPlayback,
+  lit_scene: Option<ScenePlayer>,
+  hit_scene: ScenePlayer,
   handle: SystemHandle,
 }
 
@@ -30,8 +30,8 @@ impl ScoopQualifier {
   pub fn new() -> Self {
     Self {
       count: QualifyCount::new(),
-      lit_effect: None,
-      hit_effect: led_playback!("exclusive_qualification_hit.scene").stopped(),
+      lit_scene: None,
+      hit_scene: ScenePlayer::new(scene!("exclusive_qualification_hit.scene")),
       handle: SystemHandle::default(),
     }
   }
@@ -47,7 +47,7 @@ impl ScoopQualifier {
   pub fn used(&mut self, ctx: &ServiceContext) {
     self.count.next_round();
     let ctx = &ctx.for_system(self.handle);
-    self.stop_lit_effect(ctx);
+    self.stop_lit_scene(ctx);
     self.render_shots(ctx);
   }
 
@@ -67,8 +67,7 @@ impl ScoopQualifier {
 
   fn on_hit(&mut self, ctx: &SystemContext) {
     ctx.add_points(game::points::EXCL_QUAL_HIT);
-    self.hit_effect.reset();
-    self.hit_effect.play();
+    self.hit_scene.restart(ctx);
     ctx.play_sfx(if self.count.is_qualified() {
       sounds::ARP_HIT1
     } else {
@@ -89,7 +88,7 @@ impl ScoopQualifier {
     }
   }
 
-  fn update_lit_effect(&mut self, ctx: &SystemContext) {
+  fn update_lit_scene(&mut self, ctx: &SystemContext) {
     let (lit, color) = {
       let mode_manager = ctx.systems.expect::<ModeManager>();
       let color = mode_manager
@@ -100,12 +99,14 @@ impl ScoopQualifier {
     };
 
     if !lit {
-      self.stop_lit_effect(ctx);
-    } else if self.lit_effect.is_none() {
-      self.lit_effect = Some(
-        led_playback!("startable/left_scoop_attention.scene")
+      self.stop_lit_scene(ctx);
+    } else if self.lit_scene.is_none() {
+      let mut scene = ScenePlayer::new(
+        scene!("startable/left_scoop_attention.scene")
           .param("color", color.unwrap_or(Rgba::white())),
       );
+      scene.start(ctx);
+      self.lit_scene = Some(scene);
       ctx
         .systems
         .expect::<ModeManager>()
@@ -113,9 +114,9 @@ impl ScoopQualifier {
     }
   }
 
-  fn stop_lit_effect(&mut self, ctx: &SystemContext) {
-    if let Some(mut effect) = self.lit_effect.take() {
-      effect.stop(ctx);
+  fn stop_lit_scene(&mut self, ctx: &SystemContext) {
+    if let Some(mut scene) = self.lit_scene.take() {
+      scene.stop(ctx);
       ctx
         .systems
         .expect::<ModeManager>()
@@ -142,12 +143,8 @@ impl System for ScoopQualifier {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.update_lit_effect(ctx);
-    self.hit_effect.apply(delta, ctx);
-    if let Some(effect) = self.lit_effect.as_mut() {
-      effect.apply(delta, ctx);
-    }
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    self.update_lit_scene(ctx);
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {

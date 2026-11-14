@@ -1,17 +1,20 @@
 use frontbox_core::prelude::*;
-use frontbox_dmd::*;
+use frontbox_display::*;
 use frontbox_gfx::canvas::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 
+use super::{BASE_DMD_LAYER, CanvasScreen};
+
 // TODO: this is probably generalizable enough to include in the pin2dmd package
 pub struct GamePointsDmdSystem {
   redraw: bool,
+  screen: CanvasScreen,
 }
 
 impl GamePointsDmdSystem {
   pub fn new() -> Self {
-    Self { redraw: true }
+    Self { redraw: true, screen: CanvasScreen::new(BASE_DMD_LAYER) }
   }
 
   fn draw(&self, ctx: &SystemContext) -> Container {
@@ -97,10 +100,9 @@ impl System for GamePointsDmdSystem {
   }
 
   fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
-    if self.redraw
-      && let Some(mut dmd) = ctx.systems.get::<DmdSystem>()
-    {
-      dmd.insert_layer(0, self.draw(&ctx).default_position());
+    if self.redraw {
+      let screen = self.draw(ctx);
+      self.screen.show(screen.default_position(), ctx);
     }
   }
 }

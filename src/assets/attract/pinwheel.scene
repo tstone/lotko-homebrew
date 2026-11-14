@@ -1,11 +1,11 @@
-Led(
-  version: 1,
+Scene(
+  version: 2,
   timing: (
     duration: 5.0,
     cycle: Times(3),
   ),
   layers: [
-    (
+    Leds(
       leds: Tag("Playfield"),
       surface: Area("Playfield"),
       layer: (
@@ -54,11 +54,17 @@ Led(
             style: Conical,
           ),
         ),
-        shape: (
+        region: (
           transform: [
-            Scale(Fixed(1.549, 1.549)),
+            Translate(Fixed(0.0, 31.0)),
+            Revolve(
+              center: Fixed(0.0, 0.0),
+              angle: Fixed(360.0),
+              count: Fixed(8.0),
+            ),
+            Scale(Fixed(1.549)),
             Translate(Fixed(1.0, 1.0)),
-            Rotate(Track(
+            Rotate(Keyframes(
               keys: [
                 (
                   at: 0.0,
@@ -74,9 +80,11 @@ Led(
               cycle: Once,
             )),
           ],
-          base: Pinwheel(
-            blades: Fixed(8.0),
-            blade_fraction: Fixed(0.4),
+          base: Star(
+            radius: Fixed(31.0),
+            legs: Fixed(1.0),
+            leg_width: Fixed(0.3168),
+            bow: Fixed(0.0),
           ),
         ),
       ),

@@ -1,11 +1,11 @@
-Led(
-  version: 1,
+Scene(
+  version: 2,
   params: {
     "color": Color(0, 255, 0, 255),
     "width": Float(0.0),
   },
   layers: [
-    (
+    Leds(
       leds: Names([
         "___child::l_orbit::5",
         "___child::l_orbit::4",
@@ -19,7 +19,7 @@ Led(
         fill: (
           base: Solid(Param("color")),
         ),
-        shape: (
+        region: (
           base: Rect(
             width: Param("width"),
             height: Fixed(1.0),

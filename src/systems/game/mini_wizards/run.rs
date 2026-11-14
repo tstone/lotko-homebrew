@@ -47,8 +47,8 @@ impl MiniWizardRun {
   }
 
   /// See [`ModeRun::apply`]
-  pub fn apply(&mut self, delta: Duration, ctx: &SystemContext) -> bool {
-    self.run.apply(delta, ctx)
+  pub fn apply(&mut self, ctx: &SystemContext) -> bool {
+    self.run.apply(ctx)
   }
 
   pub fn interrupt(&mut self, ctx: &SystemContext) {
@@ -89,10 +89,10 @@ impl MiniWizardRun {
     self.run.progress(done)
   }
 
-  pub fn complete(&mut self, effect: LedPlayback, ctx: &SystemContext) {
+  pub fn complete(&mut self, scene: PlayableScene<Completes>, ctx: &SystemContext) {
     self.total += points::mode_completion(self.mode) as u64;
     log::info!("{:?}: completed, {} scored", self.mode, self.total);
-    self.run.complete(effect, ctx);
+    self.run.complete(scene, ctx);
   }
 
   fn add_balls(&mut self, ctx: &SystemContext) {

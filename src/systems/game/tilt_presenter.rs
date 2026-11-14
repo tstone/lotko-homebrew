@@ -1,10 +1,10 @@
 use frontbox_core::prelude::*;
-use frontbox_dmd::*;
+use frontbox_display::*;
 use frontbox_gfx::canvas::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{GameEnding, PlayerTilted, TiltWarned, TurnStarting};
 
-use crate::systems::dmd::ANNOUNCEMENT_DMD_LAYER;
+use crate::systems::dmd::{ANNOUNCEMENT_DMD_LAYER, CanvasScreen};
 use crate::systems::{Callout, SayExt};
 
 /// How long a tilt warning is shown
@@ -15,23 +15,24 @@ const WARNING_DURATION: Duration = Duration::from_millis(1500);
 ///
 /// At the root, as it outlives the tilted turn: the playfield stays dark while the balls drain.
 pub struct TiltPresenter {
-  warning_effect: LedPlayback,
+  warning_scene: ScenePlayer,
   warning_cue: Option<u64>,
   tilted: bool,
+  screen: CanvasScreen,
 }
 
 impl TiltPresenter {
   pub fn new() -> Self {
     Self {
-      warning_effect: led_playback!("tilt_warning.scene").stopped(),
+      warning_scene: ScenePlayer::new(scene!("tilt_warning.scene")),
       warning_cue: None,
       tilted: false,
+      screen: CanvasScreen::new(ANNOUNCEMENT_DMD_LAYER),
     }
   }
 
   fn warned(&mut self, remaining: u8, ctx: &SystemContext) {
-    self.warning_effect.reset();
-    self.warning_effect.play();
+    self.warning_scene.restart(ctx);
     let label = match remaining {
       0 => "LAST WARNING".to_string(),
       _ => "WARNING".to_string(),
@@ -62,22 +63,18 @@ impl TiltPresenter {
     }
   }
 
-  fn show(&self, label: String, ctx: &SystemContext) {
-    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
-      let mut frame = Container::new(Fill2d::Solid(Rgba::black()));
-      frame.add(
-        BOLD_PIXELS_10PX_REGULAR_FONT
-          .center_aligned(label, Rgba::red())
-          .top_offset(11),
-      );
-      dmd.insert_layer(ANNOUNCEMENT_DMD_LAYER, frame.default_position());
-    }
+  fn show(&mut self, label: String, ctx: &SystemContext) {
+    let mut frame = Container::new(Fill2d::Solid(Rgba::black()));
+    frame.add(
+      BOLD_PIXELS_10PX_REGULAR_FONT
+        .center_aligned(label, Rgba::red())
+        .top_offset(11),
+    );
+    self.screen.show(frame.default_position(), ctx);
   }
 
-  fn remove_screen(&self, ctx: &SystemContext) {
-    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
-      dmd.remove_layer(ANNOUNCEMENT_DMD_LAYER);
-    }
+  fn remove_screen(&mut self, ctx: &SystemContext) {
+    self.screen.clear(ctx);
   }
 }
 
@@ -96,10 +93,6 @@ impl System for TiltPresenter {
     {
       self.clear(ctx);
     }
-  }
-
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.warning_effect.apply(delta, ctx);
   }
 }
 

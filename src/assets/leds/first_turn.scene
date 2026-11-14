@@ -1,21 +1,21 @@
-Led(
-  version: 1,
+Scene(
+  version: 2,
   timing: (
     duration: 1.1,
     cycle: Times(1),
   ),
   layers: [
-    (
+    Leds(
       leds: Tag("Playfield"),
       surface: Area("Playfield"),
       layer: (
         fill: (
           base: Solid(Fixed(255, 255, 255, 255)),
         ),
-        shape: (
+        region: (
           transform: [
-            Scale(Fixed(1.0, 1.0)),
-            Translate(Track(
+            Scale(Fixed(1.0)),
+            Translate(Keyframes(
               keys: [
                 (
                   at: 0.0,

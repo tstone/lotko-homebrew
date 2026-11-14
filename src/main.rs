@@ -1,7 +1,8 @@
 use frontbox_console::WebTracer;
 use frontbox_core::prelude::*;
-use frontbox_dmd::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
-use frontbox_dmd::{DmdSystem, PanelType, Pin2Dmd};
+use frontbox_display::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
+use frontbox_display::{DisplayDefinition, DisplaySystem};
+use frontbox_dmd::{PanelType, Pin2Dmd};
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystem;
@@ -71,7 +72,7 @@ async fn main() {
     ..Default::default()
   })
   .configure(|app| {
-    let ball_save_effect = led_playback!("ball_save.scene");
+    let ball_save_scene = scene!("ball_save.scene");
 
     app.plane(app_plane!(planes::PLAYFIELD));
     app.plane(app_plane!(planes::ARC_RAMP));
@@ -79,9 +80,10 @@ async fn main() {
     app.plane(app_plane!(planes::BACKBOARD));
     app.plane(app_plane!(planes::CABINET_FRONT));
 
-    app.tracer(WebTracer::new());
+    let console = WebTracer::new();
 
     // core
+    app.system(SceneSystem::new());
     app.system(LedSystem::new());
     let mut sound = SoundSystem::new("Sound Blaster");
     sound.set_callout_volume(9.0);
@@ -99,23 +101,26 @@ async fn main() {
     app.system(cabinet::double_flip_combo());
 
     // dmd
-    if !virtual_mode {
-      let dmd = Pin2Dmd::connect(128, 32, PanelType::Rgb).unwrap();
-      app.system(DmdSystem::new(dmd));
-      app.system(DmdMenuSystem::new(
-        MenuSwitches {
-          back_btn: coin_door::MENU_GREEN_SWITCH.name,
-          select_btn: coin_door::MENU_BLACK_SWITCH.name,
-          inc_btn: coin_door::MENU_RED_R_SWITCH.name,
-          dec_btn: coin_door::MENU_RED_L_SWITCH.name,
-          coin_door: coin_door::OPEN_SWITCH.name,
-        },
-        &MENU,
-        DmdMenuTheme::default(),
-      ));
-      app.system(AttractModeDmdSystem::new());
-      app.system(GamePointsDmdSystem::new());
-    }
+    app.system(DisplaySystem::new().display(
+      DisplayDefinition::new(DMD, Pin2Dmd::new(DMD_WIDTH, DMD_HEIGHT, PanelType::Rgb)).mirror(
+        // 320 x 80mm, centered between the speaker rings
+        console.display_view().on(&planes::BACKBOX_PANEL, Vec2::new(7.325, 2.425), Vec2::new(12.6, 3.15)),
+      ),
+    ));
+    app.tracer(console);
+    app.system(DmdMenuSystem::new(
+      MenuSwitches {
+        back_btn: coin_door::MENU_GREEN_SWITCH.name,
+        select_btn: coin_door::MENU_BLACK_SWITCH.name,
+        inc_btn: coin_door::MENU_RED_R_SWITCH.name,
+        dec_btn: coin_door::MENU_RED_L_SWITCH.name,
+        coin_door: coin_door::OPEN_SWITCH.name,
+      },
+      &MENU,
+      DmdMenuTheme::default(),
+    ));
+    app.system(AttractModeDmdSystem::new());
+    app.system(GamePointsDmdSystem::new());
 
     // hardware ops
     app.system(drop_bank::DropBankSystem::new());
@@ -149,10 +154,10 @@ async fn main() {
       )
       .plunge_lane(plunge_lane::SWITCH.name)
       .re_enter_timeout(Duration::from_millis(1200))
-      .ball_present_effect(led_playback!("plunge_lane.scene"))
+      .ball_present_scene(scene!("plunge_lane.scene"))
       .autoplunger(plunge_lane::COIL.name)
       .launch_button(action_button::SWITCH.q())
-      .launch_ready_effect(led_playback!("launch_ready.scene"))
+      .launch_ready_scene(scene!("launch_ready.scene"))
       .build(),
     );
 
@@ -192,12 +197,11 @@ async fn main() {
         systems![
           BasicPoints::new(),
           // operation
-          BallSaveSystem::new().led_effect(ball_save_effect),
+          BallSaveSystem::new().scene(ball_save_scene),
           TiltSystem::new(&cabinet::TILT_BOB_SWITCH),
           ExtraBallSystem::new(),
           PlayfieldIllumination::new(),
           SkillshotManager::new(),
-          EffectsSystem::new(),
           // modes
           ModeManager::new(),
           SporesSystem::new(),

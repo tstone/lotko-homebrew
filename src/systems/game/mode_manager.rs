@@ -37,7 +37,7 @@ pub struct ModeManager {
   /// The scoop is lit, so the districts it can start pulse
   scoop_lit: bool,
   /// Pulses the map insert of each mode that wants it, with how it's pulsing
-  map_pulses: HashMap<Mode, (MapPulse, LedPlayback)>,
+  map_pulses: HashMap<Mode, (MapPulse, ScenePlayer)>,
 }
 
 impl ModeManager {
@@ -311,12 +311,12 @@ impl ModeManager {
       playing.stop(ctx);
     }
     if let Some(pulse) = pulse {
-      let playback = led_playback!("map_flash.scene", led.clone()).param("color", mode.color());
-      let playback = match pulse {
-        MapPulse::Running => playback,
-        MapPulse::Offered => playback.over(OFFERED_PULSE),
+      let scene = scene!("map_flash.scene", led.clone()).param("color", mode.color());
+      let scene = match pulse {
+        MapPulse::Running => scene,
+        MapPulse::Offered => scene.over(OFFERED_PULSE),
       };
-      self.map_pulses.insert(mode, (pulse, playback));
+      self.map_pulses.insert(mode, (pulse, ScenePlayer::started(scene, ctx)));
     }
   }
 }
@@ -340,12 +340,6 @@ impl System for ModeManager {
       if self.mode.is_some() {
         self.clear_mode(ctx);
       }
-    }
-  }
-
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    for (_, pulse) in self.map_pulses.values_mut() {
-      pulse.apply(delta, ctx);
     }
   }
 

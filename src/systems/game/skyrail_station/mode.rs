@@ -10,9 +10,7 @@ use crate::hardware::lower_scoop::Lower;
 use crate::hardware::rear_scoop::Rear;
 use crate::systems::game::skyrail_station::MODE_COLOR;
 use crate::systems::game::skyrail_station::mode::State::*;
-use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem, points,
-};
+use crate::systems::game::{Mode, ModeManager, ModeRun, RootLashed, SporesSystem, points};
 use crate::systems::{Callout, SayExt, sounds};
 
 /// Drop target hits in the finale that complete the mode
@@ -26,9 +24,9 @@ const REQUIRED_HITS: u8 = 3 + 2 + FINALE_HITS;
 /// raises itself each time it's cleared.
 pub struct SkyrailStationMode {
   run: ModeRun,
-  attention_effect: LedPlayback,
-  hit_effect: LedPlayback,
-  intensity_effect: LedPlayback,
+  attention_scene: ScenePlayer,
+  hit_scene: ScenePlayer,
+  intensity_scene: ScenePlayer,
   /// Drop target hits before the finale
   target_hits: u8,
   ramp_hits: u8,
@@ -43,9 +41,9 @@ impl SkyrailStationMode {
   pub fn new() -> Self {
     Self {
       run: ModeRun::new(Mode::SkyrailStation, REQUIRED_HITS),
-      attention_effect: Self::attention_effect_ramp(),
-      hit_effect: Self::hit_effect(),
-      intensity_effect: Self::intensity_effect(),
+      attention_scene: ScenePlayer::new(Self::attention_effect_ramp()),
+      hit_scene: ScenePlayer::new(Self::hit_scene()),
+      intensity_scene: ScenePlayer::new(Self::intensity_scene()),
       target_hits: 0,
       ramp_hits: 0,
       finale_hits: 0,
@@ -55,28 +53,28 @@ impl SkyrailStationMode {
     }
   }
 
-  fn attention_effect_ramp() -> LedPlayback {
-    led_playback!("skyrail_station/attention_ramp.scene")
+  fn attention_effect_ramp() -> PlayableScene {
+    scene!("skyrail_station/attention_ramp.scene")
   }
 
-  fn attention_effect_target() -> LedPlayback {
-    led_playback!("skyrail_station/attention_target.scene")
+  fn attention_effect_target() -> PlayableScene {
+    scene!("skyrail_station/attention_target.scene")
   }
 
-  fn attention_effect_target_final() -> LedPlayback {
-    led_playback!("skyrail_station/attention_target_final.scene")
+  fn attention_effect_target_final() -> PlayableScene {
+    scene!("skyrail_station/attention_target_final.scene")
   }
 
-  fn hit_effect() -> LedPlayback {
-    led_playback!("skyrail_station/hit.scene").stopped()
+  fn hit_scene() -> PlayableScene {
+    scene!("skyrail_station/hit.scene")
   }
 
-  fn intensity_effect() -> LedPlayback {
-    led_playback!("skyrail_station/intensity.scene").stopped()
+  fn intensity_scene() -> PlayableScene {
+    scene!("skyrail_station/intensity.scene")
   }
 
-  fn progress_effect(hits: u8) -> LedPlayback {
-    city_map::mode_progress_effect(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
+  fn progress_scene(hits: u8) -> PlayableScene<Completes> {
+    city_map::mode_progress_scene(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
   }
 
   fn hits(&self) -> u8 {
@@ -87,11 +85,8 @@ impl SkyrailStationMode {
     // each shot is a stage of its own, so a burst doubles the points rather than skipping one
     let times = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
     self.run.score_hit(times, ctx);
-    self.hit_effect.play();
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(led_playback!("skyrail_station/flashers.scene"));
+    self.hit_scene.restart(ctx);
+    ctx.play_scene(&completing_scene!("skyrail_station/flashers.scene"));
     ctx.play_sfx(sounds::city_hit(self.hits() as f32 / REQUIRED_HITS as f32));
     ctx.play_sfx(if self.state == HitRamp {
       sounds::WOOSH_LIGHT
@@ -108,7 +103,7 @@ impl SkyrailStationMode {
           self.ramp_down(ctx);
           self
             .run
-            .complete(led_playback!("skyrail_station/complete.scene"), ctx);
+            .complete(completing_scene!("skyrail_station/complete.scene"), ctx);
           return;
         }
       }
@@ -116,8 +111,9 @@ impl SkyrailStationMode {
         log::info!("Skyrail: HitTarget");
         self.target_hits += 1;
         self.state = HitRamp;
-        self.attention_effect.stop(ctx);
-        self.attention_effect = Self::attention_effect_ramp();
+        self
+          .attention_scene
+          .replace_scene(Self::attention_effect_ramp(), ctx);
         self.ramp_down(ctx);
         log::info!("SkyrailStation: hit target => ramp down");
       }
@@ -132,13 +128,15 @@ impl SkyrailStationMode {
           // the finale is on the drops with a 2 ball multiball
           self.add_ball(ctx);
           self.state = Final;
-          self.intensity_effect.play();
-          self.attention_effect.stop(ctx);
-          self.attention_effect = Self::attention_effect_target_final();
+          self.intensity_scene.start(ctx);
+          self
+            .attention_scene
+            .replace_scene(Self::attention_effect_target_final(), ctx);
         } else {
           self.state = HitTarget;
-          self.attention_effect.stop(ctx);
-          self.attention_effect = Self::attention_effect_target();
+          self
+            .attention_scene
+            .replace_scene(Self::attention_effect_target(), ctx);
         }
 
         self.ramp_up(Duration::from_millis(250), ctx);
@@ -152,10 +150,7 @@ impl SkyrailStationMode {
     }
 
     self.run.progress(self.hits());
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(Self::progress_effect(self.hits()));
+    ctx.play_scene(&Self::progress_scene(self.hits()));
   }
 
   /// The finale's second ball. It's saved until the mode ends, and completing despawns the mode, which takes the save
@@ -253,14 +248,12 @@ impl System for SkyrailStationMode {
     ctx.deactivate_led_declarations();
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if self.run.apply(delta, ctx) {
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    if self.run.apply(ctx) {
       return;
     }
 
-    self.attention_effect.apply(delta, ctx);
-    self.hit_effect.apply(delta, ctx);
-    self.intensity_effect.apply(delta, ctx);
+    self.attention_scene.start(ctx);
   }
 }
 

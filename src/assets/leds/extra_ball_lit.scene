@@ -1,40 +1,40 @@
-Led(
-  version: 1,
-  timing: (
-    duration: 1.0,
-    cycle: Forever,
-  ),
-  layers: [
-    (
-      leds: Names([
-        "___child::scoop_bolt_l::0",
-        "___child::scoop_bolt_r::0",
-      ]),
-      z: 3,
-      surface: Sequence,
-      layer: (
-        name: "bolts",
-        fill: (
-          base: Solid(Fixed(255, 255, 255, 255)),
-          adjust: [
-            Opacity(Track(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.2,
-                  value: 0.0,
-                  curve: EaseInOut,
-                ),
-              ],
-              cycle: Forever,
-            )),
-          ],
-        ),
-      ),
-    ),
-  ],
+Scene(
+  version: 2,
+  timing: (
+    duration: 1.0,
+    cycle: Forever,
+  ),
+  layers: [
+    Leds(
+      leds: Names([
+        "___child::scoop_bolt_l::0",
+        "___child::scoop_bolt_r::0",
+      ]),
+      z: 3,
+      surface: Sequence,
+      layer: (
+        name: "bolts",
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.2,
+                  value: 0.0,
+                  curve: EaseInOut,
+                ),
+              ],
+              cycle: Forever,
+            )),
+          ],
+        ),
+      ),
+    ),
+  ],
 )

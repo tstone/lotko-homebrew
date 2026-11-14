@@ -1,6 +1,6 @@
-use frontbox_dmd::menu::DmdMenuSystem;
-use frontbox_dmd::{
-  BOLD_PIXELS_10PX_REGULAR_FONT, DmdSystem, SIGI_BOLD_7PX_FONT, SIGI_REGULAR_5PX_FONT,
+use frontbox_display::menu::DmdMenuSystem;
+use frontbox_display::{
+  BOLD_PIXELS_10PX_REGULAR_FONT, SIGI_BOLD_7PX_FONT, SIGI_REGULAR_5PX_FONT,
   TextFormatting,
 };
 use frontbox_gfx::canvas::{Container, Gif, Horizontal, Layer, StaticImage, Vertical};
@@ -15,6 +15,7 @@ use frontbox_pinball::*;
 
 use crate::hardware::cabinet::{LEFT_FLIPPER_SWITCH1, RIGHT_FLIPPER_SWITCH1};
 use crate::systems::dmd::attract_dmd_screen::AttractDmdScreen;
+use crate::systems::dmd::{BASE_DMD_LAYER, CanvasScreen};
 
 static LOGOS_IMG: &[u8] = include_bytes!("../../assets/dmd/fast-frontbox-logos.png");
 static TITLE_IMG: &[u8] = include_bytes!("../../assets/dmd/lotko.png");
@@ -27,6 +28,7 @@ pub struct AttractModeDmdSystem {
   last_scores: Option<Vec<(&'static str, u64)>>,
   state: AttractDmdScreen,
   cue_id: Option<u64>,
+  screen: CanvasScreen,
 }
 
 impl AttractModeDmdSystem {
@@ -44,6 +46,7 @@ impl AttractModeDmdSystem {
       last_scores: None,
       state: AttractDmdScreen::ordered()[0],
       cue_id: None,
+      screen: CanvasScreen::new(BASE_DMD_LAYER),
     }
   }
 
@@ -208,10 +211,8 @@ impl System for AttractModeDmdSystem {
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
-      let screen = self.draw(delta, ctx);
-      dmd.insert_layer(0, screen.default_position());
-    }
+    let screen = self.draw(delta, ctx);
+    self.screen.show(screen.default_position(), ctx);
   }
 }
 

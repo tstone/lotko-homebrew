@@ -29,7 +29,7 @@ pub struct BlackoutMode {
   /// By shot, in [`MainShot::ALL`] order
   dark: [bool; 6],
   /// The lit shots, or the scoop once they're all dark
-  lit_effect: Option<LedPlayback>,
+  lit_scene: Option<ScenePlayer>,
   /// The dark is down, which it is from the ball leaving the scoop to the end of the run
   darkened: bool,
   elapsed: Duration,
@@ -40,14 +40,14 @@ impl BlackoutMode {
     Self {
       wizard: MiniWizardRun::new(Mode::Blackout, MainShot::ALL.len() as u8 + 1),
       dark: [false; 6],
-      lit_effect: None,
+      lit_scene: None,
       darkened: false,
       elapsed: Duration::ZERO,
     }
   }
 
-  fn lit_effect(leds: LedQ) -> LedPlayback {
-    led_playback!("blackout/lit.scene", leds).param("color", Rgba::white())
+  fn lit_scene(leds: LedQ) -> PlayableScene {
+    scene!("blackout/lit.scene", leds).param("color", Rgba::white())
   }
 
   fn lit_shots(&self) -> Vec<MainShot> {
@@ -91,7 +91,7 @@ impl BlackoutMode {
     self.wizard.score(points::BLACKOUT_SUPER_JACKPOT, ctx);
     self.lift_dark(ctx);
     self.wizard.complete(
-      led_playback!("startable/hit.scene").param("color", Rgba::white()),
+      completing_scene!("startable/hit.scene").param("color", Rgba::white()),
       ctx,
     );
   }
@@ -103,8 +103,8 @@ impl BlackoutMode {
       Rgba::green().mix_with(Rgba::black(), 0.6),
     );
 
-    if let Some(mut effect) = self.lit_effect.take() {
-      effect.stop(ctx);
+    if let Some(mut scene) = self.lit_scene.take() {
+      scene.stop(ctx);
     }
     let leds = if self.super_jackpot_lit() {
       lower_scoop::BOLTS_Q.clone()
@@ -116,13 +116,13 @@ impl BlackoutMode {
         .collect();
       LedQ::any(qs)
     };
-    self.lit_effect = Some(Self::lit_effect(leds));
+    self.lit_scene = Some(ScenePlayer::started(Self::lit_scene(leds), ctx));
     self.darkened = true;
   }
 
   fn lift_dark(&mut self, ctx: &SystemContext) {
-    if let Some(mut effect) = self.lit_effect.take() {
-      effect.stop(ctx);
+    if let Some(mut scene) = self.lit_scene.take() {
+      scene.stop(ctx);
     }
     ctx.undeclare_leds(&LedQ::tag::<tags::Playfield>().at_z(DARK_Z));
     ctx.undeclare_leds(&roots().at_z(LIT_Z));
@@ -171,15 +171,12 @@ impl System for BlackoutMode {
   }
 
   fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if self.wizard.apply(delta, ctx) {
+    if self.wizard.apply(ctx) {
       return;
     }
 
     if self.darkened {
       self.elapsed += delta;
-    }
-    if let Some(effect) = self.lit_effect.as_mut() {
-      effect.apply(delta, ctx);
     }
   }
 }
@@ -200,7 +197,7 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    BlackoutMode::lit_effect(lower_scoop::BOLTS_Q.clone());
+    BlackoutMode::lit_scene(lower_scoop::BOLTS_Q.clone());
   }
 
   #[test]

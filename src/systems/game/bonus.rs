@@ -1,14 +1,14 @@
 use std::collections::VecDeque;
 
 use frontbox_core::prelude::*;
-use frontbox_dmd::*;
+use frontbox_display::*;
 use frontbox_gfx::canvas::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnEndReason, TurnEnding};
 
 use crate::hardware::cabinet::DoubleFlipped;
 use crate::metrics;
-use crate::systems::dmd::TURN_END_DMD_LAYER;
+use crate::systems::dmd::{CanvasScreen, TURN_END_DMD_LAYER};
 use crate::systems::game::{ModeManager, SporesSystem, points};
 
 /// How long each bonus screen is shown
@@ -22,6 +22,7 @@ pub struct BonusSystem {
   screens: VecDeque<(String, &'static str)>,
   /// The cue for moving off the screen being shown, while one is
   screen_cue: Option<u64>,
+  screen: CanvasScreen,
 }
 
 impl BonusSystem {
@@ -29,6 +30,7 @@ impl BonusSystem {
     Self {
       screens: VecDeque::new(),
       screen_cue: None,
+      screen: CanvasScreen::new(TURN_END_DMD_LAYER),
     }
   }
 
@@ -67,12 +69,7 @@ impl BonusSystem {
   /// would flash the game score in between.
   fn show_next_screen(&mut self, ctx: &SystemContext) {
     if let Some((amount, label)) = self.screens.pop_front() {
-      if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
-        dmd.insert_layer(
-          TURN_END_DMD_LAYER,
-          Self::draw(amount, label).default_position(),
-        );
-      }
+      self.screen.show(Self::draw(amount, label).default_position(), ctx);
       self.screen_cue = Some(ctx.cues.start(BonusScreenShown, SCREEN_DURATION.once()));
     } else {
       self.screen_cue = None;
@@ -106,10 +103,8 @@ impl BonusSystem {
     frame
   }
 
-  fn clear_screen(&self, ctx: &SystemContext) {
-    if let Some(mut dmd) = ctx.systems.get::<DmdSystem>() {
-      dmd.remove_layer(TURN_END_DMD_LAYER);
-    }
+  fn clear_screen(&mut self, ctx: &SystemContext) {
+    self.screen.clear(ctx);
   }
 }
 

@@ -7,10 +7,12 @@ edition = "2024"
 env_logger = "0.11.11"
 frontbox-core = { path = "../frontbox-rs/frontbox-core" }
 frontbox-pinball = { path = "../frontbox-rs/frontbox-pinball" }
+frontbox-display = { path = "../frontbox-rs/frontbox-display" }
 frontbox-dmd = { path = "../frontbox-rs/frontbox-dmd" }
 frontbox-sound = { path = "../frontbox-rs/frontbox-sound" }
 frontbox-gfx = { path = "../frontbox-rs/frontbox-gfx" }
 frontbox-led = { path = "../frontbox-rs/frontbox-led" }
+frontbox-scene = { path = "../frontbox-rs/frontbox-scene" }
 frontbox-console = { path = "../frontbox-rs/frontbox-console" }
 tokio = { version = "1.53.1", features = ["full"] }
 log = "0.4.33"

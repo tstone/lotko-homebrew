@@ -11,35 +11,30 @@ use crate::systems::sounds;
 
 #[derive(Clone)]
 pub struct LeftPopSkillShot {
-  attention_effect: LedPlayback,
-  hit_effect: Option<LedPlayback>,
-  hit: bool,
+  attention_scene: ScenePlayer,
 }
 
 impl LeftPopSkillShot {
   pub fn new() -> Self {
     Self {
-      attention_effect: Self::attention_effect(),
-      hit_effect: None,
-      hit: false,
+      attention_scene: ScenePlayer::new(Self::attention_scene()),
     }
   }
 
   fn on_skill_shot(&mut self, ctx: &SystemContext) {
-    self.hit = true;
-    self.hit_effect = Some(Self::hit_effect());
+    ctx.play_scene(&Self::hit_scene());
 
     ctx.play_sfx(sounds::ARP_HIT1);
     ctx.add_points(game::points::SKILL_SHOT);
     ctx.systems.despawn_self();
   }
 
-  fn attention_effect() -> LedPlayback {
-    led_playback!("skill_shots/left_pop_attention.scene")
+  fn attention_scene() -> PlayableScene {
+    scene!("skill_shots/left_pop_attention.scene")
   }
 
-  fn hit_effect() -> LedPlayback {
-    led_playback!("skill_shots/left_pop_hit.scene")
+  fn hit_scene() -> PlayableScene<Completes> {
+    completing_scene!("skill_shots/left_pop_hit.scene")
   }
 }
 
@@ -61,15 +56,7 @@ impl System for LeftPopSkillShot {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.attention_effect.apply(delta, ctx);
-
-    if let Some(hit_effect) = self.hit_effect.as_mut() {
-      hit_effect.apply(delta, ctx);
-
-      if self.hit && hit_effect.is_complete() {
-        ctx.systems.despawn_self();
-      }
-    }
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    self.attention_scene.start(ctx);
   }
 }

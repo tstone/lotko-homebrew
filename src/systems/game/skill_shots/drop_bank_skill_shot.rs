@@ -14,10 +14,9 @@ const GRACE_PERIOD: Duration = Duration::from_millis(100);
 
 #[derive(Clone)]
 pub struct DropBankSkillShot {
-  attention_effect: LedPlayback,
+  attention_scene: ScenePlayer,
   enqueued_target: Option<DropBankTarget>,
   current_target: DropBankTarget,
-  hit_effect: Option<LedPlayback>,
   hit: bool,
   /// An unlit target dropped, and the lit one has until `GracePeriodElapsed` to drop too
   grace_period: bool,
@@ -26,10 +25,9 @@ pub struct DropBankSkillShot {
 impl DropBankSkillShot {
   pub fn new() -> Self {
     Self {
-      attention_effect: Self::attention_effect(drop_bank::TARGET1_LEDS.q()),
+      attention_scene: ScenePlayer::new(Self::attention_scene(drop_bank::TARGET1_LEDS.q())),
       enqueued_target: None,
       current_target: DropBankTarget::Target1,
-      hit_effect: None,
       hit: false,
       grace_period: false,
     }
@@ -46,9 +44,8 @@ impl DropBankSkillShot {
       self.hit = true;
       ctx.play_sfx(sounds::ARP_HIT1);
       ctx.add_points(game::points::SKILL_SHOT);
-      // despawns from on_tick once the hit effect completes
-      self.attention_effect.stop(ctx);
-      self.hit_effect = Some(Self::hit_effect());
+      ctx.play_scene(&Self::hit_scene());
+      ctx.systems.despawn_self();
     } else if !self.grace_period {
       // A ball hitting the lit target near its edge can drop the neighbouring target a few ms first, so give the lit
       // target a moment to drop too before calling it a miss
@@ -64,19 +61,21 @@ impl DropBankSkillShot {
     ctx.systems.despawn_self();
   }
 
-  fn attention_effect(target: LedQ) -> LedPlayback {
-    led_playback!("skill_shots/drop_bank_attention.scene", target)
+  fn attention_scene(target: LedQ) -> PlayableScene {
+    scene!("skill_shots/drop_bank_attention.scene", target)
   }
 
-  fn hit_effect() -> LedPlayback {
-    led_playback!("skill_shots/drop_bank_hit.scene")
+  fn hit_scene() -> PlayableScene<Completes> {
+    completing_scene!("skill_shots/drop_bank_hit.scene")
   }
 
   fn next(&mut self, ctx: &SystemContext) {
     let next = self.current_target.next();
 
-    self.attention_effect.stop(ctx);
-    self.attention_effect = Self::attention_effect(drop_bank::leds_for_target(&next).q());
+    self.attention_scene.replace_scene(
+      Self::attention_scene(drop_bank::leds_for_target(&next).q()),
+      ctx,
+    );
     self.enqueued_target = Some(next);
 
     ctx
@@ -92,7 +91,7 @@ impl System for DropBankSkillShot {
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if self.hit {
-      // already awarded, only the hit effect is left to play
+      // already awarded and on its way out
       return;
     }
 
@@ -114,23 +113,15 @@ impl System for DropBankSkillShot {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
     if !self.hit {
-      self.attention_effect.apply(delta, ctx);
+      self.attention_scene.start(ctx);
     }
 
     // Change to the next target on tick so that it always aligns with the display
     if let Some(next) = self.enqueued_target.take() {
       log::info!("DropBankSkillShot: Changing to {:?}", next);
       self.current_target = next;
-    }
-
-    if let Some(hit_effect) = self.hit_effect.as_mut() {
-      if self.hit && hit_effect.is_complete() {
-        ctx.systems.despawn_self();
-      }
-
-      hit_effect.apply(delta, ctx);
     }
   }
 }

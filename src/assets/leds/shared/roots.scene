@@ -1,11 +1,11 @@
-Led(
-  version: 1,
+Scene(
+  version: 2,
   timing: (
     duration: 2.0,
     cycle: Once,
   ),
   layers: [
-    (
+    Leds(
       leds: Tag("Playfield"),
       surface: Area("Playfield"),
       layer: (
@@ -27,7 +27,16 @@ Led(
             style: Linear,
           ),
           adjust: [
-            Opacity(Visit(traversal: "roots", from: 0.0, to: 1.0, smooth_in: 0.5, curve_in: EaseOut)),
+            Opacity(Visit(
+              traversal: "roots",
+              from: 0.0,
+              to: 1.0,
+              smooth_in: 0.5,
+              hold: 0.0,
+              curve_in: EaseOut,
+              curve_out: Linear,
+              overlap: Max,
+            )),
           ],
         ),
         graph: (
@@ -42,7 +51,8 @@ Led(
                 branching: Fixed(0.4),
                 wander: Fixed(0.6),
               ),
-              speed: Duration(Some(1.5)),
+              speed: Duration(1.5),
+              start: 0.0,
             ),
           ],
         ),

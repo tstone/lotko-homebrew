@@ -1,5 +1,5 @@
-Led(
-  version: 1,
+Scene(
+  version: 2,
   params: {
     "color": Color(0, 255, 0, 255),
   },
@@ -8,7 +8,7 @@ Led(
     cycle: Forever,
   ),
   layers: [
-    (
+    Leds(
       leds: Names([
         "___child::l_cap_ball_bolt::0",
       ]),
@@ -17,7 +17,7 @@ Led(
         fill: (
           base: Solid(Param("color")),
           adjust: [
-            Opacity(Track(
+            Opacity(Keyframes(
               keys: [
                 (
                   at: 0.0,

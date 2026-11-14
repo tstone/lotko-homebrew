@@ -5,7 +5,7 @@ use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::captive_ball::{self, CaptiveBallHit};
 use crate::systems::game::{
-  EffectsSystem, HeartwoodMultiballMode, ModeManager, Multiball, Perk, heartbeat_effect, points,
+  HeartwoodMultiballMode, ModeManager, Multiball, Perk, heartbeat_scene, points,
 };
 use crate::systems::sounds;
 
@@ -29,7 +29,7 @@ const FULL_BEAT: Duration = Duration::from_millis(500);
 pub struct HeartwoodCharge {
   charge: u8,
   required: u8,
-  beat_effect: LedPlayback,
+  beat_scene: ScenePlayer,
 }
 
 impl HeartwoodCharge {
@@ -37,17 +37,17 @@ impl HeartwoodCharge {
     Self {
       charge: 0,
       required: FIRST_CHARGE,
-      beat_effect: Self::beat_effect(0.0),
+      beat_scene: ScenePlayer::new(Self::beat_scene(0.0)),
     }
   }
 
-  fn beat_effect(charged: f32) -> LedPlayback {
+  fn beat_scene(charged: f32) -> PlayableScene {
     let beat = EMPTY_BEAT.as_secs_f32() - (EMPTY_BEAT - FULL_BEAT).as_secs_f32() * charged;
     let bolts = LedQ::any(vec![
       &captive_ball::LEFT_BOLT.q(),
       &captive_ball::RIGHT_BOLT.q(),
     ]);
-    heartbeat_effect(&bolts, Rgba::lime(), Duration::from_secs_f32(beat))
+    heartbeat_scene(&bolts, Rgba::lime(), Duration::from_secs_f32(beat))
   }
 
   fn on_hit(&mut self, ctx: &SystemContext) {
@@ -61,8 +61,10 @@ impl HeartwoodCharge {
 
     if self.charge < self.required {
       ctx.play_sfx(sounds::city_hit(self.charge as f32 / self.required as f32));
-      self.beat_effect.stop(ctx);
-      self.beat_effect = Self::beat_effect(self.charge as f32 / self.required as f32);
+      self.beat_scene.replace_scene(
+        Self::beat_scene(self.charge as f32 / self.required as f32),
+        ctx,
+      );
       return;
     }
 
@@ -75,12 +77,10 @@ impl HeartwoodCharge {
       log::info!("Heartwood: multiball");
       self.charge = 0;
       self.required += CHARGE_STEP;
-      self.beat_effect.stop(ctx);
-      self.beat_effect = Self::beat_effect(0.0);
-      ctx
-        .systems
-        .expect::<EffectsSystem>()
-        .play(led_playback!("heartwood_multiball/startable_hit.scene"));
+      self.beat_scene.replace_scene(Self::beat_scene(0.0), ctx);
+      ctx.play_scene(&completing_scene!(
+        "heartwood_multiball/startable_hit.scene"
+      ));
       ctx.systems.spawn(HeartwoodMultiballMode::new());
     }
   }
@@ -102,7 +102,7 @@ impl System for HeartwoodCharge {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.beat_effect.apply(delta, ctx);
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    self.beat_scene.start(ctx);
   }
 }

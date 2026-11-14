@@ -5,9 +5,7 @@ use frontbox_sound::SoundSystemExt;
 use crate::hardware::drop_bank::{self, DropBankCleared, DropBankTargetHit};
 use crate::hardware::lift_ramp::{self, LiftRampSystem};
 use crate::systems::game::mini_wizards::MiniWizardRun;
-use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, RootLashed, flash_effect, glow_effect, points,
-};
+use crate::systems::game::{Mode, ModeManager, RootLashed, flash_scene, glow_scene, points};
 use crate::systems::sounds;
 
 /// Bank clears that complete it (start value)
@@ -21,7 +19,7 @@ const CLEARS: u8 = 3;
 pub struct DerailmentMode {
   wizard: MiniWizardRun,
   clears: u8,
-  attention_effect: LedPlayback,
+  attention_scene: ScenePlayer,
 }
 
 impl DerailmentMode {
@@ -29,19 +27,19 @@ impl DerailmentMode {
     Self {
       wizard: MiniWizardRun::new(Mode::Derailment, CLEARS * 3),
       clears: 0,
-      attention_effect: Self::attention_effect(),
+      attention_scene: ScenePlayer::new(Self::attention_scene()),
     }
   }
 
   /// The drop strips and the lift ramp, in the line's blue
-  fn attention_effect() -> LedPlayback {
+  fn attention_scene() -> PlayableScene {
     let leds = LedQ::Or(vec![
       drop_bank::TARGET1_LEDS.q(),
       drop_bank::TARGET2_LEDS.q(),
       drop_bank::TARGET3_LEDS.q(),
       lift_ramp::HEX_CENTER_LED.clone(),
     ]);
-    glow_effect(&leds, Mode::Derailment.color())
+    glow_scene(&leds, Mode::Derailment.color())
   }
 
   fn jackpot(&mut self, target: Option<u8>, ctx: &SystemContext) {
@@ -57,10 +55,7 @@ impl DerailmentMode {
       _ => None,
     };
     if let Some(strip) = strip {
-      ctx
-        .systems
-        .expect::<EffectsSystem>()
-        .play(flash_effect(&strip.q(), Rgba::green()));
+      ctx.play_scene(&flash_scene(&strip.q(), Rgba::green()));
     }
   }
 
@@ -73,10 +68,10 @@ impl DerailmentMode {
     self.wizard.progress(self.clears * 3);
 
     if self.clears == CLEARS {
-      self.attention_effect.stop(ctx);
+      self.attention_scene.stop(ctx);
       self.release_ramp(ctx);
       self.wizard.complete(
-        led_playback!("startable/hit.scene").param("color", Rgba::green()),
+        completing_scene!("startable/hit.scene").param("color", Rgba::green()),
         ctx,
       );
       return;
@@ -136,12 +131,12 @@ impl System for DerailmentMode {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if self.wizard.apply(delta, ctx) {
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    if self.wizard.apply(ctx) {
       return;
     }
 
-    self.attention_effect.apply(delta, ctx);
+    self.attention_scene.start(ctx);
   }
 }
 
@@ -151,6 +146,6 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    DerailmentMode::attention_effect();
+    DerailmentMode::attention_scene();
   }
 }

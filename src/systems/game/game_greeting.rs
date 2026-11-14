@@ -7,13 +7,13 @@ use crate::systems::{Callout, SayExt};
 /// Opens the game, and each player's first turn with a scene as their ball is served. At the root, as no player is up
 /// yet when it starts.
 pub struct GameGreeting {
-  first_turn_effect: LedPlayback,
+  first_turn_scene: ScenePlayer,
 }
 
 impl GameGreeting {
   pub fn new() -> Self {
     Self {
-      first_turn_effect: led_playback!("first_turn.scene").stopped(),
+      first_turn_scene: ScenePlayer::new(scene!("first_turn.scene")),
     }
   }
 }
@@ -28,15 +28,10 @@ impl System for GameGreeting {
     {
       // an extra ball keeps the turn it's played on, so only a turn in order can be the first
       if routine.turn == 0 && routine.reason == TurnStartReason::Ordered {
-        self.first_turn_effect.reset();
-        self.first_turn_effect.play();
+        self.first_turn_scene.restart(ctx);
       }
     } else if event.is::<TurnActive>() {
-      self.first_turn_effect.stop(ctx);
+      self.first_turn_scene.stop(ctx);
     }
-  }
-
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.first_turn_effect.apply(delta, ctx);
   }
 }

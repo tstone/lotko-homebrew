@@ -1,18 +1,18 @@
-Led(
-  version: 1,
+Scene(
+  version: 2,
   timing: (
     duration: 1.0,
     cycle: Forever,
   ),
   layers: [
-    (
+    Leds(
       leds: Names([
         "___child::l_inlane::0",
       ]),
       surface: Sequence,
       layer: (
         fill: (
-          base: Solid(Track(
+          base: Solid(Keyframes(
             keys: [
               (
                 at: 0.0,

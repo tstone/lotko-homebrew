@@ -1,16 +1,16 @@
-Led(
-  version: 1,
-  layers: [
-    (
-      leds: Names([
-        "___child::lift_ramp_lane::6",
-      ]),
-      surface: Sequence,
-      layer: (
-        fill: (
-          base: Solid(Fixed(0, 255, 255, 255)),
-        ),
-      ),
-    ),
-  ],
+Scene(
+  version: 2,
+  layers: [
+    Leds(
+      leds: Names([
+        "___child::lift_ramp_lane::6",
+      ]),
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Fixed(0, 255, 255, 255)),
+        ),
+      ),
+    ),
+  ],
 )

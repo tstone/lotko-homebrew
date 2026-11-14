@@ -4,7 +4,7 @@ use frontbox_pinball::{BallSaveExt, GameManagementExt, ScoopEjected, ScoopSystem
 use frontbox_sound::{CalloutCompleted, SoundSystemExt};
 
 use crate::hardware::lower_scoop::Lower;
-use crate::systems::game::{EffectsSystem, Mode, ModeManager, points};
+use crate::systems::game::{Mode, ModeManager, points};
 use crate::systems::{SayExt, sounds};
 
 /// The ball save a mode starts with, as the scoop eject is a common drain
@@ -14,7 +14,7 @@ const START_BALL_SAVE: Duration = Duration::from_secs(8);
 /// mode's system owns one and passes it what it needs to.
 ///
 /// A mode is started by [`ModeManager::start_mode`], which spawns its system. When the turn ends the slot empties and
-/// the system goes inactive, keeping its progress, and with it its cues and effects, which don't tick while it's
+/// the system goes inactive, keeping its progress, and with it its cues and scenes, which don't tick while it's
 /// inactive. Resuming makes it active again. So a mode's lifecycle comes down to:
 ///
 /// - `on_spawn` and `on_reactivate`: [`ModeRun::begin`]
@@ -29,7 +29,7 @@ pub struct ModeRun {
   /// The highest intensity stage reached
   stage: u8,
   /// The intro, while it's playing with the ball held in the scoop
-  intro: Option<LedPlayback>,
+  intro: Option<ScenePlayer>,
   /// The start line the intro is still waiting on, by key
   intro_line: Option<&'static str>,
   /// The ball was let go and hasn't left the scoop yet
@@ -59,18 +59,21 @@ impl ModeRun {
       ctx.say(*line);
     }
     self.intro_line = self.mode.start_lines().last().map(|line| line.key());
-    self.intro = Some(led_playback!("startable/hit.scene").param("color", self.mode.color()));
+    let mut intro =
+      ScenePlayer::new(scene!("startable/hit.scene").param("color", self.mode.color()));
+    intro.start(ctx);
+    if let Some(mut previous) = self.intro.replace(intro) {
+      previous.stop(ctx);
+    }
   }
 
   /// Plays the intro until both it and the start lines are done, then lets the ball go. Returns whether the mode is
   /// still starting.
-  pub fn apply(&mut self, delta: Duration, ctx: &SystemContext) -> bool {
+  pub fn apply(&mut self, ctx: &SystemContext) -> bool {
     let Some(intro) = self.intro.as_mut() else {
       return false;
     };
-
-    intro.apply(delta, ctx);
-    if intro.is_complete() && self.intro_line.is_none() {
+    if intro.is_complete(ctx) && self.intro_line.is_none() {
       intro.stop(ctx);
       self.intro = None;
       self.awaiting_eject = true;
@@ -128,15 +131,15 @@ impl ModeRun {
     ctx.add_points(points::mode_hit(self.mode) * times as u64);
   }
 
-  /// The completion phase: the mode ends here, and the takeover plays on without it, so a drain during `effect` can't
+  /// The completion phase: the mode ends here, and the takeover plays on without it, so a drain during `scene` can't
   /// take the completion back. It's worth its step's completion value.
-  pub fn complete(&self, effect: LedPlayback, ctx: &SystemContext) {
+  pub fn complete(&self, scene: PlayableScene<Completes>, ctx: &SystemContext) {
     ctx.add_points(points::mode_completion(self.mode));
     ctx.play_sfx(sounds::city_hit(1.0));
     for line in self.mode.completion_lines() {
       ctx.say(*line);
     }
-    ctx.systems.expect::<EffectsSystem>().play(effect);
+    ctx.play_scene(&scene);
     ctx
       .systems
       .expect::<ModeManager>()

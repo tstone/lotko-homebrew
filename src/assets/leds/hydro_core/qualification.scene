@@ -1,17 +1,17 @@
-Led(
-  version: 1,
-  layers: [
-    (
-      leds: Names([
-        "___child::arc_ramp_lane::6",
-      ]),
-      z: 1,
-      surface: Sequence,
-      layer: (
-        fill: (
-          base: Solid(Fixed(255, 255, 255, 255)),
-        ),
-      ),
-    ),
-  ],
+Scene(
+  version: 2,
+  layers: [
+    Leds(
+      leds: Names([
+        "___child::arc_ramp_lane::6",
+      ]),
+      z: 1,
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+        ),
+      ),
+    ),
+  ],
 )

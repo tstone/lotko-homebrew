@@ -59,21 +59,19 @@ const SPORE_COUNT_LEDS: f32 = 16.0;
 
 /// Lights `progress`, from 0 to 1, of the spore count bar. The scene's shape is around the start of the bar, and to light
 /// a number of LEDs its edge goes between the last of them and the next.
-pub fn spore_count_effect(color: Rgba<u8>, progress: f32) -> LedPlayback {
+pub fn spore_count_scene(color: Rgba<u8>, progress: f32) -> PlayableScene {
   let lit = (progress * SPORE_COUNT_LEDS).round();
-  led_playback!("spore_bar.scene")
-    .param("color", color)
-    .param(
-      "width",
-      (2.0 * (lit - 0.5) / (SPORE_COUNT_LEDS - 1.0)).max(0.0),
-    )
+  scene!("spore_bar.scene").param("color", color).param(
+    "width",
+    (2.0 * (lit - 0.5) / (SPORE_COUNT_LEDS - 1.0)).max(0.0),
+  )
 }
 
 /// Shows a mode's `progress`, from 0 to 1, on the spore count bar for a moment, over the charge it shows the rest of
 /// the time (PLAN.md, decision 3)
-pub fn mode_progress_effect(color: Rgba<u8>, progress: f32) -> LedPlayback {
+pub fn mode_progress_scene(color: Rgba<u8>, progress: f32) -> PlayableScene<Completes> {
   let lit = (progress * SPORE_COUNT_LEDS).round();
-  led_playback!("mode_progress.scene")
+  completing_scene!("mode_progress.scene")
     .param("color", color)
     .param(
       "width",

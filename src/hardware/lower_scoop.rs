@@ -75,8 +75,8 @@ pub fn system() -> ScoopSystem<Lower> {
   ScoopSystem::new(OPTO.name, COIL.name)
     .lower_entrance_switch(arc_ramp::SUBWAY_OPTO.name)
     .verify_delay(Duration::from_millis(250))
-    .before_eject_effect(led_playback!("lower_scoop/eject.scene"))
-    .after_eject_effect(led_playback!("lower_scoop/after_eject.scene"))
+    .before_eject_scene(completing_scene!("lower_scoop/eject.scene"))
+    .after_eject_scene(completing_scene!("lower_scoop/after_eject.scene"))
 }
 
 /// Plays the eject sound as the lower scoop's eject starts, and gives points for a ball that got into the scoop

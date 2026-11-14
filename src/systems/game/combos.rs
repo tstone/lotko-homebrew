@@ -3,11 +3,12 @@ use std::collections::HashSet;
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, ScoopBallEntered, ScoopEjected, TurnPhase};
-use frontbox_sound::SoundSystemExt;
+use frontbox_scene::{Completes, PlayableScene};
+use frontbox_sound::{SoundSystem, SoundSystemExt};
 
 use crate::hardware::lower_scoop::Lower;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
-use crate::systems::game::{EffectsSystem, flash_effect, points};
+use crate::systems::game::{flash_scene, points};
 use crate::systems::{Callout, SayExt, sounds};
 
 /// How long after a shot the next one continues a route
@@ -55,10 +56,7 @@ impl ComboSystem {
       ctx.play_sfx(sounds::IMPACT_CINEMATIC_HEAVY);
       ctx.say(Callout::OakStay);
       let shots: Vec<&LedQ> = MainShot::ALL.iter().map(|shot| shot.hex_center()).collect();
-      ctx
-        .systems
-        .expect::<EffectsSystem>()
-        .play(flash_effect(&LedQ::any(shots), Rgba::green()));
+      ctx.play_scene(&flash_scene(&LedQ::any(shots), Rgba::green()));
     }
   }
 
@@ -69,12 +67,8 @@ impl ComboSystem {
     } else {
       points::COMBO
     });
-    ctx.play_sfx(sounds::ARP_HIT1);
     let shots: Vec<&LedQ> = route.shots().iter().map(|shot| shot.hex_center()).collect();
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(flash_effect(&LedQ::any(shots), Rgba::green()));
+    ctx.play_scene(&route_scene(&LedQ::any(shots)));
   }
 
   fn cancel_window(&mut self, ctx: &SystemContext) {
@@ -85,6 +79,11 @@ impl ComboSystem {
 }
 
 impl System for ComboSystem {
+  fn on_spawn(&mut self, ctx: &SystemContext) {
+    // so the first route made isn't heard late, while its sound loads
+    ctx.systems.with::<SoundSystem, _>(|sound| sound.preload_scene(route_scene(&LedQ::Every).scene()));
+  }
+
   fn is_active(&self, ctx: &SystemContext) -> bool {
     ctx.states.is(TurnPhase::Active)
   }
@@ -111,6 +110,11 @@ impl System for ComboSystem {
       self.window_cue = Some(ctx.cues.start(WindowClosed, WINDOW.once()));
     }
   }
+}
+
+/// A flash on `leds` with the sound of a route being made
+fn route_scene(leds: &LedQ) -> PlayableScene<Completes> {
+  completing_scene!("combos/route.scene", leds.clone())
 }
 
 #[derive(serde::Serialize, Event)]
@@ -221,6 +225,12 @@ impl Routes {
 mod tests {
   use super::*;
   use MainShot::*;
+
+  #[test]
+  fn a_route_flashes_with_its_sound() {
+    let scene = route_scene(&LedQ::Every);
+    assert_eq!(scene.scene().sound_names().collect::<Vec<_>>(), ["sounds/arp-hit1.mp3"]);
+  }
 
   #[test]
   fn two_shots_in_a_row_make_a_route_once() {

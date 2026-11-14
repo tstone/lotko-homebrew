@@ -6,8 +6,7 @@ use rand::prelude::IndexedRandom;
 
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::{
-  EffectsSystem, Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_effect, glow_effect,
-  points,
+  Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_scene, glow_scene, points,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -32,8 +31,8 @@ pub struct ApexTerracesMode {
   bursts: u8,
   /// Segments filled on the current terrace's ring
   filled: u8,
-  center_effect: LedPlayback,
-  ring_effect: LedPlayback,
+  center_scene: ScenePlayer,
+  ring_scene: ScenePlayer,
   drain_cue: Option<u64>,
 }
 
@@ -47,21 +46,21 @@ impl ApexTerracesMode {
       shot,
       bursts: 0,
       filled: 0,
-      center_effect: Self::center_effect(shot),
-      ring_effect: Self::ring_effect(shot, 0, TERRACE_HITS[0]),
+      center_scene: ScenePlayer::new(Self::center_scene(shot)),
+      ring_scene: ScenePlayer::new(Self::ring_scene(shot, 0, TERRACE_HITS[0])),
       drain_cue: None,
     }
   }
 
-  fn center_effect(shot: MainShot) -> LedPlayback {
-    glow_effect(shot.hex_center(), Mode::ApexTerraces.color())
+  fn center_scene(shot: MainShot) -> PlayableScene {
+    glow_scene(shot.hex_center(), Mode::ApexTerraces.color())
   }
 
   /// The ring in dim gold, with `filled` of `needed` segments green
-  fn ring_effect(shot: MainShot, filled: u8, needed: u8) -> LedPlayback {
+  fn ring_scene(shot: MainShot, filled: u8, needed: u8) -> PlayableScene {
     let lit = ring_leds(filled, needed);
     let width = 2.0 * (lit as f32 - 0.5) / (RING_LEDS as f32 - 1.0);
-    led_playback!("apex_terraces/ring.scene", shot.hex_ring().clone())
+    scene!("apex_terraces/ring.scene", shot.hex_ring().clone())
       .param("color", Rgba::green())
       .param("width", width.max(0.0))
   }
@@ -102,10 +101,7 @@ impl ApexTerracesMode {
     }
 
     ctx.play_sfx(sounds::city_hit(self.filled as f32 / self.needed() as f32));
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(flash_effect(self.shot.hex_center(), Rgba::white()));
+    ctx.play_scene(&flash_scene(self.shot.hex_center(), Rgba::white()));
     self.run.progress(self.done());
     self.render_ring(ctx);
     self.restart_drain(ctx);
@@ -117,18 +113,15 @@ impl ApexTerracesMode {
     log::info!("ApexTerraces: terrace {} burst", self.bursts);
     ctx.add_points(points::APEX_BURST * self.bursts as u64);
     ctx.play_sfx(sounds::IMPACT_DIRT);
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(flash_effect(self.shot.hex_ring(), Rgba::green()));
+    ctx.play_scene(&flash_scene(self.shot.hex_ring(), Rgba::green()));
 
     if self.bursts as usize == TERRACE_HITS.len() {
       self.cancel_drain(ctx);
-      self.center_effect.stop(ctx);
-      self.ring_effect.stop(ctx);
+      self.center_scene.stop(ctx);
+      self.ring_scene.stop(ctx);
       self
         .run
-        .complete(led_playback!("apex_terraces/start.scene"), ctx);
+        .complete(completing_scene!("apex_terraces/start.scene"), ctx);
       return;
     }
 
@@ -139,16 +132,15 @@ impl ApexTerracesMode {
   }
 
   fn move_to(&mut self, shot: MainShot, ctx: &SystemContext) {
-    self.center_effect.stop(ctx);
-    self.ring_effect.stop(ctx);
     self.shot = shot;
-    self.center_effect = Self::center_effect(shot);
+    self.center_scene.replace_scene(Self::center_scene(shot), ctx);
     self.render_ring(ctx);
   }
 
   fn render_ring(&mut self, ctx: &SystemContext) {
-    self.ring_effect.stop(ctx);
-    self.ring_effect = Self::ring_effect(self.shot, self.filled, self.needed());
+    self
+      .ring_scene
+      .replace_scene(Self::ring_scene(self.shot, self.filled, self.needed()), ctx);
   }
 
   fn drain(&mut self, ctx: &SystemContext) {
@@ -213,13 +205,13 @@ impl System for ApexTerracesMode {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    if self.run.apply(delta, ctx) {
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    if self.run.apply(ctx) {
       return;
     }
 
-    self.center_effect.apply(delta, ctx);
-    self.ring_effect.apply(delta, ctx);
+    self.center_scene.start(ctx);
+    self.ring_scene.start(ctx);
   }
 }
 
@@ -237,7 +229,7 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    ApexTerracesMode::ring_effect(MainShot::LeftOrbit, 2, 4);
+    ApexTerracesMode::ring_scene(MainShot::LeftOrbit, 2, 4);
   }
 
   #[test]

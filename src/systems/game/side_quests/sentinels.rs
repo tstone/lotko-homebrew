@@ -6,7 +6,7 @@ use frontbox_sound::SoundSystemExt;
 use crate::hardware::drop_bank::{self, DropBankCleared, DropBankTargetHit};
 use crate::systems::game::side_quests::{LockLit, SentinelsDeployed};
 use crate::systems::game::{
-  EffectsSystem, ExtraBallSource, ExtraBallSystem, ModeManager, Perk, flash_effect, points,
+  ExtraBallSource, ExtraBallSystem, ModeManager, Perk, flash_scene, points,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -55,11 +55,9 @@ impl SentinelsSystem {
       },
     }
 
-    let mut effects = ctx.systems.expect::<EffectsSystem>();
     for (target, _) in targets() {
-      effects.play(flash_effect(&target.q(), Rgba::white()));
+      ctx.play_scene(&flash_scene(&target.q(), Rgba::white()));
     }
-    drop(effects);
 
     self.toward_lock += 1;
     let per_lock = if ctx

@@ -8,7 +8,7 @@ use crate::hardware::left_inlane;
 use crate::hardware::pop_cluster;
 use crate::hardware::vspinner::VerticalSpinnerHit;
 use crate::metrics;
-use crate::systems::game::{EffectsSystem, ModeManager, Perk, flash_effect, points};
+use crate::systems::game::{ModeManager, Perk, flash_scene, points};
 use crate::systems::{Callout, SayExt, sounds};
 
 /// Charge for the first burst (start value)
@@ -38,9 +38,9 @@ pub struct SporesSystem {
   count: u32,
   charge: u32,
   required: u32,
-  bar_effect: LedPlayback,
+  bar_scene: ScenePlayer,
   /// Shown while a burst is ready to fire
-  ready_effect: Option<LedPlayback>,
+  ready_scene: Option<ScenePlayer>,
   /// While a burst is running
   burst_cue: Option<u64>,
 }
@@ -51,18 +51,18 @@ impl SporesSystem {
       count: 0,
       charge: 0,
       required: FIRST_CHARGE,
-      bar_effect: Self::bar_effect(0.0),
-      ready_effect: None,
+      bar_scene: ScenePlayer::new(Self::bar_scene(0.0)),
+      ready_scene: None,
       burst_cue: None,
     }
   }
 
-  fn bar_effect(progress: f32) -> LedPlayback {
-    city_map::spore_count_effect(Rgba::green(), progress)
+  fn bar_scene(progress: f32) -> PlayableScene {
+    city_map::spore_count_scene(Rgba::green(), progress)
   }
 
-  fn ready_effect() -> LedPlayback {
-    led_playback!("side/burst_ready.scene")
+  fn ready_scene() -> PlayableScene {
+    scene!("side/burst_ready.scene")
   }
 
   pub fn count(&self) -> u32 {
@@ -79,15 +79,18 @@ impl SporesSystem {
   }
 
   fn add_charge(&mut self, amount: u32, ctx: &SystemContext) {
-    if self.ready_effect.is_some() {
+    if self.ready_scene.is_some() {
       return;
     }
 
     self.charge = (self.charge + amount).min(self.required);
-    self.bar_effect = Self::bar_effect(self.charge as f32 / self.required as f32);
+    self.bar_scene.replace_scene(
+      Self::bar_scene(self.charge as f32 / self.required as f32),
+      ctx,
+    );
     if self.charge >= self.required {
       log::info!("Spores: burst ready");
-      self.ready_effect = Some(Self::ready_effect());
+      self.ready_scene = Some(ScenePlayer::started(Self::ready_scene(), ctx));
       ctx.play_sfx(sounds::ARP_HIT1);
       ctx.say(Callout::BiologicalContaminantIdentified);
       ctx.say(Callout::OakReady);
@@ -101,16 +104,15 @@ impl SporesSystem {
       .has_perk(Perk::FasterPopCharge);
     self.add_charge(if perk { POP_CHARGE * 2 } else { POP_CHARGE }, ctx);
 
-    let mut effects = ctx.systems.expect::<EffectsSystem>();
-    effects.play(ray_effect(&pop, Rgba::green()));
-    effects.play(flash_effect(
+    ctx.play_scene(&ray_scene(&pop, Rgba::green()));
+    ctx.play_scene(&flash_scene(
       &pop_cluster::led_for_pop(&pop).q(),
       Rgba::green(),
     ));
   }
 
   fn fire_burst(&mut self, ctx: &SystemContext) {
-    let Some(mut ready) = self.ready_effect.take() else {
+    let Some(mut ready) = self.ready_scene.take() else {
       return;
     };
     ready.stop(ctx);
@@ -118,15 +120,12 @@ impl SporesSystem {
     log::info!("Spores: burst fired");
     self.charge = 0;
     self.required += CHARGE_STEP;
-    self.bar_effect = Self::bar_effect(0.0);
+    self.bar_scene.replace_scene(Self::bar_scene(0.0), ctx);
     self.burst_cue = Some(ctx.cues.start(BurstEnded, BURST_TIME.once()));
 
     ctx.play_sfx(sounds::IMPACT_DIRT);
     ctx.say(Callout::AirborneContaminantDetected);
-    ctx
-      .systems
-      .expect::<EffectsSystem>()
-      .play(led_playback!("side/burst.scene"));
+    ctx.play_scene(&completing_scene!("side/burst.scene"));
 
     // with no mode to double, the burst is worth points of its own
     if ctx.systems.expect::<ModeManager>().current_mode().is_none() {
@@ -165,17 +164,14 @@ impl System for SporesSystem {
     }
   }
 
-  fn on_tick(&mut self, delta: Duration, ctx: &SystemContext) {
-    self.bar_effect.apply(delta, ctx);
-    if let Some(effect) = self.ready_effect.as_mut() {
-      effect.apply(delta, ctx);
-    }
+  fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
+    self.bar_scene.start(ctx);
   }
 }
 
 /// A packet down a pop's ray from the pop into the roots
-pub fn ray_effect(pop: &pop_cluster::PopBumper, color: Rgba<u8>) -> LedPlayback {
-  led_playback!(
+pub fn ray_scene(pop: &pop_cluster::PopBumper, color: Rgba<u8>) -> PlayableScene<Completes> {
+  completing_scene!(
     "side/charge_ray.scene",
     pop_cluster::led_ray_for_pop(pop).clone()
   )
@@ -191,8 +187,8 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    SporesSystem::ready_effect();
-    ray_effect(&pop_cluster::PopBumper::Left, Rgba::green());
-    led_playback!("side/burst.scene");
+    SporesSystem::ready_scene();
+    ray_scene(&pop_cluster::PopBumper::Left, Rgba::green());
+    scene!("side/burst.scene");
   }
 }

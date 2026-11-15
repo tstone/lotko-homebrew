@@ -14,9 +14,10 @@ use frontbox_core::prelude::*;
 #[derive(serde::Serialize, Event)]
 pub struct LockLit;
 
-/// The second camera went dark, so the Steward sends out its drones and Sentinels starts
+/// The cameras went a minute without one being blinded, so the Steward sent out its drones and the Sentinels took over.
+/// The `ModeManager` slot is already taken when this is heard.
 #[derive(serde::Serialize, Event)]
-pub struct SentinelsDeployed;
+pub struct SentinelsDispatched;
 
 /// Root Lash was struck. The current mode counts it as `hits` shots, if it has any.
 #[derive(serde::Serialize, Event)]

@@ -39,7 +39,7 @@ impl ScoopQualifier {
   /// Whether a ball in the scoop gets the mode select menu: it's qualified, and no mode or multiball is running
   pub fn opens_menu(&self, mode_manager: &ModeManager, balls_in_play: u8) -> bool {
     (self.count.is_qualified() || mode_manager.mini_wizard_available())
-      && mode_manager.current_mode().is_none()
+      && mode_manager.is_between_modes()
       && balls_in_play <= 1
   }
 
@@ -129,7 +129,7 @@ impl System for ScoopQualifier {
   fn is_active(&self, ctx: &SystemContext) -> bool {
     let mode_manager = ctx.systems.expect::<ModeManager>();
     ctx.states.is(TurnPhase::Active)
-      && mode_manager.current_mode().is_none()
+      && mode_manager.is_between_modes()
       && !mode_manager.available_modes().is_empty()
   }
 

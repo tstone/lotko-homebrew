@@ -90,9 +90,13 @@ These run all the time, alongside the districts.
   points.
 - **Surveillance — red.** The pop targets are cameras. They come online after 40 playfield switch hits, and stay on
   for the rest of your game. Blind all three for a set. Each set needs one more hit per camera, counts toward
-  lighting the scoop, and every third set lights an outlane save.
-- **Sentinels — peach.** Blinding your second camera deploys the drones. Clear the drop targets to down a drone.
-  Every 2 drones lights a lock. At 5 drones: points. 10: extra ball lit. 15: big points.
+  lighting the scoop, and every third set lights an outlane save. Once they're online, blind a camera at least once
+  a minute, or the Steward sends the Sentinels.
+- **Sentinels — red.** The drones take over: half the playfield lights go red, and whatever district is running
+  waits. Clear the drop targets to down a drone, and down them all to get back to it. The first time sends 1 drone,
+  then 2, then 3. Draining ends them, but the next time still sends one more. Every 2 drones lights a lock. At 5
+  drones: points. 10: extra ball lit. 15: big points. *(These rewards are left over from the old Sentinels and will
+  be revisited.)*
 - **Heartwood — lime.** Hit the captive ball to charge the heart. A full charge starts **Heartwood multiball**. It
   needs more each time.
 - **Spread roots — brown.** Orbits grow roots around that shot's ring. A full ring arms **Root Lash**: press the

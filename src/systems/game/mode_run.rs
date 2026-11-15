@@ -48,8 +48,13 @@ impl ModeRun {
     }
   }
 
-  /// The start phase: the ball waits in the scoop through the intro and the Steward's announcement
+  /// The start phase: the ball waits in the scoop through the intro and the Steward's announcement. A district the
+  /// Sentinels give back skips it, picking up in play where it left off.
   pub fn begin(&mut self, ctx: &SystemContext) {
+    if ctx.systems.expect::<ModeManager>().take_returning(self.mode) {
+      log::info!("ModeRun: {:?} picks up again in play", self.mode);
+      return;
+    }
     log::info!("ModeRun: {:?} begins", self.mode);
     ctx
       .systems
@@ -81,6 +86,12 @@ impl ModeRun {
       return false;
     }
     true
+  }
+
+  /// The intro is playing or the ball hasn't left the scoop yet. False once the mode is in play, including right after
+  /// [`ModeRun::begin`] for a district picking up again in play.
+  pub fn is_starting(&self) -> bool {
+    self.intro.is_some() || self.awaiting_eject
   }
 
   pub fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

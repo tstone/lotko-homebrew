@@ -56,3 +56,14 @@ hardware_defs! {
     .tag(GeneralIllumination)
     .location(Vec3::new(17.147, 25.768, 0.0).relative_to(&planes::PLAYFIELD));
 }
+
+/// The GI that goes the Steward's red while the Sentinels are out, every other one around the playfield. The rest stay
+/// white. `LEFT_RAMP` isn't wired, so it's in neither half.
+pub fn sentinels_half() -> LedQ {
+  LedQ::any(vec![
+    &LEFT_SLING.q(),
+    &LOWER_SCOOP_ABOVE.q(),
+    &DROP1.q(),
+    &CAPTIVE_BALL.q(),
+  ])
+}

@@ -167,6 +167,10 @@ impl System for SolariumAtriumMode {
   fn on_reactivate(&mut self, ctx: &SystemContext) {
     ctx.activate_led_declarations();
     self.run.begin(ctx);
+    // picking up in play after the Sentinels, with no scoop eject to wait for
+    if !self.run.is_starting() {
+      self.schedule_move(ctx);
+    }
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {

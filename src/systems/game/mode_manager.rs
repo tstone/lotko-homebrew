@@ -21,11 +21,20 @@ const LONGER_TIMERS: Duration = Duration::from_secs(5);
 ///
 /// A mode that loses its slot isn't over. Its system goes inactive and keeps its progress, and resuming it makes it
 /// active again. See [`ModeRun`](crate::systems::game::ModeRun).
+///
+/// The Sentinels take over above everything (DESIGN.md, Sentinels): a district running when they're dispatched gives
+/// up its slot until they're defeated, then picks up again in play.
 #[derive(Clone)]
 pub struct ModeManager {
   handle: SystemHandle,
   mode: Option<Mode>,
   multiball: Option<Multiball>,
+  /// The Sentinels have taken over
+  sentinels: bool,
+  /// The district the Sentinels took the slot from, to give back when they're defeated
+  suspended: Option<Mode>,
+  /// A district given back by the Sentinels that hasn't resumed yet, so it resumes in play rather than in the scoop
+  returning: Option<Mode>,
   progression: Progression,
   current_music: Option<PathBuf>,
   /// Music only plays during a turn. Modes changing outside of one (e.g. a slot clearing as the turn ends) update
@@ -46,6 +55,9 @@ impl ModeManager {
       handle: SystemHandle::default(),
       mode: None,
       multiball: None,
+      sentinels: false,
+      suspended: None,
+      returning: None,
       progression: Progression::new(),
       current_music: None,
       turn_active: false,
@@ -62,6 +74,62 @@ impl ModeManager {
 
   pub fn current_multiball(&self) -> Option<Multiball> {
     self.multiball
+  }
+
+  /// No mode is running and the Sentinels haven't taken over, so the scoop can qualify and open the menu
+  pub fn is_between_modes(&self) -> bool {
+    self.mode.is_none() && !self.sentinels
+  }
+
+  pub fn sentinels_running(&self) -> bool {
+    self.sentinels
+  }
+
+  /// Whether the Sentinels could take over now. They wait out a multiball, and a mode that uses the drops or adds balls.
+  pub fn sentinels_can_take_over(&self) -> bool {
+    !self.sentinels
+      && self.multiball.is_none()
+      && self.mode.is_none_or(|mode| !mode.uses_drops_or_balls())
+  }
+
+  /// The Sentinels take over, suspending the district that's running
+  pub fn start_sentinels(&mut self, ctx: &ServiceContext) -> Result<(), String> {
+    if !self.sentinels_can_take_over() {
+      return self.refuse(format!(
+        "the Sentinels can't take over from {:?} and {:?}",
+        self.mode, self.multiball
+      ));
+    }
+    log::info!("ModeManager: the Sentinels take over from {:?}", self.mode);
+    let ctx = &ctx.for_system(self.handle);
+    self.sentinels = true;
+    self.suspended = self.mode.take();
+    self.slots_changed(ctx);
+    self.render_map(ctx);
+    Ok(())
+  }
+
+  /// The Sentinels were defeated, and the district they suspended picks up again in play
+  pub fn end_sentinels(&mut self, ctx: &ServiceContext) {
+    if !self.sentinels {
+      return;
+    }
+    log::info!("ModeManager: the Sentinels are defeated, giving back {:?}", self.suspended);
+    let ctx = &ctx.for_system(self.handle);
+    self.sentinels = false;
+    self.mode = self.suspended.take();
+    self.returning = self.mode;
+    self.slots_changed(ctx);
+    self.render_map(ctx);
+  }
+
+  /// Whether `mode` is resuming in play, given back by the Sentinels, rather than from the menu. Answers once.
+  pub fn take_returning(&mut self, mode: Mode) -> bool {
+    let returning = self.returning == Some(mode);
+    if returning {
+      self.returning = None;
+    }
+    returning
   }
 
   /// What the mode select menu offers
@@ -108,6 +176,9 @@ impl ModeManager {
 
   /// Start a mode or resume one, taking the mode slot. Its system takes it from there.
   pub fn start_mode(&mut self, mode: Mode, ctx: &ServiceContext) -> Result<(), String> {
+    if self.sentinels {
+      return self.refuse(format!("{mode:?} can't start while the Sentinels are running"));
+    }
     if let Some(existing) = self.mode {
       return self.refuse(format!(
         "{mode:?} can't start while {existing:?} is running"
@@ -173,6 +244,9 @@ impl ModeManager {
     multiball: Multiball,
     ctx: &ServiceContext,
   ) -> Result<(), String> {
+    if self.sentinels {
+      return self.refuse(format!("{multiball:?} can't start while the Sentinels are running"));
+    }
     if let Some(existing) = self.multiball {
       return self.refuse(format!("{multiball:?} can't start during {existing:?}"));
     }
@@ -336,9 +410,15 @@ impl System for ModeManager {
     } else if event.is::<RoutineStarted<TurnEnding>>() {
       self.turn_active = false;
       self.stop_music(ctx);
+      // the Sentinels end with the ball, and a district they suspended is left to resume from the menu
+      self.sentinels = false;
+      self.suspended = None;
+      self.returning = None;
       // the mode stops here so that it doesn't run through the end of the ball, and it's there to resume
       if self.mode.is_some() {
         self.clear_mode(ctx);
+      } else {
+        self.slots_changed(ctx);
       }
     }
   }
@@ -429,5 +509,37 @@ mod tests {
       Mode::HydroCore.music().unwrap()
     );
     assert_eq!(music_for(None, None), music_file("colyn-rushing.mp3"));
+  }
+
+  #[test]
+  fn the_sentinels_wait_for_the_drops_and_extra_balls() {
+    let mut manager = ModeManager::new();
+    assert!(manager.sentinels_can_take_over());
+    manager.mode = Some(Mode::HydroCore);
+    assert!(manager.sentinels_can_take_over());
+    manager.mode = Some(Mode::SkyrailStation);
+    assert!(!manager.sentinels_can_take_over());
+    manager.mode = Some(Mode::Blackout);
+    assert!(!manager.sentinels_can_take_over());
+    manager.mode = None;
+    manager.multiball = Some(Multiball::Heartwood);
+    assert!(!manager.sentinels_can_take_over());
+  }
+
+  #[test]
+  fn nothing_starts_under_the_sentinels() {
+    let mut manager = ModeManager::new();
+    manager.sentinels = true;
+    assert!(!manager.is_between_modes());
+    assert!(!manager.sentinels_can_take_over());
+  }
+
+  #[test]
+  fn a_district_given_back_resumes_in_play_once() {
+    let mut manager = ModeManager::new();
+    manager.returning = Some(Mode::NimbusPromenade);
+    assert!(!manager.take_returning(Mode::HydroCore));
+    assert!(manager.take_returning(Mode::NimbusPromenade));
+    assert!(!manager.take_returning(Mode::NimbusPromenade));
   }
 }

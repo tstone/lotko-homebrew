@@ -32,6 +32,7 @@ The game is built with the default for each of these. Once confirmed, the answer
 | 12 | What counts as high overgrowth, for the Oaks' "Soon." at game over? | There's no overgrowth level yet. It's read from the player who was up last. | 3 or more districts completed. |
 | 13 | Who says "extra ball" and "shoot again"? | Both voices have them recorded. | The Oaks, after the Steward's "Error. Invalid resident." The Steward's two are kept loaded as spares. |
 | 14 | How many extra balls per game? | `DESIGN.md` said 2, and lotko doesn't set `MAX_EXTRA_BALLS`. | The framework default, 5. |
+| 15 | What should the Sentinels reward? | They became a takeover the player is pushed into, but kept the side quest's rewards: locks (which Groundswell needs), the 10-drone extra ball, and the Skyrail perk's quicker locks. Locks and the extra ball may need other sources if a good player rarely sees the Sentinels. | Kept as they were. |
 
 ---
 
@@ -367,7 +368,7 @@ speaker beat, `dmd-player` plus art for the splitting ground and toppling tower,
 |---|---|
 | **Charge** | Bar's flickering edge (`Random`). The burst insert is a hand-made green and violet beat, not `heartbeat`. Swarm rustle and whoosh SFX. |
 | **Surveillance** | Steady red today: add the slow scan, and a static glitch on a hit. Camera whir and lens crack SFX. |
-| **Sentinels** | Strips scan rather than glow, and spark on a drone down. Drone whine SFX. |
+| **Sentinels** | Now a takeover (DESIGN.md). Strips scan rather than glow, and spark on a drone down. Drone whine SFX. Its own music, an alarm on dispatch, and a sting when defeated. DMD: a dispatch screen and the drones left. Check the red half of the GI (`gi::sentinels_half`) reads well, and tune the 1-minute deadline. "Decommissioning drone N" only has 1 and 3 recorded. |
 | **Heartwood** | Sub heartbeat and wood knock SFX. |
 | **Spread roots** | Collect: `surge` from the orbit to the district's map insert, and `growth` on the ring. Dirt SFX. |
 

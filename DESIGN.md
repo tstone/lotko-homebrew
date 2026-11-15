@@ -354,15 +354,31 @@ The Steward watches the pops through three cameras, one on each pop target.
 - Each set counts as one lit shot toward lighting the left scoop, so the pops help you reach the next district. It only
   counts between modes, as the scoop doesn't qualify during one.
 - Every third set lights an outlane save on a side that isn't already lit (see Outlane saves).
-- Blinding the second camera of the first set deploys the Sentinels, with S: *"Sentinels deployed."*
+- **The Steward is watching.** Once the cameras are online, one has to be blinded at least once a minute. Each blinded
+  camera starts the minute over, and so does each new ball. If a minute passes without one, the Steward dispatches the
+  Sentinels. The minute is wall-clock time, so cradling the ball counts against the player. Watch whether that feels
+  fair.
 
 ### Sentinels (city drones)
 
-- Nothing until Surveillance deploys them (above). Until then the drop strips are dark, and targets and clears only
-  score consolation points.
-- Each drop bank clear downs a drone. The target strips show progress to the next drone.
-- Every 2 drones lights a lock (1 with the Skyrail perk).
-- Awards at 5 / 10 / 15 drones: points, then extra ball lit (see Extra balls), then TBD.
+A takeover mode: the city's drones are the drop targets.
+- Dispatched by Surveillance (above), with S: *"Sentinels deployed."* Each dispatch sends one more drone than the last:
+  1 the first time, then 2, then 3. The count goes by dispatches, not defeats, so draining doesn't make the next one
+  easier.
+- **It takes over above everything.** The priority is the Sentinels, then the district, then everything else. A
+  running district is suspended, and picks up again in play where it left off once the Sentinels are defeated. No
+  district or multiball can start while they're out.
+- **It waits for the drops and the balls.** If the minute runs out during a mode that uses the drops or adds balls
+  (Skyrail, every mini-wizard) or a multiball, the Sentinels come once it's over: when it completes, or at the start of
+  the next ball if it ended with a drain. They also wait for the ball to leave a scoop.
+- Half the GI goes the Steward's red and the other half stays white. The drop strips are red on the targets still up,
+  and the bank is raised at the start.
+- Each drop bank clear downs a drone. Down all the drones dispatched to defeat the Sentinels.
+- A drain ends them. A district they suspended is left to resume from the menu.
+- Outside the Sentinels the drops only score consolation points.
+- **Rewards, for now:** every 2 drones downed lights a lock (1 with the Skyrail perk), and 5 / 10 / 15 drones give
+  points, then extra ball lit (see Extra balls), then TBD. These came from when the drones were a side quest, and need
+  revisiting now that they're a punishment (see PLAN.md, decision 15).
 
 ### Heartwood (captive ball)
 

@@ -128,9 +128,9 @@ mod points {
   pub static SURVEILLANCE_HIT: u64 = 25_000;
   pub static SURVEILLANCE_SET: u64 = 500_000;
   pub static DRONE_DOWN: u64 = 250_000;
-  /// Each drop target before the Sentinels are deployed
+  /// Each drop target while the Sentinels aren't out
   pub static DROP_TARGET_UNDEPLOYED: u64 = 10_000;
-  /// A bank clear before the Sentinels are deployed
+  /// A bank clear while the Sentinels aren't out
   pub static BANK_CLEAR_UNDEPLOYED: u64 = 100_000;
   /// 5 drones down
   pub static SENTINELS_FIRST_AWARD: u64 = 5_000_000;

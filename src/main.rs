@@ -64,11 +64,8 @@ async fn main() {
     } else {
       "/userdata/home/armsom/metrics.db".into()
     }),
-    content_path: Some(if virtual_mode {
-      concat!(env!("CARGO_MANIFEST_DIR"), "/src/assets").into()
-    } else {
-      "/userdata/home/armsom/assets".into()
-    }),
+    // checked into git, so read from the checkout that was built, on the machine too
+    content_path: Some(concat!(env!("CARGO_MANIFEST_DIR"), "/src/assets").into()),
     ..Default::default()
   })
   .configure(|app| {

@@ -3,7 +3,7 @@ use frontbox_led::prelude::*;
 
 /// A short flash of `color` on `leds`, fading out
 pub fn flash_scene(leds: &LedQ, color: Rgba<u8>) -> PlayableScene<Completes> {
-  completing_scene!("shared/flash.scene", leds.clone()).param("color", color)
+  completing_scene!("shared/flash.scene", leds.clone()).variable("color", color)
 }
 
 /// `lit` of the `count` LEDs in `leds` in `color`, from the first, e.g. segments of a ring. The scene's shape is around
@@ -11,19 +11,19 @@ pub fn flash_scene(leds: &LedQ, color: Rgba<u8>) -> PlayableScene<Completes> {
 pub fn fill_scene(leds: &LedQ, count: usize, lit: usize, color: Rgba<u8>) -> PlayableScene {
   let width = 2.0 * (lit as f32 - 0.5) / (count as f32 - 1.0).max(1.0);
   scene!("shared/fill.scene", leds.clone())
-    .param("color", color)
-    .param("width", width.max(0.0))
+    .variable("color", color)
+    .variable("width", width.max(0.0))
 }
 
 /// A slow pulse of `color` on `leds`, at the mode attention z, e.g. the shot a mode wants
 pub fn glow_scene(leds: &LedQ, color: Rgba<u8>) -> PlayableScene {
-  scene!("shared/glow.scene", leds.clone()).param("color", color)
+  scene!("shared/glow.scene", leds.clone()).variable("color", color)
 }
 
 /// A double pulse of `color` on `leds`, once every `beat`
 pub fn heartbeat_scene(leds: &LedQ, color: Rgba<u8>, beat: Duration) -> PlayableScene {
   scene!("shared/heartbeat.scene", leds.clone())
-    .param("color", color)
+    .variable("color", color)
     .over(beat)
 }
 

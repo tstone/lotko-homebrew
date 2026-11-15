@@ -1,6 +1,6 @@
 use frontbox_console::WebTracer;
 use frontbox_core::prelude::*;
-use frontbox_display::menu::{DmdMenuSystem, DmdMenuTheme, MenuSwitches};
+use frontbox_display::menu::{DmdMenuSystem, MenuSwitches};
 use frontbox_display::{DisplayDefinition, DisplaySystem};
 use frontbox_dmd::{PanelType, Pin2Dmd};
 use frontbox_led::prelude::*;
@@ -79,6 +79,8 @@ async fn main() {
     app.plane(app_plane!(planes::BACKBOX_PANEL));
     app.plane(app_plane!(planes::BACKBOARD));
     app.plane(app_plane!(planes::CABINET_FRONT));
+    app.plane(app_plane!(planes::CABINET_LEFT));
+    app.plane(app_plane!(planes::CABINET_RIGHT));
 
     let console = WebTracer::new();
 
@@ -117,10 +119,22 @@ async fn main() {
         coin_door: coin_door::OPEN_SWITCH.name,
       },
       &MENU,
-      DmdMenuTheme::default(),
     ));
-    app.system(AttractModeDmdSystem::new());
-    app.system(GamePointsDmdSystem::new());
+    app.system(
+      DmdAttractSystem::new(vec![
+        AttractScreen::Scene("dmd/neon_blue.scene"),
+        AttractScreen::Scene("dmd/spore.scene"),
+        AttractScreen::LastScore(0),
+        AttractScreen::LastScore(1),
+        AttractScreen::PressStart,
+        AttractScreen::LastScore(2),
+        AttractScreen::LastScore(3),
+        AttractScreen::Scene("dmd/fast_frontbox_logos.scene"),
+      ])
+      .flippers(LEFT_FLIPPER_SWITCH1.name, RIGHT_FLIPPER_SWITCH1.name)
+      .z(BASE_DMD_LAYER),
+    );
+    app.system(DmdPointsSystem::new().z(BASE_DMD_LAYER));
 
     // hardware ops
     app.system(drop_bank::DropBankSystem::new());

@@ -112,7 +112,7 @@ impl FloodgatesMode {
       self.attention_scene.stop(ctx);
       self.gauge_scene.stop(ctx);
       self.wizard.complete(
-        completing_scene!("startable/hit.scene").param("color", Rgba::blue()),
+        completing_scene!("startable/hit.scene").variable("color", Rgba::blue()),
         ctx,
       );
       return;

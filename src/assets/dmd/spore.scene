@@ -1,0 +1,58 @@
+Scene(
+  version: 2,
+  timing: (
+    duration: 5.0,
+    cycle: Forever,
+  ),
+  layers: [
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Background",
+        fill: (
+          base: Solid(Fixed(0, 0, 0, 255)),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Spore",
+        fill: (
+          base: Image(
+      name: "gif/bio-spore-pink.gif",
+      frame: Keyframes(
+        keys: [
+          (
+            at: 0.0,
+            value: 0.0,
+            curve: EaseInOut,
+          ),
+          (
+            at: 2.5,
+            value: 9.0,
+            curve: EaseInOut,
+          ),
+          (
+            at: 5.0,
+            value: 0.0,
+            curve: EaseInOut,
+          ),
+        ],
+        cycle: Once,
+      ),
+    ),
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(64.0, 16.0)),
+          ],
+          base: Rect(
+            width: Fixed(30.0),
+            height: Fixed(32.0),
+          ),
+        ),
+      ),
+    ),
+  ],
+)

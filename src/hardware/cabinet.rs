@@ -4,11 +4,19 @@ use frontbox_core::provided::SwitchComboSystem;
 use frontbox_core::tags::*;
 
 hardware_defs! {
-  pub LEFT_FLIPPER_SWITCH1: SwitchDefinition = SwitchDefinition::new("l_flipper1");
-  pub LEFT_FLIPPER_SWITCH2: SwitchDefinition = SwitchDefinition::new("l_flipper2");
+  pub LEFT_FLIPPER_SWITCH1: SwitchDefinition = SwitchDefinition::new("l_flipper1")
+    .tag(Cabinet)
+    .location(Vec3::new(2.5, 6.5, 0.0).relative_to(&planes::CABINET_LEFT));
+  pub LEFT_FLIPPER_SWITCH2: SwitchDefinition = SwitchDefinition::new("l_flipper2")
+    .tag(Cabinet)
+    .location(Vec3::new(4.0, 6.5, 0.0).relative_to(&planes::CABINET_LEFT));
 
-  pub RIGHT_FLIPPER_SWITCH1: SwitchDefinition = SwitchDefinition::new("r_flipper1");
-  pub RIGHT_FLIPPER_SWITCH2: SwitchDefinition = SwitchDefinition::new("r_flipper2");
+  pub RIGHT_FLIPPER_SWITCH1: SwitchDefinition = SwitchDefinition::new("r_flipper1")
+    .tag(Cabinet)
+    .location(Vec3::new(2.5, 6.5, 0.0).relative_to(&planes::CABINET_RIGHT));
+  pub RIGHT_FLIPPER_SWITCH2: SwitchDefinition = SwitchDefinition::new("r_flipper2")
+    .tag(Cabinet)
+    .location(Vec3::new(4.0, 6.5, 0.0).relative_to(&planes::CABINET_RIGHT));
 
   pub TILT_BOB_SWITCH: SwitchDefinition = SwitchDefinition::new("tilt");
 }
@@ -65,17 +73,27 @@ pub mod coin_door {
     pub LEFT_COIN_LED: LedDefinition = LedDefinition::single("l_coin_led")
       .tag(Cabinet);
 
-    pub RIGHT_COIN_LED: LedDefinition = LedDefinition::single("l_coin_led")
+    pub RIGHT_COIN_LED: LedDefinition = LedDefinition::single("r_coin_led")
       .tag(Cabinet);
 
     /// The switch that detects if the door is opened or closed
     pub OPEN_SWITCH: SwitchDefinition = SwitchDefinition::new("coin_door_open")
+      .initially_closed()
       .tag(Cabinet)
       .location(Vec3::new(5.419, 11.767, 0.0).relative_to(&planes::CABINET_FRONT));
 
-    pub MENU_BLACK_SWITCH: SwitchDefinition = SwitchDefinition::new("menu_black");
-    pub MENU_RED_R_SWITCH: SwitchDefinition = SwitchDefinition::new("menu_red_r");
-    pub MENU_RED_L_SWITCH: SwitchDefinition = SwitchDefinition::new("menu_red_l");
-    pub MENU_GREEN_SWITCH: SwitchDefinition = SwitchDefinition::new("menu_green");
+    // The menu buttons, in a row across the door: back, down, up, select
+    pub MENU_GREEN_SWITCH: SwitchDefinition = SwitchDefinition::new("menu_green")
+      .tag(Cabinet)
+      .location(Vec3::new(8.0, 10.0, 0.0).relative_to(&planes::CABINET_FRONT));
+    pub MENU_RED_L_SWITCH: SwitchDefinition = SwitchDefinition::new("menu_red_l")
+      .tag(Cabinet)
+      .location(Vec3::new(10.0, 10.0, 0.0).relative_to(&planes::CABINET_FRONT));
+    pub MENU_RED_R_SWITCH: SwitchDefinition = SwitchDefinition::new("menu_red_r")
+      .tag(Cabinet)
+      .location(Vec3::new(12.0, 10.0, 0.0).relative_to(&planes::CABINET_FRONT));
+    pub MENU_BLACK_SWITCH: SwitchDefinition = SwitchDefinition::new("menu_black")
+      .tag(Cabinet)
+      .location(Vec3::new(14.0, 10.0, 0.0).relative_to(&planes::CABINET_FRONT));
   }
 }

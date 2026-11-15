@@ -103,7 +103,7 @@ impl ScoopQualifier {
     } else if self.lit_scene.is_none() {
       let mut scene = ScenePlayer::new(
         scene!("startable/left_scoop_attention.scene")
-          .param("color", color.unwrap_or(Rgba::white())),
+          .variable("color", color.unwrap_or(Rgba::white())),
       );
       scene.start(ctx);
       self.lit_scene = Some(scene);

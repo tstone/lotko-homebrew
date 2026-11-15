@@ -29,8 +29,8 @@ Scene(
             Scale(Fixed(1.0)),
             Translate(Fixed(13.814, 17.917)),
           ],
-          base: Ring(
-            inner_radius: Keyframes(
+          base: Circle(
+            radius: Keyframes(
               keys: [
                 (
                   at: 0.0,
@@ -50,8 +50,13 @@ Scene(
               ],
               cycle: Once,
             ),
-            thickness: Fixed(1.316),
           ),
+          adjust: [
+            Stroke(
+              width: Fixed(1.316),
+              align: Outside,
+            ),
+          ],
         ),
       ),
     ),

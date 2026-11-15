@@ -52,7 +52,7 @@ impl MainShot {
     }
   }
 
-  /// Where the hex's center is on the playfield, for scene params
+  /// Where the hex's center is on the playfield, for scene variables
   pub fn origin(self) -> Vec2 {
     let center = self
       .hex_leds()

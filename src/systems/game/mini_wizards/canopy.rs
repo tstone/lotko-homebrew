@@ -58,7 +58,7 @@ impl CanopyMode {
     if self.collects == COLLECTS {
       self.attention_scene.stop(ctx);
       self.wizard.complete(
-        completing_scene!("startable/hit.scene").param("color", Rgba::green()),
+        completing_scene!("startable/hit.scene").variable("color", Rgba::green()),
         ctx,
       );
       return;

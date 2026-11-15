@@ -1,13 +1,12 @@
 use frontbox_core::prelude::*;
-use frontbox_display::*;
-use frontbox_gfx::canvas::*;
+use frontbox_gfx::scene::NumberFormat;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{
   ExtraBallGranted, ExtraBallUsed, GameManagementExt, TurnStartReason, TurnStarting,
 };
 
 use crate::hardware::trough::DRAIN_LED;
-use crate::systems::dmd::{ANNOUNCEMENT_DMD_LAYER, CanvasScreen};
+use crate::systems::dmd::{ANNOUNCEMENT_DMD_LAYER, DmdScreen};
 use crate::systems::game::{MiniWizardCompleted, points};
 use crate::systems::{Callout, SayExt};
 
@@ -46,7 +45,7 @@ pub struct ExtraBallSystem {
   /// The screen showing is a collect, which the scoop is waiting on
   collecting: bool,
   handle: SystemHandle,
-  screen: CanvasScreen,
+  screen: DmdScreen,
 }
 
 impl ExtraBallSystem {
@@ -60,7 +59,7 @@ impl ExtraBallSystem {
       screen_cue: None,
       collecting: false,
       handle: SystemHandle::default(),
-      screen: CanvasScreen::new(ANNOUNCEMENT_DMD_LAYER),
+      screen: DmdScreen::new("dmd/announcement.scene", ANNOUNCEMENT_DMD_LAYER),
     }
   }
 
@@ -101,7 +100,7 @@ impl ExtraBallSystem {
     } else {
       log::info!("Extra ball collected past the limit, awarding points");
       ctx.add_points(points::EXTRA_BALL_AS_POINTS);
-      self.show(&TextFormatting::number(points::EXTRA_BALL_AS_POINTS), ctx);
+      self.show(&NumberFormat::Grouped.write(points::EXTRA_BALL_AS_POINTS as i64), ctx);
     }
     self.update_lit_scene(ctx);
   }
@@ -124,13 +123,7 @@ impl ExtraBallSystem {
   }
 
   fn show(&mut self, label: &str, ctx: &SystemContext) {
-    let mut frame = Container::new(Fill2d::Solid(Rgba::black()));
-    frame.add(
-      BOLD_PIXELS_10PX_REGULAR_FONT
-        .center_aligned(label.to_string(), Rgba::white())
-        .top_offset(11),
-    );
-    self.screen.show(frame.default_position(), ctx);
+    self.screen.show([("text", label.into()), ("color", Rgba::white().into())], ctx);
     if let Some(cue) = self.screen_cue.take() {
       ctx.cues.cancel(cue);
     }

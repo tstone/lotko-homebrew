@@ -311,7 +311,7 @@ impl ModeManager {
       playing.stop(ctx);
     }
     if let Some(pulse) = pulse {
-      let scene = scene!("map_flash.scene", led.clone()).param("color", mode.color());
+      let scene = scene!("map_flash.scene", led.clone()).variable("color", mode.color());
       let scene = match pulse {
         MapPulse::Running => scene,
         MapPulse::Offered => scene.over(OFFERED_PULSE),

@@ -47,7 +47,7 @@ impl BlackoutMode {
   }
 
   fn lit_scene(leds: LedQ) -> PlayableScene {
-    scene!("blackout/lit.scene", leds).param("color", Rgba::white())
+    scene!("blackout/lit.scene", leds).variable("color", Rgba::white())
   }
 
   fn lit_shots(&self) -> Vec<MainShot> {
@@ -91,7 +91,7 @@ impl BlackoutMode {
     self.wizard.score(points::BLACKOUT_SUPER_JACKPOT, ctx);
     self.lift_dark(ctx);
     self.wizard.complete(
-      completing_scene!("startable/hit.scene").param("color", Rgba::white()),
+      completing_scene!("startable/hit.scene").variable("color", Rgba::white()),
       ctx,
     );
   }

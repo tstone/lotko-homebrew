@@ -11,6 +11,7 @@ hardware_defs! {
     .location(Vec3::new(10.311, 6.034, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub REST_SWITCH: SwitchDefinition = SwitchDefinition::new("cap_ball_rest")
+    .initially_closed()
     .debounce(Duration::from_millis(50))
     .tag(DoesNotCancelSkillshot)
     .location(Vec3::new(10.304, 8.47, 0.0).relative_to(&planes::PLAYFIELD));

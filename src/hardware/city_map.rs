@@ -61,7 +61,7 @@ const SPORE_COUNT_LEDS: f32 = 16.0;
 /// a number of LEDs its edge goes between the last of them and the next.
 pub fn spore_count_scene(color: Rgba<u8>, progress: f32) -> PlayableScene {
   let lit = (progress * SPORE_COUNT_LEDS).round();
-  scene!("spore_bar.scene").param("color", color).param(
+  scene!("spore_bar.scene").variable("color", color).variable(
     "width",
     (2.0 * (lit - 0.5) / (SPORE_COUNT_LEDS - 1.0)).max(0.0),
   )
@@ -72,8 +72,8 @@ pub fn spore_count_scene(color: Rgba<u8>, progress: f32) -> PlayableScene {
 pub fn mode_progress_scene(color: Rgba<u8>, progress: f32) -> PlayableScene<Completes> {
   let lit = (progress * SPORE_COUNT_LEDS).round();
   completing_scene!("mode_progress.scene")
-    .param("color", color)
-    .param(
+    .variable("color", color)
+    .variable(
       "width",
       (2.0 * (lit - 0.5) / (SPORE_COUNT_LEDS - 1.0)).max(0.0),
     )

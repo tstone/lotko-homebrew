@@ -1,14 +1,12 @@
 use std::collections::VecDeque;
 
 use frontbox_core::prelude::*;
-use frontbox_display::*;
-use frontbox_gfx::canvas::*;
-use frontbox_led::prelude::*;
+use frontbox_gfx::scene::NumberFormat;
 use frontbox_pinball::{GameManagementExt, TurnEndReason, TurnEnding};
 
 use crate::hardware::cabinet::DoubleFlipped;
 use crate::metrics;
-use crate::systems::dmd::{CanvasScreen, TURN_END_DMD_LAYER};
+use crate::systems::dmd::{DmdScreen, TURN_END_DMD_LAYER};
 use crate::systems::game::{ModeManager, SporesSystem, points};
 
 /// How long each bonus screen is shown
@@ -22,7 +20,7 @@ pub struct BonusSystem {
   screens: VecDeque<(String, &'static str)>,
   /// The cue for moving off the screen being shown, while one is
   screen_cue: Option<u64>,
-  screen: CanvasScreen,
+  screen: DmdScreen,
 }
 
 impl BonusSystem {
@@ -30,7 +28,7 @@ impl BonusSystem {
     Self {
       screens: VecDeque::new(),
       screen_cue: None,
-      screen: CanvasScreen::new(TURN_END_DMD_LAYER),
+      screen: DmdScreen::new("dmd/bonus.scene", TURN_END_DMD_LAYER),
     }
   }
 
@@ -55,13 +53,13 @@ impl BonusSystem {
         Self::multiplied(completed, points::BONUS_PER_CITY_MODE),
         "REGIONS RECLAIMED",
       ),
-      (TextFormatting::number(bonus), "BONUS"),
+      (grouped(bonus), "BONUS"),
     ]);
     self.show_next_screen(ctx);
   }
 
   fn multiplied(count: u64, value: u64) -> String {
-    format!("{} x {}", count, TextFormatting::number(value))
+    format!("{} x {}", count, grouped(value))
   }
 
   /// Shows the next screen, or once they've all been shown, completes this step of the turn ending. The last screen is
@@ -69,7 +67,7 @@ impl BonusSystem {
   /// would flash the game score in between.
   fn show_next_screen(&mut self, ctx: &SystemContext) {
     if let Some((amount, label)) = self.screens.pop_front() {
-      self.screen.show(Self::draw(amount, label).default_position(), ctx);
+      self.screen.show([("amount", amount.into()), ("label", label.into())], ctx);
       self.screen_cue = Some(ctx.cues.start(BonusScreenShown, SCREEN_DURATION.once()));
     } else {
       self.screen_cue = None;
@@ -86,21 +84,6 @@ impl BonusSystem {
       self.screens.clear();
       self.show_next_screen(ctx);
     }
-  }
-
-  fn draw(amount: String, label: &'static str) -> Container {
-    let mut frame = Container::new(Fill2d::Solid(Rgba::black()));
-    frame.add(
-      BOLD_PIXELS_10PX_REGULAR_FONT
-        .center_aligned(amount, Rgba::white())
-        .top_offset(6),
-    );
-    frame.add(
-      SIGI_BOLD_7PX_FONT
-        .center_aligned(label, Rgba::yellow().lighten(0.3))
-        .top_offset(20),
-    );
-    frame
   }
 
   fn clear_screen(&mut self, ctx: &SystemContext) {
@@ -134,6 +117,11 @@ impl System for BonusSystem {
   fn on_despawn(&mut self, ctx: &SystemContext) {
     self.clear_screen(ctx);
   }
+}
+
+/// With commas between the thousands
+fn grouped(number: u64) -> String {
+  NumberFormat::Grouped.write(number as i64)
 }
 
 #[derive(serde::Serialize, Event)]

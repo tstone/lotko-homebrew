@@ -60,7 +60,7 @@ impl ModeRun {
     }
     self.intro_line = self.mode.start_lines().last().map(|line| line.key());
     let mut intro =
-      ScenePlayer::new(scene!("startable/hit.scene").param("color", self.mode.color()));
+      ScenePlayer::new(scene!("startable/hit.scene").variable("color", self.mode.color()));
     intro.start(ctx);
     if let Some(mut previous) = self.intro.replace(intro) {
       previous.stop(ctx);

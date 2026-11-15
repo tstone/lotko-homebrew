@@ -1,0 +1,68 @@
+Scene(
+  version: 2,
+  variables: {
+    "amount": Text("12 x 5,000"),
+    "label": Text("SPORES APPLIED"),
+  },
+  layers: [
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Background",
+        fill: (
+          base: Solid(Fixed(0, 0, 0, 255)),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Amount",
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(64.0, 11.0)),
+          ],
+          base: Text(
+            text: Variable("amount"),
+            font: "TenFatGuys",
+            size: Fixed(16.0),
+            width: Fixed(124.0),
+            height: Fixed(16.0),
+            align: Center,
+            vertical_align: Middle,
+            kerning: Fixed(0.0),
+            leading: Fixed(0.0),
+          ),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Label",
+        fill: (
+          base: Solid(Fixed(255, 255, 77, 255)),
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(64.0, 24.0)),
+          ],
+          base: Text(
+            text: Variable("label"),
+            font: "DMDSmall",
+            size: Fixed(16.0),
+            width: Fixed(124.0),
+            height: Fixed(10.0),
+            align: Center,
+            vertical_align: Middle,
+            kerning: Fixed(0.0),
+            leading: Fixed(0.0),
+          ),
+        ),
+      ),
+    ),
+  ],
+)

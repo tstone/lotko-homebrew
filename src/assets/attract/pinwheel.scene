@@ -84,7 +84,6 @@ Scene(
             radius: Fixed(31.0),
             legs: Fixed(1.0),
             leg_width: Fixed(0.3168),
-            bow: Fixed(0.0),
           ),
         ),
       ),

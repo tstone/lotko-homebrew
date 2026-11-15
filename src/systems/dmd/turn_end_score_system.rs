@@ -1,12 +1,10 @@
 use frontbox_core::prelude::*;
-use frontbox_display::*;
-use frontbox_gfx::canvas::*;
-use frontbox_led::prelude::*;
+use frontbox_gfx::scene::Value;
 use frontbox_pinball::{GameManager, TurnEnding};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::cabinet::DoubleFlipped;
-use crate::systems::dmd::{CanvasScreen, TURN_END_DMD_LAYER};
+use crate::systems::dmd::{DmdScreen, TURN_END_DMD_LAYER};
 use crate::systems::sounds;
 
 /// A participant in `TurnEnding`: shows the player's score for the turn that's ending on the DMD. A double flip moves
@@ -15,12 +13,12 @@ use crate::systems::sounds;
 pub struct TurnEndScoreSystem {
   /// The cue for moving off the score, while it's shown
   score_cue: Option<u64>,
-  screen: CanvasScreen,
+  screen: DmdScreen,
 }
 
 impl TurnEndScoreSystem {
   pub fn new() -> Self {
-    Self { score_cue: None, screen: CanvasScreen::new(TURN_END_DMD_LAYER) }
+    Self { score_cue: None, screen: DmdScreen::new("dmd/turn_end_score.scene", TURN_END_DMD_LAYER) }
   }
 
   fn on_turn_ending(&mut self, turn_ending: &TurnEnding, ctx: &SystemContext) {
@@ -34,7 +32,8 @@ impl TurnEndScoreSystem {
       })
       .unwrap_or(0);
 
-    self.screen.show(Self::draw(turn_ending.current_player, score).default_position(), ctx);
+    let label = format!("PLAYER {}", turn_ending.current_player + 1);
+    self.screen.show([("label", label.into()), ("score", Value::Int(score as i64))], ctx);
     ctx.play_sfx(sounds::QUEST_COMPLETE);
     self.score_cue = Some(ctx.cues.start(ScoreShown, Duration::from_secs(2).once()));
   }
@@ -44,24 +43,6 @@ impl TurnEndScoreSystem {
     ctx.cues.cancel(self.score_cue.take());
     self.clear_screen(ctx);
     ctx.routines.complete_step::<TurnEnding>();
-  }
-
-  fn draw(player: u8, score: u64) -> Container {
-    let mut frame = Container::new(Fill2d::Solid(Rgba::black()));
-    frame.add(
-      SIGI_BOLD_7PX_FONT
-        .center_aligned(
-          format!("PLAYER {}", player + 1),
-          Rgba::yellow().lighten(0.3),
-        )
-        .top_offset(4),
-    );
-    frame.add(
-      BOLD_PIXELS_10PX_REGULAR_FONT
-        .center_aligned(TextFormatting::number(score), Rgba::white())
-        .top_offset(15),
-    );
-    frame
   }
 
   fn clear_screen(&mut self, ctx: &SystemContext) {

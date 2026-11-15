@@ -1,7 +1,4 @@
 use frontbox_core::prelude::*;
-use frontbox_display::*;
-use frontbox_gfx::canvas::*;
-use frontbox_led::prelude::*;
 use frontbox_pinball::{
   BallManagementExt, GameManagementExt, PlayerEntry, ScoopBallEntered, ScoopEntry, ScoopSystem,
   TurnPhase,
@@ -10,7 +7,7 @@ use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::cabinet::{self, action_button, start_button};
 use crate::hardware::lower_scoop::Lower;
-use crate::systems::dmd::{CanvasScreen, MENU_DMD_LAYER};
+use crate::systems::dmd::{DmdScreen, MENU_DMD_LAYER};
 use crate::systems::game::{
   self, ExtraBallCollected, ExtraBallSystem, Mode, ModeManager, ScoopQualifier,
 };
@@ -36,7 +33,7 @@ pub struct ModeSelectSystem {
   timeout_cue: Option<u64>,
   /// A flipper is down and moves the selection when it's let go, unless the other joins it to choose
   pending_move: Option<bool>,
-  screen: CanvasScreen,
+  screen: DmdScreen,
 }
 
 impl ModeSelectSystem {
@@ -45,7 +42,7 @@ impl ModeSelectSystem {
       state: State::Idle,
       timeout_cue: None,
       pending_move: None,
-      screen: CanvasScreen::new(MENU_DMD_LAYER),
+      screen: DmdScreen::new("dmd/announcement.scene", MENU_DMD_LAYER),
     }
   }
 
@@ -149,13 +146,7 @@ impl ModeSelectSystem {
       .expect::<ModeManager>()
       .show_menu(rows.clone(), mode, ctx.into());
 
-    let mut frame = Container::new(Fill2d::Solid(Rgba::black()));
-    frame.add(
-      BOLD_PIXELS_10PX_REGULAR_FONT
-        .center_aligned(mode.name().to_string(), mode.color())
-        .top_offset(11),
-    );
-    self.screen.show(frame.default_position(), ctx);
+    self.screen.show([("text", mode.name().into()), ("color", mode.color().into())], ctx);
   }
 
   fn hold_ball(&self, ctx: &SystemContext) {

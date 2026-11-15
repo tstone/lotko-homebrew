@@ -47,3 +47,19 @@ pub static CABINET_FRONT: LazyLock<ReferencePlane> = LazyLock::new(|| {
     .rotation(Quat::from_axis_angle(Vec3::X, -90f32.to_radians()))
     .build()
 });
+
+/// A side of the cabinet. Its origin is on the front edge, level with the top of the back; x runs toward the back and y
+/// down. The top edge follows the playfield's tilt, so at the front it's 3.06" lower, at the top of the cabinet front.
+/// The bottom is level with the cabinet front's bottom.
+fn cabinet_side(name: &'static str, x: f32) -> ReferencePlane {
+  ReferencePlane::new(name)
+    .origin(Vec3::new(x, 50.0, 16.06))
+    // turned so x runs toward the back (-y) and y down (-z)
+    .rotation(Quat::from_rotation_z(-90f32.to_radians()) * Quat::from_rotation_x(-90f32.to_radians()))
+    .outline([Vec2::new(0.0, 3.06), Vec2::new(50.0, 0.0), Vec2::new(50.0, 19.31), Vec2::new(0.0, 19.31)])
+    .build()
+}
+
+pub static CABINET_LEFT: LazyLock<ReferencePlane> = LazyLock::new(|| cabinet_side("Cabinet Left", 0.0));
+
+pub static CABINET_RIGHT: LazyLock<ReferencePlane> = LazyLock::new(|| cabinet_side("Cabinet Right", 22.0));

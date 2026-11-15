@@ -1,10 +1,8 @@
 use frontbox_core::prelude::*;
-use frontbox_display::*;
-use frontbox_gfx::canvas::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{GameEnding, PlayerTilted, TiltWarned, TurnStarting};
 
-use crate::systems::dmd::{ANNOUNCEMENT_DMD_LAYER, CanvasScreen};
+use crate::systems::dmd::{ANNOUNCEMENT_DMD_LAYER, DmdScreen};
 use crate::systems::{Callout, SayExt};
 
 /// How long a tilt warning is shown
@@ -18,7 +16,7 @@ pub struct TiltPresenter {
   warning_scene: ScenePlayer,
   warning_cue: Option<u64>,
   tilted: bool,
-  screen: CanvasScreen,
+  screen: DmdScreen,
 }
 
 impl TiltPresenter {
@@ -27,7 +25,7 @@ impl TiltPresenter {
       warning_scene: ScenePlayer::new(scene!("tilt_warning.scene")),
       warning_cue: None,
       tilted: false,
-      screen: CanvasScreen::new(ANNOUNCEMENT_DMD_LAYER),
+      screen: DmdScreen::new("dmd/announcement.scene", ANNOUNCEMENT_DMD_LAYER),
     }
   }
 
@@ -64,13 +62,7 @@ impl TiltPresenter {
   }
 
   fn show(&mut self, label: String, ctx: &SystemContext) {
-    let mut frame = Container::new(Fill2d::Solid(Rgba::black()));
-    frame.add(
-      BOLD_PIXELS_10PX_REGULAR_FONT
-        .center_aligned(label, Rgba::red())
-        .top_offset(11),
-    );
-    self.screen.show(frame.default_position(), ctx);
+    self.screen.show([("text", label.into()), ("color", Rgba::red().into())], ctx);
   }
 
   fn remove_screen(&mut self, ctx: &SystemContext) {

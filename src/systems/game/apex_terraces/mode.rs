@@ -61,8 +61,8 @@ impl ApexTerracesMode {
     let lit = ring_leds(filled, needed);
     let width = 2.0 * (lit as f32 - 0.5) / (RING_LEDS as f32 - 1.0);
     scene!("apex_terraces/ring.scene", shot.hex_ring().clone())
-      .param("color", Rgba::green())
-      .param("width", width.max(0.0))
+      .variable("color", Rgba::green())
+      .variable("width", width.max(0.0))
   }
 
   fn needed(&self) -> u8 {

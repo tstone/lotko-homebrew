@@ -1,0 +1,16 @@
+Scene(
+  version: 2,
+  layers: [
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Neon Blue",
+        fill: (
+          base: Image(
+      name: "dmd/neon-blue.png",
+    ),
+        ),
+      ),
+    ),
+  ],
+)

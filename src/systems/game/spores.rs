@@ -175,7 +175,7 @@ pub fn ray_scene(pop: &pop_cluster::PopBumper, color: Rgba<u8>) -> PlayableScene
     "side/charge_ray.scene",
     pop_cluster::led_ray_for_pop(pop).clone()
   )
-  .param("color", color)
+  .variable("color", color)
 }
 
 #[derive(serde::Serialize, Event)]

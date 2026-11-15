@@ -203,6 +203,7 @@ impl Callout {
         | Self::MeridianBasinsUninhabitable
         | Self::CoreTemperatureRising
         | Self::WalkwayFourSealed
+        | Self::RestrictedArea
         | Self::The515IsDelayed
         | Self::ThisIsAnExclusiveArea
         | Self::WarningStructuralConcern

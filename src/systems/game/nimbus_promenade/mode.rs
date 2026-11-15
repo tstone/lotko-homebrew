@@ -6,53 +6,79 @@ use rand::prelude::IndexedRandom;
 
 use crate::hardware::lower_scoop::Lower;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
-use crate::systems::game::{Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_scene};
+use crate::systems::game::{
+  Mode, ModeManager, ModeRun, RootLashed, SporesSystem, flash_scene, glow_scene,
+};
 use crate::systems::{Callout, SayExt, sounds};
 
-const REQUIRED_CHOKES: u8 = 4;
+const REQUIRED_CLOSURES: u8 = 3;
 
-/// The time between seals, before chokes speed them up (start value)
-const SEAL_INTERVAL: Duration = Duration::from_secs(6);
+/// A walkway hit once, between open (magenta) and closed (dark)
+const WEAKENED_COLOR: Rgba<u8> = Rgba([120, 0, 255, 255]);
 
-/// How much sooner each choke brings the next seal
-const SEAL_SPEEDUP: Duration = Duration::from_secs(1);
+/// The time between blocks, before closures speed them up (start value)
+const BLOCK_INTERVAL: Duration = Duration::from_secs(6);
 
-/// How long a seal is telegraphed before it comes down
-const SEAL_WARNING: Duration = Duration::from_secs(1);
+/// How much sooner each closure brings the next block
+const BLOCK_SPEEDUP: Duration = Duration::from_secs(1);
 
-/// Choke points (DESIGN.md). The Steward seals the open walkways one at a time, and the forest chokes them. Each of the
-/// 6 main shots is a walkway.
+/// How long a block is telegraphed before it comes down
+const BLOCK_WARNING: Duration = Duration::from_secs(1);
+
+/// How long a walkway stays blocked (start value)
+const BLOCK_DURATION: Duration = Duration::from_secs(8);
+
+/// Choke points (DESIGN.md). Each of the 6 main shots is a walkway the forest closes in two hits: the first weakens it
+/// (magenta to purple) and the second closes it (dark). The Steward blocks walkways one at a time for a while, lit red,
+/// and a blocked walkway can't be hit.
 pub struct NimbusPromenadeMode {
   run: ModeRun,
   /// By shot, in [`MainShot::ALL`] order
   walkways: [Walkway; 6],
-  /// The open walkways, other than one about to be sealed
-  attention_scene: ScenePlayer,
-  /// The walkway about to be sealed, and its warning
-  sealing: Option<(MainShot, ScenePlayer)>,
-  /// The next seal or its warning, while they're running
-  seal_cue: Option<u64>,
+  /// By shot, in [`MainShot::ALL`] order: the cue that lifts the block, while it's blocked. A blocked walkway keeps its
+  /// progress for when the block lifts.
+  blocks: [Option<u64>; 6],
+  /// Open walkways, other than one about to be blocked
+  open_scene: ScenePlayer,
+  /// Weakened walkways, other than one about to be blocked
+  weakened_scene: ScenePlayer,
+  /// The walkway about to be blocked, and its warning
+  blocking: Option<(MainShot, ScenePlayer)>,
+  /// The next block or its warning, while they're running
+  block_cue: Option<u64>,
+  /// The block the Steward last complained about being hit, so a run of hits on it says it once
+  complained_about: Option<u64>,
 }
 
 impl NimbusPromenadeMode {
   pub fn new() -> Self {
     Self {
-      run: ModeRun::new(Mode::NimbusPromenade, REQUIRED_CHOKES),
+      run: ModeRun::new(Mode::NimbusPromenade, REQUIRED_CLOSURES),
       walkways: [Walkway::Open; 6],
-      attention_scene: ScenePlayer::new(Self::attention_scene(&MainShot::ALL)),
-      sealing: None,
-      seal_cue: None,
+      blocks: [None; 6],
+      open_scene: ScenePlayer::new(Self::open_scene(&MainShot::ALL)),
+      weakened_scene: ScenePlayer::new(Self::weakened_scene(&[])),
+      blocking: None,
+      block_cue: None,
+      complained_about: None,
     }
   }
 
-  fn attention_scene(shots: &[MainShot]) -> PlayableScene {
-    let qs: Vec<&LedQ> = shots.iter().map(|shot| shot.hex_center()).collect();
-    scene!("nimbus_promenade/attention.scene", LedQ::any(qs))
+  fn open_scene(shots: &[MainShot]) -> PlayableScene {
+    scene!("nimbus_promenade/attention.scene", Self::hex_centers(shots))
   }
 
-  fn seal_warning_scene(shot: MainShot) -> PlayableScene {
+  fn weakened_scene(shots: &[MainShot]) -> PlayableScene {
+    glow_scene(&Self::hex_centers(shots), WEAKENED_COLOR)
+  }
+
+  fn hex_centers(shots: &[MainShot]) -> LedQ {
+    LedQ::any(shots.iter().map(|shot| shot.hex_center()).collect())
+  }
+
+  fn block_warning_scene(shot: MainShot) -> PlayableScene {
     scene!(
-      "nimbus_promenade/seal_warning.scene",
+      "nimbus_promenade/block_warning.scene",
       shot.hex_center().clone()
     )
   }
@@ -61,99 +87,121 @@ impl NimbusPromenadeMode {
     self.walkways[shot as usize]
   }
 
-  fn chokes(&self) -> u8 {
+  fn is_blocked(&self, shot: MainShot) -> bool {
+    self.blocks[shot as usize].is_some()
+  }
+
+  fn closures(&self) -> u8 {
     self
       .walkways
       .iter()
-      .filter(|walkway| **walkway == Walkway::Choked)
+      .filter(|walkway| **walkway == Walkway::Closed)
       .count() as u8
   }
 
-  fn open_shots(&self) -> Vec<MainShot> {
+  /// Walkways that a hit would move on: not closed, and not blocked
+  fn hittable_shots(&self) -> Vec<MainShot> {
     MainShot::ALL
       .into_iter()
-      .filter(|shot| self.walkway(*shot) == Walkway::Open)
+      .filter(|shot| self.walkway(*shot) != Walkway::Closed && !self.is_blocked(*shot))
       .collect()
   }
 
   fn on_shot_hit(&mut self, shot: MainShot, ctx: &SystemContext) {
-    match self.walkway(shot) {
-      Walkway::Open => {
-        // one walkway a hit, so a burst doubles the points rather than choking two
-        let times = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
-        self.choke(shot, times, ctx);
-      }
-      Walkway::Sealed => self.reopen(shot, ctx),
-      Walkway::Choked => {}
+    if self.is_blocked(shot) {
+      self.on_blocked_hit(shot, ctx);
+    } else if self.walkway(shot) != Walkway::Closed {
+      // one step a hit, so a burst doubles the points rather than closing a walkway at once
+      let times = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
+      self.advance(shot, times, ctx);
     }
   }
 
-  /// Each hit of a Root Lash chokes an open walkway of its own
+  /// Each hit of a Root Lash moves a walkway of its own on a step
   fn on_lash_hit(&mut self, ctx: &SystemContext) {
-    if let Some(shot) = self.open_shots().choose(&mut rand::rng()).copied() {
-      self.choke(shot, 1, ctx);
+    if let Some(shot) = self.hittable_shots().choose(&mut rand::rng()).copied() {
+      self.advance(shot, 1, ctx);
     }
   }
 
-  /// Choke a walkway for good, scoring `times` over for a burst
-  fn choke(&mut self, shot: MainShot, times: u8, ctx: &SystemContext) {
+  /// Weaken an open walkway or close a weakened one, scoring `times` over for a burst
+  fn advance(&mut self, shot: MainShot, times: u8, ctx: &SystemContext) {
     self.run.score_hit(times, ctx);
-
-    self.walkways[shot as usize] = Walkway::Choked;
     if self
-      .sealing
+      .blocking
       .as_ref()
-      .is_some_and(|(sealing, _)| *sealing == shot)
+      .is_some_and(|(blocking, _)| *blocking == shot)
     {
       self.stop_warning(ctx);
     }
+
+    match self.walkway(shot) {
+      Walkway::Open => {
+        log::info!("NimbusPromenade: {shot:?} weakened");
+        self.walkways[shot as usize] = Walkway::Weakened;
+        self.refresh(ctx);
+        ctx.play_scene(&flash_scene(shot.hex_ring(), WEAKENED_COLOR));
+        let closures = self.closures();
+        ctx.play_sfx(sounds::city_hit(closures as f32 / REQUIRED_CLOSURES as f32));
+      }
+      Walkway::Weakened => self.close(shot, ctx),
+      Walkway::Closed => {}
+    }
+  }
+
+  fn close(&mut self, shot: MainShot, ctx: &SystemContext) {
+    self.walkways[shot as usize] = Walkway::Closed;
     self.refresh(ctx);
     ctx.play_scene(&flash_scene(shot.hex_ring(), Rgba::green()));
 
-    let chokes = self.chokes();
-    log::info!("NimbusPromenade: {shot:?} choked, {chokes} of {REQUIRED_CHOKES}");
-    if chokes >= REQUIRED_CHOKES {
-      self.cancel_seal(ctx);
+    let closures = self.closures();
+    log::info!("NimbusPromenade: {shot:?} closed, {closures} of {REQUIRED_CLOSURES}");
+    if closures >= REQUIRED_CLOSURES {
+      self.cancel_blocks(ctx);
       self
         .run
         .complete(completing_scene!("nimbus_promenade/complete.scene"), ctx);
       return;
     }
 
-    ctx.play_sfx(sounds::city_hit(chokes as f32 / REQUIRED_CHOKES as f32));
-    self.run.progress(chokes);
+    ctx.play_sfx(sounds::city_hit(closures as f32 / REQUIRED_CLOSURES as f32));
+    self.run.progress(closures);
   }
 
-  fn reopen(&mut self, shot: MainShot, ctx: &SystemContext) {
-    log::info!("NimbusPromenade: {shot:?} reopened");
-    self.walkways[shot as usize] = Walkway::Open;
-    self.refresh(ctx);
-    ctx.play_sfx(sounds::WOOSH_LIGHT);
-    ctx.play_scene(&flash_scene(shot.hex_ring(), Rgba::white()));
+  /// A blocked walkway can't be hit
+  fn on_blocked_hit(&mut self, shot: MainShot, ctx: &SystemContext) {
+    log::info!("NimbusPromenade: {shot:?} hit while blocked");
+    ctx.play_sfx(sounds::ERROR1);
+    ctx.play_scene(&flash_scene(shot.hex_ring(), Rgba::red()));
+    let block = self.blocks[shot as usize];
+    if self.complained_about != block {
+      self.complained_about = block;
+      ctx.say(Callout::RestrictedArea);
+    }
   }
 
-  /// Telegraph a seal on a random open walkway, as long as it wouldn't be the last one open
-  fn warn_seal(&mut self, ctx: &SystemContext) {
-    let open = self.open_shots();
-    let target = open.choose(&mut rand::rng()).copied();
-    let Some(shot) = target.filter(|_| open.len() > 1) else {
-      self.schedule_seal(ctx);
+  /// Telegraph a block on a random walkway that can still be hit, as long as it wouldn't be the last one
+  fn warn_block(&mut self, ctx: &SystemContext) {
+    let hittable = self.hittable_shots();
+    let target = hittable.choose(&mut rand::rng()).copied();
+    let Some(shot) = target.filter(|_| hittable.len() > 1) else {
+      self.schedule_block(ctx);
       return;
     };
 
-    self.sealing = Some((shot, ScenePlayer::started(Self::seal_warning_scene(shot), ctx)));
+    self.blocking = Some((shot, ScenePlayer::started(Self::block_warning_scene(shot), ctx)));
     self.refresh(ctx);
-    self.seal_cue = Some(ctx.cues.start(SealLanded, SEAL_WARNING.once()));
+    self.block_cue = Some(ctx.cues.start(BlockLanded, BLOCK_WARNING.once()));
   }
 
-  fn seal(&mut self, ctx: &SystemContext) {
-    // the warned walkway may have been choked in the meantime
-    if let Some((shot, _)) = self.sealing
-      && self.walkway(shot) == Walkway::Open
-      && self.open_shots().len() > 1
+  fn block(&mut self, ctx: &SystemContext) {
+    // the warned walkway may have been closed in the meantime
+    if let Some((shot, _)) = self.blocking
+      && self.walkway(shot) != Walkway::Closed
+      && self.hittable_shots().len() > 1
     {
-      log::info!("NimbusPromenade: {shot:?} sealed");
-      self.walkways[shot as usize] = Walkway::Sealed;
+      log::info!("NimbusPromenade: {shot:?} blocked");
+      self.blocks[shot as usize] = Some(ctx.cues.start(BlockLifted { shot }, BLOCK_DURATION.once()));
       ctx.play_sfx(sounds::rnd_latch());
       // walkways are numbered in playfield order, and only the fourth has its line recorded
       if shot == MainShot::CenterOrbit {
@@ -162,43 +210,61 @@ impl NimbusPromenadeMode {
     }
     self.stop_warning(ctx);
     self.refresh(ctx);
-    self.schedule_seal(ctx);
+    self.schedule_block(ctx);
   }
 
-  /// Seals come faster as walkways are choked
-  fn schedule_seal(&mut self, ctx: &SystemContext) {
-    let interval = SEAL_INTERVAL.saturating_sub(SEAL_SPEEDUP * self.chokes() as u32);
-    self.seal_cue = Some(ctx.cues.start(SealDue, interval.once()));
+  fn lift_block(&mut self, shot: MainShot, ctx: &SystemContext) {
+    log::info!("NimbusPromenade: {shot:?} unblocked");
+    self.blocks[shot as usize] = None;
+    ctx.undeclare_leds(shot.hex_center());
+    self.refresh(ctx);
   }
 
-  fn cancel_seal(&mut self, ctx: &SystemContext) {
-    if let Some(cue) = self.seal_cue.take() {
+  /// Blocks come faster as walkways are closed
+  fn schedule_block(&mut self, ctx: &SystemContext) {
+    let interval = BLOCK_INTERVAL.saturating_sub(BLOCK_SPEEDUP * self.closures() as u32);
+    self.block_cue = Some(ctx.cues.start(BlockDue, interval.once()));
+  }
+
+  /// Stop blocking, and lift the blocks there are
+  fn cancel_blocks(&mut self, ctx: &SystemContext) {
+    if let Some(cue) = self.block_cue.take() {
       ctx.cues.cancel(cue);
     }
     self.stop_warning(ctx);
+    for shot in MainShot::ALL {
+      if let Some(cue) = self.blocks[shot as usize].take() {
+        ctx.cues.cancel(cue);
+        ctx.undeclare_leds(shot.hex_center());
+      }
+    }
   }
 
   fn stop_warning(&mut self, ctx: &SystemContext) {
-    if let Some((_, mut warning)) = self.sealing.take() {
+    if let Some((_, mut warning)) = self.blocking.take() {
       warning.stop(ctx);
     }
   }
 
-  /// Show the walkways as they are: open ones in magenta and choked ones green. Sealed ones are dark.
+  /// Show the walkways as they are: open ones magenta, weakened ones purple, and blocked ones red. Closed ones are dark.
   fn refresh(&mut self, ctx: &SystemContext) {
-    let sealing = self.sealing.as_ref().map(|(shot, _)| *shot);
-    let open: Vec<MainShot> = self
-      .open_shots()
-      .into_iter()
-      .filter(|shot| Some(*shot) != sealing)
-      .collect();
+    let blocking = self.blocking.as_ref().map(|(shot, _)| *shot);
+    let shown = |state: Walkway| -> Vec<MainShot> {
+      self
+        .hittable_shots()
+        .into_iter()
+        .filter(|shot| self.walkway(*shot) == state && Some(*shot) != blocking)
+        .collect()
+    };
+    let (open, weakened) = (shown(Walkway::Open), shown(Walkway::Weakened));
+    self.open_scene.replace_scene(Self::open_scene(&open), ctx);
     self
-      .attention_scene
-      .replace_scene(Self::attention_scene(&open), ctx);
+      .weakened_scene
+      .replace_scene(Self::weakened_scene(&weakened), ctx);
 
     for shot in MainShot::ALL {
-      if self.walkway(shot) == Walkway::Choked {
-        ctx.declare_leds(shot.hex_center(), Rgba::green());
+      if self.is_blocked(shot) {
+        ctx.declare_leds(shot.hex_center(), Rgba::red());
       }
     }
   }
@@ -213,20 +279,15 @@ impl System for NimbusPromenadeMode {
     self.run.begin(ctx);
   }
 
-  /// A resume keeps the choked walkways and reopens the rest
+  /// A resume keeps each walkway's progress, with no blocks
   fn on_reactivate(&mut self, ctx: &SystemContext) {
     ctx.activate_led_declarations();
-    for walkway in self.walkways.iter_mut() {
-      if *walkway == Walkway::Sealed {
-        *walkway = Walkway::Open;
-      }
-    }
     self.refresh(ctx);
     self.run.begin(ctx);
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
-    self.cancel_seal(ctx);
+    self.cancel_blocks(ctx);
     self.run.interrupt(ctx);
     ctx.deactivate_led_declarations();
   }
@@ -234,13 +295,15 @@ impl System for NimbusPromenadeMode {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     self.run.on_event(event, ctx);
 
-    if event.is::<SealDue>() {
-      self.warn_seal(ctx);
-    } else if event.is::<SealLanded>() {
-      self.seal(ctx);
-    } else if event.is::<ScoopEjected<Lower>>() && self.seal_cue.is_none() {
-      // the Steward starts sealing once the ball is in play
-      self.schedule_seal(ctx);
+    if event.is::<BlockDue>() {
+      self.warn_block(ctx);
+    } else if event.is::<BlockLanded>() {
+      self.block(ctx);
+    } else if let Some(BlockLifted { shot }) = event.downcast_ref::<BlockLifted>() {
+      self.lift_block(*shot, ctx);
+    } else if event.is::<ScoopEjected<Lower>>() && self.block_cue.is_none() {
+      // the Steward starts blocking once the ball is in play
+      self.schedule_block(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       self.on_shot_hit(hit.shot, ctx);
     } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
@@ -255,23 +318,30 @@ impl System for NimbusPromenadeMode {
       return;
     }
 
-    self.attention_scene.start(ctx);
+    self.open_scene.start(ctx);
+    self.weakened_scene.start(ctx);
   }
 }
 
 #[derive(serde::Serialize, Event)]
-struct SealDue;
+struct BlockDue;
 
 #[derive(serde::Serialize, Event)]
-struct SealLanded;
+struct BlockLanded;
+
+#[derive(serde::Serialize, Event)]
+struct BlockLifted {
+  shot: MainShot,
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Walkway {
+  /// Magenta
   Open,
-  /// Dark. A hit reopens it.
-  Sealed,
-  /// Green for the rest of the mode
-  Choked,
+  /// Purple. Hit once, and closed by the next.
+  Weakened,
+  /// Dark for the rest of the mode
+  Closed,
 }
 
 #[cfg(test)]
@@ -280,15 +350,17 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    NimbusPromenadeMode::seal_warning_scene(MainShot::LeftOrbit);
+    NimbusPromenadeMode::block_warning_scene(MainShot::LeftOrbit);
+    NimbusPromenadeMode::weakened_scene(&[MainShot::LeftOrbit]);
   }
 
   #[test]
-  fn sealed_walkways_are_not_open_or_choked() {
+  fn closed_and_blocked_walkways_cannot_be_hit() {
     let mut mode = NimbusPromenadeMode::new();
-    mode.walkways[MainShot::DomeRamp as usize] = Walkway::Choked;
-    mode.walkways[MainShot::ArcRamp as usize] = Walkway::Sealed;
-    assert_eq!(mode.chokes(), 1);
-    assert_eq!(mode.open_shots().len(), 4);
+    mode.walkways[MainShot::DomeRamp as usize] = Walkway::Closed;
+    mode.walkways[MainShot::LeftOrbit as usize] = Walkway::Weakened;
+    mode.blocks[MainShot::ArcRamp as usize] = Some(1);
+    assert_eq!(mode.closures(), 1);
+    assert_eq!(mode.hittable_shots().len(), 4);
   }
 }

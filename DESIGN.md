@@ -69,12 +69,13 @@ Until the palettes exist, the recorded SFX stand in like this:
 | SFX | Used for |
 |---|---|
 | `steward-chime` | Before every Steward line |
-| `latch-heavy1`–`3` | First two `city_hit` steps; Meridian's gate clunk; Nimbus seals; a camera blinded |
+| `latch-heavy1`–`3` | First two `city_hit` steps; Meridian's gate clunk; Nimbus blocks; a camera blinded |
 | `impact-dirt` | Last `city_hit` step; spore burst; drone down; roots spread |
 | `impact-cinematic-heavy` | Choosing a mode in the menu; Gridlock; Floodgates and Derailment super jackpots |
 | `scan-light` | Ball start, with the status line |
 | `scan-heavy-stutter` | Surveillance set |
-| `woosh-light`, `latch-double` | Skyrail ramp (train past) and drop (signal clank); Nimbus reopen |
+| `woosh-light`, `latch-double` | Skyrail ramp (train past) and drop (signal clank) |
+| `error1` | Hitting a shot the Steward has blocked (Nimbus) |
 | `arp_hit1` | Burst ready, outlane lit, combo route made, ArcStreak reflex shot |
 | `cymbal-mid` | Each vertical spinner spin |
 
@@ -90,6 +91,9 @@ Until the palettes exist, the recorded SFX stand in like this:
   uses it.
 - **District accent colors** stay as they are now (Hydro cyan, Meridian orange, Nimbus magenta, Skyrail blue,
   Solarium purple), except **Apex changes from green to gold**, so green belongs only to the forest. Heartwood is lime.
+- **The Steward is red.** Anything the Steward does to the playfield (a blocked walkway, a watching camera) is lit red,
+  and red means the player can't make that shot count right now. No district or forest effect uses red.
+- **Lit means "hit this".** A shot stays lit only while hitting it does something. Once it's done, it goes dark.
 - **The system tick is 67ms** (about 15 updates a second), so anything strobing faster than about 7Hz aliases. Design
   around it.
 
@@ -240,12 +244,14 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
 
 **Nimbus Promenade: choke points.** The Steward is sealing the walkways between the pavilions to keep the forest out
 of the upper city.
-- All 6 main shots start lit. These are the open walkways.
-- Every few seconds the Steward seals one lit shot, and it goes dark. It never seals the last lit shot.
-- A lit shot is a hit: roots choke the walkway, and the shot stays green for the rest of the mode.
-- A sealed shot can't be choked. Hitting it reopens it and relights it.
-- Complete: choke 4 walkways. Nimbus is the gateway, so it's the easiest district.
-- Each hit of a Root Lash chokes a random open walkway.
+- All 6 main shots start lit magenta. These are the open walkways.
+- It takes 2 hits to close a walkway: the first weakens it (purple), and the second closes it (dark for the rest of
+  the mode). A closed shot isn't lit, so nothing lit is ever done.
+- Every few seconds the Steward blocks a walkway that isn't closed: it flashes red, then stays red for 8 seconds. It
+  never blocks the last one that can be hit. A blocked walkway keeps its progress for when the block lifts.
+- Hitting a blocked walkway does nothing but an error buzz, and the Steward says *"Restricted area."*
+- Complete: close 3 walkways. Nimbus is the gateway, so it's the easiest district.
+- Each hit of a Root Lash moves a random walkway on a step.
 
 **Apex Terraces: overload.** The forest feeds one terrace until it bursts.
 - One shot is lit gold, starting on a random main shot. Each hit on it fills one segment of its hex's outer ring.
@@ -570,8 +576,8 @@ A boardwalk of open-air pavilions high among the clouds. The main shots are the 
 | Phase | LEDs | Sound / callouts | DMD |
 |---|---|---|---|
 | Start | Magenta runs out from the center of the playfield along every main shot, lighting the walkways | S: *"The Promenade is closed for maintenance. Walkways will be sealed shortly."* | A map of walkways between pavilion lanterns |
-| Attention | Open walkways glow magenta with a slow shimmer. Before a seal, the target shot flickers for a moment, then snaps dark like a shutter coming down | Faint wind chimes; a shutter slam on each seal. S: *"Walkway four… sealed."* | Shutters drop over walkways |
-| Hit | Choke: growth bursts from the shot's center into its hex, and it stays green. Reopen: a sealed shot cracks open with a white flash and goes back to magenta | A thick wooden thump + the boardwalk splintering; reopen is a shutter tearing | Roots knot across the walkway |
+| Attention | Open walkways glow magenta and weakened ones purple, each with a slow shimmer. Before a block, the target shot flickers red for a moment, then stays red like a shutter coming down | Faint wind chimes; a metal latch on each block. S: *"Walkway four… sealed."* | Shutters drop over walkways |
+| Hit | Weaken: a purple flash and the shot goes purple. Close: growth bursts from the shot's center into its hex, then it goes dark. Blocked: a red flash | A thick wooden thump + the boardwalk splintering; a blocked shot is an error buzz and S: *"Restricted area."* | Roots knot across the walkway |
 | Intensity | A magenta haze (noise field) drifts over the shots that are still open. Seals come faster. 75%: the backbox speaker LEDs pulse with the music | The chimes detune; seals sound more frantic | Clouds roll in |
 | Completion | Every walkway floods green at once. A growth spreads from the roots in every direction, Nimbus lights on the map, and growth climbs to Skyrail and Apex | S: *"Access to the upper city is… restricted."* O: *"The way is open."* | Camera pans up to the upper districts |
 

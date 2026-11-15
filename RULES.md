@@ -47,8 +47,9 @@ Hit lit shots 6 times.
 **Hydro Core — cyan.** Make the combo in order: lift ramp, arc ramp, left orbit, center orbit, dome ramp. Each shot
 after the first has 25 seconds. Run out and the combo starts over, with 5 more seconds each try.
 
-**Nimbus Promenade — magenta.** Every shot is an open walkway. The Steward seals one at a time and it goes dark (it
-flickers first). Hit an open walkway to choke it green for good. Hit a sealed one to reopen it. Choke 4 walkways.
+**Nimbus Promenade — magenta.** Every shot is an open walkway. Hit a magenta walkway to weaken it (purple), then hit
+it again to close it (dark). The Steward blocks walkways for a few seconds, flashing them red first, and a red walkway
+can't be hit. Close 3 walkways.
 
 **Skyrail Station — blue.** Lift ramp, drops, lift ramp, drops, lift ramp. The third ramp shot adds a ball. Then hit
 5 drop targets to finish.

@@ -18,7 +18,8 @@ const HIGH_OVERGROWTH: usize = 3;
 #[derive(Default)]
 pub struct EndOfBallSystem {
   /// Players still to enter initials, in player order
-  initials_needed: Vec<(HighScoreSlot, &'static str, u64)>,
+  /// Each with the player's index (0 for player 1)
+  initials_needed: Vec<(HighScoreSlot, usize, u64)>,
 }
 
 impl EndOfBallSystem {
@@ -38,14 +39,15 @@ impl EndOfBallSystem {
     ctx.routines.complete_step::<TurnEnding>();
   }
 
-  fn on_game_end(&mut self, scores: &[(&'static str, u64)], ctx: &SystemContext) {
+  fn on_game_end(&mut self, scores: &[u64], ctx: &SystemContext) {
     self.initials_needed = match ctx.systems.get::<HighScoresSystem>() {
       Some(high_scores) => scores
         .iter()
-        .filter_map(|(name, score)| {
+        .enumerate()
+        .filter_map(|(player, score)| {
           high_scores
             .is_high_score(*score)
-            .map(|slot| (slot, *name, *score))
+            .map(|slot| (slot, player, *score))
         })
         .collect(),
       None => Vec::new(),
@@ -54,9 +56,9 @@ impl EndOfBallSystem {
   }
 
   fn get_next_initials(&mut self, ctx: &SystemContext) {
-    if let Some(&(_, name, _)) = self.initials_needed.first() {
+    if let Some(&(_, player, _)) = self.initials_needed.first() {
       ctx.systems.spawn(InitialsEntrySystem::new(
-        name,
+        format!("Player {}", player + 1),
         cabinet::LEFT_FLIPPER_SWITCH1.q(),
         cabinet::RIGHT_FLIPPER_SWITCH1.q(),
         SwitchQ::any(vec![

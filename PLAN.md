@@ -47,7 +47,8 @@ The game is built with the default for each of these. Once confirmed, the answer
 - [ ] The pass lane save catches what it's meant to.
 - [ ] The hand-written stand-in scenes: `shared/flash`, `shared/fill`, `shared/heartbeat`, `shared/glow`,
       `mode_progress`, `side/charge_ray`, `side/burst_ready`, `side/burst`, `apex_terraces/ring`, `blackout/lit`, and
-      Nimbus's `seal_warning` (a 5Hz magenta flicker) with its green choke and white reopen flashes.
+      Nimbus's `block_warning` (a 5Hz red flicker) with its purple, green and red flashes. Check that magenta and the
+      weakened purple (120, 0, 255) are easy to tell apart on the hex centers.
 - [ ] Tune by ear: chime gap, `city_hit` steps, the 3s wait, and Meridian's gate clunk every 2.25s.
 
 ## 1.2 Hardware layer
@@ -186,11 +187,17 @@ rising in pitch per shot (`loop`, plus pitch control or 5 stepped files), power 
 | Phase | LEDs now | Sound now |
 |---|---|---|
 | Start | = Magenta from mid-playfield out along the shots, using `Sweep`s to each hex | `promenade-closed`, `walkways-will-be-sealed` |
-| Hit | = Choke: burst from center to hex, stays green | `city_hit`. Tearing SFX missing |
+| Hit | ≈ Weaken: purple flash, then purple glow. ≈ Close: green flash, then dark. ≈ Blocked: red flash | `city_hit`; blocked is `error1` and `restricted-area`. Tearing SFX missing |
+| Block | ≈ `block_warning` red flicker for 1s, then solid red for 8s | `latch-heavy`, and `walkway-4-sealed` on the center orbit |
 | Intensity | ≈ Haze: a few `Random` magenta blobs, masked to open shots. ≈ 75%: speakers on a `heartbeat` at the track's rough tempo | Detuned chimes missing |
 | Completion | ≈ `takeover` in every direction, Nimbus map insert lights, then `surge`s to the Skyrail and Apex inserts | `access-to-upper-city-restricted`, `oak/the-way-is-open` |
 
-**DMD now:** card "NIMBUS PROMENADE", and a row of 6 pips (open / sealed / choked) drawn on the canvas.
+**DMD to build:** the lights alone don't tell the player enough, so the DMD has to carry the mode. It needs three
+moments:
+
+- **Walkway closed:** an animation (roots knotting across it) with a satisfying sound.
+- **Walkway blocked:** an animation (a shutter dropping) alongside the metal latch.
+- **Progress:** which walkways are open, weakened, closed and blocked, and how many of the 3 are closed.
 
 **Still to record:** "Walkway N… sealed" for 1, 2, 3, 5, 6.
 

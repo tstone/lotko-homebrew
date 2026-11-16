@@ -37,6 +37,7 @@ A 3-ball multiball, carried over from Canopy.
 - **Turbines:** the spinners and pops light up as they spin, and the faster the value builds, the faster the breathing.
 - **Vent:** a rush of light from the ramp, sweeping across the playfield.
 - **Completion:** the breathing turns from the city's colors to the forest's green.
+- **Idea from Canopy:** a forest field that climbs the playfield and carries on up into the backbox and the speaker rings.
 
 ## Sound
 

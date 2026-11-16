@@ -4,6 +4,7 @@ use frontbox_led::prelude::*;
 use frontbox_pinball::{BallManagementExt, BallManager, GameManagementExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
+use crate::hardware::main_shot::MainShotHit;
 use crate::hardware::pop_cluster::{self, PopBumper};
 use crate::systems::game::side_quests::SentinelsDispatched;
 use crate::systems::game::{
@@ -17,8 +18,8 @@ const SWITCHES_TO_ENABLE: u32 = 40;
 /// Every this many sets lights an outlane save
 const SETS_PER_OUTLANE: u8 = 3;
 
-/// How long the cameras can go without one being blinded before the Steward dispatches the Sentinels (start value)
-const DEADLINE: Duration = Duration::from_secs(60);
+/// Main shots the cameras can go without one being blinded before the Steward dispatches the Sentinels (start value)
+const DEADLINE: u8 = 12;
 
 /// The Steward watches the pops through a camera on each pop target (DESIGN.md, Surveillance). The cameras come online
 /// after [`SWITCHES_TO_ENABLE`] playfield switch hits, and stay on for the rest of the player's game. A watching
@@ -26,9 +27,10 @@ const DEADLINE: Duration = Duration::from_secs(60);
 /// back on, each needing one more hit than before, and the set counts as a lit shot toward the scoop. Every third set
 /// lights an outlane save.
 ///
-/// Once online, a camera has to be blinded at least every [`DEADLINE`]. If none is, the Steward dispatches the
-/// Sentinels ([`SentinelsDispatched`]), as soon as nothing that uses the drops or adds balls is running. The deadline
-/// starts over with each ball, and once the Sentinels are gone.
+/// Once online, a camera has to be blinded at least every [`DEADLINE`] main shots. If none is, the Steward dispatches
+/// the Sentinels ([`SentinelsDispatched`]), as soon as nothing that uses the drops or adds balls is running. The deadline
+/// starts over with each ball, and once the Sentinels are gone. Counting shots rather than time means a ball held in a
+/// scoop or cradled doesn't count against the player.
 ///
 /// Belongs in the player template.
 #[derive(Clone)]
@@ -36,8 +38,8 @@ pub struct SurveillanceSystem {
   /// Playfield switch hits so far, counting up to [`SWITCHES_TO_ENABLE`]
   switches: u32,
   cameras: Cameras,
-  /// Runs out at the deadline, while it's counting down
-  deadline_cue: Option<u64>,
+  /// Main shots left until the deadline, while it's counting down
+  deadline: Option<u8>,
   /// The deadline passed, and the Sentinels go out once they can
   dispatch_pending: bool,
 }
@@ -47,7 +49,7 @@ impl SurveillanceSystem {
     Self {
       switches: 0,
       cameras: Cameras::new(),
-      deadline_cue: None,
+      deadline: None,
       dispatch_pending: false,
     }
   }
@@ -67,7 +69,7 @@ impl SurveillanceSystem {
     log::info!("Surveillance: enabled");
     ctx.say(Callout::SurveillanceEnabled);
     ctx.play_scene(&completing_scene!("side/surveillance_enabled.scene"));
-    self.restart_deadline(ctx);
+    self.restart_deadline();
     self.render(ctx);
   }
 
@@ -86,8 +88,8 @@ impl SurveillanceSystem {
 
     log::info!("Surveillance: {pop:?} camera blinded");
     ctx.play_sfx(sounds::rnd_latch());
-    if self.deadline_cue.is_some() {
-      self.restart_deadline(ctx);
+    if self.deadline.is_some() {
+      self.restart_deadline();
     }
     if self.cameras.all_blinded() {
       self.on_set(ctx);
@@ -119,33 +121,33 @@ impl SurveillanceSystem {
     }
   }
 
-  fn restart_deadline(&mut self, ctx: &SystemContext) {
-    if let Some(cue) = self.deadline_cue.take() {
-      ctx.cues.cancel(cue);
+  fn restart_deadline(&mut self) {
+    self.deadline = Some(DEADLINE);
+  }
+
+  /// A main shot brings the deadline one closer
+  fn on_main_shot(&mut self) {
+    let Some(left) = self.deadline else {
+      return;
+    };
+    if left > 1 {
+      self.deadline = Some(left - 1);
+    } else {
+      self.on_deadline_passed();
     }
-    self.deadline_cue = Some(ctx.cues.start(DeadlinePassed, DEADLINE.once()));
   }
 
   fn on_deadline_passed(&mut self) {
-    self.deadline_cue = None;
-    log::info!("Surveillance: no camera blinded in {DEADLINE:?}, the Sentinels are coming");
+    self.deadline = None;
+    log::info!("Surveillance: no camera blinded in {DEADLINE} shots, the Sentinels are coming");
     self.dispatch_pending = true;
   }
 
   /// The Sentinels wait for a single ball loose on the playfield, and nothing running that they'd get in the way of
   fn can_dispatch(&self, ctx: &SystemContext) -> bool {
-    let held = ctx
-      .systems
-      .get::<BallManager>()
-      .is_some_and(|ball_manager| ball_manager.balls_held() > 0);
-    let menu_open = ctx
-      .systems
-      .get::<ModeSelectSystem>()
-      .is_some_and(|menu| menu.is_menu_open());
     ctx.systems.expect::<ModeManager>().sentinels_can_take_over()
       && ctx.balls_in_play() <= 1
-      && !held
-      && !menu_open
+      && !ball_waiting(ctx)
   }
 
   fn dispatch(&mut self, ctx: &SystemContext) {
@@ -157,9 +159,7 @@ impl SurveillanceSystem {
     {
       self.dispatch_pending = false;
       // the cameras get a full deadline once the Sentinels are gone
-      if let Some(cue) = self.deadline_cue.take() {
-        ctx.cues.cancel(cue);
-      }
+      self.deadline = None;
       ctx.emit(SentinelsDispatched);
     }
   }
@@ -186,14 +186,16 @@ impl System for SurveillanceSystem {
   fn on_reactivate(&mut self, ctx: &SystemContext) {
     ctx.activate_led_declarations();
     if self.is_enabled() {
-      self.restart_deadline(ctx);
+      self.restart_deadline();
     }
     self.render(ctx);
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
-    if event.is::<DeadlinePassed>() {
-      self.on_deadline_passed();
+    if event.is::<MainShotHit>() {
+      if self.is_enabled() {
+        self.on_main_shot();
+      }
       return;
     }
     let Some(closed) = event.downcast_ref::<SwitchClosed>() else {
@@ -220,17 +222,27 @@ impl System for SurveillanceSystem {
       if self.can_dispatch(ctx) {
         self.dispatch(ctx);
       }
-    } else if self.deadline_cue.is_none()
+    } else if self.deadline.is_none()
       && !ctx.systems.expect::<ModeManager>().sentinels_running()
     {
       // the Sentinels are gone, so the cameras get a full deadline again
-      self.restart_deadline(ctx);
+      self.restart_deadline();
     }
   }
 }
 
-#[derive(serde::Serialize, Event)]
-struct DeadlinePassed;
+/// A ball held in a scoop, or the mode select menu up: play is waiting on it
+fn ball_waiting(ctx: &SystemContext) -> bool {
+  let held = ctx
+    .systems
+    .get::<BallManager>()
+    .is_some_and(|ball_manager| ball_manager.balls_held() > 0);
+  let menu_open = ctx
+    .systems
+    .get::<ModeSelectSystem>()
+    .is_some_and(|menu| menu.is_menu_open());
+  held || menu_open
+}
 
 /// The hits on each camera this set, in [`PopBumper::ALL`] order
 #[derive(Debug, Clone)]

@@ -146,7 +146,7 @@ impl ModeManager {
     self.progression.is_all_open()
   }
 
-  // For Steward integrity (PLAN.md, 1.4)
+  // For Steward integrity (TODO.md, Sound)
   #[allow(dead_code)]
   pub fn districts_played(&self) -> usize {
     self.progression.districts_played()

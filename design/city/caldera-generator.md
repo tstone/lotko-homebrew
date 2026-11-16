@@ -32,6 +32,7 @@ The lights going out. The grid goes black sector by sector, and as it does the S
 - A heavy clunk as each sector goes dark.
 - A descending power-down whine.
 - The Steward breaking up more with each sector. Only "System 67 invalid" is recorded so far.
+- A high score for the fastest Blackout, which is lower-is-better.
 
 ## Display
 

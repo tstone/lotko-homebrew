@@ -16,6 +16,8 @@ The forest's second progression, alongside the climb through the city. Where the
 
 To flesh out.
 
+Presentation still to do: when the roots spread, a surge from the orbit to the map, the roots growing along the ring, and the sound of dirt.
+
 ## Open questions
 
 - What the roots grow toward: levels, rewards, or a mode of their own.

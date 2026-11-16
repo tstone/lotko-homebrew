@@ -14,7 +14,7 @@ use crate::systems::game::{
 };
 use crate::systems::sounds;
 
-/// The orbits, which each grow roots (PLAN.md, decision 8)
+/// The orbits, which each grow roots (TODO.md, decision 8)
 const ORBITS: [MainShot; 3] = [
   MainShot::LeftOrbit,
   MainShot::CenterOrbit,

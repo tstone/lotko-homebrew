@@ -378,7 +378,7 @@ A takeover mode: the city's drones are the drop targets.
 - Outside the Sentinels the drops only score consolation points.
 - **Rewards, for now:** every 2 drones downed lights a lock (1 with the Skyrail perk), and 5 / 10 / 15 drones give
   points, then extra ball lit (see Extra balls), then TBD. These came from when the drones were a side quest, and need
-  revisiting now that they're a punishment (see PLAN.md, decision 15).
+  revisiting now that they're a punishment (see design/steward/sentinels.md).
 
 ### Heartwood (captive ball)
 

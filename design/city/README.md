@@ -1,6 +1,6 @@
 # The city
 
-The main progression: the forest climbs Cascadia Prime one place at a time. One file per place. Each says what the place is, how its mode plays, and how the lights, sound and display sell it. The story behind the city is in [PLACES.md](../../PLACES.md).
+The main progression: the forest climbs Cascadia Prime one place at a time. One file per place. Each says what the place is, how its mode plays, and how the lights, sound and display sell it. The story behind the city is in [story.md](../story.md).
 
 Work through a place in this order:
 

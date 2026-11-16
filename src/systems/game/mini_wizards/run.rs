@@ -9,8 +9,9 @@ use crate::systems::game::{MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, poin
 ///
 /// - Tier 1 is 2-ball and tier 2 is 3-ball. The extra balls launch once the ball leaves the scoop, and the ball save is
 ///   timed from when they're in play.
-/// - It ends when a drain that stands leaves one ball or none (decision 5). It counts as played, and if it wasn't
-///   completed it stays in the menu to resume, keeping its progress.
+/// - It ends when a drain that stands leaves one ball or none (decision 5), unless it keeps going on one ball
+///   ([`Mode::ends_with_multiball`]). It counts as played, and if it wasn't completed it stays in the menu to resume,
+///   keeping its progress.
 /// - What it scores is its total, for its high score.
 ///
 /// The mini-wizard's system calls it from the same places as a [`ModeRun`], and scores through [`Self::score`].
@@ -36,7 +37,7 @@ impl MiniWizardRun {
   }
 
   /// What it has scored, over every run of it this game
-  // For the mini-wizard high scores (PLAN.md, Part 5)
+  // For the mini-wizard high scores (TODO.md, High scores)
   #[allow(dead_code)]
   pub fn total(&self) -> u64 {
     self.total
@@ -70,6 +71,7 @@ impl MiniWizardRun {
     } else if let Some(done) = event.downcast_ref::<RoutineCompleted<BallDraining>>()
       && done.completion == RoutineCompletion::AllSteps
       && done.routine.in_play <= 1
+      && self.mode.ends_with_multiball()
     {
       log::info!("{:?}: ended, {} scored so far", self.mode, self.total);
       ctx

@@ -62,6 +62,11 @@ impl Mode {
     )
   }
 
+  /// A mini-wizard ends when play is back to one ball, except one that carries on until it's completed or the turn ends
+  pub fn ends_with_multiball(&self) -> bool {
+    *self != Self::HelixVaults
+  }
+
   /// Uses the drop targets or puts more balls in play, so the Sentinels wait for it to end: Skyrail (drops, then a
   /// second ball) and every mini-wizard (multiball)
   pub fn uses_drops_or_balls(&self) -> bool {
@@ -225,7 +230,7 @@ pub enum ModeState {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize)]
 pub enum Multiball {
   Heartwood,
-  // Comes with the Groundswell lock (PLAN.md, Part 4)
+  // Comes with the Groundswell lock (design/multiballs.md)
   #[allow(dead_code)]
   Groundswell,
 }

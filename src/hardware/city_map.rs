@@ -68,7 +68,7 @@ pub fn spore_count_scene(color: Rgba<u8>, progress: f32) -> PlayableScene {
 }
 
 /// Shows a mode's `progress`, from 0 to 1, on the spore count bar for a moment, over the charge it shows the rest of
-/// the time (PLAN.md, decision 3)
+/// the time (TODO.md, decision 3)
 pub fn mode_progress_scene(color: Rgba<u8>, progress: f32) -> PlayableScene<Completes> {
   let lit = (progress * SPORE_COUNT_LEDS).round();
   completing_scene!("mode_progress.scene")

@@ -1,18 +1,22 @@
 # Design
 
-How Last of the Kilmore Oaks plays, and how the lights, sound and display tell its story. The story behind the city is in [PLACES.md](../PLACES.md).
+How Last of the Kilmore Oaks plays, and how the lights, sound and display tell its story.
 
-Where these files disagree with `PLAN.md` or `DESIGN.md`, these files win. Those were written before the scene system.
+Where these files disagree with `DESIGN.md`, these files win, as it was written before the scene system. Engineering to-dos and open decisions are in `TODO.md`.
 
 | Section | What it covers |
 |---|---|
+| [story.md](story.md) | The city, the Steward and the forest |
 | [city/](city/README.md) | The main progression: the forest climbs the city one place at a time |
 | [roots/](roots/README.md) | The forest's second progression: spreading its roots |
 | [steward/](steward/README.md) | The negative progression: the Steward watching, then sending the Sentinels |
 | [shots/](shots/README.md) | Skill shots that run alongside everything: combos and reflex shots |
+| [multiballs.md](multiballs.md) | Groundswell and Heartwood |
+| [moments.md](moments.md) | Attract, game and ball start, saves, drains, tilts, game over and the speaker rings |
 | [mystery.md](mystery.md) | The secrets the climb reveals, and the clues along the way |
+| [playfield.md](playfield.md) | Changes needed on the next version of the playfield |
 
-Not yet placed in a section: Charge (spores and the spore burst), Heartwood, Groundswell, outlane saves, skill shots at the plunge, and extra balls.
+Not yet placed in a section: Charge (spores and the spore burst), skill shots at the plunge, and extra balls.
 
 ## How the game tells its story
 

@@ -47,6 +47,7 @@ Clues other places could drop:
 - Glass groaning, then cracking louder with each hit.
 - A huge shatter with falling glass.
 - Recorded: `atrium-integrity-verified`, `atrium-integrity-failing`, `test-lab-shutdown-initiated`, `atrium-containment-enacted`, `the-science-will-not-be-lost`, `oak/open-sky`.
+- Still to record: "There is nothing on the… glass", with a stutter.
 
 ## Display
 

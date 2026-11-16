@@ -38,6 +38,7 @@ Without the power, the lights shouldn't go dark here. That belongs to the Calder
 - A deep hum that rises with each pipe taken.
 - Klaxons as the pressure drops.
 - Recorded: `coolant-core-dropping`, `core-temperature-rising`, `core-offline`, `oak/drink`. "Coolant" and "core offline" lean toward power, so they may need re-recording around water pressure.
+- Still to record: "Engineers to the pipes."
 
 ## Display
 

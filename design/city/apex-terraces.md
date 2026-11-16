@@ -35,6 +35,7 @@ The theme to work out. One reading: the lift ramp in its up position is the lift
 - Clean, expensive chimes, going out of tune as the terraces fall.
 - Creaks and cracking stone with each hit.
 - Recorded: `residents-evacuate-now`, `apex-terraces-offline`, `oak/nothing-is-yours`.
+- Written but not recorded: "Please keep off the terraces", "Terrace three: structural concern", "This is a… premium… area".
 
 ## Display
 

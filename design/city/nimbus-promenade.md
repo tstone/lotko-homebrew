@@ -44,6 +44,7 @@ The scan carries the mode.
 
 - Start: the shutters dropping across the walkways.
 - Complete: the shutters torn open and the way up to the upper city.
+- Idea: if the lights alone don't tell the player enough, the DMD can show a walkway being forced or shut again, and which walkways are open.
 
 ## Open questions
 

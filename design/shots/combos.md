@@ -26,3 +26,14 @@ The forest is learning the city's roads. A combo is a 2- or 3-shot route made in
 ## Direction
 
 To flesh out.
+
+## Presentation
+
+| Moment | Lighting | Sound |
+|---|---|---|
+| In progress | Light flows along the route toward the flipper, and the shots that continue it blink green. A speaker ring counts down the window | An engine note |
+| Route made | A green surge from shot to shot along the route | A horn and a screech |
+| Gridlock | All the routes light, the shots stall red and pulse, then go green | `oak/stay`, and a city-wide jam of horns |
+
+- Still to record: a line for each route, and one for Gridlock.
+- Display: a card for each route, shared by all 8.

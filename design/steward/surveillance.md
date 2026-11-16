@@ -11,13 +11,18 @@ The Steward watches the pops through three cameras, one on each pop target.
 - Blinding all 3 is a set. The cameras come back on, and each set needs one more hit per camera than the last.
 - Each set counts as one lit shot toward lighting the left scoop, between modes only.
 - Every third set lights an outlane save on a side that isn't already lit.
-- **The Steward is watching.** Once the cameras are online, one has to be blinded at least once a minute. Each blinded camera starts the minute over, and so does each new ball. If a minute passes without one, the Steward sends the Sentinels.
+- **The Steward is watching.** Once the cameras are online, one has to be blinded at least every 12 main shots. Each blinded camera starts the count over, and so does each new ball. If 12 main shots go by without one, the Steward sends the Sentinels. Counting shots rather than time means a ball held in a scoop or cradled doesn't count against the player.
 
 ## Direction
 
 To flesh out.
 
+Presentation still to do:
+
+- Scan slowly across the cameras rather than holding a steady red, and glitch with static when one is hit.
+- Sound: a camera whir, and a lens cracking when one is blinded.
+
 ## Open questions
 
 - If the Sentinels move to the pops, the pops serve both the cameras and the drones. How the player tells them apart.
-- Whether the one-minute deadline feels fair. It's wall-clock time, so cradling counts against the player.
+- Whether 12 main shots is the right deadline.

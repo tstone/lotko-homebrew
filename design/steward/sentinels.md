@@ -18,6 +18,13 @@ The city's drones. When Surveillance goes unchecked, the Steward sends them, and
 
 - **Use the pops as the targets instead of the drops.** Pops are more dangerous, which fits drones, and it leaves the drops for places such as Cargo Quay.
 
+Presentation still to do:
+
+- Their own music, an alarm when they're sent, and a sting when they're defeated. A drone whine under them.
+- A spark when a drone goes down.
+- Display: a screen when they're sent, and how many drones are left.
+- Check that the red half of the GI reads well.
+
 ## Open questions
 
 - The pops are also Surveillance's cameras. How the two stay distinct.

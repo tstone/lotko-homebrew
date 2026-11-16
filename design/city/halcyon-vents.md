@@ -54,5 +54,5 @@ The plant has an obvious background sound: the deep hum of turbines and the rush
 ## Open questions
 
 - Its color.
-- Apex Terraces has wind scrubbers in its story, which overlap with this place. One of them may need to drop them.
+- It's in tier 3, on the mountain beside Apex Terraces, and takes over the wind scrubbers from Apex's story. Apex's file still needs them taken out.
 - Whether it stays a multiball.

@@ -1,6 +1,6 @@
 # Meridian Basins
 
-**Status:** designed. Ready to build.
+**Status:** built, except the DMD animations. Scenes are first drafts to tune by hand.
 
 ## The place
 

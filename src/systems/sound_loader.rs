@@ -51,6 +51,10 @@ pub mod sounds {
   pub const WOOSH_LIGHT: &str = "woosh_light";
   pub const CYMBAL_MID: &str = "cymbal_mid";
   pub const ERROR1: &str = "error1";
+  pub const PRESSURE_RELEASE_LIGHT: &str = "pressure_release_light";
+  pub const GUITAR_SWELL: &str = "guitar_swell";
+  pub const SLIME: &str = "slime";
+  pub const SLIME2: &str = "slime2";
 
   pub const LANE_HITS: LazyLock<Vec<&'static str>> =
     LazyLock::new(|| vec![LANE_HIT1, LANE_HIT2, LANE_HIT3, LANE_HIT4]);
@@ -134,6 +138,11 @@ pub mod sounds_bytes {
   pub static WOOSH_LIGHT: &[u8] = include_bytes!("../assets/sfx/woosh-light.mp3");
   pub static CYMBAL_MID: &[u8] = include_bytes!("../assets/sfx/cymbal-mid.mp3");
   pub static ERROR1: &[u8] = include_bytes!("../assets/sfx/error1.mp3");
+  pub static PRESSURE_RELEASE_LIGHT: &[u8] =
+    include_bytes!("../assets/sfx/pressure-release-light.mp3");
+  pub static GUITAR_SWELL: &[u8] = include_bytes!("../assets/sfx/guitar-swell.mp3");
+  pub static SLIME: &[u8] = include_bytes!("../assets/sfx/slime.mp3");
+  pub static SLIME2: &[u8] = include_bytes!("../assets/sfx/slime2.mp3");
 }
 
 impl System for SoundLoaderSystem {
@@ -187,6 +196,13 @@ impl System for SoundLoaderSystem {
     snd.preload_embedded(sounds::WOOSH_LIGHT, sounds_bytes::WOOSH_LIGHT);
     snd.preload_embedded(sounds::CYMBAL_MID, sounds_bytes::CYMBAL_MID);
     snd.preload_embedded(sounds::ERROR1, sounds_bytes::ERROR1);
+    snd.preload_embedded(
+      sounds::PRESSURE_RELEASE_LIGHT,
+      sounds_bytes::PRESSURE_RELEASE_LIGHT,
+    );
+    snd.preload_embedded(sounds::GUITAR_SWELL, sounds_bytes::GUITAR_SWELL);
+    snd.preload_embedded(sounds::SLIME, sounds_bytes::SLIME);
+    snd.preload_embedded(sounds::SLIME2, sounds_bytes::SLIME2);
 
     for line in Callout::ALL {
       snd.preload_embedded(line.key(), line.bytes());

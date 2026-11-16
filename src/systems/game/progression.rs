@@ -7,15 +7,27 @@ use crate::systems::game::{Mode, ModeState, Perk};
 #[derive(Debug, Clone)]
 pub struct Progression {
   states: HashMap<Mode, ModeState>,
+  /// For testing: every mode can be chosen, wherever the route has got to
+  all_open: bool,
 }
 
 impl Progression {
   pub fn new() -> Self {
     let mut progression = Self {
       states: HashMap::new(),
+      all_open: false,
     };
     progression.open(&[Mode::MeridianBasins, Mode::HydroCore]);
     progression
+  }
+
+  /// For testing: lists every mode that isn't completed, and lets any of them start
+  pub fn open_all(&mut self) {
+    self.all_open = true;
+  }
+
+  pub fn is_all_open(&self) -> bool {
+    self.all_open
   }
 
   pub fn state(&self, mode: Mode) -> ModeState {
@@ -29,6 +41,13 @@ impl Progression {
   /// What can be chosen, as the rows of the mode select menu: what's open on the route, then what's unfinished.
   /// `running` is left out, as it can't be resumed.
   pub fn available_modes(&self, running: Option<Mode>) -> Vec<Mode> {
+    if self.all_open {
+      return ROUTE
+        .iter()
+        .flat_map(|step| step.iter().copied())
+        .filter(|mode| self.state(*mode) != ModeState::Completed && Some(*mode) != running)
+        .collect();
+    }
     let with_state = |state| {
       ROUTE
         .iter()
@@ -51,6 +70,11 @@ impl Progression {
   /// Mark a mode as started. The first time, that closes the rest of its step and opens the next one. After that it's
   /// being resumed, which changes nothing.
   pub fn start(&mut self, mode: Mode) {
+    // one started off the route is marked played, so it's resumed rather than started again
+    if self.all_open && self.state(mode) == ModeState::Unplayed {
+      self.states.insert(mode, ModeState::Played);
+      return;
+    }
     if self.state(mode) != ModeState::Available {
       return;
     }
@@ -117,7 +141,7 @@ impl Progression {
 const ROUTE: [&[Mode]; 6] = [
   &[Mode::MeridianBasins, Mode::HydroCore],
   &[Mode::NimbusPromenade],
-  &[Mode::Floodgates, Mode::Blackout],
+  &[Mode::HelixVaults, Mode::Blackout],
   &[Mode::SkyrailStation, Mode::ApexTerraces],
   &[Mode::SolariumAtrium],
   &[Mode::Derailment, Mode::Canopy],
@@ -164,6 +188,27 @@ mod tests {
   }
 
   #[test]
+  fn with_all_open_every_mode_but_the_running_and_completed_is_listed() {
+    let mut progression = Progression::new();
+    progression.open_all();
+    progression.complete(Mode::HydroCore);
+
+    let available = progression.available_modes(Some(Mode::Canopy));
+    assert_eq!(available.len(), 8);
+    assert!(available.contains(&Mode::SolariumAtrium));
+    assert!(!available.contains(&Mode::HydroCore));
+    assert!(!available.contains(&Mode::Canopy));
+  }
+
+  #[test]
+  fn with_all_open_a_mode_off_the_route_is_marked_played_when_started() {
+    let mut progression = Progression::new();
+    progression.open_all();
+    progression.start(Mode::SkyrailStation);
+    assert_eq!(progression.state(Mode::SkyrailStation), ModeState::Played);
+  }
+
+  #[test]
   fn a_completed_mode_is_not_listed() {
     let mut progression = Progression::new();
     progression.start(Mode::HydroCore);
@@ -197,7 +242,7 @@ mod tests {
     progression.start(Mode::NimbusPromenade);
 
     assert!(progression.mini_wizard_available());
-    assert_eq!(progression.state(Mode::Floodgates), ModeState::Available);
+    assert_eq!(progression.state(Mode::HelixVaults), ModeState::Available);
     assert_eq!(progression.state(Mode::Blackout), ModeState::Unplayed);
   }
 

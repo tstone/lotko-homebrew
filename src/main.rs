@@ -8,6 +8,7 @@ use frontbox_pinball::*;
 use frontbox_sound::SoundSystem;
 use std::io::Write;
 
+mod configs;
 #[macro_use]
 mod led_scenes;
 mod systems;

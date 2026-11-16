@@ -5,7 +5,7 @@ use frontbox_display::menu::*;
 use frontbox_pinball::configs;
 
 pub static MENU: LazyLock<MenuSection> = LazyLock::new(|| {
-  MenuSection::root()
+  let menu = MenuSection::root()
     .section(
       MenuSection::new("Hardware")
         .section(
@@ -42,9 +42,12 @@ pub static MENU: LazyLock<MenuSection> = LazyLock::new(|| {
       configs::MAX_EXTRA_BALLS.display(),
       configs::TILT_WARNINGS.display(),
       configs::TILT_WARNINGS_PER_TURN.display(),
-    ]))
-    .section(MenuSection::new("Rules"))
-    .section(MenuSection::new("Stats"))
-    .terminate()
-    .shutdown()
+    ]));
+  // for testing, so only where it does anything
+  let menu = if cfg!(debug_assertions) {
+    menu.section(MenuSection::new("Modes").configs(vec![crate::configs::ALL_MODES_OPEN.display()]))
+  } else {
+    menu
+  };
+  menu.section(MenuSection::new("Stats")).terminate().shutdown()
 });

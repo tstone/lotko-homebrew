@@ -1,29 +1,619 @@
 Scene(
   version: 2,
   timing: (
-    duration: 0.185,
-    cycle: Times(4),
+    duration: 3.2,
+    cycle: Once,
   ),
   layers: [
     Leds(
       leds: Tag("Playfield"),
-      z: -1,
-      surface: Sequence,
+      z: 30,
+      surface: Area("Playfield"),
       layer: (
         fill: (
-          base: Solid(Fixed(255, 110, 0, 255)),
+          base: Solid(Fixed(80, 255, 40, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.05,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.9,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(14.0, 18.0)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.5,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.7,
+                  value: 8.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(1.5),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(80, 255, 40, 255)),
           adjust: [
             Opacity(Keyframes(
               keys: [
                 (
                   at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.2,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.25,
                   value: 1.0,
                   curve: Linear,
                 ),
                 (
-                  at: 0.185,
+                  at: 1.1,
                   value: 0.0,
-                  curve: EaseInOut,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(4.0, 8.0)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (
+                  at: 0.2,
+                  value: 0.5,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.9,
+                  value: 8.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(1.5),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(80, 255, 40, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.35,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.4,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.25,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(16.0, 10.0)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (
+                  at: 0.35,
+                  value: 0.5,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.05,
+                  value: 8.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(1.5),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(80, 255, 40, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.5,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.55,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.4,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(3.5, 23.0)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (
+                  at: 0.5,
+                  value: 0.5,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.2,
+                  value: 8.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(1.5),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(80, 255, 40, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.65,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.7,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.55,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(17.0, 25.0)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (
+                  at: 0.65,
+                  value: 0.5,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.35,
+                  value: 8.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(1.5),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(80, 255, 40, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.8,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.85,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.7,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(9.5, 30.0)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (
+                  at: 0.8,
+                  value: 0.5,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.5,
+                  value: 8.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(1.5),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(80, 255, 40, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.95,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.85,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(5.0, 36.0)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (
+                  at: 0.95,
+                  value: 0.5,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.65,
+                  value: 8.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(1.5),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(80, 255, 40, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.1,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.15,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(15.5, 38.0)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (
+                  at: 1.1,
+                  value: 0.5,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.8,
+                  value: 8.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(1.5),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(80, 255, 40, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.25,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.3,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.15,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(10.0, 42.0)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (
+                  at: 1.25,
+                  value: 0.5,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.95,
+                  value: 8.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(1.5),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 29,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(0, 255, 40, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.4,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.4,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.2,
+                  value: 0.0,
+                  curve: Linear,
                 ),
               ],
               cycle: Once,

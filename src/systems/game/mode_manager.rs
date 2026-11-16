@@ -6,7 +6,7 @@ use frontbox_led::prelude::*;
 use frontbox_pinball::{TurnEnding, TurnStarting};
 use frontbox_sound::{SoundSystem, SoundSystemExt};
 
-use crate::metrics;
+use crate::{configs, metrics};
 use crate::systems::game::{Mode, ModeState, Multiball, Perk, Progression, music_file};
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -139,6 +139,11 @@ impl ModeManager {
 
   pub fn mini_wizard_available(&self) -> bool {
     self.progression.mini_wizard_available()
+  }
+
+  /// For testing, every mode is open this game, and the scoop needs no qualifying
+  pub fn all_modes_open(&self) -> bool {
+    self.progression.is_all_open()
   }
 
   // For Steward integrity (PLAN.md, 1.4)
@@ -398,6 +403,10 @@ impl ModeManager {
 impl System for ModeManager {
   fn on_spawn(&mut self, ctx: &SystemContext) {
     self.handle = ctx.handle();
+    if configs::all_modes_open(ctx) {
+      log::info!("ModeManager: all modes are open for testing");
+      self.progression.open_all();
+    }
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
@@ -497,7 +506,7 @@ mod tests {
     );
     // nothing recorded for this one yet, so it's the default rather than the multiball's
     assert_eq!(
-      music_for(Some(Mode::Floodgates), Some(Multiball::Heartwood)),
+      music_for(Some(Mode::Canopy), Some(Multiball::Heartwood)),
       music_file("colyn-rushing.mp3")
     );
   }

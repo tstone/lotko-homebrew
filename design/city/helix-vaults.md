@@ -1,6 +1,6 @@
 # Helix Vaults
 
-**Status:** place and gameplay set, lighting being worked through. Tier 2.
+**Status:** built, except the DMD and the bubbling on the orbits. Scenes are first drafts to tune by hand. Tier 2, though it still sits in Floodgates' old slot after Meridian until the map is reworked.
 
 ## The place
 
@@ -58,9 +58,9 @@ The vats have an obvious sound, so there's a bed under the mode: bubbling.
 
 | Moment | Voice | Line | Recorded |
 |---|---|---|---|
-| Start | Steward | "Containment nominal." | No |
+| Start | Steward | "Containment nominal." | `helix/containment-nominal` |
 | Rupture ready | Oak | "Shoot the ramps." | `shoot-the-ramps` |
-| Rupture | Steward | "Containment breach. Specimen line K…" (cuts off) | No |
+| Rupture | Steward | "Containment breach." | `helix/containment-breach` |
 | Completion | Steward | To decide: a line that says too much | No |
 | Completion | Oak | "Open the gates." or a new line | `oak/open-the-gates` |
 
@@ -72,8 +72,8 @@ The vats have an obvious sound, so there's a bed under the mode: bubbling.
 
 ## Open questions
 
-- N, the orbit hits per rupture. Floodgates used 8.
-- Which ramp lights for a rupture: a set one, a random one, or each ramp once.
+- N, the orbit hits per rupture. Built with 8, as Floodgates had.
+- Which ramp lights for a rupture. Built as each ramp once, in a random order.
 - Lime is Heartwood's color. Either the ramps need another shade, or Heartwood shares it.
 - The completion lines, and how much they reveal.
 - Whether it stays a multiball.

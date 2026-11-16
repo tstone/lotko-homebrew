@@ -1,0 +1,155 @@
+Scene(
+  version: 2,
+  params: {
+    "origin": Vec2(10.125, 22.5),
+  },
+  timing: (
+    duration: 1.0,
+    cycle: Once,
+  ),
+  layers: [
+    Leds(
+      leds: Tag("Playfield"),
+      z: 20,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(80, 255, 40, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.8,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Param("origin")),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.5,
+                  curve: EaseOut,
+                ),
+                (
+                  at: 0.6,
+                  value: 9.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(1.5),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 20,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(200, 255, 120, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.5,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Param("origin")),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: EaseOut,
+                ),
+                (
+                  at: 0.3,
+                  value: 3.5,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 20,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(0, 255, 60, 255)),
+          adjust: [
+            Opacity(Visit(
+              traversal: "tendrils",
+              from: 0.0,
+              to: 1.0,
+              smooth_in: 0.0,
+              hold: 0.1,
+              smooth_out: 3.0,
+              curve_in: Linear,
+              curve_out: EaseIn,
+              overlap: Max,
+            )),
+          ],
+        ),
+        graph: (
+          traversals: [
+            (
+              name: "tendrils",
+              from: Nearest(Param("origin")),
+              algorithm: FanOut(
+                to: Nearest(Fixed(10.125, 22.5)),
+                angle: Fixed(360.0),
+                count: Fixed(5.0),
+                wander: Fixed(0.6),
+              ),
+              speed: Duration(0.6),
+              start: 0.0,
+            ),
+          ],
+        ),
+      ),
+    ),
+  ],
+)

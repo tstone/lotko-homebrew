@@ -1,6 +1,6 @@
 # Spire Core
 
-**Status:** new. Holding Apex Terraces' old rules for now.
+**Status:** phase 2 of the final wizard mode, after the Solarium Atrium. Holding Apex Terraces' old rules for now.
 
 ## The place
 

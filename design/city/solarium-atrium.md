@@ -1,6 +1,6 @@
 # Solarium Atrium
 
-**Status:** needs the mystery built around it.
+**Status:** phase 1 of the final wizard mode, where the mystery is revealed. See [mystery.md](../mystery.md).
 
 ## The place
 

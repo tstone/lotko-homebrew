@@ -1,15 +1,18 @@
 # Design
 
-One file per place in Cascadia Prime. Each says what the place is, how its mode plays, and how the lights, sound and display sell it. The story behind the city is in [PLACES.md](../PLACES.md).
-
-Work through a place in this order:
-
-1. **Purpose.** What the place is, and the one thing it's known for.
-2. **Gameplay.** The rules, built around that one thing.
-3. **Lighting.** What the playfield shows while the mode runs.
-4. **Sound and display.** A few notes are enough until the first three are settled.
+How Last of the Kilmore Oaks plays, and how the lights, sound and display tell its story. The story behind the city is in [PLACES.md](../PLACES.md).
 
 Where these files disagree with `PLAN.md` or `DESIGN.md`, these files win. Those were written before the scene system.
+
+| Section | What it covers |
+|---|---|
+| [city/](city/README.md) | The main progression: the forest climbs the city one place at a time |
+| [roots/](roots/README.md) | The forest's second progression: spreading its roots |
+| [steward/](steward/README.md) | The negative progression: the Steward watching, then sending the Sentinels |
+| [shots/](shots/README.md) | Skill shots that run alongside everything: combos and reflex shots |
+| [mystery.md](mystery.md) | The secrets the climb reveals, and the clues along the way |
+
+Not yet placed in a section: Charge (spores and the spore burst), Heartwood, Groundswell, outlane saves, skill shots at the plunge, and extra balls.
 
 ## How the game tells its story
 
@@ -47,41 +50,3 @@ The DMD shows the scores while a place runs. Animations are brief, a few seconds
 A lit shot always means "hit me". Design every place so that what the player should hit is lit, and nothing else is.
 
 Shot statuses are a static color or flashing. Anything more than that is a scene.
-
-## Places
-
-| Place | Status | File |
-|---|---|---|
-| Meridian Basins | Designed, ready to build | [meridian-basins.md](meridian-basins.md) |
-| Hydro Core | Keep, move out of tier 1 | [hydro-core.md](hydro-core.md) |
-| Nimbus Promenade | Rework with the scan | [nimbus-promenade.md](nimbus-promenade.md) |
-| Skyrail Station | Becomes the roving shot | [skyrail-station.md](skyrail-station.md) |
-| Apex Terraces | Revisit | [apex-terraces.md](apex-terraces.md) |
-| Solarium Atrium | Needs the mystery | [solarium-atrium.md](solarium-atrium.md) |
-| Spire Core | New, holding Apex's old rules | [spire-core.md](spire-core.md) |
-| Caldera Generator (Blackout) | Place set, geothermal power | [caldera-generator.md](caldera-generator.md) |
-| Helix Vaults (Floodgates) | Place set, tier 2 | [helix-vaults.md](helix-vaults.md) |
-| Cargo Quay (Derailment) | Proposed | [cargo-quay.md](cargo-quay.md) |
-| Halcyon Vents (Canopy) | Sketched | [halcyon-vents.md](halcyon-vents.md) |
-
-## The map
-
-Every mode becomes a place on the city map. Which places run as multiball (the old mini-wizards) is decided later.
-
-The current route is fixed in pairs: Meridian or Hydro, Nimbus, a mini-wizard, Skyrail or Apex, Solarium, a mini-wizard. With more places, the map could open up so the player picks a route instead of going from point A to point B. One shape for that:
-
-- Places are connected, and any place next to one already taken can be started.
-- Height still sets difficulty: easy at the river, hard at the peak.
-- Nimbus Promenade stays the way from the lower city to the upper city.
-
-The playfield is a whitewood with temporary art, so the next version can have an insert per place.
-
-## Changes to other features
-
-- **Sentinels:** use the pop bumpers as the targets instead of the drop targets. Pops are more dangerous, which fits drones, and it leaves the drops for places such as Cargo Quay. The pops are also the cameras in Surveillance, so the two need to stay distinct.
-
-## Open questions
-
-- How many places, and how they connect.
-- Which places run as multiball.
-- What the end of the climb is: Solarium, Spire Core, or something past both.

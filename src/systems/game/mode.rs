@@ -4,13 +4,16 @@ use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 
 use crate::hardware::city_map;
-use crate::systems::Callout;
+use crate::systems::{Callout, sounds};
 use crate::systems::game::{
-  ApexTerracesMode, BlackoutMode, CanopyMode, DerailmentMode, FloodgatesMode, HydroCoreMode,
+  ApexTerracesMode, BlackoutMode, CanopyMode, DerailmentMode, HelixVaultsMode, HydroCoreMode,
   MeridianBasinsMode, NimbusPromenadeMode, SkyrailStationMode, SolariumAtriumMode,
 };
 
 const MUSIC_FOLDER: &str = "/userdata/home/armsom/music";
+
+/// The Helix Vaults' growth medium, a neon yellow-green
+const HELIX_VAULTS_COLOR: Rgba<u8> = Rgba([170, 255, 0, 255]);
 
 /// A stop on the route up the city (DESIGN.md, Primary progression): a district or a mini-wizard
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize)]
@@ -21,7 +24,7 @@ pub enum Mode {
   SkyrailStation,
   ApexTerraces,
   SolariumAtrium,
-  Floodgates,
+  HelixVaults,
   Blackout,
   Derailment,
   Canopy,
@@ -45,7 +48,7 @@ impl Mode {
       Self::SkyrailStation => "SKYRAIL STATION",
       Self::ApexTerraces => "APEX TERRACES",
       Self::SolariumAtrium => "SOLARIUM ATRIUM",
-      Self::Floodgates => "FLOODGATES",
+      Self::HelixVaults => "HELIX VAULTS",
       Self::Blackout => "BLACKOUT",
       Self::Derailment => "DERAILMENT",
       Self::Canopy => "CANOPY",
@@ -55,7 +58,7 @@ impl Mode {
   pub fn is_mini_wizard(&self) -> bool {
     matches!(
       self,
-      Self::Floodgates | Self::Blackout | Self::Derailment | Self::Canopy
+      Self::HelixVaults | Self::Blackout | Self::Derailment | Self::Canopy
     )
   }
 
@@ -71,7 +74,7 @@ impl Mode {
       Self::MeridianBasins
       | Self::HydroCore
       | Self::NimbusPromenade
-      | Self::Floodgates
+      | Self::HelixVaults
       | Self::Blackout => 1,
       Self::SkyrailStation
       | Self::ApexTerraces
@@ -86,7 +89,7 @@ impl Mode {
     match self {
       Self::MeridianBasins | Self::HydroCore => 1,
       Self::NimbusPromenade => 2,
-      Self::Floodgates | Self::Blackout => 3,
+      Self::HelixVaults | Self::Blackout => 3,
       Self::SkyrailStation | Self::ApexTerraces => 4,
       Self::SolariumAtrium => 5,
       Self::Derailment | Self::Canopy => 6,
@@ -96,7 +99,7 @@ impl Mode {
   /// The district that leads to a mini-wizard
   pub fn district(&self) -> Mode {
     match self {
-      Self::Floodgates => Self::MeridianBasins,
+      Self::HelixVaults => Self::MeridianBasins,
       Self::Blackout => Self::HydroCore,
       Self::Derailment => Self::SkyrailStation,
       Self::Canopy => Self::ApexTerraces,
@@ -105,11 +108,14 @@ impl Mode {
   }
 
   pub fn color(&self) -> Rgba<u8> {
+    if *self == Self::HelixVaults {
+      return HELIX_VAULTS_COLOR;
+    }
     match self.district() {
       Self::HydroCore => Rgba::cyan(),
       Self::SkyrailStation => Rgba::blue(),
       Self::SolariumAtrium => Rgba::purple(),
-      Self::MeridianBasins => Rgba::orange(),
+      Self::MeridianBasins => Rgba::green(),
       Self::NimbusPromenade => Rgba::magenta(),
       _ => Rgba::gold(),
     }
@@ -138,22 +144,31 @@ impl Mode {
       Self::NimbusPromenade => "wice-5omething.mp3",
       Self::Blackout => "65daysofstatic-crash-tactics.mp3",
       Self::Derailment => "colyn-cyclone.mp3",
+      Self::HelixVaults => "substan-syntax.mp3",
       _ => return None,
     };
     Some(music_file(file))
+  }
+
+  /// The sound that plays with the mode's intro, for those that have one so far
+  pub fn start_sound(&self) -> Option<&'static str> {
+    match self {
+      Self::MeridianBasins => Some(sounds::PRESSURE_RELEASE_LIGHT),
+      _ => None,
+    }
   }
 
   /// What's said as the mode starts, in order. The ball waits in the scoop for the last of them. A mini-wizard is the
   /// forest's, so the Oaks have their say.
   pub fn start_lines(&self) -> &'static [Callout] {
     match self {
-      Self::MeridianBasins => &[Callout::RootIntrusion],
+      Self::MeridianBasins => &[Callout::CropContaminationDetected],
       Self::HydroCore => &[Callout::CoolantCoreDropping],
       Self::NimbusPromenade => &[Callout::PromenadeClosed, Callout::WalkwaysWillBeSealed],
       Self::SkyrailStation => &[Callout::SkyrailServiceSuspended, Callout::ClearThePlatform],
       Self::ApexTerraces => &[Callout::ResidentsEvacuateNow],
       Self::SolariumAtrium => &[Callout::AtriumIntegrityVerified],
-      Self::Floodgates => &[Callout::OakOpenTheGates, Callout::FloodBarriersEngaged],
+      Self::HelixVaults => &[Callout::ContainmentNominal],
       Self::Blackout => &[Callout::OakDarkness],
       Self::Derailment => &[Callout::TrainDerailmentSubverting, Callout::OakFall],
       Self::Canopy => &[Callout::OakHigher],
@@ -163,7 +178,7 @@ impl Mode {
   /// What's said as the mode is completed: the Steward's line, then the Oaks' for the districts that have one
   pub fn completion_lines(&self) -> &'static [Callout] {
     match self {
-      Self::MeridianBasins => &[Callout::BasinsReclassified, Callout::OakOurs],
+      Self::MeridianBasins => &[Callout::MeridianBasinsUninhabitable, Callout::OakOurs],
       Self::HydroCore => &[Callout::CoreOffline, Callout::OakDrink],
       Self::NimbusPromenade => &[
         Callout::AccessToUpperCityRestricted,
@@ -172,7 +187,8 @@ impl Mode {
       Self::SkyrailStation => &[Callout::AllLinesAreNowClosed],
       Self::ApexTerraces => &[Callout::ApexTerracesOffline, Callout::OakNothingIsYours],
       Self::SolariumAtrium => &[Callout::TheScienceWillNotBeLost, Callout::OakOpenSky],
-      Self::Floodgates | Self::Blackout | Self::Derailment | Self::Canopy => &[],
+      Self::HelixVaults => &[Callout::OakOpenTheGates],
+      Self::Blackout | Self::Derailment | Self::Canopy => &[],
     }
   }
 
@@ -185,7 +201,7 @@ impl Mode {
       Self::MeridianBasins => ctx.systems.spawn(MeridianBasinsMode::new()),
       Self::NimbusPromenade => ctx.systems.spawn(NimbusPromenadeMode::new()),
       Self::ApexTerraces => ctx.systems.spawn(ApexTerracesMode::new()),
-      Self::Floodgates => ctx.systems.spawn(FloodgatesMode::new()),
+      Self::HelixVaults => ctx.systems.spawn(HelixVaultsMode::new()),
       Self::Blackout => ctx.systems.spawn(BlackoutMode::new()),
       Self::Derailment => ctx.systems.spawn(DerailmentMode::new()),
       Self::Canopy => ctx.systems.spawn(CanopyMode::new()),
@@ -289,7 +305,7 @@ mod tests {
   #[test]
   fn groundswell_stacks_with_districts_but_not_mini_wizards() {
     assert!(Multiball::Groundswell.stacks_with(Mode::SkyrailStation));
-    assert!(!Multiball::Groundswell.stacks_with(Mode::Floodgates));
+    assert!(!Multiball::Groundswell.stacks_with(Mode::HelixVaults));
   }
 
   #[test]

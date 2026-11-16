@@ -60,6 +60,9 @@ impl ModeRun {
       .systems
       .expect::<ScoopSystem<Lower>>()
       .hold(ctx.id(), ctx.into());
+    if let Some(sound) = self.mode.start_sound() {
+      ctx.play_sfx(sound);
+    }
     for line in self.mode.start_lines() {
       ctx.say(*line);
     }

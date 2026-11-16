@@ -78,8 +78,8 @@ pub static BONUS_SKIPPED: LazyLock<Counter> = LazyLock::new(|| {
   .category("Bonus")
 });
 
-pub static FLOODGATES_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
-  Counter::new("Floodgates Completed", "Times Floodgates was completed")
+pub static HELIX_VAULTS_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
+  Counter::new("Helix Vaults Completed", "Times Helix Vaults was completed")
     .key("floodgates_completed")
     .category("Modes")
 });
@@ -111,7 +111,7 @@ pub fn mode_completed(mode: &Mode) -> &'static Counter {
     Mode::MeridianBasins => &MERIDIAN_BASINS_COMPLETED,
     Mode::NimbusPromenade => &NIMBUS_PROMENADE_COMPLETED,
     Mode::ApexTerraces => &APEX_TERRACES_COMPLETED,
-    Mode::Floodgates => &FLOODGATES_COMPLETED,
+    Mode::HelixVaults => &HELIX_VAULTS_COMPLETED,
     Mode::Blackout => &BLACKOUT_COMPLETED,
     Mode::Derailment => &DERAILMENT_COMPLETED,
     Mode::Canopy => &CANOPY_COMPLETED,

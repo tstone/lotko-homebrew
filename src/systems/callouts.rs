@@ -92,6 +92,7 @@ callouts! {
   SeismicDamageIdentified => "multiball/seismic-damage-identified",
 
   // meridian basins
+  CropContaminationDetected => "meridian/crop-contamination-detected",
   RootIntrusion => "meridian/root-intrusion",
   ChannelBreach => "meridian/channel-breach",
   BasinsReclassified => "meridian/basins-reclassified",
@@ -130,6 +131,8 @@ callouts! {
   TheScienceWillNotBeLost => "solarium/the-science-will-not-be-lost",
 
   // mini-wizards
+  ContainmentNominal => "helix/containment-nominal",
+  ContainmentBreach => "helix/containment-breach",
   FloodBarriersEngaged => "floodgates/flood-barriers-engaged",
   ShootTheRamps => "shoot-the-ramps",
   System67Invalid => "system-67-invalid",
@@ -232,13 +235,6 @@ pub trait SayExt {
   /// Have the Steward say several lines back to back as one, such as "four", "of", "six". It's said the way the first
   /// is, and `CalloutCompleted` reports the first's `key`.
   fn say_all(&self, lines: &[Callout]);
-
-  /// "Four of six", said as passing commentary. Says nothing for a number that wasn't recorded.
-  fn say_count(&self, count: u8, of: u8) {
-    if let (Some(count), Some(of)) = (Callout::number(count), Callout::number(of)) {
-      self.say_all(&[count, Callout::Of, of]);
-    }
-  }
 }
 
 impl<'a> SayExt for SystemContext<'a> {

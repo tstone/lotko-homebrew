@@ -1,0 +1,2571 @@
+Scene(
+  version: 2,
+  timing: (
+    duration: 4.0,
+    cycle: Once,
+  ),
+  layers: [
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.00,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.05,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2041,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7059,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.06,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.11,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2082,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7118,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.12,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.17,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2123,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7177,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.18,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.23,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2164,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7236,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.24,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.29,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2205,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7295,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.30,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.35,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2246,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7354,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.36,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.41,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2287,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7413,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.42,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.47,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2328,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7472,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.48,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.53,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2369,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7531,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.54,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.59,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2410,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7590,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.60,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.65,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2451,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7649,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.66,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.71,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2492,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7708,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.72,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.77,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2533,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7767,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.78,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.83,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2574,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7826,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.84,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.89,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2615,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7885,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.90,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.95,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2656,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 7944,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 0.96,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.01,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2697,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8003,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.02,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.07,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2738,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8062,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.08,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.13,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2779,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8121,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.14,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.19,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2820,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8180,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.20,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.25,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2861,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8239,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.26,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.31,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2902,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8298,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.32,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.37,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2943,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8357,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.38,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.43,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 2984,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8416,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.44,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.49,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 3025,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8475,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.50,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.55,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 3066,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8534,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.56,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.61,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 3107,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8593,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.62,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.67,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 3148,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8652,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.68,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.73,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 3189,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8711,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.74,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.79,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 3230,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8770,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.80,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.85,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 3271,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8829,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.86,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.91,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 3312,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8888,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.92,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.97,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 3353,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 8947,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.98,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.03,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 3394,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 9006,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.04,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.09,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 3435,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 9065,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.10,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.15,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.6,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Vec2(
+                x: (1.0, 19.25),
+                y: (2.0, 43.0),
+              ),
+              seed: 3476,
+              force_unique: true,
+            )),
+          ],
+          base: Circle(
+            radius: Random(
+              picks: [
+                (
+                  at: 0.0,
+                  smooth_in: 0.0,
+                  smooth_out: 0.0,
+                ),
+              ],
+              spread: Float(0.8, 2.4),
+              seed: 9124,
+              force_unique: true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Leds(
+      leds: Tag("Playfield"),
+      z: 31,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(0, 255, 40, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.8,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.2,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 4.0,
+                  value: 0.0,
+                  curve: EaseIn,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+      ),
+    ),
+  ],
+)

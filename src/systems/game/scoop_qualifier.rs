@@ -36,9 +36,10 @@ impl ScoopQualifier {
     }
   }
 
-  /// Whether a ball in the scoop gets the mode select menu: it's qualified, and no mode or multiball is running
+  /// Whether a ball in the scoop gets the mode select menu: it's qualified, and no mode or multiball is running. With
+  /// every mode open for testing it needs no qualifying.
   pub fn opens_menu(&self, mode_manager: &ModeManager, balls_in_play: u8) -> bool {
-    (self.count.is_qualified() || mode_manager.mini_wizard_available())
+    (self.count.is_qualified() || mode_manager.mini_wizard_available() || mode_manager.all_modes_open())
       && mode_manager.is_between_modes()
       && balls_in_play <= 1
   }

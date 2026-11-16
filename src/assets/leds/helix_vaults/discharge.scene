@@ -1,0 +1,49 @@
+Scene(
+  version: 2,
+  params: {
+    "to": Vec2(10.125, 22.5),
+  },
+  timing: (
+    duration: 0.8,
+    cycle: Once,
+  ),
+  layers: [
+    Leds(
+      leds: Tag("Playfield"),
+      z: 20,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          base: Solid(Fixed(170, 255, 0, 255)),
+          adjust: [
+            Opacity(Visit(
+              traversal: "goo",
+              from: 0.0,
+              to: 1.0,
+              smooth_in: 0.5,
+              hold: 0.5,
+              smooth_out: 2.5,
+              curve_in: Linear,
+              curve_out: EaseIn,
+              overlap: Max,
+            )),
+          ],
+        ),
+        graph: (
+          traversals: [
+            (
+              name: "goo",
+              from: Nearest(Fixed(2.2, 18.5)),
+              algorithm: ShortestPath(
+                to: Nearest(Param("to")),
+                wander: Fixed(0.4),
+              ),
+              speed: Duration(0.6),
+              start: 0.0,
+            ),
+          ],
+        ),
+      ),
+    ),
+  ],
+)

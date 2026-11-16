@@ -100,10 +100,10 @@ mod points {
   pub static APEX_HIT: u64 = 2_000_000;
   /// Bursting a terrace, times how many have burst
   pub static APEX_BURST: u64 = 2_000_000;
-  /// Each orbit hit raising Floodgates' water
-  pub static FLOOD_HIT: u64 = 1_000_000;
-  /// A ramp at high water, times how many have been made
-  pub static FLOOD_SUPER_JACKPOT: u64 = 20_000_000;
+  /// Each orbit hit draining the Helix Vaults' vat
+  pub static HELIX_DRAIN: u64 = 1_000_000;
+  /// A rupture, times how many there have been
+  pub static HELIX_RUPTURE: u64 = 20_000_000;
   /// Each shot Blackout puts out
   pub static BLACKOUT_HIT: u64 = 4_000_000;
   pub static BLACKOUT_SUPER_JACKPOT: u64 = 120_000_000;

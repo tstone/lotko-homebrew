@@ -1,108 +1,148 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
+use rand::prelude::IndexedRandom;
 
-use crate::hardware::city_map;
+use crate::hardware::arc_ramp;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::systems::game::meridian_basins::MODE_COLOR;
-use crate::systems::game::{Mode, ModeManager, ModeRun, RootLashed, SporesSystem};
-use crate::systems::{Callout, SayExt, sounds};
+use crate::systems::game::{Mode, ModeManager, ModeRun, RootLashed, SporesSystem, fill_scene};
+use crate::systems::sounds;
 use frontbox_sound::*;
 
-static REQUIRED_HITS: u8 = 6;
+/// Basins lit at the start
+const BASINS: usize = 4;
 
-/// How many neighboring shots are lit at once
-const WINDOW: usize = 3;
+/// Basins to burst to complete it
+const BURSTS: usize = 3;
 
+/// Hits to complete it: a plant and a burst for each basin
+const REQUIRED_HITS: u8 = 2 * BURSTS as u8;
+
+/// LEDs on the arc ramp, which show the progress
+const ARC_LEDS: usize = 18;
+
+/// The z of a basin's status on its hex center, the mode attention z
+const BASIN_Z: i8 = 10;
+
+/// The hydroponic farms (design/city/meridian-basins.md). Four basins light at random, and each takes two hits: one to
+/// plant a seed, which sets it flashing, and one to burst it. Bursting three completes it. Every hit fills a sixth of the
+/// arc ramp.
 pub struct MeridianBasinsMode {
   run: ModeRun,
-  attention_scene: ScenePlayer,
-  hit_scene: ScenePlayer,
-  intensity_scene: ScenePlayer,
-  hits: u8,
-  /// The index in [`MainShot::ALL`] of the window's leftmost shot
-  window: usize,
+  basins: Vec<Basin>,
+  progress_scene: ScenePlayer,
 }
 
 impl MeridianBasinsMode {
   pub fn new() -> Self {
+    let basins = MainShot::ALL
+      .sample(&mut rand::rng(), BASINS)
+      .map(|shot| Basin { shot: *shot, state: BasinState::Lit })
+      .collect();
     Self {
       run: ModeRun::new(Mode::MeridianBasins, REQUIRED_HITS),
-      attention_scene: ScenePlayer::new(Self::attention_scene(&lit_shots(0))),
-      hit_scene: ScenePlayer::new(Self::hit_scene()),
-      intensity_scene: ScenePlayer::new(Self::intensity_scene()),
-      hits: 0,
-      window: 0,
+      basins,
+      progress_scene: ScenePlayer::new(Self::progress_scene(0)),
     }
   }
 
-  fn attention_scene(shots: &[MainShot]) -> PlayableScene {
-    let qs: Vec<&LedQ> = shots.iter().map(|shot| shot.hex_center()).collect();
-    scene!("meridian_basins/attention.scene", LedQ::any(qs))
+  fn progress_scene(hits: u8) -> PlayableScene {
+    let lit = hits as usize * ARC_LEDS / REQUIRED_HITS as usize;
+    fill_scene(&arc_ramp::ARC_LEDS.q(), ARC_LEDS, lit, *MODE_COLOR)
   }
 
-  fn hit_scene() -> PlayableScene {
-    scene!("meridian_basins/hit.scene")
+  fn burst_scene(shot: MainShot) -> PlayableScene<Completes> {
+    completing_scene!("meridian_basins/burst.scene").variable("origin", shot.origin())
   }
 
   fn complete_scene() -> PlayableScene<Completes> {
     completing_scene!("meridian_basins/complete.scene")
   }
 
-  fn intensity_scene() -> PlayableScene {
-    scene!("meridian_basins/intensity.scene")
+  fn hits(&self) -> u8 {
+    self.basins.iter().map(|basin| basin.state.hits()).sum()
   }
 
-  fn progress_scene(hits: u8) -> PlayableScene<Completes> {
-    city_map::mode_progress_scene(*MODE_COLOR, hits as f32 / REQUIRED_HITS as f32)
+  fn bursts(&self) -> usize {
+    self
+      .basins
+      .iter()
+      .filter(|basin| basin.state == BasinState::Burst)
+      .count()
   }
 
   fn on_shot_hit(&mut self, shot: MainShot, ctx: &SystemContext) {
-    if !lit_shots(self.window).contains(&shot) {
+    let Some(index) = self
+      .basins
+      .iter()
+      .position(|basin| basin.shot == shot && basin.state != BasinState::Burst)
+    else {
       return;
-    }
-
+    };
     let hits = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
-    self.add_hits(hits, ctx);
+    for _ in 0..hits {
+      self.grow(index, ctx);
+    }
+    self.after_hits(hits, ctx);
   }
 
-  /// Hits from a lit shot, or from a Root Lash, each scoring
-  fn add_hits(&mut self, hits: u8, ctx: &SystemContext) {
-    self.hits = (self.hits + hits).min(REQUIRED_HITS);
-    ctx.play_scene(&Self::progress_scene(self.hits));
-    log::info!("MeridianBasins: hits = {}", self.hits);
-    self.run.score_hit(hits, ctx);
+  /// A Root Lash's hits go to the basins furthest along first
+  fn on_lash(&mut self, hits: u8, ctx: &SystemContext) {
+    for _ in 0..hits {
+      let next = self
+        .basins
+        .iter()
+        .position(|basin| basin.state == BasinState::Planted)
+        .or_else(|| self.basins.iter().position(|basin| basin.state == BasinState::Lit));
+      if let Some(index) = next {
+        self.grow(index, ctx);
+      }
+    }
+    self.after_hits(hits, ctx);
+  }
 
-    if self.hits == REQUIRED_HITS {
+  /// Takes the basin a step: a lit one is planted, and a planted one bursts
+  fn grow(&mut self, index: usize, ctx: &SystemContext) {
+    let basin = &mut self.basins[index];
+    match basin.state {
+      BasinState::Lit => {
+        basin.state = BasinState::Planted;
+        log::info!("MeridianBasins: {:?} planted", basin.shot);
+      }
+      BasinState::Planted => {
+        basin.state = BasinState::Burst;
+        log::info!("MeridianBasins: {:?} burst", basin.shot);
+        ctx.play_scene(&Self::burst_scene(basin.shot));
+        ctx.play_sfx(sounds::GUITAR_SWELL);
+      }
+      BasinState::Burst => {}
+    }
+    self.render(ctx);
+  }
+
+  fn after_hits(&mut self, hits: u8, ctx: &SystemContext) {
+    self.run.score_hit(hits, ctx);
+    if self.bursts() >= BURSTS {
       log::info!("MeridianBasins: complete");
+      self.progress_scene.stop(ctx);
       self.run.complete(Self::complete_scene(), ctx);
       return;
     }
-
-    ctx.play_sfx(sounds::city_hit(self.hits as f32 / REQUIRED_HITS as f32));
-    // the first hit gets the mode's line, and after that the Steward counts them
-    if self.hits == 1 {
-      ctx.say(Callout::ChannelBreach);
-    } else {
-      ctx.say_count(self.hits, REQUIRED_HITS);
-    }
-
-    if self.run.progress(self.hits) == Some(50) {
-      self.intensity_scene.start(ctx);
-    }
-    self.hit_scene.restart(ctx);
+    self
+      .progress_scene
+      .replace_scene(Self::progress_scene(self.hits()), ctx);
   }
 
-  /// Move the window one shot to the right, wrapping back to the left orbit after the far right
-  fn advance(&mut self, ctx: &SystemContext) {
-    self.window = (self.window + 1) % MainShot::ALL.len();
-
-    // the gate moves quietly while the Steward is talking
-    if !ctx.callout_pending() {
-      ctx.play_sfx(sounds::rnd_latch());
+  /// Each basin's status on its hex center
+  fn render(&self, ctx: &SystemContext) {
+    for basin in &self.basins {
+      let leds = basin.shot.hex_center().clone().at_z(BASIN_Z);
+      match basin.state {
+        BasinState::Lit => ctx.declare_leds(&leds, *MODE_COLOR),
+        BasinState::Planted => ctx.declare_leds_flashing(&leds, *MODE_COLOR),
+        BasinState::Burst => ctx.undeclare_leds(&leds),
+      }
     }
-    self
-      .attention_scene
-      .replace_scene(Self::attention_scene(&lit_shots(self.window)), ctx);
   }
 }
 
@@ -112,11 +152,9 @@ impl System for MeridianBasinsMode {
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
-    log::info!("MeridianBasins mode started");
+    log::info!("MeridianBasins: started on {:?}", self.basins);
     self.run.begin(ctx);
-    ctx
-      .cues
-      .start(WindowMoveDue, Duration::from_millis(2250).forever());
+    self.render(ctx);
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
@@ -132,12 +170,10 @@ impl System for MeridianBasinsMode {
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     self.run.on_event(event, ctx);
 
-    if event.is::<WindowMoveDue>() {
-      self.advance(ctx);
-    } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {
+    if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       self.on_shot_hit(hit.shot, ctx);
     } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
-      self.add_hits(lash.hits, ctx);
+      self.on_lash(lash.hits, ctx);
     }
   }
 
@@ -146,18 +182,34 @@ impl System for MeridianBasinsMode {
       return;
     }
 
-    self.attention_scene.start(ctx);
+    self.progress_scene.start(ctx);
   }
 }
 
-#[derive(serde::Serialize, Event)]
-struct WindowMoveDue;
+#[derive(Debug)]
+struct Basin {
+  shot: MainShot,
+  state: BasinState,
+}
 
-/// The shots lit by a window starting at `window`
-fn lit_shots(window: usize) -> Vec<MainShot> {
-  (window..window + WINDOW)
-    .map(|idx| MainShot::ALL[idx % MainShot::ALL.len()])
-    .collect()
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum BasinState {
+  Lit,
+  /// Hit once: a seed is planted, and it flashes
+  Planted,
+  /// Hit twice: done
+  Burst,
+}
+
+impl BasinState {
+  /// Hits it's had
+  fn hits(self) -> u8 {
+    match self {
+      Self::Lit => 0,
+      Self::Planted => 1,
+      Self::Burst => 2,
+    }
+  }
 }
 
 #[cfg(test)]
@@ -165,22 +217,22 @@ mod tests {
   use super::*;
 
   #[test]
-  fn the_first_window_is_the_three_leftmost_shots() {
-    assert_eq!(
-      lit_shots(0),
-      vec![MainShot::LeftOrbit, MainShot::DomeRamp, MainShot::ArcRamp]
-    );
+  fn four_different_basins_light() {
+    let mode = MeridianBasinsMode::new();
+    let shots: std::collections::HashSet<_> = mode.basins.iter().map(|basin| basin.shot).collect();
+    assert_eq!(shots.len(), BASINS);
   }
 
   #[test]
-  fn the_window_wraps_back_to_the_left() {
-    assert_eq!(
-      lit_shots(5),
-      vec![
-        MainShot::RightOrbit,
-        MainShot::LeftOrbit,
-        MainShot::DomeRamp
-      ]
-    );
+  fn every_hit_fills_a_sixth_of_the_arc() {
+    assert_eq!(REQUIRED_HITS, 6);
+    assert_eq!(1 * ARC_LEDS / REQUIRED_HITS as usize, 3);
+  }
+
+  #[test]
+  fn the_scenes_load() {
+    MeridianBasinsMode::progress_scene(REQUIRED_HITS);
+    MeridianBasinsMode::burst_scene(MainShot::DomeRamp);
+    MeridianBasinsMode::complete_scene();
   }
 }

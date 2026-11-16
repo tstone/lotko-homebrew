@@ -11,7 +11,7 @@ Scene(
       surface: Area("Playfield"),
       layer: (
         fill: (
-          base: Solid(Fixed(255, 165, 0, 255)),
+          base: Solid(Fixed(255, 110, 0, 255)),
         ),
         region: (
           transform: [

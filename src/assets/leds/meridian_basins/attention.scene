@@ -17,12 +17,12 @@ Scene(
             keys: [
               (
                 at: 0.0,
-                value: (255, 165, 0, 255),
+                value: (255, 110, 0, 255),
                 curve: Linear,
               ),
               (
                 at: 0.46875,
-                value: (102, 66, 0, 255),
+                value: (102, 44, 0, 255),
                 curve: EaseInOut,
               ),
             ],

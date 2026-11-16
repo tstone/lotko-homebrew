@@ -103,7 +103,11 @@ async fn main() {
     app.system(DisplaySystem::new().display(
       DisplayDefinition::new(DMD, Pin2Dmd::new(DMD_WIDTH, DMD_HEIGHT, PanelType::Rgb)).mirror(
         // 320 x 80mm, centered between the speaker rings
-        console.display_view().on(&planes::BACKBOX_PANEL, Vec2::new(7.325, 2.425), Vec2::new(12.6, 3.15)),
+        console.display_view().on(
+          &planes::BACKBOX_PANEL,
+          Vec2::new(7.325, 2.425),
+          Vec2::new(12.6, 3.15),
+        ),
       ),
     ));
     app.tracer(console);

@@ -122,11 +122,11 @@ Scene(
             stops: [
               (
                 at: 0.0,
-                color: Fixed(255, 165, 0, 255),
+                color: Fixed(255, 110, 0, 255),
               ),
               (
                 at: 0.14583333,
-                color: Fixed(255, 165, 0, 255),
+                color: Fixed(255, 110, 0, 255),
               ),
               (
                 at: 0.14583333,
@@ -195,11 +195,11 @@ Scene(
             stops: [
               (
                 at: 0.0,
-                color: Fixed(255, 165, 0, 255),
+                color: Fixed(255, 110, 0, 255),
               ),
               (
                 at: 0.14583333,
-                color: Fixed(255, 165, 0, 255),
+                color: Fixed(255, 110, 0, 255),
               ),
               (
                 at: 0.14583333,

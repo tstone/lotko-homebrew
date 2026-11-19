@@ -93,7 +93,7 @@ impl System for EndOfBallSystem {
         ctx.say(Callout::GrowthContained);
       }
       // insert a slice delay to let hardware settle and final points come in
-      ctx.cues.start(Continue, Duration::from_millis(500).once());
+      ctx.timers.start(Continue, Duration::from_millis(500).once());
     } else if let Some(GameEnding { scores, reason }) = routine.downcast_ref::<GameEnding>() {
       // the forest promises to be back once it has taken enough of the city
       let overgrown = ctx

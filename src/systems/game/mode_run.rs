@@ -14,7 +14,7 @@ const START_BALL_SAVE: Duration = Duration::from_secs(8);
 /// mode's system owns one and passes it what it needs to.
 ///
 /// A mode is started by [`ModeManager::start_mode`], which spawns its system. When the turn ends the slot empties and
-/// the system goes inactive, keeping its progress, and with it its cues and scenes, which don't tick while it's
+/// the system goes inactive, keeping its progress, and with it its timers and scenes, which don't tick while it's
 /// inactive. Resuming makes it active again. So a mode's lifecycle comes down to:
 ///
 /// - `on_spawn` and `on_reactivate`: [`ModeRun::begin`]

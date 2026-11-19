@@ -1,6 +1,6 @@
 use crate::hardware::cabinet;
 use frontbox_core::prelude::*;
-use frontbox_core::tags::*;
+use frontbox_pinball::tags::*;
 
 hardware_defs! {
   pub EOS_SWITCH: SwitchDefinition = SwitchDefinition::new("u_flipper_eos");

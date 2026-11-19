@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::{GameEnding, PlayerTilted, TiltWarned, TurnStarting};
+use frontbox_pinball::{GameEnding, PlayerTilted, TiltWarned, TurnStarting, tags};
 
 use crate::systems::dmd::{ANNOUNCEMENT_DMD_LAYER, DmdScreen};
 use crate::systems::{Callout, SayExt};
@@ -14,7 +14,7 @@ const WARNING_DURATION: Duration = Duration::from_millis(1500);
 /// At the root, as it outlives the tilted turn: the playfield stays dark while the balls drain.
 pub struct TiltPresenter {
   warning_scene: ScenePlayer,
-  warning_cue: Option<u64>,
+  warning_timer: Option<u64>,
   tilted: bool,
   screen: DmdScreen,
 }
@@ -23,7 +23,7 @@ impl TiltPresenter {
   pub fn new() -> Self {
     Self {
       warning_scene: ScenePlayer::new(scene!("tilt_warning.scene")),
-      warning_cue: None,
+      warning_timer: None,
       tilted: false,
       screen: DmdScreen::new("dmd/announcement.scene", ANNOUNCEMENT_DMD_LAYER),
     }
@@ -36,16 +36,16 @@ impl TiltPresenter {
       _ => "WARNING".to_string(),
     };
     self.show(label, ctx);
-    if let Some(cue) = self.warning_cue.take() {
-      ctx.cues.cancel(cue);
+    if let Some(timer) = self.warning_timer.take() {
+      ctx.timers.cancel(timer);
     }
-    self.warning_cue = Some(ctx.cues.start(WarningShown, WARNING_DURATION.once()));
+    self.warning_timer = Some(ctx.timers.start(WarningShown, WARNING_DURATION.once()));
   }
 
   fn tilted(&mut self, ctx: &SystemContext) {
     self.tilted = true;
-    if let Some(cue) = self.warning_cue.take() {
-      ctx.cues.cancel(cue);
+    if let Some(timer) = self.warning_timer.take() {
+      ctx.timers.cancel(timer);
     }
     ctx.declare_leds(&LedQ::tag::<tags::Playfield>().at_z(50), Rgba::black());
     self.show("TILT".to_string(), ctx);
@@ -77,7 +77,7 @@ impl System for TiltPresenter {
     } else if event.is::<PlayerTilted>() {
       self.tilted(ctx);
     } else if event.is::<WarningShown>() {
-      self.warning_cue = None;
+      self.warning_timer = None;
       if !self.tilted {
         self.remove_screen(ctx);
       }

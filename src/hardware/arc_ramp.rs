@@ -1,7 +1,7 @@
 use std::sync::LazyLock;
 
 use frontbox_core::prelude::*;
-use frontbox_core::tags::*;
+use frontbox_pinball::tags::*;
 
 use crate::hardware::arc_ramp::State::*;
 use crate::hardware::more_tags::ArcRamp;
@@ -80,8 +80,8 @@ impl ArcRampSystem {
     // and by the time it exits the cooldown is complete. This avoids double triggering the hit event.
     self.state = Cooldown;
     ctx
-      .cues
-      .start(Resume, Cue::Once(Duration::from_millis(1500)));
+      .timers
+      .start(Resume, Timer::Once(Duration::from_millis(1500)));
   }
 }
 

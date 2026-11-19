@@ -1,7 +1,7 @@
 use std::sync::LazyLock;
 
 use frontbox_core::prelude::*;
-use frontbox_core::tags::*;
+use frontbox_pinball::tags::*;
 
 use crate::hardware::more_tags::Hex;
 use crate::hardware::planes;

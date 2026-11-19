@@ -33,7 +33,7 @@ pub struct ApexTerracesMode {
   filled: u8,
   center_scene: ScenePlayer,
   ring_scene: ScenePlayer,
-  drain_cue: Option<u64>,
+  drain_timer: Option<u64>,
 }
 
 impl ApexTerracesMode {
@@ -48,7 +48,7 @@ impl ApexTerracesMode {
       filled: 0,
       center_scene: ScenePlayer::new(Self::center_scene(shot)),
       ring_scene: ScenePlayer::new(Self::ring_scene(shot, 0, TERRACE_HITS[0])),
-      drain_cue: None,
+      drain_timer: None,
     }
   }
 
@@ -144,7 +144,7 @@ impl ApexTerracesMode {
   }
 
   fn drain(&mut self, ctx: &SystemContext) {
-    self.drain_cue = None;
+    self.drain_timer = None;
     if self.filled == 0 {
       return;
     }
@@ -159,12 +159,12 @@ impl ApexTerracesMode {
 
   fn restart_drain(&mut self, ctx: &SystemContext) {
     self.cancel_drain(ctx);
-    self.drain_cue = Some(ctx.cues.start(DrainDue, DRAIN_TIME.once()));
+    self.drain_timer = Some(ctx.timers.start(DrainDue, DRAIN_TIME.once()));
   }
 
   fn cancel_drain(&mut self, ctx: &SystemContext) {
-    if let Some(cue) = self.drain_cue.take() {
-      ctx.cues.cancel(cue);
+    if let Some(timer) = self.drain_timer.take() {
+      ctx.timers.cancel(timer);
     }
   }
 }

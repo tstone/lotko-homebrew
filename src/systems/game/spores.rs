@@ -42,7 +42,7 @@ pub struct SporesSystem {
   /// Shown while a burst is ready to fire
   ready_scene: Option<ScenePlayer>,
   /// While a burst is running
-  burst_cue: Option<u64>,
+  burst_timer: Option<u64>,
 }
 
 impl SporesSystem {
@@ -53,7 +53,7 @@ impl SporesSystem {
       required: FIRST_CHARGE,
       bar_scene: ScenePlayer::new(Self::bar_scene(0.0)),
       ready_scene: None,
-      burst_cue: None,
+      burst_timer: None,
     }
   }
 
@@ -72,7 +72,7 @@ impl SporesSystem {
   /// A mode shot was made, which applies a spore, or two during a burst. Returns the progress the shot adds to the
   /// mode, which a burst doubles the same way.
   pub fn mode_shot(&mut self, ctx: &ServiceContext) -> u8 {
-    let spores = if self.burst_cue.is_some() { 2 } else { 1 };
+    let spores = if self.burst_timer.is_some() { 2 } else { 1 };
     self.count += spores;
     ctx.metrics.add(&metrics::SPORES_APPLIED, spores as u64);
     spores as u8
@@ -121,7 +121,7 @@ impl SporesSystem {
     self.charge = 0;
     self.required += CHARGE_STEP;
     self.bar_scene.replace_scene(Self::bar_scene(0.0), ctx);
-    self.burst_cue = Some(ctx.cues.start(BurstEnded, BURST_TIME.once()));
+    self.burst_timer = Some(ctx.timers.start(BurstEnded, BURST_TIME.once()));
 
     ctx.play_sfx(sounds::IMPACT_DIRT);
     ctx.say(Callout::AirborneContaminantDetected);
@@ -143,8 +143,8 @@ impl System for SporesSystem {
 
   /// A burst doesn't carry over to the next ball, while the charge and a burst that's ready do
   fn on_deactivate(&mut self, ctx: &SystemContext) {
-    if let Some(cue) = self.burst_cue.take() {
-      ctx.cues.cancel(cue);
+    if let Some(timer) = self.burst_timer.take() {
+      ctx.timers.cancel(timer);
     }
     ctx.deactivate_led_declarations();
   }
@@ -154,7 +154,7 @@ impl System for SporesSystem {
       self.add_charge(SPIN_CHARGE, ctx);
     } else if event.is::<BurstEnded>() {
       log::info!("Spores: burst over");
-      self.burst_cue = None;
+      self.burst_timer = None;
     } else if let Some(closed) = event.downcast_ref::<SwitchClosed>() {
       if closed.switch.name == left_inlane::TARGET_SWITCH.name {
         self.fire_burst(ctx);

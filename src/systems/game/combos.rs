@@ -24,7 +24,7 @@ const WINDOW: Duration = Duration::from_secs(4);
 #[derive(Clone)]
 pub struct ComboSystem {
   routes: Routes,
-  window_cue: Option<u64>,
+  window_timer: Option<u64>,
   /// The ball went into the scoop during a route, which carries on once it's ejected
   in_scoop: bool,
 }
@@ -33,7 +33,7 @@ impl ComboSystem {
   pub fn new() -> Self {
     Self {
       routes: Routes::new(),
-      window_cue: None,
+      window_timer: None,
       in_scoop: false,
     }
   }
@@ -46,7 +46,7 @@ impl ComboSystem {
     }
 
     let made = self.routes.shot(hit.shot);
-    self.window_cue = Some(ctx.cues.start(WindowClosed, WINDOW.once()));
+    self.window_timer = Some(ctx.timers.start(WindowClosed, WINDOW.once()));
     for route in made {
       self.pay(route, ctx);
     }
@@ -72,8 +72,8 @@ impl ComboSystem {
   }
 
   fn cancel_window(&mut self, ctx: &SystemContext) {
-    if let Some(cue) = self.window_cue.take() {
-      ctx.cues.cancel(cue);
+    if let Some(timer) = self.window_timer.take() {
+      ctx.timers.cancel(timer);
     }
   }
 }
@@ -99,15 +99,15 @@ impl System for ComboSystem {
     if let Some(hit) = event.downcast_ref::<MainShotHit>() {
       self.on_shot(hit, ctx);
     } else if event.is::<WindowClosed>() {
-      self.window_cue = None;
+      self.window_timer = None;
       self.routes.break_route();
-    } else if event.is::<ScoopBallEntered<Lower>>() && self.window_cue.is_some() {
+    } else if event.is::<ScoopBallEntered<Lower>>() && self.window_timer.is_some() {
       // the window waits while the ball is held
       self.cancel_window(ctx);
       self.in_scoop = true;
     } else if event.is::<ScoopEjected<Lower>>() && self.in_scoop {
       self.in_scoop = false;
-      self.window_cue = Some(ctx.cues.start(WindowClosed, WINDOW.once()));
+      self.window_timer = Some(ctx.timers.start(WindowClosed, WINDOW.once()));
     }
   }
 }

@@ -1,0 +1,134 @@
+Scene(
+  version: 2,
+  timing: (
+    duration: 1.58,
+    cycle: Forever,
+  ),
+  layers: [
+    Display(
+      display: "Dmd",
+      layer: (
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+        ),
+      ),
+    ),
+    Sound(
+      sound: "sounds/freesound_community-metal-clang-sound-81634.mp3",
+      volume: Keyframes(
+        keys: [
+          (
+            at: 0.22,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 0.44,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 0.45,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 0.46,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 0.48,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 0.52,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 0.59,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 0.75,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 0.76,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 0.77,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 0.79,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 0.83,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 0.91,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 1.06,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 1.29,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 1.38,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 1.57,
+            value: 1.0,
+            curve: Linear,
+          ),
+          (
+            at: 1.58,
+            value: 1.0,
+            curve: Linear,
+          ),
+        ],
+        cycle: Once,
+      ),
+      start: 0.0,
+      end: 0.54,
+    ),
+    Sound(
+      sound: "callouts/apex/warning-structural-concern.mp3",
+      volume: Fixed(1.0),
+      start: 0.66,
+      end: 1.51,
+    ),
+    Sound(
+      sound: "callouts/apex/warning-structural-concern.mp3",
+      volume: Fixed(1.0),
+      start: 0.24,
+      end: 1.26,
+    ),
+    Sound(
+      sound: "callouts/extra-ball.mp3",
+      volume: Fixed(1.0),
+      start: 1.06,
+    ),
+  ],
+)

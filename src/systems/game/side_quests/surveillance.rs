@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_core::tags::Playfield;
+use frontbox_pinball::tags::Playfield;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{BallManagementExt, BallManager, GameManagementExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;

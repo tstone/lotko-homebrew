@@ -33,7 +33,7 @@ pub struct HeartwoodMultiballMode {
   /// Arc ramps made to the subway, toward adding a ball
   subway_ramps: u8,
   super_jackpot_active: bool,
-  cue_id: Option<u64>,
+  timer_id: Option<u64>,
   eject_id: Option<u64>,
 }
 
@@ -47,7 +47,7 @@ impl HeartwoodMultiballMode {
       hits: 0,
       subway_ramps: 0,
       super_jackpot_active: false,
-      cue_id: None,
+      timer_id: None,
       eject_id: None,
     }
   }
@@ -101,10 +101,10 @@ impl HeartwoodMultiballMode {
 
   fn start_super_jackpot(&mut self, ctx: &SystemContext) {
     // restart timer if another one is triggered
-    if let Some(cue_id) = self.cue_id {
-      ctx.cues.cancel(cue_id);
+    if let Some(timer_id) = self.timer_id {
+      ctx.timers.cancel(timer_id);
     }
-    self.cue_id = Some(ctx.cues.start(SuperJackpotOver, SUPER_JACKPOT_TIME.once()));
+    self.timer_id = Some(ctx.timers.start(SuperJackpotOver, SUPER_JACKPOT_TIME.once()));
 
     self.super_jackpot_active = true;
     self.super_jackpot_attention_scene.restart(ctx);

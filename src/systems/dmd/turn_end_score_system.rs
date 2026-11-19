@@ -11,14 +11,14 @@ use crate::systems::sounds;
 /// on early.
 #[derive(Clone)]
 pub struct TurnEndScoreSystem {
-  /// The cue for moving off the score, while it's shown
-  score_cue: Option<u64>,
+  /// The timer for moving off the score, while it's shown
+  score_timer: Option<u64>,
   screen: DmdScreen,
 }
 
 impl TurnEndScoreSystem {
   pub fn new() -> Self {
-    Self { score_cue: None, screen: DmdScreen::new("dmd/turn_end_score.scene", TURN_END_DMD_LAYER) }
+    Self { score_timer: None, screen: DmdScreen::new("dmd/turn_end_score.scene", TURN_END_DMD_LAYER) }
   }
 
   fn on_turn_ending(&mut self, turn_ending: &TurnEnding, ctx: &SystemContext) {
@@ -27,7 +27,7 @@ impl TurnEndScoreSystem {
       .get::<GameManager>()
       .and_then(|game| {
         game
-          .game_state()
+          .session()
           .and_then(|state| state.current_player_score())
       })
       .unwrap_or(0);
@@ -35,12 +35,12 @@ impl TurnEndScoreSystem {
     let label = format!("PLAYER {}", turn_ending.current_player + 1);
     self.screen.show([("label", label.into()), ("score", Value::Int(score as i64))], ctx);
     ctx.play_sfx(sounds::QUEST_COMPLETE);
-    self.score_cue = Some(ctx.cues.start(ScoreShown, Duration::from_secs(2).once()));
+    self.score_timer = Some(ctx.timers.start(ScoreShown, Duration::from_secs(2).once()));
   }
 
   /// Clears the score and completes this step of the turn ending
   fn complete(&mut self, ctx: &SystemContext) {
-    ctx.cues.cancel(self.score_cue.take());
+    ctx.timers.cancel(self.score_timer.take());
     self.clear_screen(ctx);
     ctx.routines.complete_step::<TurnEnding>();
   }
@@ -59,7 +59,7 @@ impl System for TurnEndScoreSystem {
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     // the score isn't up until this step starts, so a double flip that skipped the bonus doesn't skip it too
-    if self.score_cue.is_none() {
+    if self.score_timer.is_none() {
       return;
     }
 

@@ -41,7 +41,7 @@ pub struct ExtraBallSystem {
   /// Sources that have lit one this game
   sources_used: Vec<ExtraBallSource>,
   lit_scene: ScenePlayer,
-  screen_cue: Option<u64>,
+  screen_timer: Option<u64>,
   /// The screen showing is a collect, which the scoop is waiting on
   collecting: bool,
   handle: SystemHandle,
@@ -56,7 +56,7 @@ impl ExtraBallSystem {
       lit: 0,
       sources_used: Vec::new(),
       lit_scene,
-      screen_cue: None,
+      screen_timer: None,
       collecting: false,
       handle: SystemHandle::default(),
       screen: DmdScreen::new("dmd/announcement.scene", ANNOUNCEMENT_DMD_LAYER),
@@ -124,10 +124,10 @@ impl ExtraBallSystem {
 
   fn show(&mut self, label: &str, ctx: &SystemContext) {
     self.screen.show([("text", label.into()), ("color", Rgba::white().into())], ctx);
-    if let Some(cue) = self.screen_cue.take() {
-      ctx.cues.cancel(cue);
+    if let Some(timer) = self.screen_timer.take() {
+      ctx.timers.cancel(timer);
     }
-    self.screen_cue = Some(ctx.cues.start(ScreenShown, SCREEN_DURATION.once()));
+    self.screen_timer = Some(ctx.timers.start(ScreenShown, SCREEN_DURATION.once()));
   }
 
   fn remove_screen(&mut self, ctx: &SystemContext) {
@@ -155,7 +155,7 @@ impl System for ExtraBallSystem {
         ctx.say(Callout::OakShootAgain);
       }
     } else if event.is::<ScreenShown>() {
-      self.screen_cue = None;
+      self.screen_timer = None;
       self.remove_screen(ctx);
       if self.collecting {
         self.collecting = false;

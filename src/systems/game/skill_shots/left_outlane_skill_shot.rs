@@ -1,4 +1,4 @@
-use frontbox_core::prelude::tags::Playfield;
+use frontbox_pinball::tags::Playfield;
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::{GameManagementExt, TurnPhase};

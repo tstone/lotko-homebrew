@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_core::tags::Playfield;
+use frontbox_pinball::tags::Playfield;
 use frontbox_pinball::{GameManager, TurnPhase};
 
 /// A system to give a low amount of points just for the ball bouncing around

@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
-use frontbox_pinball::{ScoopBallEntered, ScoopEjected};
+use frontbox_pinball::{ScoopBallEntered, ScoopEjected, tags};
 use frontbox_sound::SoundSystemExt;
 use rand::prelude::IndexedRandom;
 

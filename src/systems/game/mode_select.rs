@@ -30,7 +30,7 @@ const SINGLE_OPTION_TIME: Duration = Duration::from_millis(1500);
 #[derive(Clone)]
 pub struct ModeSelectSystem {
   state: State,
-  timeout_cue: Option<u64>,
+  timeout_timer: Option<u64>,
   /// A flipper is down and moves the selection when it's let go, unless the other joins it to choose
   pending_move: Option<bool>,
   screen: DmdScreen,
@@ -40,7 +40,7 @@ impl ModeSelectSystem {
   pub fn new() -> Self {
     Self {
       state: State::Idle,
-      timeout_cue: None,
+      timeout_timer: None,
       pending_move: None,
       screen: DmdScreen::new("dmd/announcement.scene", MENU_DMD_LAYER),
     }
@@ -90,7 +90,7 @@ impl ModeSelectSystem {
       } else {
         MENU_TIMEOUT
       };
-      self.timeout_cue = Some(ctx.cues.start(MenuTimedOut, timeout.once()));
+      self.timeout_timer = Some(ctx.timers.start(MenuTimedOut, timeout.once()));
       self.state = State::Menu { rows, selected: 0 };
       self.show_selection(ctx);
     }
@@ -124,8 +124,8 @@ impl ModeSelectSystem {
   }
 
   fn close_menu(&mut self, ctx: &SystemContext) {
-    if let Some(cue) = self.timeout_cue.take() {
-      ctx.cues.cancel(cue);
+    if let Some(timer) = self.timeout_timer.take() {
+      ctx.timers.cancel(timer);
     }
     if matches!(self.state, State::Menu { .. }) {
       ctx.systems.expect::<ModeManager>().hide_menu(ctx.into());
@@ -210,7 +210,7 @@ impl System for ModeSelectSystem {
     } else if event.is::<ExtraBallCollected>() && self.state == State::CollectingExtraBall {
       self.open_menu_or_eject(ctx);
     } else if event.is::<MenuTimedOut>() {
-      self.timeout_cue = None;
+      self.timeout_timer = None;
       self.choose(ctx);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && matches!(self.state, State::Menu { .. })

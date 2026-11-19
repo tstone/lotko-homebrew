@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_core::tags::*;
+use frontbox_pinball::tags::*;
 use frontbox_pinball::{AutoPlungerSystem, PlungeLaneSystem};
 
 use crate::hardware::planes;

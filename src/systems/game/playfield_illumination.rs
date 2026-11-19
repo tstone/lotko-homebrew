@@ -1,4 +1,5 @@
-use frontbox_core::{prelude::*, tags::GeneralIllumination};
+use frontbox_core::prelude::*;
+use frontbox_pinball::tags::GeneralIllumination;
 use frontbox_led::prelude::*;
 
 use crate::hardware::{arc_ramp, gi};

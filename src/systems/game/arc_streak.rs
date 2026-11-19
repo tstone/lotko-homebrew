@@ -22,22 +22,22 @@ const REFLEX_WINDOW: Duration = Duration::from_secs(2);
 pub struct ArcStreakSystem {
   /// Reflex shots in the current streak
   streak: usize,
-  window_cue: Option<u64>,
+  window_timer: Option<u64>,
 }
 
 impl ArcStreakSystem {
   pub fn new() -> Self {
     Self {
       streak: 0,
-      window_cue: None,
+      window_timer: None,
     }
   }
 
   fn on_ramp_hit(&mut self, ctx: &SystemContext) {
-    let Some(cue) = self.window_cue.take() else {
+    let Some(timer) = self.window_timer.take() else {
       return;
     };
-    ctx.cues.cancel(cue);
+    ctx.timers.cancel(timer);
 
     let award = points::ARC_STREAK[self.streak.min(points::ARC_STREAK.len() - 1)];
     self.streak += 1;
@@ -52,8 +52,8 @@ impl ArcStreakSystem {
   }
 
   fn break_streak(&mut self, ctx: &SystemContext) {
-    if let Some(cue) = self.window_cue.take() {
-      ctx.cues.cancel(cue);
+    if let Some(timer) = self.window_timer.take() {
+      ctx.timers.cancel(timer);
     }
     if self.streak > 0 {
       log::info!("ArcStreak: broken after {}", self.streak);
@@ -73,11 +73,11 @@ impl System for ArcStreakSystem {
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
     if event.is::<ScoopEjected<Lower>>() {
-      self.window_cue = Some(ctx.cues.start(ReflexWindowClosed, REFLEX_WINDOW.once()));
+      self.window_timer = Some(ctx.timers.start(ReflexWindowClosed, REFLEX_WINDOW.once()));
     } else if event.is::<ArcRampHit>() {
       self.on_ramp_hit(ctx);
     } else if event.is::<ReflexWindowClosed>() {
-      self.window_cue = None;
+      self.window_timer = None;
       self.break_streak(ctx);
     } else if let Some(enter) = event.downcast_ref::<ScoopBallEntered<Lower>>()
       && enter.entry == ScoopEntry::Direct

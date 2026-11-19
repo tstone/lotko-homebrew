@@ -163,7 +163,7 @@ impl SkyrailStationMode {
   fn ramp_up(&mut self, delay: Duration, ctx: &SystemContext) {
     if !self.ramp_up {
       if delay > Duration::ZERO {
-        ctx.cues.start(RampUp, delay.once());
+        ctx.timers.start(RampUp, delay.once());
       } else {
         ctx
           .systems

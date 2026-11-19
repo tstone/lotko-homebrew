@@ -18,8 +18,8 @@ const SCREEN_DURATION: Duration = Duration::from_millis(1750);
 pub struct BonusSystem {
   /// The screens still to show for the current bonus, each an amount over its label
   screens: VecDeque<(String, &'static str)>,
-  /// The cue for moving off the screen being shown, while one is
-  screen_cue: Option<u64>,
+  /// The timer for moving off the screen being shown, while one is
+  screen_timer: Option<u64>,
   screen: DmdScreen,
 }
 
@@ -27,7 +27,7 @@ impl BonusSystem {
   pub fn new() -> Self {
     Self {
       screens: VecDeque::new(),
-      screen_cue: None,
+      screen_timer: None,
       screen: DmdScreen::new("dmd/bonus.scene", TURN_END_DMD_LAYER),
     }
   }
@@ -68,19 +68,19 @@ impl BonusSystem {
   fn show_next_screen(&mut self, ctx: &SystemContext) {
     if let Some((amount, label)) = self.screens.pop_front() {
       self.screen.show([("amount", amount.into()), ("label", label.into())], ctx);
-      self.screen_cue = Some(ctx.cues.start(BonusScreenShown, SCREEN_DURATION.once()));
+      self.screen_timer = Some(ctx.timers.start(BonusScreenShown, SCREEN_DURATION.once()));
     } else {
-      self.screen_cue = None;
+      self.screen_timer = None;
       ctx.routines.complete_step::<TurnEnding>();
     }
   }
 
   /// Drops the remaining screens and completes this step of the turn ending. The bonus has already been awarded.
   fn skip(&mut self, ctx: &SystemContext) {
-    if let Some(cue_id) = self.screen_cue.take() {
+    if let Some(timer_id) = self.screen_timer.take() {
       log::info!("Bonus: skipped");
       ctx.metrics.inc(&metrics::BONUS_SKIPPED);
-      ctx.cues.cancel(cue_id);
+      ctx.timers.cancel(timer_id);
       self.screens.clear();
       self.show_next_screen(ctx);
     }

@@ -42,7 +42,7 @@ pub struct OutlaneSaveSystem {
   /// The outlane the ball last went through, while a drain still counts as through it
   recent: Option<(Side, u64)>,
   /// While the hidden pass lane save lasts
-  pass_lane_cue: Option<u64>,
+  pass_lane_timer: Option<u64>,
   ring_scenes: [[ScenePlayer; 2]; 2],
   lit_scenes: [Option<ScenePlayer>; 2],
   handle: SystemHandle,
@@ -53,7 +53,7 @@ impl OutlaneSaveSystem {
     Self {
       sides: [Outlane::new(), Outlane::new()],
       recent: None,
-      pass_lane_cue: None,
+      pass_lane_timer: None,
       ring_scenes: Side::ALL
         .map(|side| Self::ring_scenes(side, &Outlane::new()).map(ScenePlayer::new)),
       lit_scenes: [None, None],
@@ -98,17 +98,17 @@ impl OutlaneSaveSystem {
   }
 
   fn on_outlane(&mut self, side: Side, ctx: &SystemContext) {
-    if let Some((_, cue)) = self.recent.take() {
-      ctx.cues.cancel(cue);
+    if let Some((_, timer)) = self.recent.take() {
+      ctx.timers.cancel(timer);
     }
-    self.recent = Some((side, ctx.cues.start(OutlaneDrainOver, OUTLANE_DRAIN.once())));
+    self.recent = Some((side, ctx.timers.start(OutlaneDrainOver, OUTLANE_DRAIN.once())));
   }
 
   fn on_pass_lane(&mut self, ctx: &SystemContext) {
-    if let Some(cue) = self.pass_lane_cue.take() {
-      ctx.cues.cancel(cue);
+    if let Some(timer) = self.pass_lane_timer.take() {
+      ctx.timers.cancel(timer);
     }
-    self.pass_lane_cue = Some(ctx.cues.start(PassLaneSaveOver, PASS_LANE_SAVE.once()));
+    self.pass_lane_timer = Some(ctx.timers.start(PassLaneSaveOver, PASS_LANE_SAVE.once()));
   }
 
   /// Save the drain if it came through a lit outlane. Returns whether it did.
@@ -117,12 +117,12 @@ impl OutlaneSaveSystem {
     if draining.in_play > 0 {
       return false;
     }
-    let Some((side, cue)) = self.recent.take() else {
+    let Some((side, timer)) = self.recent.take() else {
       return false;
     };
-    ctx.cues.cancel(cue);
+    ctx.timers.cancel(timer);
 
-    if side == Side::Right && self.pass_lane_cue.is_some() {
+    if side == Side::Right && self.pass_lane_timer.is_some() {
       log::info!("OutlaneSave: pass lane save");
     } else if self.sides[side as usize].use_save() {
       log::info!("OutlaneSave: {side:?} save used");
@@ -169,11 +169,11 @@ impl System for OutlaneSaveSystem {
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
-    if let Some((_, cue)) = self.recent.take() {
-      ctx.cues.cancel(cue);
+    if let Some((_, timer)) = self.recent.take() {
+      ctx.timers.cancel(timer);
     }
-    if let Some(cue) = self.pass_lane_cue.take() {
-      ctx.cues.cancel(cue);
+    if let Some(timer) = self.pass_lane_timer.take() {
+      ctx.timers.cancel(timer);
     }
     ctx.deactivate_led_declarations();
   }
@@ -197,7 +197,7 @@ impl System for OutlaneSaveSystem {
     } else if event.is::<OutlaneDrainOver>() {
       self.recent = None;
     } else if event.is::<PassLaneSaveOver>() {
-      self.pass_lane_cue = None;
+      self.pass_lane_timer = None;
     }
   }
 

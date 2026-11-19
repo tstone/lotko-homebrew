@@ -35,7 +35,7 @@ pub struct NimbusPromenadeMode {
   run: ModeRun,
   /// By shot, in [`MainShot::ALL`] order
   walkways: [Walkway; 6],
-  /// By shot, in [`MainShot::ALL`] order: the cue that lifts the block, while it's blocked. A blocked walkway keeps its
+  /// By shot, in [`MainShot::ALL`] order: the timer that lifts the block, while it's blocked. A blocked walkway keeps its
   /// progress for when the block lifts.
   blocks: [Option<u64>; 6],
   /// Open walkways, other than one about to be blocked
@@ -45,7 +45,7 @@ pub struct NimbusPromenadeMode {
   /// The walkway about to be blocked, and its warning
   blocking: Option<(MainShot, ScenePlayer)>,
   /// The next block or its warning, while they're running
-  block_cue: Option<u64>,
+  block_timer: Option<u64>,
   /// The block the Steward last complained about being hit, so a run of hits on it says it once
   complained_about: Option<u64>,
 }
@@ -59,7 +59,7 @@ impl NimbusPromenadeMode {
       open_scene: ScenePlayer::new(Self::open_scene(&MainShot::ALL)),
       weakened_scene: ScenePlayer::new(Self::weakened_scene(&[])),
       blocking: None,
-      block_cue: None,
+      block_timer: None,
       complained_about: None,
     }
   }
@@ -191,7 +191,7 @@ impl NimbusPromenadeMode {
 
     self.blocking = Some((shot, ScenePlayer::started(Self::block_warning_scene(shot), ctx)));
     self.refresh(ctx);
-    self.block_cue = Some(ctx.cues.start(BlockLanded, BLOCK_WARNING.once()));
+    self.block_timer = Some(ctx.timers.start(BlockLanded, BLOCK_WARNING.once()));
   }
 
   fn block(&mut self, ctx: &SystemContext) {
@@ -201,7 +201,7 @@ impl NimbusPromenadeMode {
       && self.hittable_shots().len() > 1
     {
       log::info!("NimbusPromenade: {shot:?} blocked");
-      self.blocks[shot as usize] = Some(ctx.cues.start(BlockLifted { shot }, BLOCK_DURATION.once()));
+      self.blocks[shot as usize] = Some(ctx.timers.start(BlockLifted { shot }, BLOCK_DURATION.once()));
       ctx.play_sfx(sounds::rnd_latch());
       // walkways are numbered in playfield order, and only the fourth has its line recorded
       if shot == MainShot::CenterOrbit {
@@ -223,18 +223,18 @@ impl NimbusPromenadeMode {
   /// Blocks come faster as walkways are closed
   fn schedule_block(&mut self, ctx: &SystemContext) {
     let interval = BLOCK_INTERVAL.saturating_sub(BLOCK_SPEEDUP * self.closures() as u32);
-    self.block_cue = Some(ctx.cues.start(BlockDue, interval.once()));
+    self.block_timer = Some(ctx.timers.start(BlockDue, interval.once()));
   }
 
   /// Stop blocking, and lift the blocks there are
   fn cancel_blocks(&mut self, ctx: &SystemContext) {
-    if let Some(cue) = self.block_cue.take() {
-      ctx.cues.cancel(cue);
+    if let Some(timer) = self.block_timer.take() {
+      ctx.timers.cancel(timer);
     }
     self.stop_warning(ctx);
     for shot in MainShot::ALL {
-      if let Some(cue) = self.blocks[shot as usize].take() {
-        ctx.cues.cancel(cue);
+      if let Some(timer) = self.blocks[shot as usize].take() {
+        ctx.timers.cancel(timer);
         ctx.undeclare_leds(shot.hex_center());
       }
     }
@@ -305,7 +305,7 @@ impl System for NimbusPromenadeMode {
       self.block(ctx);
     } else if let Some(BlockLifted { shot }) = event.downcast_ref::<BlockLifted>() {
       self.lift_block(*shot, ctx);
-    } else if event.is::<ScoopEjected<Lower>>() && self.block_cue.is_none() {
+    } else if event.is::<ScoopEjected<Lower>>() && self.block_timer.is_none() {
       // the Steward starts blocking once the ball is in play
       self.schedule_block(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {

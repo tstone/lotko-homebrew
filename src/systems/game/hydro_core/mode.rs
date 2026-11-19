@@ -36,7 +36,7 @@ pub struct HydroCoreMode {
   combo_shots_seen: HashSet<u8>,
   /// Failed attempts, each adding to the shot time
   combo_attempts: u16,
-  cue_id: Option<u64>,
+  timer_id: Option<u64>,
 }
 
 impl HydroCoreMode {
@@ -51,7 +51,7 @@ impl HydroCoreMode {
       current_combo_shot: 1,
       combo_shots_seen: HashSet::new(),
       combo_attempts: 0,
-      cue_id: None,
+      timer_id: None,
     }
   }
 
@@ -86,15 +86,15 @@ impl HydroCoreMode {
     self.intensity_scene.stop(ctx);
   }
 
-  fn clear_cue(&mut self, ctx: &SystemContext) {
-    if let Some(cue_id) = self.cue_id.as_ref() {
-      ctx.cues.cancel(*cue_id);
-      self.cue_id = None;
+  fn clear_timer(&mut self, ctx: &SystemContext) {
+    if let Some(timer_id) = self.timer_id.as_ref() {
+      ctx.timers.cancel(*timer_id);
+      self.timer_id = None;
     }
   }
 
   fn advance_combo(&mut self, shot: u8, ctx: &SystemContext) {
-    self.clear_cue(ctx);
+    self.clear_timer(ctx);
 
     if let Some(scene) = self.progress_scene.as_mut() {
       scene.stop(ctx);
@@ -130,7 +130,7 @@ impl HydroCoreMode {
         final_time
       );
       self.progress_scene = Some(ScenePlayer::started(Self::progress_scene(final_time), ctx));
-      self.cue_id = Some(ctx.cues.start(ComboTimeUp, final_time.once()));
+      self.timer_id = Some(ctx.timers.start(ComboTimeUp, final_time.once()));
     }
 
     self.current_combo_shot = shot;

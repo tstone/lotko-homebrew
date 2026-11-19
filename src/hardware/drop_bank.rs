@@ -1,7 +1,7 @@
 use crate::hardware::more_tags::DropBank;
 use crate::hardware::planes;
 use frontbox_core::prelude::*;
-use frontbox_core::tags::*;
+use frontbox_pinball::tags::*;
 use frontbox_pinball::BallSearching;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -115,14 +115,14 @@ const CLEARED_RAISE_DELAY: Duration = Duration::from_millis(500);
 #[derive(Clone)]
 pub struct DropBankSystem {
   handle: SystemHandle,
-  raise_cue: Option<u64>,
+  raise_timer: Option<u64>,
 }
 
 impl DropBankSystem {
   pub fn new() -> Self {
     Self {
       handle: SystemHandle::default(),
-      raise_cue: None,
+      raise_timer: None,
     }
   }
 
@@ -130,10 +130,10 @@ impl DropBankSystem {
     let all_down = [&TARGET1, &TARGET2, &TARGET3]
       .iter()
       .all(|target| ctx.switches.is_closed(target.name).unwrap_or(false));
-    if all_down && self.raise_cue.is_none() {
+    if all_down && self.raise_timer.is_none() {
       log::info!("Drop bank cleared");
       ctx.emit(DropBankCleared);
-      self.raise_cue = Some(ctx.cues.start(RaiseBank, CLEARED_RAISE_DELAY.once()));
+      self.raise_timer = Some(ctx.timers.start(RaiseBank, CLEARED_RAISE_DELAY.once()));
     }
   }
 
@@ -173,7 +173,7 @@ impl System for DropBankSystem {
         self.raise_targets(ctx.into());
       }
     } else if event.is::<RaiseBank>() {
-      self.raise_cue = None;
+      self.raise_timer = None;
       self.raise_targets(ctx.into());
     }
   }

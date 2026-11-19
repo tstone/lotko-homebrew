@@ -1,4 +1,4 @@
-use frontbox_core::prelude::tags::Playfield;
+use frontbox_pinball::tags::Playfield;
 use frontbox_core::prelude::*;
 use frontbox_led::prelude::*;
 use frontbox_pinball::*;
@@ -50,7 +50,7 @@ impl DropBankSkillShot {
       // A ball hitting the lit target near its edge can drop the neighbouring target a few ms first, so give the lit
       // target a moment to drop too before calling it a miss
       self.grace_period = true;
-      ctx.cues.start(GracePeriodElapsed, Cue::Once(GRACE_PERIOD));
+      ctx.timers.start(GracePeriodElapsed, Timer::Once(GRACE_PERIOD));
     }
   }
 
@@ -79,8 +79,8 @@ impl DropBankSkillShot {
     self.enqueued_target = Some(next);
 
     ctx
-      .cues
-      .start(NextTarget, Cue::Once(Duration::from_millis(1750)));
+      .timers
+      .start(NextTarget, Timer::Once(Duration::from_millis(1750)));
   }
 }
 

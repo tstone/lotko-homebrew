@@ -89,10 +89,10 @@ async fn main() {
     sound.set_callout_volume(9.0);
 
     app.system(sound);
-    app.system(FreePlay::new(start_button::SWITCH.q()));
+    app.system(credits());
     app.system(CoinDoorSystem::new(coin_door::OPEN_SWITCH.name));
     app.system(SoundLoaderSystem::new());
-    app.system(game_startable());
+    app.system(action_button_attract());
     app.system(attract_mode_leds());
     app.system(quit_game_combo(vec![
       &cabinet::LEFT_FLIPPER_SWITCH1,
@@ -184,7 +184,7 @@ async fn main() {
 
     // ball search
     app.system(
-      BallSearchSystem::new(SwitchQ::tag::<tags::Playfield>())
+      BallSearchSystem::new(SwitchQ::tag::<frontbox_pinball::tags::Playfield>())
         .hold_switches(SwitchQ::names([
           cabinet::LEFT_FLIPPER_SWITCH1.name,
           cabinet::RIGHT_FLIPPER_SWITCH1.name,
@@ -214,7 +214,6 @@ async fn main() {
           BasicPoints::new(),
           // operation
           BallSaveSystem::new().scene(ball_save_scene),
-          TiltSystem::new(&cabinet::TILT_BOB_SWITCH),
           ExtraBallSystem::new(),
           PlayfieldIllumination::new(),
           SkillshotManager::new(),
@@ -235,9 +234,10 @@ async fn main() {
           ArcStreakSystem::new(),
           OutlaneSaveSystem::new(),
         ],
-        SwitchQ::tag::<tags::Playfield>(),
+        SwitchQ::tag::<frontbox_pinball::tags::Playfield>(),
       )
-      .playfield_drivers(DriverQ::tag::<tags::Playfield>()),
+      .playfield_drivers(DriverQ::tag::<frontbox_pinball::tags::Playfield>())
+      .tilt_bob(&cabinet::TILT_BOB_SWITCH),
     );
   })
   .run()

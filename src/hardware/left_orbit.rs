@@ -1,7 +1,7 @@
 use std::sync::LazyLock;
 
 use frontbox_core::prelude::*;
-use frontbox_core::tags::*;
+use frontbox_pinball::tags::*;
 
 use crate::hardware::center_orbit::CenterOrbitHit;
 use crate::hardware::left_orbit::State::*;
@@ -62,12 +62,12 @@ impl LeftOrbitSystem {
 
   fn reset(&mut self, ctx: &SystemContext) {
     match self.state {
-      IgnoringCenterOrbit(cue_id) => {
-        ctx.cues.cancel(cue_id);
+      IgnoringCenterOrbit(timer_id) => {
+        ctx.timers.cancel(timer_id);
         self.state = AwaitingHit;
       }
-      LongDebouncing(cue_id) => {
-        ctx.cues.cancel(cue_id);
+      LongDebouncing(timer_id) => {
+        ctx.timers.cancel(timer_id);
         self.state = AwaitingHit;
       }
       AwaitingHit => {}
@@ -75,13 +75,13 @@ impl LeftOrbitSystem {
   }
 
   fn transition_to_ignore_center_orbit(&mut self, ctx: &SystemContext) {
-    let cue_id = ctx.cues.start(Reset, Duration::from_millis(800).once());
-    self.state = IgnoringCenterOrbit(cue_id);
+    let timer_id = ctx.timers.start(Reset, Duration::from_millis(800).once());
+    self.state = IgnoringCenterOrbit(timer_id);
   }
 
   fn transition_to_long_debounce(&mut self, ctx: &SystemContext) {
-    let cue_id = ctx.cues.start(Reset, Duration::from_millis(250).once());
-    self.state = LongDebouncing(cue_id);
+    let timer_id = ctx.timers.start(Reset, Duration::from_millis(250).once());
+    self.state = LongDebouncing(timer_id);
   }
 }
 

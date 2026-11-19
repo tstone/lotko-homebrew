@@ -24,8 +24,8 @@ impl System for SkillshotManager {
 
       // avoid any switch rattle from the ball entering the plunge lane
       ctx
-        .cues
-        .start(StartSkillshotModes, Cue::Once(Duration::from_millis(500)));
+        .timers
+        .start(StartSkillshotModes, Timer::Once(Duration::from_millis(500)));
     } else if event.is::<StartSkillshotModes>() {
       ctx.systems.spawn(LeftPopSkillShot::new());
       ctx.systems.spawn(LeftOutlaneSkillShot::new());

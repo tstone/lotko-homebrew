@@ -5,7 +5,7 @@ use frontbox_core::prelude::ActivationMode::VirtualSwitchOn;
 use frontbox_core::prelude::DeactivationMode::VirtualSwitchOff;
 use frontbox_core::prelude::DriverTriggerMode::VirtualSwitchTrue;
 use frontbox_core::prelude::*;
-use frontbox_core::tags::*;
+use frontbox_pinball::tags::*;
 use frontbox_pinball::{BallSearching, TurnPhase};
 
 use crate::hardware::more_tags::*;
@@ -88,7 +88,7 @@ pub struct LiftRampSystem {
   /// Who wants the ramp up, by `ctx.id()`. It stays up while anyone does.
   requests: HashSet<u64>,
   ramp_lifted: bool,
-  close_cue_id: Option<u64>,
+  close_timer_id: Option<u64>,
   handle: SystemHandle,
 }
 
@@ -97,7 +97,7 @@ impl LiftRampSystem {
     Self {
       requests: HashSet::new(),
       ramp_lifted: false,
-      close_cue_id: None,
+      close_timer_id: None,
       handle: SystemHandle::default(),
     }
   }
@@ -137,9 +137,9 @@ impl LiftRampSystem {
       self.ramp_lifted = false;
       ctx.drivers.deactivate(RAMP_COIL.name, VirtualSwitchOff);
       ctx.emit(LiftRampDown);
-      if let Some(cue_id) = self.close_cue_id {
-        ctx.cues.cancel(cue_id);
-        self.close_cue_id = None;
+      if let Some(timer_id) = self.close_timer_id {
+        ctx.timers.cancel(timer_id);
+        self.close_timer_id = None;
       }
     }
   }
@@ -147,7 +147,7 @@ impl LiftRampSystem {
   fn search_lift(&mut self, ctx: &SystemContext) {
     if !self.ramp_lifted {
       self.lift_up(ctx.into());
-      ctx.cues.start(SearchLowerDue, SEARCH_LIFT_TIME.once());
+      ctx.timers.start(SearchLowerDue, SEARCH_LIFT_TIME.once());
     }
     ctx.routines.complete_step::<BallSearching>();
   }

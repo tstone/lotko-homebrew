@@ -1,7 +1,7 @@
 use crate::hardware::planes;
 use frontbox_core::prelude::*;
 use frontbox_core::provided::SwitchComboSystem;
-use frontbox_core::tags::*;
+use frontbox_pinball::tags::*;
 
 hardware_defs! {
   pub LEFT_FLIPPER_SWITCH1: SwitchDefinition = SwitchDefinition::new("l_flipper1")
@@ -52,7 +52,7 @@ pub mod action_button {
 
 pub mod start_button {
   use super::*;
-  use frontbox_pinball::GameStartable;
+  use frontbox_pinball::CreditsSystem;
 
   pub const NAME: &'static str = "start";
 
@@ -61,7 +61,7 @@ pub mod start_button {
       .tag(Cabinet)
       .location(Vec3::new(2.25, 2.25, 0.0).relative_to(&planes::CABINET_FRONT));
 
-    pub LAMP_DRIVER: DriverDefinition = GameStartable::lamp_driver(NAME)
+    pub LAMP_DRIVER: DriverDefinition = CreditsSystem::start_lamp_driver(NAME)
       .tag(Cabinet)
       .location(Vec3::new(2.25, 2.25, 0.0).relative_to(&planes::CABINET_FRONT));
   }

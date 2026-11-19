@@ -35,7 +35,7 @@ pub struct SolariumAtriumMode {
   hit_scene: ScenePlayer,
   intensity_scene: ScenePlayer,
   hits: u8,
-  move_cue: Option<u64>,
+  move_timer: Option<u64>,
 }
 
 impl SolariumAtriumMode {
@@ -51,7 +51,7 @@ impl SolariumAtriumMode {
       hit_scene: ScenePlayer::new(Self::hit_scene()),
       intensity_scene: ScenePlayer::new(Self::intensity_scene()),
       hits: 0,
-      move_cue: None,
+      move_timer: None,
     }
   }
 
@@ -143,12 +143,12 @@ impl SolariumAtriumMode {
 
   fn schedule_move(&mut self, ctx: &SystemContext) {
     self.cancel_move(ctx);
-    self.move_cue = Some(ctx.cues.start(VineMoveDue, self.interval().once()));
+    self.move_timer = Some(ctx.timers.start(VineMoveDue, self.interval().once()));
   }
 
   fn cancel_move(&mut self, ctx: &SystemContext) {
-    if let Some(cue) = self.move_cue.take() {
-      ctx.cues.cancel(cue);
+    if let Some(timer) = self.move_timer.take() {
+      ctx.timers.cancel(timer);
     }
   }
 }
@@ -183,9 +183,9 @@ impl System for SolariumAtriumMode {
     self.run.on_event(event, ctx);
 
     if event.is::<VineMoveDue>() {
-      self.move_cue = None;
+      self.move_timer = None;
       self.move_vine(ctx);
-    } else if event.is::<ScoopEjected<Lower>>() && self.move_cue.is_none() {
+    } else if event.is::<ScoopEjected<Lower>>() && self.move_timer.is_none() {
       // the vine starts crawling once the ball is in play
       self.schedule_move(ctx);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>() {

@@ -5,8 +5,8 @@ Scene(
     cycle: Times(2),
   ),
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::l_flasher::0",
         "___child::l_flasher::1",
         "___child::l_flasher::2",
@@ -47,8 +47,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::c_flasher::0",
         "___child::c_flasher::1",
         "___child::c_flasher::2",
@@ -89,8 +89,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       surface: Area("Playfield"),
       layer: (
         fill: (

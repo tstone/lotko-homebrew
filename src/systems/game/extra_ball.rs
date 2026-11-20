@@ -1,8 +1,8 @@
 use frontbox_core::prelude::*;
 use frontbox_gfx::scene::NumberFormat;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_pinball::{
-  ExtraBallGranted, ExtraBallUsed, GameManagementExt, TurnStartReason, TurnStarting,
+  ExtraBallGranted, ExtraBallUsed, GameManagerExt, TurnStartReason, TurnStarting,
 };
 
 use crate::hardware::trough::DRAIN_LED;
@@ -116,9 +116,9 @@ impl ExtraBallSystem {
   /// The drain LED stays lit while the player has an extra ball to use
   fn update_shoot_again(&self, ctx: &SystemContext) {
     if ctx.extra_balls() > 0 {
-      ctx.declare_leds(&DRAIN_LED.q(), Rgba::amber());
+      ctx.declare_lights(&DRAIN_LED.q(), 0, Rgba::amber());
     } else {
-      ctx.undeclare_leds(&DRAIN_LED.q());
+      ctx.undeclare_lights(&DRAIN_LED.q(), 0);
     }
   }
 

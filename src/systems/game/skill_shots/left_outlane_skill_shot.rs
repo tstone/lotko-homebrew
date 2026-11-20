@@ -1,7 +1,7 @@
 use frontbox_pinball::tags::Playfield;
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
-use frontbox_pinball::{GameManagementExt, TurnPhase};
+use frontbox_lighting::prelude::*;
+use frontbox_pinball::{GameManagerExt, TurnPhase};
 
 use crate::hardware::left_outlane::LeftOutlaneRollover;
 use crate::hardware::more_tags::DoesNotCancelSkillshot;

@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
-use frontbox_pinball::{BallManagementExt, GameManagementExt, TurnPhase};
+use frontbox_lighting::prelude::*;
+use frontbox_pinball::{BallManagerExt, GameManagerExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::main_shot::{MainShot, MainShotHit};
@@ -80,11 +80,11 @@ impl ScoopQualifier {
   /// White on what's lit, nothing on what isn't
   fn render_shots(&self, ctx: &SystemContext) {
     for shot in MainShot::ALL {
-      let center = shot.hex_center().at_z(LIT_SHOT_Z);
+      let center = shot.hex_center();
       if self.count.is_lit(shot) {
-        ctx.declare_leds(&center, Rgba::white());
+        ctx.declare_lights(&center, LIT_SHOT_Z, Rgba::white());
       } else {
-        ctx.undeclare_leds(&center);
+        ctx.undeclare_lights(&center, LIT_SHOT_Z);
       }
     }
   }
@@ -149,11 +149,11 @@ impl System for ScoopQualifier {
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.render_shots(ctx);
   }
 }

@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystemExt;
 use rand::prelude::IndexedRandom;
@@ -175,7 +175,7 @@ impl System for OutlaneSaveSystem {
     if let Some(timer) = self.pass_lane_timer.take() {
       ctx.timers.cancel(timer);
     }
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

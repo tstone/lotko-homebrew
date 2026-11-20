@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_sound::SoundSystemExt;
 use rand::prelude::IndexedRandom;
 
@@ -145,19 +145,19 @@ impl HelixVaultsMode {
   fn render(&mut self, ctx: &SystemContext) {
     let color = Mode::HelixVaults.color();
     for shot in ORBITS {
-      let leds = shot.hex_center().clone().at_z(SHOT_Z);
+      let leds = shot.hex_center().clone();
       if self.lit_ramp.is_none() {
-        ctx.declare_leds(&leds, color);
+        ctx.declare_lights(&leds, SHOT_Z, color);
       } else {
-        ctx.undeclare_leds(&leds);
+        ctx.undeclare_lights(&leds, SHOT_Z);
       }
     }
     for shot in RAMPS {
-      let leds = shot.hex_center().clone().at_z(SHOT_Z);
+      let leds = shot.hex_center().clone();
       if self.lit_ramp == Some(shot) {
-        ctx.declare_leds(&leds, RUPTURE_COLOR);
+        ctx.declare_lights(&leds, SHOT_Z, RUPTURE_COLOR);
       } else {
-        ctx.undeclare_leds(&leds);
+        ctx.undeclare_lights(&leds, SHOT_Z);
       }
     }
     self
@@ -178,13 +178,13 @@ impl System for HelixVaultsMode {
 
   /// A resume keeps the vat's level and the ruptures
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.wizard.begin(ctx);
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     self.wizard.interrupt(ctx);
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

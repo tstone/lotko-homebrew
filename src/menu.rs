@@ -1,7 +1,7 @@
 use std::sync::LazyLock;
 
 use crate::hardware::*;
-use frontbox_display::menu::*;
+use frontbox_core::prelude::*;
 use frontbox_pinball::configs;
 
 pub static MENU: LazyLock<MenuSection> = LazyLock::new(|| {
@@ -49,5 +49,9 @@ pub static MENU: LazyLock<MenuSection> = LazyLock::new(|| {
   } else {
     menu
   };
-  menu.section(MenuSection::new("Stats")).terminate().shutdown()
+  menu
+    .section(MenuSection::new("Stats"))
+    .about()
+    .terminate()
+    .shutdown()
 });

@@ -51,8 +51,8 @@ pub mod left_ray {
       .location(Vec3::new(12.274, 18.279, 0.0).relative_to(&planes::PLAYFIELD));
   }
 
-  pub static Q: LazyLock<LedQ> = LazyLock::new(|| {
-    LedQ::names(vec![
+  pub static Q: LazyLock<LightQ> = LazyLock::new(|| {
+    LightQ::names(vec![
       LED1.names()[0].clone(),
       LED2.names()[0].clone(),
       LED3.names()[0].clone(),
@@ -83,8 +83,8 @@ pub mod upper_right_ray {
       .location(Vec3::new(14.653, 16.629, 0.0).relative_to(&planes::PLAYFIELD));
   }
 
-  pub static Q: LazyLock<LedQ> = LazyLock::new(|| {
-    LedQ::names(vec![
+  pub static Q: LazyLock<LightQ> = LazyLock::new(|| {
+    LightQ::names(vec![
       LED1.names()[0].clone(),
       LED2.names()[0].clone(),
       LED3.names()[0].clone(),
@@ -114,8 +114,8 @@ pub mod lower_right_ray {
       .location(Vec3::new(14.754, 19.71, 0.0).relative_to(&planes::PLAYFIELD));
   }
 
-  pub static Q: LazyLock<LedQ> = LazyLock::new(|| {
-    LedQ::names(vec![
+  pub static Q: LazyLock<LightQ> = LazyLock::new(|| {
+    LightQ::names(vec![
       LED1.names()[0].clone(),
       LED2.names()[0].clone(),
       LED3.names()[0].clone(),

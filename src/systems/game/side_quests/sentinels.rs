@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
-use frontbox_pinball::{GameManagementExt, TurnPhase};
+use frontbox_lighting::prelude::*;
+use frontbox_pinball::{GameManagerExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::drop_bank::{self, DropBankCleared, DropBankSystem, DropBankTargetHit};
@@ -129,9 +129,9 @@ impl SentinelsSystem {
     for (target, switch) in targets() {
       let down = ctx.switches.is_closed(switch).unwrap_or(false);
       if !self.running || down {
-        ctx.undeclare_leds(&target.q());
+        ctx.undeclare_lights(&target.q(), 0);
       } else {
-        ctx.declare_leds(&target.q(), Rgba::red());
+        ctx.declare_lights(&target.q(), 0, Rgba::red());
       }
     }
   }
@@ -143,7 +143,7 @@ impl System for SentinelsSystem {
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.render(ctx);
   }
 
@@ -154,7 +154,7 @@ impl System for SentinelsSystem {
       self.running = false;
       self.remaining = 0;
     }
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

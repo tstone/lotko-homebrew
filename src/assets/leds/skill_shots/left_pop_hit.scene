@@ -5,8 +5,8 @@ Scene(
     cycle: Times(5),
   ),
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::vs_left_ray1::0",
         "___child::vs_left_ray2::0",
         "___child::vs_left_ray3::0",

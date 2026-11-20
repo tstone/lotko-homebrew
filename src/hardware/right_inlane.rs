@@ -1,4 +1,4 @@
-use frontbox_core::prelude::LedChannels::GRB;
+use frontbox_core::prelude::ChannelOrder::GRB;
 use frontbox_core::prelude::*;
 use frontbox_pinball::tags::*;
 
@@ -22,13 +22,13 @@ hardware_defs! {
     .location(Vec3::new(15.776, 30.803, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub LANE_LED1: LedDefinition = LedDefinition::single("r_inlane_lane1")
-    .channels(GRB)
+    .channel_order(GRB)
     .tag(Playfield)
     .tag(GeneralIllumination)
     .location(Vec3::new(15.666, 35.661, 0.0).relative_to(&planes::PLAYFIELD));
 
   pub LANE_LED2: LedDefinition = LedDefinition::single("r_inlane_lane2")
-    .channels(GRB)
+    .channel_order(GRB)
     .tag(Playfield)
     .tag(GeneralIllumination)
     .location(Vec3::new(14.118, 36.718, 0.0).relative_to(&planes::PLAYFIELD));

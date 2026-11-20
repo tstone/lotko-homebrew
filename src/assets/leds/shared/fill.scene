@@ -5,8 +5,8 @@ Scene(
     "width": Float(0.0),
   },
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::l_orbit::5",
         "___child::l_orbit::4",
         "___child::l_orbit::3",

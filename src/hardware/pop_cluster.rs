@@ -148,7 +148,7 @@ pub fn target_led_for_pop(pop: &PopBumper) -> &'static LedDefinition {
   }
 }
 
-pub fn led_ray_for_pop(pop: &PopBumper) -> &'static LedQ {
+pub fn led_ray_for_pop(pop: &PopBumper) -> &'static LightQ {
   match pop {
     PopBumper::Left => &vspinner::left_ray::Q,
     PopBumper::UpperRight => &vspinner::upper_right_ray::Q,

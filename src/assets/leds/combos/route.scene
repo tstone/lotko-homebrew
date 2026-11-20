@@ -8,8 +8,8 @@ Scene(
     cycle: Once,
   ),
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::l_orbit::0",
       ]),
       z: 20,

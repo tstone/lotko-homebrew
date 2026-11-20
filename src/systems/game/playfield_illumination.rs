@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
 use frontbox_pinball::tags::GeneralIllumination;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 
 use crate::hardware::{arc_ramp, gi};
 use crate::systems::game::{ModeManager, ModeSlotsChanged};
@@ -38,14 +38,14 @@ impl System for PlayfieldIllumination {
     // a declaration stands until it's replaced, so it only needs making when the color changes
     if self.update {
       self.update = false;
-      ctx.declare_leds(&LedQ::tag::<GeneralIllumination>(), self.color);
-      ctx.declare_leds(&arc_ramp::ARC_LEDS.q().at_z(-1), self.color);
-      ctx.declare_leds(&arc_ramp::SUBWAY_LEDS.q().at_z(-1), self.color);
-      let sentinels_half = gi::sentinels_half().at_z(1);
+      ctx.declare_lights(&LightQ::tag::<GeneralIllumination>(), 0, self.color);
+      ctx.declare_lights(&arc_ramp::ARC_LEDS.q(), -1, self.color);
+      ctx.declare_lights(&arc_ramp::SUBWAY_LEDS.q(), -1, self.color);
+      let sentinels_half = gi::sentinels_half();
       if self.sentinels {
-        ctx.declare_leds(&sentinels_half, Rgba::red());
+        ctx.declare_lights(&sentinels_half, 1, Rgba::red());
       } else {
-        ctx.undeclare_leds(&sentinels_half);
+        ctx.undeclare_lights(&sentinels_half, 1);
       }
     }
   }

@@ -5,8 +5,8 @@ Scene(
     cycle: Forever,
   ),
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::l_cap_ball_bolt::0",
         "___child::r_cap_ball_bolt::0",
       ]),

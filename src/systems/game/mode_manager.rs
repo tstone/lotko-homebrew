@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_pinball::{TurnEnding, TurnStarting};
 use frontbox_sound::{SoundSystem, SoundSystemExt};
 
@@ -372,14 +372,14 @@ impl ModeManager {
         _ if self.highlighted == Some(mode) => mode.color(),
         _ => Rgba::default(),
       };
-      ctx.declare_leds(&led, color);
+      ctx.declare_lights(&led, 0, color);
     }
   }
 
   fn set_map_pulse(
     &mut self,
     mode: Mode,
-    led: &LedQ,
+    led: &LightQ,
     pulse: Option<MapPulse>,
     ctx: &SystemContext,
   ) {

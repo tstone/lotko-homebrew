@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
-use frontbox_pinball::GameManagementExt;
+use frontbox_lighting::prelude::*;
+use frontbox_pinball::GameManagerExt;
 use frontbox_sound::SoundSystemExt;
 use rand::prelude::IndexedRandom;
 
@@ -180,7 +180,7 @@ impl System for ApexTerracesMode {
 
   /// A resume keeps the terraces burst, and starts the current one's ring over
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.filled = 0;
     self.run.reset_progress();
     self.render_ring(ctx);
@@ -190,7 +190,7 @@ impl System for ApexTerracesMode {
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     self.cancel_drain(ctx);
     self.run.interrupt(ctx);
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

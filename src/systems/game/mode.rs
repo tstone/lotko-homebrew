@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 
 use crate::hardware::city_map;
 use crate::systems::{Callout, sounds};
@@ -127,7 +127,7 @@ impl Mode {
   }
 
   /// The mode's insert on the city map. Mini-wizards don't have one, as the map's six are the districts.
-  pub fn map_led(&self) -> Option<LedQ> {
+  pub fn map_led(&self) -> Option<LightQ> {
     match self {
       Self::HydroCore => Some(city_map::HYDRO_CORE.q()),
       Self::SkyrailStation => Some(city_map::SKYRAIL_STATION.q()),

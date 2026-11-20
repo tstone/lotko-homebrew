@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
 use frontbox_pinball::{
-  BallManagementExt, GameManagementExt, PlayerEntry, ScoopBallEntered, ScoopEntry, ScoopSystem,
+  BallManagerExt, GameManagerExt, PlayerEntry, ScoopBallEntered, ScoopEntry, ScoopSystem,
   TurnPhase,
 };
 use frontbox_sound::SoundSystemExt;

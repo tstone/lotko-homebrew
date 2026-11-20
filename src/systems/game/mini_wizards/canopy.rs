@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::center_orbit::CenterSpinnerHit;
@@ -35,8 +35,8 @@ impl CanopyMode {
   }
 
   fn attention_scene() -> PlayableScene {
-    let qs: Vec<&LedQ> = RAMPS.iter().map(|shot| shot.hex_center()).collect();
-    glow_scene(&LedQ::any(qs), Mode::Canopy.color())
+    let qs: Vec<&LightQ> = RAMPS.iter().map(|shot| shot.hex_center()).collect();
+    glow_scene(&LightQ::any(qs), Mode::Canopy.color())
   }
 
   fn build(&mut self, amount: u64) {
@@ -78,13 +78,13 @@ impl System for CanopyMode {
 
   /// A resume keeps the collects and the value built
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.wizard.begin(ctx);
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     self.wizard.interrupt(ctx);
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

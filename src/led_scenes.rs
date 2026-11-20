@@ -1,4 +1,4 @@
-use frontbox_core::prelude::LedQ;
+use frontbox_core::prelude::LightQ;
 use frontbox_gfx::scene::file::FormatError;
 use frontbox_scene::{Completes, PlayableScene, Scene};
 
@@ -36,11 +36,11 @@ macro_rules! load {
 
 pub(crate) use load;
 
-pub fn scene(path: &str, loaded: Result<Scene, FormatError>, leds: Option<LedQ>) -> PlayableScene {
+pub fn scene(path: &str, loaded: Result<Scene, FormatError>, leds: Option<LightQ>) -> PlayableScene {
   let scene = PlayableScene::new(loaded.unwrap_or_else(|e| panic!("{path}: {e}")));
   match leds {
     Some(leds) => scene
-      .on_leds(leds)
+      .on_lights(leds)
       .unwrap_or_else(|e| panic!("{path}: {e}")),
     None => scene,
   }
@@ -49,13 +49,13 @@ pub fn scene(path: &str, loaded: Result<Scene, FormatError>, leds: Option<LedQ>)
 pub fn completing(
   path: &str,
   loaded: Result<Scene, FormatError>,
-  leds: Option<LedQ>,
+  leds: Option<LightQ>,
 ) -> PlayableScene<Completes> {
   let scene = PlayableScene::completing(loaded.unwrap_or_else(|e| panic!("{path}: {e}")))
     .unwrap_or_else(|e| panic!("{path}: {e}"));
   match leds {
     Some(leds) => scene
-      .on_leds(leds)
+      .on_lights(leds)
       .unwrap_or_else(|e| panic!("{path}: {e}")),
     None => scene,
   }

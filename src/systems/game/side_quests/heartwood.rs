@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
-use frontbox_pinball::{GameManagementExt, TurnPhase};
+use frontbox_lighting::prelude::*;
+use frontbox_pinball::{GameManagerExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::captive_ball::{self, CaptiveBallHit};
@@ -43,7 +43,7 @@ impl HeartwoodCharge {
 
   fn beat_scene(charged: f32) -> PlayableScene {
     let beat = EMPTY_BEAT.as_secs_f32() - (EMPTY_BEAT - FULL_BEAT).as_secs_f32() * charged;
-    let bolts = LedQ::any(vec![
+    let bolts = LightQ::any(vec![
       &captive_ball::LEFT_BOLT.q(),
       &captive_ball::RIGHT_BOLT.q(),
     ]);

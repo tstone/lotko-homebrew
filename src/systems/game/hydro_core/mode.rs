@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
-use frontbox_pinball::GameManagementExt;
+use frontbox_lighting::prelude::*;
+use frontbox_pinball::GameManagerExt;
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::main_shot::{MainShot, MainShotHit};
@@ -55,11 +55,11 @@ impl HydroCoreMode {
     }
   }
 
-  fn attention_scene(target: &LedQ) -> PlayableScene {
+  fn attention_scene(target: &LightQ) -> PlayableScene {
     scene!("hydro_core/attention.scene", target.clone())
   }
 
-  fn attention_ring(target: &LedQ) -> PlayableScene {
+  fn attention_ring(target: &LightQ) -> PlayableScene {
     scene!("hydro_core/attention_ring.scene", target.clone())
   }
 
@@ -190,14 +190,14 @@ impl System for HydroCoreMode {
 
   /// A resume keeps the failed attempts and the shots that have scored, and starts the combo over
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.run.begin(ctx);
     self.start_combo(ctx);
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     self.run.interrupt(ctx);
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {

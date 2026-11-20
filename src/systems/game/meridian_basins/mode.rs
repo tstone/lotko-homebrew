@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use rand::prelude::IndexedRandom;
 
 use crate::hardware::arc_ramp;
@@ -136,11 +136,11 @@ impl MeridianBasinsMode {
   /// Each basin's status on its hex center
   fn render(&self, ctx: &SystemContext) {
     for basin in &self.basins {
-      let leds = basin.shot.hex_center().clone().at_z(BASIN_Z);
+      let leds = basin.shot.hex_center().clone();
       match basin.state {
-        BasinState::Lit => ctx.declare_leds(&leds, *MODE_COLOR),
-        BasinState::Planted => ctx.declare_leds_flashing(&leds, *MODE_COLOR),
-        BasinState::Burst => ctx.undeclare_leds(&leds),
+        BasinState::Lit => ctx.declare_lights(&leds, BASIN_Z, *MODE_COLOR),
+        BasinState::Planted => ctx.declare_lights_flashing(&leds, BASIN_Z, *MODE_COLOR),
+        BasinState::Burst => ctx.undeclare_lights(&leds, BASIN_Z),
       }
     }
   }
@@ -158,13 +158,13 @@ impl System for MeridianBasinsMode {
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.run.begin(ctx);
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     self.run.interrupt(ctx);
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

@@ -5,8 +5,8 @@ Scene(
     cycle: Once,
   ),
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::l_orbit::5",
         "___child::l_orbit::4",
         "___child::l_orbit::3",
@@ -71,8 +71,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::l_flasher::0",
         "___child::l_flasher::1",
         "___child::l_flasher::2",

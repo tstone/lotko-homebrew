@@ -5,8 +5,8 @@ Scene(
     cycle: Forever,
   ),
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::vs_left_ray4::0",
         "___child::vs_left_ray3::0",
         "___child::vs_left_ray2::0",
@@ -57,8 +57,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::l_pop_led::0",
       ]),
       surface: Sequence,

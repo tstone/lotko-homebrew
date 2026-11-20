@@ -5,8 +5,8 @@ Scene(
     cycle: Once,
   ),
   layers: [
-    Leds(
-      leds: Every,
+    Lights(
+      lights: Every,
       surface: Sequence,
       layer: (
         fill: (

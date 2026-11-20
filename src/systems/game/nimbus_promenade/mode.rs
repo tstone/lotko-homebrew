@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_pinball::ScoopEjected;
 use frontbox_sound::SoundSystemExt;
 use rand::prelude::IndexedRandom;
@@ -72,8 +72,8 @@ impl NimbusPromenadeMode {
     glow_scene(&Self::hex_centers(shots), WEAKENED_COLOR)
   }
 
-  fn hex_centers(shots: &[MainShot]) -> LedQ {
-    LedQ::any(shots.iter().map(|shot| shot.hex_center()).collect())
+  fn hex_centers(shots: &[MainShot]) -> LightQ {
+    LightQ::any(shots.iter().map(|shot| shot.hex_center()).collect())
   }
 
   fn block_warning_scene(shot: MainShot) -> PlayableScene {
@@ -216,7 +216,7 @@ impl NimbusPromenadeMode {
   fn lift_block(&mut self, shot: MainShot, ctx: &SystemContext) {
     log::info!("NimbusPromenade: {shot:?} unblocked");
     self.blocks[shot as usize] = None;
-    ctx.undeclare_leds(shot.hex_center());
+    ctx.undeclare_lights(shot.hex_center(), 0);
     self.refresh(ctx);
   }
 
@@ -235,7 +235,7 @@ impl NimbusPromenadeMode {
     for shot in MainShot::ALL {
       if let Some(timer) = self.blocks[shot as usize].take() {
         ctx.timers.cancel(timer);
-        ctx.undeclare_leds(shot.hex_center());
+        ctx.undeclare_lights(shot.hex_center(), 0);
       }
     }
   }
@@ -264,7 +264,7 @@ impl NimbusPromenadeMode {
 
     for shot in MainShot::ALL {
       if self.is_blocked(shot) {
-        ctx.declare_leds(shot.hex_center(), Rgba::red());
+        ctx.declare_lights(shot.hex_center(), 0, Rgba::red());
       }
     }
   }
@@ -281,7 +281,7 @@ impl System for NimbusPromenadeMode {
 
   /// A resume keeps each walkway's progress, with no blocks
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.refresh(ctx);
     self.run.begin(ctx);
     // picking up in play after the Sentinels, with no scoop eject to wait for
@@ -293,7 +293,7 @@ impl System for NimbusPromenadeMode {
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     self.cancel_blocks(ctx);
     self.run.interrupt(ctx);
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

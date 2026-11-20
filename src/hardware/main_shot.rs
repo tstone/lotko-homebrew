@@ -29,7 +29,7 @@ impl MainShot {
     Self::RightOrbit,
   ];
 
-  pub fn hex_center(self) -> &'static LedQ {
+  pub fn hex_center(self) -> &'static LightQ {
     match self {
       Self::LeftOrbit => &*left_orbit::HEX_CENTER_LED,
       Self::DomeRamp => &*dome_ramp::HEX_CENTER_LED,
@@ -41,7 +41,7 @@ impl MainShot {
   }
 
   /// The hex's outer LEDs in chase order, starting from the one nearest the shot
-  pub fn hex_ring(self) -> &'static LedQ {
+  pub fn hex_ring(self) -> &'static LightQ {
     match self {
       Self::LeftOrbit => &*left_orbit::HEX_CIRCLE_LEDS,
       Self::DomeRamp => &*dome_ramp::HEX_CIRCLE_LEDS,

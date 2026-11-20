@@ -5,8 +5,8 @@ Scene(
     cycle: Times(4),
   ),
   layers: [
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       surface: Area("Playfield"),
       layer: (
         name: "PF Bar",
@@ -39,8 +39,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Speaker"),
+    Lights(
+      lights: Tag("Speaker"),
       surface: Area("Backboard"),
       layer: (
         name: "Speakers",

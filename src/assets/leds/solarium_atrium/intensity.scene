@@ -5,8 +5,8 @@ Scene(
     cycle: Forever,
   ),
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::l_flasher::0",
         "___child::l_flasher::1",
         "___child::l_flasher::2",
@@ -69,8 +69,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::l_speaker::24",
         "___child::l_speaker::23",
         "___child::l_speaker::22",
@@ -142,8 +142,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::r_speaker::24",
         "___child::r_speaker::23",
         "___child::r_speaker::22",

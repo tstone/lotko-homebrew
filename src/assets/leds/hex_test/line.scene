@@ -1,8 +1,8 @@
 Scene(
   version: 2,
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::l_orbit::2",
         "___child::l_orbit::6",
         "___child::l_orbit::5",

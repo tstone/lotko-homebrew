@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_pinball::ScoopEjected;
 use frontbox_sound::SoundSystemExt;
 use rand::prelude::IndexedRandom;
@@ -100,7 +100,7 @@ impl SolariumAtriumMode {
     if self.hits == REQUIRED_HITS {
       self.cancel_move(ctx);
       self.head_scene.stop(ctx);
-      ctx.undeclare_leds(self.next.hex_center());
+      ctx.undeclare_lights(self.next.hex_center(), 0);
       self.run.complete(Self::complete_scene(), ctx);
       return;
     }
@@ -133,12 +133,9 @@ impl SolariumAtriumMode {
   fn render(&mut self, ctx: &SystemContext) {
     self.head_scene.replace_scene(Self::head_scene(self.head), ctx);
     for shot in MainShot::ALL {
-      ctx.undeclare_leds(shot.hex_center());
+      ctx.undeclare_lights(shot.hex_center(), 0);
     }
-    ctx.declare_leds(
-      self.next.hex_center(),
-      MODE_COLOR.mix_with(Rgba::black(), 0.8),
-    );
+    ctx.declare_lights(self.next.hex_center(), 0, MODE_COLOR.mix_with(Rgba::black(), 0.8));
   }
 
   fn schedule_move(&mut self, ctx: &SystemContext) {
@@ -165,7 +162,7 @@ impl System for SolariumAtriumMode {
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.run.begin(ctx);
     // picking up in play after the Sentinels, with no scoop eject to wait for
     if !self.run.is_starting() {
@@ -176,7 +173,7 @@ impl System for SolariumAtriumMode {
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     self.cancel_move(ctx);
     self.run.interrupt(ctx);
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

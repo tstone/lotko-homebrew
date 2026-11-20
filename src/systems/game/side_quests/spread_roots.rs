@@ -1,7 +1,7 @@
 use frontbox_core::prelude::*;
 use frontbox_pinball::tags::Playfield;
-use frontbox_led::prelude::*;
-use frontbox_pinball::{GameManagementExt, TurnPhase};
+use frontbox_lighting::prelude::*;
+use frontbox_pinball::{GameManagerExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::cabinet::action_button;
@@ -160,7 +160,7 @@ impl SpreadRootsSystem {
     let in_mode = ctx.systems.expect::<ModeManager>().current_mode().is_some();
 
     if armed && in_mode {
-      ctx.undeclare_leds(&led);
+      ctx.undeclare_lights(&led, 0);
       self
         .lash_glow
         .get_or_insert_with(|| ScenePlayer::started(glow_scene(&led, Rgba::lime()), ctx));
@@ -170,9 +170,9 @@ impl SpreadRootsSystem {
       glow.stop(ctx);
     }
     if armed {
-      ctx.declare_leds(&led, Rgba::bronze());
+      ctx.declare_lights(&led, 0, Rgba::bronze());
     } else {
-      ctx.undeclare_leds(&led);
+      ctx.undeclare_lights(&led, 0);
     }
   }
 
@@ -192,7 +192,7 @@ impl System for SpreadRootsSystem {
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.render(ctx);
   }
 

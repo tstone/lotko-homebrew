@@ -1,6 +1,6 @@
 use std::sync::LazyLock;
 
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 
 mod mode;
 

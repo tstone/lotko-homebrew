@@ -5,8 +5,8 @@ Scene(
     cycle: Once,
   ),
   layers: [
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 30,
       surface: Area("Playfield"),
       layer: (
@@ -60,8 +60,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 30,
       surface: Area("Playfield"),
       layer: (
@@ -125,8 +125,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 30,
       surface: Area("Playfield"),
       layer: (
@@ -190,8 +190,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 30,
       surface: Area("Playfield"),
       layer: (
@@ -255,8 +255,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 30,
       surface: Area("Playfield"),
       layer: (
@@ -320,8 +320,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 30,
       surface: Area("Playfield"),
       layer: (
@@ -385,8 +385,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 30,
       surface: Area("Playfield"),
       layer: (
@@ -450,8 +450,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 30,
       surface: Area("Playfield"),
       layer: (
@@ -515,8 +515,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 30,
       surface: Area("Playfield"),
       layer: (
@@ -580,8 +580,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 29,
       surface: Area("Playfield"),
       layer: (

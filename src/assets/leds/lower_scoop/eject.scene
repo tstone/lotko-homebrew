@@ -5,8 +5,8 @@ Scene(
     cycle: Times(4),
   ),
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::scoop_bolt_l::0",
         "___child::scoop_bolt_r::0",
       ]),

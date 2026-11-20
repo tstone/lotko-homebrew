@@ -5,8 +5,8 @@ Scene(
     cycle: Times(4),
   ),
   layers: [
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: -1,
       surface: Sequence,
       layer: (

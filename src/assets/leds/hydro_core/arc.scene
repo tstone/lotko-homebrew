@@ -5,8 +5,8 @@ Scene(
     cycle: Forever,
   ),
   layers: [
-    Leds(
-      leds: Tag("ArcRamp"),
+    Lights(
+      lights: Tag("ArcRamp"),
       surface: Sequence,
       layer: (
         fill: (

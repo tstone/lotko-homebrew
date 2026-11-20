@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_pinball::{GameManagementExt, ScoopBallEntered, ScoopEjected, ScoopEntry, TurnPhase};
+use frontbox_pinball::{GameManagerExt, ScoopBallEntered, ScoopEjected, ScoopEntry, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::arc_ramp::ArcRampHit;

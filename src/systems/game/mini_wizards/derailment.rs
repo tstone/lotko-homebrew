@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::drop_bank::{self, DropBankCleared, DropBankTargetHit};
@@ -33,7 +33,7 @@ impl DerailmentMode {
 
   /// The drop strips and the lift ramp, in the line's blue
   fn attention_scene() -> PlayableScene {
-    let leds = LedQ::Or(vec![
+    let leds = LightQ::Or(vec![
       drop_bank::TARGET1_LEDS.q(),
       drop_bank::TARGET2_LEDS.q(),
       drop_bank::TARGET3_LEDS.q(),
@@ -106,7 +106,7 @@ impl System for DerailmentMode {
 
   /// A resume keeps the clears
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.request_ramp(ctx);
     self.wizard.begin(ctx);
   }
@@ -114,7 +114,7 @@ impl System for DerailmentMode {
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     self.release_ramp(ctx);
     self.wizard.interrupt(ctx);
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

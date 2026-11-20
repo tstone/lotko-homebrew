@@ -3,7 +3,7 @@ use frontbox_core::prelude::*;
 use frontbox_display::menu::{DmdMenuSystem, MenuSwitches};
 use frontbox_display::{DisplayDefinition, DisplaySystem};
 use frontbox_dmd::{PanelType, Pin2Dmd};
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystem;
 use std::io::Write;
@@ -84,7 +84,7 @@ async fn main() {
 
     // core
     app.system(SceneSystem::new());
-    app.system(LedSystem::new());
+    app.system(LayeredLightManager::new());
     let mut sound = SoundSystem::new("Sound Blaster");
     sound.set_callout_volume(9.0);
 
@@ -157,7 +157,7 @@ async fn main() {
     app.system(right_pass_lane::RightPassLaneSystem::new());
     app.system(slingshots::SlingshotSystem::new());
     app.system(
-      BallManager::standard(
+      StandardBallManager::builder(
         [
           trough::SWITCH1.name,
           trough::SWITCH2.name,
@@ -178,6 +178,7 @@ async fn main() {
     );
 
     // game
+    app.system(PlayfieldDrivers::new(DriverQ::tag::<frontbox_pinball::tags::Playfield>()));
     app.routine::<TurnEnding>(routine![EndOfBallSystem, BonusSystem, TurnEndScoreSystem]);
     app.routine::<BallDraining>(routine![BallSaveSystem, OutlaneSaveSystem]);
     app.routine::<GameEnding>(routine![EndOfBallSystem]);
@@ -208,7 +209,7 @@ async fn main() {
     app.system(GameGreeting::new());
     app.system(TiltPresenter::new());
     app.system(
-      GameManager::competitive(
+      CompetitiveGame::new(
         4,
         systems![
           BasicPoints::new(),
@@ -236,7 +237,6 @@ async fn main() {
         ],
         SwitchQ::tag::<frontbox_pinball::tags::Playfield>(),
       )
-      .playfield_drivers(DriverQ::tag::<frontbox_pinball::tags::Playfield>())
       .tilt_bob(&cabinet::TILT_BOB_SWITCH),
     );
   })

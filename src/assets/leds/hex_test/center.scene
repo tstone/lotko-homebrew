@@ -1,8 +1,8 @@
 Scene(
   version: 2,
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::l_orbit::6",
         "___child::dome_ramp::6",
         "___child::arc_ramp_lane::6",

@@ -5,8 +5,8 @@ Scene(
     cycle: Once,
   ),
   layers: [
-    Leds(
-      leds: Every,
+    Lights(
+      lights: Every,
       z: 30,
       surface: Area("Playfield"),
       layer: (

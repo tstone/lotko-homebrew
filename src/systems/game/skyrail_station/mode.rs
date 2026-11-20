@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::SoundSystemExt;
 
@@ -232,7 +232,7 @@ impl System for SkyrailStationMode {
         .expect::<LiftRampSystem>()
         .request_up(ctx.id(), ctx.into());
     }
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.run.begin(ctx);
   }
 
@@ -245,7 +245,7 @@ impl System for SkyrailStationMode {
     }
     self.needs_ball = self.state == Final;
     self.run.interrupt(ctx);
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {

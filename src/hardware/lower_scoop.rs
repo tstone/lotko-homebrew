@@ -3,7 +3,7 @@ use std::sync::LazyLock;
 use frontbox_core::prelude::*;
 use frontbox_pinball::tags::*;
 use frontbox_pinball::{
-  GameManagementExt, ScoopBallEntered, ScoopEjectStarted, ScoopEntry, ScoopSystem,
+  GameManagerExt, ScoopBallEntered, ScoopEjectStarted, ScoopEntry, ScoopSystem,
 };
 use frontbox_sound::SoundSystemExt;
 
@@ -55,8 +55,8 @@ hardware_defs! {
     .location(Vec3::new(3.339, 27.357, 0.0).relative_to(&planes::PLAYFIELD));
 }
 
-pub static BOLTS_Q: LazyLock<LedQ> = LazyLock::new(|| {
-  LedQ::names(vec![
+pub static BOLTS_Q: LazyLock<LightQ> = LazyLock::new(|| {
+  LightQ::names(vec![
     LEFT_BOLT.names()[0].clone(),
     RIGHT_BOLT.names()[0].clone(),
   ])

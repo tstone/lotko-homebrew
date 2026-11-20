@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_pinball::{GameEnding, PlayerTilted, TiltWarned, TurnStarting, tags};
 
 use crate::systems::dmd::{ANNOUNCEMENT_DMD_LAYER, DmdScreen};
@@ -47,7 +47,7 @@ impl TiltPresenter {
     if let Some(timer) = self.warning_timer.take() {
       ctx.timers.cancel(timer);
     }
-    ctx.declare_leds(&LedQ::tag::<tags::Playfield>().at_z(50), Rgba::black());
+    ctx.declare_lights(&LightQ::tag::<tags::Playfield>(), 50, Rgba::black());
     self.show("TILT".to_string(), ctx);
     ctx.say(Callout::ThankYouForCooperation);
   }
@@ -56,7 +56,7 @@ impl TiltPresenter {
   fn clear(&mut self, ctx: &SystemContext) {
     if self.tilted {
       self.tilted = false;
-      ctx.undeclare_leds(&LedQ::tag::<tags::Playfield>().at_z(50));
+      ctx.undeclare_lights(&LightQ::tag::<tags::Playfield>(), 50);
       self.remove_screen(ctx);
     }
   }

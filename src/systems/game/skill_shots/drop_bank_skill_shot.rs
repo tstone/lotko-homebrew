@@ -1,6 +1,6 @@
 use frontbox_pinball::tags::Playfield;
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_pinball::*;
 use frontbox_sound::*;
 
@@ -61,7 +61,7 @@ impl DropBankSkillShot {
     ctx.systems.despawn_self();
   }
 
-  fn attention_scene(target: LedQ) -> PlayableScene {
+  fn attention_scene(target: LightQ) -> PlayableScene {
     scene!("skill_shots/drop_bank_attention.scene", target)
   }
 

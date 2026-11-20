@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
-use frontbox_pinball::{GameManagementExt, TurnPhase};
+use frontbox_lighting::prelude::*;
+use frontbox_pinball::{GameManagerExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::city_map;
@@ -146,7 +146,7 @@ impl System for SporesSystem {
     if let Some(timer) = self.burst_timer.take() {
       ctx.timers.cancel(timer);
     }
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

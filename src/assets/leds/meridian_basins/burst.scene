@@ -8,8 +8,8 @@ Scene(
     cycle: Once,
   ),
   layers: [
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 20,
       surface: Area("Playfield"),
       layer: (
@@ -63,8 +63,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 20,
       surface: Area("Playfield"),
       layer: (
@@ -112,8 +112,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: 20,
       surface: Area("Playfield"),
       layer: (

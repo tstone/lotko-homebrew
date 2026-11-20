@@ -1,7 +1,7 @@
 use frontbox_core::prelude::*;
 use frontbox_pinball::tags::Playfield;
-use frontbox_led::prelude::*;
-use frontbox_pinball::{BallManagementExt, BallManager, GameManagementExt, TurnPhase};
+use frontbox_lighting::prelude::*;
+use frontbox_pinball::{BallManagerExt, GameManagerExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::main_shot::MainShotHit;
@@ -169,9 +169,9 @@ impl SurveillanceSystem {
     for pop in PopBumper::ALL {
       let led = pop_cluster::target_led_for_pop(&pop).q();
       if self.is_enabled() && self.cameras.is_watching(pop) {
-        ctx.declare_leds(&led, Rgba::red());
+        ctx.declare_lights(&led, 0, Rgba::red());
       } else {
-        ctx.undeclare_leds(&led);
+        ctx.undeclare_lights(&led, 0);
       }
     }
   }
@@ -184,7 +184,7 @@ impl System for SurveillanceSystem {
 
   /// A new ball gets a full deadline. One that passed last ball still dispatches the Sentinels.
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     if self.is_enabled() {
       self.restart_deadline();
     }
@@ -234,8 +234,7 @@ impl System for SurveillanceSystem {
 /// A ball held in a scoop, or the mode select menu up: play is waiting on it
 fn ball_waiting(ctx: &SystemContext) -> bool {
   let held = ctx
-    .systems
-    .get::<BallManager>()
+    .ball_manager()
     .is_some_and(|ball_manager| ball_manager.balls_held() > 0);
   let menu_open = ctx
     .systems

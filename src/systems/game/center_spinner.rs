@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_pinball::{GameManagementExt, TurnPhase};
+use frontbox_pinball::{GameManagerExt, TurnPhase};
 
 use crate::hardware::center_orbit::CenterSpinnerHit;
 use crate::systems::game::{ModeManager, Perk, points};

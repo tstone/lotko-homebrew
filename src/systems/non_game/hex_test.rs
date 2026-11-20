@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 
 use crate::hardware::cabinet::RIGHT_FLIPPER_SWITCH1;
 

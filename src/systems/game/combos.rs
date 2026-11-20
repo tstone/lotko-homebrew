@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
-use frontbox_pinball::{GameManagementExt, ScoopBallEntered, ScoopEjected, TurnPhase};
+use frontbox_lighting::prelude::*;
+use frontbox_pinball::{GameManagerExt, ScoopBallEntered, ScoopEjected, TurnPhase};
 use frontbox_scene::{Completes, PlayableScene};
 use frontbox_sound::{SoundSystem, SoundSystemExt};
 
@@ -55,8 +55,8 @@ impl ComboSystem {
       ctx.add_points(points::GRIDLOCK);
       ctx.play_sfx(sounds::IMPACT_CINEMATIC_HEAVY);
       ctx.say(Callout::OakStay);
-      let shots: Vec<&LedQ> = MainShot::ALL.iter().map(|shot| shot.hex_center()).collect();
-      ctx.play_scene(&flash_scene(&LedQ::any(shots), Rgba::green()));
+      let shots: Vec<&LightQ> = MainShot::ALL.iter().map(|shot| shot.hex_center()).collect();
+      ctx.play_scene(&flash_scene(&LightQ::any(shots), Rgba::green()));
     }
   }
 
@@ -67,8 +67,8 @@ impl ComboSystem {
     } else {
       points::COMBO
     });
-    let shots: Vec<&LedQ> = route.shots().iter().map(|shot| shot.hex_center()).collect();
-    ctx.play_scene(&route_scene(&LedQ::any(shots)));
+    let shots: Vec<&LightQ> = route.shots().iter().map(|shot| shot.hex_center()).collect();
+    ctx.play_scene(&route_scene(&LightQ::any(shots)));
   }
 
   fn cancel_window(&mut self, ctx: &SystemContext) {
@@ -81,7 +81,7 @@ impl ComboSystem {
 impl System for ComboSystem {
   fn on_spawn(&mut self, ctx: &SystemContext) {
     // so the first route made isn't heard late, while its sound loads
-    ctx.systems.with::<SoundSystem, _>(|sound| sound.preload_scene(route_scene(&LedQ::Every).scene()));
+    ctx.systems.with::<SoundSystem, _>(|sound| sound.preload_scene(route_scene(&LightQ::Every).scene()));
   }
 
   fn is_active(&self, ctx: &SystemContext) -> bool {
@@ -92,7 +92,7 @@ impl System for ComboSystem {
     self.cancel_window(ctx);
     self.in_scoop = false;
     self.routes.break_route();
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
@@ -113,7 +113,7 @@ impl System for ComboSystem {
 }
 
 /// A flash on `leds` with the sound of a route being made
-fn route_scene(leds: &LedQ) -> PlayableScene<Completes> {
+fn route_scene(leds: &LightQ) -> PlayableScene<Completes> {
   completing_scene!("combos/route.scene", leds.clone())
 }
 
@@ -228,7 +228,7 @@ mod tests {
 
   #[test]
   fn a_route_flashes_with_its_sound() {
-    let scene = route_scene(&LedQ::Every);
+    let scene = route_scene(&LightQ::Every);
     assert_eq!(scene.scene().sound_names().collect::<Vec<_>>(), ["sounds/arp-hit1.mp3"]);
   }
 

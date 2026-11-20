@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
-use frontbox_pinball::{BallSaveExt, GameManagementExt, ScoopEjected, ScoopSystem};
+use frontbox_lighting::prelude::*;
+use frontbox_pinball::{BallSaveExt, GameManagerExt, ScoopEjected, ScoopSystem};
 use frontbox_sound::{CalloutCompleted, SoundSystemExt};
 
 use crate::hardware::lower_scoop::Lower;

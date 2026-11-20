@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use frontbox_core::prelude::*;
 use frontbox_gfx::scene::NumberFormat;
-use frontbox_pinball::{GameManagementExt, TurnEndReason, TurnEnding};
+use frontbox_pinball::{GameManagerExt, TurnEndReason, TurnEnding};
 
 use crate::hardware::cabinet::DoubleFlipped;
 use crate::metrics;

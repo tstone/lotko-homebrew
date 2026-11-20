@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
 use frontbox_gfx::scene::Value;
-use frontbox_pinball::{GameManager, TurnEnding};
+use frontbox_pinball::{GameManagerExt, TurnEnding};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::cabinet::DoubleFlipped;
@@ -23,8 +23,7 @@ impl TurnEndScoreSystem {
 
   fn on_turn_ending(&mut self, turn_ending: &TurnEnding, ctx: &SystemContext) {
     let score = ctx
-      .systems
-      .get::<GameManager>()
+      .game_manager()
       .and_then(|game| {
         game
           .session()

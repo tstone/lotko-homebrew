@@ -1,5 +1,5 @@
 use frontbox_core::prelude::*;
-use frontbox_led::prelude::*;
+use frontbox_lighting::prelude::*;
 use frontbox_pinball::{ScoopBallEntered, ScoopEjected, tags};
 use frontbox_sound::SoundSystemExt;
 use rand::prelude::IndexedRandom;
@@ -46,7 +46,7 @@ impl BlackoutMode {
     }
   }
 
-  fn lit_scene(leds: LedQ) -> PlayableScene {
+  fn lit_scene(leds: LightQ) -> PlayableScene {
     scene!("blackout/lit.scene", leds).variable("color", Rgba::white())
   }
 
@@ -97,11 +97,8 @@ impl BlackoutMode {
   }
 
   fn render(&mut self, ctx: &SystemContext) {
-    ctx.declare_leds(&LedQ::tag::<tags::Playfield>().at_z(DARK_Z), Rgba::black());
-    ctx.declare_leds(
-      &roots().at_z(LIT_Z),
-      Rgba::green().mix_with(Rgba::black(), 0.6),
-    );
+    ctx.declare_lights(&LightQ::tag::<tags::Playfield>(), DARK_Z, Rgba::black());
+    ctx.declare_lights(&roots(), LIT_Z, Rgba::green().mix_with(Rgba::black(), 0.6));
 
     if let Some(mut scene) = self.lit_scene.take() {
       scene.stop(ctx);
@@ -109,12 +106,12 @@ impl BlackoutMode {
     let leds = if self.super_jackpot_lit() {
       lower_scoop::BOLTS_Q.clone()
     } else {
-      let qs: Vec<&LedQ> = self
+      let qs: Vec<&LightQ> = self
         .lit_shots()
         .into_iter()
         .map(|shot| shot.hex_center())
         .collect();
-      LedQ::any(qs)
+      LightQ::any(qs)
     };
     self.lit_scene = Some(ScenePlayer::started(Self::lit_scene(leds), ctx));
     self.darkened = true;
@@ -124,8 +121,8 @@ impl BlackoutMode {
     if let Some(mut scene) = self.lit_scene.take() {
       scene.stop(ctx);
     }
-    ctx.undeclare_leds(&LedQ::tag::<tags::Playfield>().at_z(DARK_Z));
-    ctx.undeclare_leds(&roots().at_z(LIT_Z));
+    ctx.undeclare_lights(&LightQ::tag::<tags::Playfield>(), DARK_Z);
+    ctx.undeclare_lights(&roots(), LIT_Z);
     self.darkened = false;
   }
 }
@@ -141,14 +138,14 @@ impl System for BlackoutMode {
 
   /// A resume keeps the dark shots and the time so far
   fn on_reactivate(&mut self, ctx: &SystemContext) {
-    ctx.activate_led_declarations();
+    ctx.activate_light_declarations();
     self.wizard.begin(ctx);
   }
 
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     self.lift_dark(ctx);
     self.wizard.interrupt(ctx);
-    ctx.deactivate_led_declarations();
+    ctx.deactivate_light_declarations();
   }
 
   fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {
@@ -182,8 +179,8 @@ impl System for BlackoutMode {
 }
 
 /// The roots around the vertical spinner, with the pop rays running into them
-fn roots() -> LedQ {
-  LedQ::Or(vec![
+fn roots() -> LightQ {
+  LightQ::Or(vec![
     vspinner::LEDS.q(),
     vspinner::left_ray::Q.clone(),
     vspinner::upper_right_ray::Q.clone(),

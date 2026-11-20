@@ -5,8 +5,8 @@ Scene(
     cycle: Once,
   ),
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::lift_ramp_lane::6",
       ]),
       surface: Sequence,
@@ -17,8 +17,8 @@ Scene(
         ),
       ),
     ),
-    Leds(
-      leds: Tag("Playfield"),
+    Lights(
+      lights: Tag("Playfield"),
       z: -1,
       surface: Sequence,
       layer: (

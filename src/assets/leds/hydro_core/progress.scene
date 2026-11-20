@@ -6,8 +6,8 @@ Scene(
     end: Hold,
   ),
   layers: [
-    Leds(
-      leds: Names([
+    Lights(
+      lights: Names([
         "___child::spore_count::15",
         "___child::spore_count::14",
         "___child::spore_count::13",

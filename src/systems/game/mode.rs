@@ -67,10 +67,10 @@ impl Mode {
     *self != Self::HelixVaults
   }
 
-  /// Uses the drop targets or puts more balls in play, so the Sentinels wait for it to end: Skyrail (drops, then a
-  /// second ball) and every mini-wizard (multiball)
+  /// Uses the drop targets or puts more balls in play, so the Sentinels wait for it to end: every mini-wizard
+  /// (multiball)
   pub fn uses_drops_or_balls(&self) -> bool {
-    *self == Self::SkyrailStation || self.is_mini_wizard()
+    self.is_mini_wizard()
   }
 
   /// Tier 1 is the lower city, up to its mini-wizard. Tier 2 is the upper city.

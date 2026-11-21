@@ -51,8 +51,9 @@ after the first has 25 seconds. Run out and the combo starts over, with 5 more s
 it again to close it (dark). The Steward blocks walkways for a few seconds, flashing them red first, and a red walkway
 can't be hit. Close 3 walkways.
 
-**Skyrail Station — blue.** Lift ramp, drops, lift ramp, drops, lift ramp. The third ramp shot adds a ball. Then hit
-5 drop targets to finish.
+**Skyrail Station — blue.** The train is 3 lit shots that race back and forth across the main shots, then stop at a
+station at either end for a few seconds. Hit a car while it's stopped to turn it cyan, and again to knock it off. The
+train gets shorter and faster. Knock off all 3 cars to finish.
 
 **Apex Terraces — gold.** One shot is lit. Each hit fills its ring. A full ring bursts the terrace, and the lit shot
 jumps to the far side. Take too long and the ring drains. Terraces need 3, then 4, then 5 hits. Burst 3.

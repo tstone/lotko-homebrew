@@ -16,7 +16,7 @@ To decide. What the place has today:
 
 ## Gameplay
 
-**Direction:** takes Skyrail Station's old rules, since Skyrail is becoming the roving train.
+**Direction:** takes Skyrail Station's old rules (lift ramp, drops, lift ramp, drops, lift ramp, then 2-ball on the drops), since Skyrail is now the roving train. The old mode is in git history.
 
 1. Lift ramp, drops, lift ramp, drops, lift ramp.
 2. The third lift ramp shot adds a ball.

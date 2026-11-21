@@ -544,8 +544,6 @@ mod tests {
     assert!(manager.sentinels_can_take_over());
     manager.mode = Some(Mode::HydroCore);
     assert!(manager.sentinels_can_take_over());
-    manager.mode = Some(Mode::SkyrailStation);
-    assert!(!manager.sentinels_can_take_over());
     manager.mode = Some(Mode::Blackout);
     assert!(!manager.sentinels_can_take_over());
     manager.mode = None;

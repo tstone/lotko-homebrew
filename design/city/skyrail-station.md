@@ -1,6 +1,6 @@
 # Skyrail Station
 
-**Status:** becomes the roving shot mode, taking Meridian Basins' moving window.
+**Status:** built as the train, except the sounds and the DMD. Speeds and stop times are first guesses to tune by playing.
 
 ## The place
 
@@ -12,36 +12,35 @@ Trains on a timetable. Fast between stations, stopped at stations, never still f
 
 ## Gameplay
 
-**Today:** lift ramp, drops, lift ramp, drops, lift ramp. The third ramp shot adds a ball. Then hit 5 drop targets to finish.
+The train is three lit shots side by side.
 
-**Direction:** the train is three lit shots side by side, as Meridian's window is today.
-
-- It moves fast between stations, too fast to hit, and stops at a station for a few seconds.
-- A few fixed shots are stations, so the player learns where it stops.
-- Hit the train while it's stopped to knock a car off. The train gets shorter, from three lit shots to two to one.
-- The last car is the derailment.
-- The Steward fights with speed: each car lost makes the train faster and its stops shorter.
-
-The lift ramp and the add-a-ball could stay as the moment the forest takes the line.
+- It runs back and forth along the 6 main shots, stepping through them along their arc, too fast to hit. Then it stops at a station for 5 seconds.
+- Each trip it picks a station at random at the end it's heading to: the left orbit or dome ramp on the left, the lift ramp or right orbit on the right. The front car stops on the station.
+- While it's stopped, each car takes two hits: the first turns it cyan, and the second knocks it off. The train closes up behind its front car, so it goes from three lit shots to two to one. Shots made while it's moving don't count.
+- The last car is the derailment: knocking it off completes the mode. That's 6 hits.
+- The Steward fights with speed: each car lost makes the train move faster (250ms a step, then 200ms, then 150ms).
+- If the player goes 20 seconds without a hit, the stops get longer, 6 seconds, until the next hit.
+- Each hit of a Root Lash goes to the front car, even while the train is moving.
+- Single ball. There's no add-a-ball.
 
 ## Lighting
 
-**Today:** blue. A chase runs up the lift ramp. At completion it stops dead and blue fades.
+All in `assets/leds/skyrail_station/`.
 
-**Direction:**
-
-- The train is a block of blue moving along the shots, with a bright leading edge so its direction is clear.
-- Stations are marked even when the train isn't there.
-- Stopping: the train eases in, holds and pulses, then speeds off.
-- A car knocked off breaks into green where it was hit.
-- Completion: the last car stops dead, and blue scatters.
+- **The train** (`train.scene`): each car is a blue glow the size of a hex, swept along a line through the hex centers, so it's seen moving between shots and lights the LEDs along the way. It eases out of one station and into the next. The front car is brighter so its direction is clear, and a car that's been hit once is cyan. While it's moving, the station it's heading to has its hex ring lit.
+- **Stopped**: the cars pulse. The flashers swap back and forth in amber like crossing lights, faster as departure nears (`crossing.scene`, stretched to the stop's length).
+- **Car knocked off** (`car_burst.scene`): a white-hot flash, a shockwave ring, debris thrown down toward the flippers, and the wreck smoldering orange on the hex. The flashers spin up white to orange and slow to a stop, like locked wheels throwing sparks (`flashers.scene`). The other cars close up.
+- **Completion** (`complete.scene`), from the last car's shot: it flashes white and its blue stutters as the power fails, then it derails as a bright comet down the playfield to the flippers, throwing sparks. It crashes there, with a shockwave climbing the whole playfield. The six hexes light blue and close one by one, left to right, then green spreads out from the roots (the vertical spinner) over everything.
 
 ## Sound
+
+Stand-ins are in place: `woosh-light` as the train leaves, `latch-double` as it stops, `impact-cinematic-heavy` for a car knocked off. Still needed (see TODO.md, Sound effects needed):
 
 - Train rushing past between stations, brakes and a chime when it stops.
 - Crossing bells and the station ambience under the mode.
 - Rail screech and a crash for each car knocked off.
-- Recorded: `skyrail-service-suspended`, `clear-the-platform`, `all-lines-are-now-closed`. The 5:15 line should land with the first car.
+
+Recorded and used: `skyrail-service-suspended` and `clear-the-platform` at the start, `the-515-is-delayed` with the first car knocked off, `all-lines-are-now-closed` at completion.
 
 ## Display
 
@@ -50,6 +49,4 @@ The lift ramp and the add-a-ball could stay as the moment the forest takes the l
 
 ## Open questions
 
-- Which shots are stations.
-- How long it stops, and how fast it gets.
-- Whether the add-a-ball stays.
+- How long it stops, and how fast it gets, once it's been played.

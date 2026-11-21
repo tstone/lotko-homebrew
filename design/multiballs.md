@@ -8,7 +8,7 @@ The multiballs that aren't places: Groundswell and Heartwood. Their rules are in
 
 To build:
 
-- `GroundswellLock`, from `LiftRampStartable` in git history (`lift_ramp_startable.rs`). The Sentinels already emit `LockLit`, which nothing takes up yet. A lit lock raises the lift ramp, and the shot feeds the rear scoop. While Skyrail or Derailment holds the ramp up, the lock waits, so their shots aren't taken as locks.
+- `GroundswellLock`, from `LiftRampStartable` in git history (`lift_ramp_startable.rs`). The Sentinels already emit `LockLit`, which nothing takes up yet. A lit lock raises the lift ramp, and the shot feeds the rear scoop. While Derailment or the Sentinels hold the ramp up, the lock waits, so their shots aren't taken as locks.
 - Virtual locks until the wireform post is wired: count the lock, and let the ball carry on to the upper flipper.
 - The multiball itself. The first run's super jackpot lights an extra ball.
 - With real locks, the multiplayer post logic in `DESIGN.md`, using `ball_temporarily_removed_from_play` and `ball_returned_to_play`.

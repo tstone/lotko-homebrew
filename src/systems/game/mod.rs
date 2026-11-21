@@ -95,7 +95,6 @@ mod points {
   pub static SKILL_SHOT: u64 = 500_000;
   /// The drop bank skill shot's consolation for hitting the bank but missing the lit target
   pub static SKILL_SHOT_MISSED: u64 = 50_000;
-  pub static SKYRAIL_SCOOP_ENTER: u64 = 500;
   /// Each hit on Apex's lit terrace, below its step's shot as it takes 12
   pub static APEX_HIT: u64 = 2_000_000;
   /// Bursting a terrace, times how many have burst

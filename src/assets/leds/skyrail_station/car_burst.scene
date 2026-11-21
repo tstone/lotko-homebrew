@@ -1,0 +1,179 @@
+Scene(
+  version: 2,
+  params: {
+    "origin": Vec2(10.125, 22.5),
+    "debris_to": Vec2(10.125, 34.0),
+  },
+  timing: (
+    duration: 1.4,
+    cycle: Once,
+  ),
+  layers: [
+    Lights(
+      lights: Tag("Playfield"),
+      z: 20,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("smolder"),
+        fill: (
+          base: Solid(Fixed(255, 80, 0, 255)),
+          adjust: [
+            Opacity(Random(
+              picks: [
+                (at: 0.25),
+                (at: 0.33),
+                (at: 0.4),
+                (at: 0.5),
+                (at: 0.58),
+                (at: 0.68),
+                (at: 0.76),
+                (at: 0.88),
+                (at: 0.97),
+                (at: 1.1),
+                (at: 1.2),
+              ],
+              spread: Float(0.25, 1.0),
+            )),
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 0.0),
+                (at: 0.2, value: 0.0),
+                (at: 0.3, value: 1.0),
+                (at: 1.4, value: 0.0, curve: EaseIn),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Variable("origin")),
+          ],
+          base: Circle(
+            radius: Fixed(0.9),
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 20,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("debris"),
+        fill: (
+          base: Solid(Fixed(255, 110, 0, 255)),
+          adjust: [
+            Opacity(Visit(
+              traversal: "debris",
+              from: 0.0,
+              to: 1.0,
+              smooth_in: 0.0,
+              hold: 0.5,
+              smooth_out: 2.5,
+              curve_in: Linear,
+              curve_out: EaseIn,
+              overlap: Max,
+            )),
+          ],
+        ),
+        graph: (
+          traversals: [
+            (
+              name: "debris",
+              from: Nearest(Variable("origin")),
+              algorithm: FanOut(
+                to: Nearest(Variable("debris_to")),
+                angle: Fixed(140.0),
+                count: Fixed(7.0),
+                wander: Fixed(0.5),
+              ),
+              speed: Duration(0.55),
+              start: 0.05,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 20,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("shockwave"),
+        fill: (
+          base: Solid(Fixed(255, 200, 80, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 1.0),
+                (at: 0.75, value: 0.0, curve: EaseIn),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Variable("origin")),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (at: 0.0, value: 1.0),
+                (at: 0.75, value: 12.0, curve: EaseOut),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(1.5),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 20,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("flash"),
+        fill: (
+          base: Solid(Fixed(255, 240, 200, 255)),
+          adjust: [
+            Brightness(Fixed(1.5)),
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 1.0),
+                (at: 0.08, value: 1.0),
+                (at: 0.3, value: 0.0, curve: EaseIn),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Variable("origin")),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (at: 0.0, value: 0.5),
+                (at: 0.12, value: 3.0, curve: EaseOut),
+              ],
+              cycle: Once,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Sound(
+      sound: "sfx/impact-cinematic-heavy.mp3",
+      volume: Fixed(1.0),
+    ),
+  ],
+)

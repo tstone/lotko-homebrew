@@ -74,7 +74,7 @@ Until the palettes exist, the recorded SFX stand in like this:
 | `impact-cinematic-heavy` | Choosing a mode in the menu; Gridlock; Floodgates and Derailment super jackpots |
 | `scan-light` | Ball start, with the status line |
 | `scan-heavy-stutter` | Surveillance set |
-| `woosh-light`, `latch-double` | Skyrail ramp (train past) and drop (signal clank) |
+| `woosh-light`, `latch-double` | Skyrail train leaving and stopping |
 | `error1` | Hitting a shot the Steward has blocked (Nimbus) |
 | `arp_hit1` | Burst ready, outlane lit, combo route made, ArcStreak reflex shot |
 | `cymbal-mid` | Each vertical spinner spin |
@@ -211,8 +211,7 @@ Open:
 
 ### District modes
 
-Keep the strong modes. Rework the thin ones to the level of Hydro (combo timing) and Skyrail (alternating ramp and
-drops). Every district now plays on the 6 main shots (left orbit, dome ramp, arc ramp, center orbit, lift ramp, right
+Keep the strong modes. Rework the thin ones to the level of Hydro (combo timing). Every district now plays on the 6 main shots (left orbit, dome ramp, arc ramp, center orbit, lift ramp, right
 orbit) plus the drops. The pops, pop targets and vertical spinner are left to the side quests.
 
 | District | Current | Plan |
@@ -220,7 +219,7 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
 | Meridian Basins | Sweeping window of 3 lit shots | Keep; trim the sweep to the main shots |
 | Hydro Core | Timed 5-shot combo | Keep; hexes flash faster as time runs out (TODO) |
 | Nimbus Promenade | Pops (non-exclusive) | Rework as **choke points** |
-| Skyrail Station | Lift ramp and drops in turn, then 2-ball | Keep |
+| Skyrail Station | Lift ramp and drops in turn, then 2-ball | Rework as **the train** (built) |
 | Apex Terraces | Pop targets + charged center spinner (non-exclusive) | Rework as **overload** |
 | Solarium Atrium | Ramps — too thin | Rework as **crawling vine** |
 
@@ -237,10 +236,16 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
 - Complete: make the full combo.
 - Each hit of a Root Lash makes the shot the combo is on.
 
-**Skyrail Station: signal failure.** The forest shuts down the line, alternating between the tracks and the signals.
-- Shots go lift ramp, drops, lift ramp, drops, lift ramp.
-- The third ramp shot adds a ball for a 2-ball finale, with a ball save until the mode ends.
-- Complete: 5 drop target hits during the finale.
+**Skyrail Station: the train.** The forest knocks the cars off the city's train one at a time
+(design/city/skyrail-station.md).
+- The train is 3 neighboring main shots lit blue, with a brighter front car. It runs back and forth along the shots,
+  too fast to hit, and stops for 5 seconds at a station. Each trip it picks a station at random at the end it's heading
+  to: the left orbit or dome ramp on the left, the lift ramp or right orbit on the right. The front car stops on it.
+- While it's stopped, a car's first hit turns it cyan and the second knocks it off. The train closes up behind its front
+  car, from 3 shots to 2 to 1. Shots made while it's moving don't count.
+- Each car lost makes it move faster. After 20 seconds without a hit the stops get longer, 6 seconds, until the next hit.
+- Each hit of a Root Lash goes to the front car, even while the train is moving.
+- Complete: knock off the last car (6 hits). Single ball, no add-a-ball.
 
 **Nimbus Promenade: choke points.** The Steward is sealing the walkways between the pavilions to keep the forest out
 of the upper city.
@@ -369,7 +374,7 @@ A takeover mode: the city's drones are the drop targets.
   running district is suspended, and picks up again in play where it left off once the Sentinels are defeated. No
   district or multiball can start while they're out.
 - **It waits for the drops and the balls.** If the minute runs out during a mode that uses the drops or adds balls
-  (Skyrail, every mini-wizard) or a multiball, the Sentinels come once it's over: when it completes, or at the start of
+  (every mini-wizard) or a multiball, the Sentinels come once it's over: when it completes, or at the start of
   the next ball if it ended with a drain. They also wait for the ball to leave a scoop.
 - Half the GI goes the Steward's red and the other half stays white. The drop strips are red on the targets still up,
   and the bank is raised at the start.
@@ -503,7 +508,6 @@ These already exist through `BallSaveSystem`:
 - At the start of each ball.
 - At the start of each multiball, mini-wizard included (`MULTIBALL_BALL_SAVE`, 12s).
 - New: a short save (about 8s) when a district mode starts, since the scoop eject is a common drain.
-- Skyrail's 2-ball finale is saved until the mode ends.
 
 ### Outlane saves: roots catch the ball
 
@@ -600,17 +604,18 @@ A boardwalk of open-air pavilions high among the clouds. The main shots are the 
 | Intensity | A magenta haze (noise field) drifts over the shots that are still open. Seals come faster. 75%: the backbox speaker LEDs pulse with the music | The chimes detune; seals sound more frantic | Clouds roll in |
 | Completion | Every walkway floods green at once. A growth spreads from the roots in every direction, Nimbus lights on the map, and growth climbs to Skyrail and Apex | S: *"Access to the upper city is… restricted."* O: *"The way is open."* | Camera pans up to the upper districts |
 
-#### Skyrail Station — lift ramp + drops, blue
+#### Skyrail Station — the train, blue
 
 The elevated train hub.
 
 | Phase | LEDs | Sound / callouts | DMD |
 |---|---|---|---|
-| Start | A blue chase climbs the lift ramp like an arriving train | S: *"Skyrail service is suspended. Clear the platforms and signals."* | A train pulls into the station |
-| Attention | Lift ramp hex chases; the drop target strips glow like blue signal lights | The station platform's ambient hum | Departures board |
-| Hit | Ramp: a fast chase as a train flies past. Drops: a signal turns red | Train rushing past / signal clank; S: *"The 5:15 is delayed."* | Departures board rows switch to DELAYED |
-| Intensity | The drop strips flash like crossing signals. 75%: flashers pulse with the crossing bells | Crossing bells | Board gets glitchy |
-| Completion | The chase stops dead; blue scatters and green takes over from the ramp down | A rail screech and crash. S: *"All lines… closed."* | Roots tear up the track |
+| Start | The mode's start scene in blue | S: *"Skyrail service is suspended. Clear the platform."* | A train pulls into the station |
+| Moving | The cars sweep along the hexes, blue with a brighter front car, easing in and out of stations; the station it's heading to has its ring lit | Train rushing past (stand-in: `woosh-light`) | Departures board: next station and a countdown |
+| Stopped | The cars pulse; the flashers swap like crossing lights, faster as departure nears | Brakes and a chime (stand-in: `latch-double`) | — |
+| Hit | The car turns cyan | `city_hit` | — |
+| Car knocked off | An explosion: flash, shockwave, debris thrown toward the flippers, the wreck smoldering; the flashers spin and skid to a stop | Rail screech and a crash (stand-in: `impact-cinematic-heavy`); S: *"The 5:15 is delayed."* on the first car | A line flips to DELAYED |
+| Completion | The last car stops dead and stutters, derails down the playfield to a crash at the flippers, the hexes close one by one, then green spreads from the roots | S: *"All lines are now closed."* | Every line DELAYED, then roots tear up the track |
 
 #### Apex Terraces — overload, gold
 

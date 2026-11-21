@@ -46,6 +46,16 @@ The game is built with the default for each. Numbers are kept, as code comments 
 - [ ] Steward integrity: dropout, wobble, stutter and bitcrush on the Steward's voice as the city falls, or pre-rendered variants.
 - [ ] `callouts/combos` and `callouts/blackout` are empty, and there's no `callouts/canopy`.
 
+## Sound effects needed
+
+Effects a built feature wants but plays a stand-in for, or nothing. Delete a line once the effect is in.
+
+- [ ] Skyrail: the train rushing past as it moves (stand-in `woosh-light`).
+- [ ] Skyrail: brakes and a chime as it stops at a station (stand-in `latch-double`).
+- [ ] Skyrail: a rail screech and crash for each car knocked off (stand-in `impact-cinematic-heavy`).
+- [ ] Skyrail: crossing bells and station ambience under the mode.
+- [ ] Sentinels: an alarm when they're sent, a drone whine under them, and a sting when they're defeated.
+
 # Charge
 
 - [ ] The spore bar's flickering edge, and a heartbeat on the burst insert.

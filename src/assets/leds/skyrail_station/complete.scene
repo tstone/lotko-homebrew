@@ -1,69 +1,526 @@
 Scene(
   version: 2,
+  params: {
+    "origin": Vec2(11.772, 10.203),
+  },
   timing: (
-    duration: 4.85,
+    duration: 5.2,
     cycle: Once,
   ),
   layers: [
     Lights(
-      lights: Every,
-      surface: Sequence,
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
       layer: (
+        name: Some("the forest takes over"),
         fill: (
-          transform: [
-            Rotate(Keyframes(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 0.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 1.2,
-                  value: 360.0,
-                  curve: Linear,
-                ),
-              ],
-              cycle: Times(3),
-            )),
-          ],
-          base: Gradient(
-            stops: [
-              (
-                at: 0.0,
-                color: Fixed(0, 0, 255, 255),
-              ),
-              (
-                at: 1.0,
-                color: Fixed(255, 255, 255, 255),
-              ),
-            ],
-            style: Linear,
-          ),
+          base: Solid(Fixed(80, 255, 40, 255)),
           adjust: [
+            Opacity(Visit(
+              traversal: "spread",
+              from: 0.0,
+              to: 0.8,
+              smooth_in: 2.0,
+              hold: 0.0,
+              curve_in: EaseOut,
+              curve_out: Linear,
+              overlap: Max,
+            )),
             Opacity(Keyframes(
               keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 3.6,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 4.85,
-                  value: 0.0,
-                  curve: EaseIn,
-                ),
+                (at: 0.0, value: 1.0),
+                (at: 4.4, value: 1.0),
+                (at: 5.2, value: 0.0, curve: EaseIn),
               ],
               cycle: Once,
             )),
           ],
         ),
+        graph: (
+          traversals: [
+            (
+              name: "spread",
+              from: Nearest(Fixed(13.869, 18.161)),
+              algorithm: Dijkstra(
+                wander: Fixed(0.4),
+              ),
+              speed: Duration(1.4),
+              start: 3.0,
+            ),
+          ],
+        ),
       ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("roots"),
+        fill: (
+          base: Solid(Fixed(200, 255, 120, 255)),
+          adjust: [
+            Opacity(Visit(
+              traversal: "roots",
+              from: 0.0,
+              to: 1.0,
+              smooth_in: 0.5,
+              hold: 0.0,
+              curve_in: Linear,
+              curve_out: Linear,
+              overlap: Max,
+            )),
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 1.0),
+                (at: 4.4, value: 1.0),
+                (at: 5.2, value: 0.0, curve: EaseIn),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        graph: (
+          traversals: [
+            (
+              name: "roots",
+              from: Nearest(Fixed(13.869, 18.161)),
+              algorithm: Growth(
+                to: Nearest(Fixed(10.125, 43.0)),
+                reach: Fixed(8.0),
+                density: Fixed(14.0),
+                branching: Fixed(0.5),
+                wander: Fixed(0.6),
+              ),
+              speed: Duration(1.5),
+              start: 3.0,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("line 1 closes"),
+        fill: (
+          base: Solid(Fixed(0, 0, 255, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 0.0),
+                (at: 1.5, value: 0.0),
+                (at: 1.6, value: 1.0),
+                (at: 1.90, value: 1.0),
+                (at: 1.95, value: 0.0),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(3.507, 25.016)),
+          ],
+          base: Circle(
+            radius: Fixed(0.9),
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("line 2 closes"),
+        fill: (
+          base: Solid(Fixed(0, 0, 255, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 0.0),
+                (at: 1.5, value: 0.0),
+                (at: 1.6, value: 1.0),
+                (at: 2.12, value: 1.0),
+                (at: 2.17, value: 0.0),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(5.813, 23.201)),
+          ],
+          base: Circle(
+            radius: Fixed(0.9),
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("line 3 closes"),
+        fill: (
+          base: Solid(Fixed(0, 0, 255, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 0.0),
+                (at: 1.5, value: 0.0),
+                (at: 1.6, value: 1.0),
+                (at: 2.34, value: 1.0),
+                (at: 2.39, value: 0.0),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(8.336, 10.633)),
+          ],
+          base: Circle(
+            radius: Fixed(0.9),
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("line 4 closes"),
+        fill: (
+          base: Solid(Fixed(0, 0, 255, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 0.0),
+                (at: 1.5, value: 0.0),
+                (at: 1.6, value: 1.0),
+                (at: 2.56, value: 1.0),
+                (at: 2.61, value: 0.0),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(11.772, 10.203)),
+          ],
+          base: Circle(
+            radius: Fixed(0.9),
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("line 5 closes"),
+        fill: (
+          base: Solid(Fixed(0, 0, 255, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 0.0),
+                (at: 1.5, value: 0.0),
+                (at: 1.6, value: 1.0),
+                (at: 2.78, value: 1.0),
+                (at: 2.83, value: 0.0),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(13.5, 14.068)),
+          ],
+          base: Circle(
+            radius: Fixed(0.9),
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("line 6 closes"),
+        fill: (
+          base: Solid(Fixed(0, 0, 255, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 0.0),
+                (at: 1.5, value: 0.0),
+                (at: 1.6, value: 1.0),
+                (at: 3.00, value: 1.0),
+                (at: 3.05, value: 0.0),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(18.031, 15.394)),
+          ],
+          base: Circle(
+            radius: Fixed(0.9),
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("crash shockwave"),
+        fill: (
+          base: Solid(Fixed(255, 200, 80, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 0.0),
+                (at: 1.4, value: 0.0),
+                (at: 1.42, value: 1.0),
+                (at: 2.8, value: 0.0, curve: EaseIn),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(9.1, 37.5)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (at: 1.4, value: 1.0),
+                (at: 2.8, value: 45.0, curve: EaseOut),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(2.0),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("crash"),
+        fill: (
+          base: Solid(Fixed(255, 240, 200, 255)),
+          adjust: [
+            Brightness(Fixed(1.5)),
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 0.0),
+                (at: 1.4, value: 0.0),
+                (at: 1.42, value: 1.0),
+                (at: 1.55, value: 1.0),
+                (at: 1.9, value: 0.0, curve: EaseIn),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(9.1, 37.5)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (at: 1.4, value: 0.5),
+                (at: 1.55, value: 5.0, curve: EaseOut),
+              ],
+              cycle: Once,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("sparks"),
+        fill: (
+          base: Solid(Fixed(255, 110, 0, 255)),
+          adjust: [
+            Opacity(Visit(
+              traversal: "sparks",
+              from: 0.0,
+              to: 1.0,
+              smooth_in: 0.0,
+              hold: 0.2,
+              smooth_out: 2.0,
+              curve_in: Linear,
+              curve_out: EaseIn,
+              overlap: Max,
+            )),
+          ],
+        ),
+        graph: (
+          traversals: [
+            (
+              name: "sparks",
+              from: Nearest(Variable("origin")),
+              algorithm: Growth(
+                to: Nearest(Fixed(9.1, 37.5)),
+                reach: Fixed(3.0),
+                density: Fixed(10.0),
+                branching: Fixed(0.3),
+                wander: Fixed(0.4),
+              ),
+              speed: Duration(0.85),
+              start: 0.55,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("derailing car"),
+        fill: (
+          base: Solid(Fixed(255, 230, 170, 255)),
+          adjust: [
+            Opacity(Visit(
+              traversal: "derail",
+              from: 0.0,
+              to: 1.0,
+              smooth_in: 0.0,
+              hold: 0.3,
+              smooth_out: 4.0,
+              curve_in: Linear,
+              curve_out: EaseIn,
+              overlap: Max,
+            )),
+          ],
+        ),
+        graph: (
+          traversals: [
+            (
+              name: "derail",
+              from: Nearest(Variable("origin")),
+              algorithm: ShortestPath(
+                to: Nearest(Fixed(9.1, 37.5)),
+                wander: Fixed(0.3),
+              ),
+              speed: Duration(0.85),
+              start: 0.55,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("power failing"),
+        fill: (
+          base: Solid(Fixed(0, 0, 255, 255)),
+          adjust: [
+            Opacity(Random(
+              picks: [
+                (at: 0.1),
+                (at: 0.16),
+                (at: 0.22),
+                (at: 0.28),
+                (at: 0.34),
+                (at: 0.4),
+                (at: 0.46),
+                (at: 0.52),
+              ],
+              spread: Float(0.0, 1.0),
+            )),
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 0.0),
+                (at: 0.1, value: 0.0),
+                (at: 0.11, value: 1.0),
+                (at: 0.55, value: 1.0),
+                (at: 0.6, value: 0.0),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Variable("origin")),
+          ],
+          base: Circle(
+            radius: Fixed(1.0),
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("stops dead"),
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 1.0),
+                (at: 0.15, value: 0.0, curve: EaseIn),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Variable("origin")),
+          ],
+          base: Circle(
+            radius: Fixed(1.0),
+          ),
+        ),
+      ),
+    ),
+    Sound(
+      sound: "sfx/impact-cinematic-heavy.mp3",
+      volume: Fixed(1.0),
+      start: 1.4,
     ),
   ],
 )

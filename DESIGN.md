@@ -89,8 +89,18 @@ Until the palettes exist, the recorded SFX stand in like this:
   uneven, flickering. Forest effects start at **the roots** (the vertical spinner) or at the point a ball hit.
 - **The central motif is takeover:** a forest effect spreads over a city effect and replaces it. Every completion
   uses it.
-- **District accent colors:** Hydro cyan, Meridian green (its mode is the forest growing), Cargo Quay orange, Nimbus
-  magenta, Skyrail blue, Solarium purple, and Apex gold. Heartwood is lime.
+- **Mode colors.** Plain green is the forest's alone: Charge, completions, a completed district on the city map, and
+  takeovers. Shades of one color family can share a tier, but not cross tiers.
+
+  | Tier | Colors |
+  |---|---|
+  | 1 | Meridian warm white (255, 190, 120) with its blooms in green, Cargo Quay orange |
+  | Gate 1 | Nimbus magenta |
+  | 2 | Hydro cyan, Helix Vaults neon yellow-green (the only green place), Skyrail blue |
+  | 3 | Apex gold, Halcyon Vents pale sky blue (120, 200, 255) |
+  | Gate 2 | Caldera Generator ember (255, 75, 0) |
+  | Finale | Solarium purple |
+  | Off the map | Groundswell bronze, Heartwood lime |
 - **The Steward is red.** Anything the Steward does to the playfield (a blocked walkway, a watching camera) is lit red,
   and red means the player can't make that shot count right now. No district or forest effect uses red.
 - **Lit means "hit this".** A shot stays lit only while hitting it does something. Once it's done, it goes dark.
@@ -228,7 +238,7 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
 
 **Meridian Basins: spreading growth.** The forest takes root in the farm's basins and spreads from one to the next
 (design/city/meridian-basins.md).
-- 2 main shots are seeded at random, flashing green.
+- 2 main shots are seeded at random, flashing warm white: the farm's grow lights.
 - Hitting a flashing shot blooms it (solid green), and the growth spreads to the shots on either side, which start
   flashing. The outer orbits have only one neighbor.
 - 15 seconds without a bloom withers the last one back to flashing, along with the spread it gave, and again every 15
@@ -590,13 +600,13 @@ Lines in quotes are callouts: **S** is the Steward, **O** is the Oaks. Lines are
 
 ### District modes
 
-#### Meridian Basins — spreading growth, green
+#### Meridian Basins — spreading growth, warm white
 
 The hydroponic farms. The forest's seeds take root in the sterile basins and spread from one to the next.
 
 | Phase | LEDs | Sound / callouts | DMD |
 |---|---|---|---|
-| Start | The mode's start scene in green, then 2 seeded hexes flash | Air pressure release; S: *"Crop contamination detected."* | Rows of plants fade in |
+| Start | The mode's start scene in warm white, then 2 seeded hexes flash warm white | Air pressure release; S: *"Crop contamination detected."* | Rows of plants fade in |
 | Attention | Flashing hexes are the shots to hit; bloomed hexes are solid green | — | — |
 | Bloom | Green energy bursts from the shot, and the hexes on either side start flashing | A swell of growth | — |
 | Wither | The last bloomed hex goes back to flashing, and the hexes it spread to go dark | — (TODO) | — |

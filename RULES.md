@@ -41,8 +41,8 @@ choose.
 Each district plays on the six main shots: left orbit, dome ramp, arc ramp, center orbit, lift ramp and right orbit.
 The Steward's announcement at the start tells you what to shoot.
 
-**Meridian Basins — green.** Two shots start flashing. Hit a flashing shot to bloom it, and the growth spreads to the
-shots on either side. Bloom all 6. Go 15 seconds without a bloom and the last one withers.
+**Meridian Basins — warm white.** Two shots start flashing. Hit a flashing shot to bloom it green, and the growth
+spreads to the shots on either side. Bloom all 6. Go 15 seconds without a bloom and the last one withers.
 
 **Cargo Quay — orange.** The lift ramp is up: it's the crane. Two containers sit on shots. Hit a container's shot to
 push it one shot toward the crane, and containers that meet stack and move together. Once both are in, shoot the

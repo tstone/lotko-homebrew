@@ -15,6 +15,15 @@ const MUSIC_FOLDER: &str = "/userdata/home/armsom/music";
 /// The Helix Vaults' growth medium, a neon yellow-green
 const HELIX_VAULTS_COLOR: Rgba<u8> = Rgba([170, 255, 0, 255]);
 
+/// Meridian Basins' grow lights, a warm white. Green is the forest's, which its blooms take.
+const MERIDIAN_BASINS_COLOR: Rgba<u8> = Rgba([255, 190, 120, 255]);
+
+/// The Caldera Generator's embers, a deeper orange than Cargo Quay's
+const CALDERA_GENERATOR_COLOR: Rgba<u8> = Rgba([255, 75, 0, 255]);
+
+/// Halcyon Vents' clean air, a pale sky blue
+const HALCYON_VENTS_COLOR: Rgba<u8> = Rgba([120, 200, 255, 255]);
+
 /// A stop on the route up the city (DESIGN.md, Primary progression): a district or a mini-wizard
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize)]
 pub enum Mode {
@@ -115,14 +124,16 @@ impl Mode {
 
   pub fn color(&self) -> Rgba<u8> {
     match self {
-      Self::MeridianBasins => Rgba::green(),
+      Self::MeridianBasins => MERIDIAN_BASINS_COLOR,
       Self::CargoQuay => Rgba::orange(),
       Self::NimbusPromenade => Rgba::magenta(),
-      Self::HydroCore | Self::CalderaGenerator => Rgba::cyan(),
+      Self::HydroCore => Rgba::cyan(),
+      Self::CalderaGenerator => CALDERA_GENERATOR_COLOR,
       Self::HelixVaults => HELIX_VAULTS_COLOR,
       Self::SkyrailStation => Rgba::blue(),
       Self::Groundswell => Rgba::bronze(),
-      Self::ApexTerraces | Self::HalcyonVents => Rgba::gold(),
+      Self::ApexTerraces => Rgba::gold(),
+      Self::HalcyonVents => HALCYON_VENTS_COLOR,
       Self::SolariumAtrium => Rgba::purple(),
     }
   }
@@ -144,6 +155,8 @@ impl Mode {
   pub fn music(&self) -> Option<PathBuf> {
     let file = match self {
       Self::HydroCore => "inzo-wonder.mp3",
+      Self::CargoQuay => "charlie-gearon-modular-idm-01.mp3",
+      Self::HalcyonVents => "STRLGHT-rave.mp3",
       Self::SkyrailStation => "deadmau5-arguru2k19.mp3",
       Self::SolariumAtrium => "fehrplay-arcadia.mp3",
       Self::MeridianBasins => "glitch-mob-cant-kill-us.mp3",

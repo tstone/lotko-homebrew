@@ -42,7 +42,7 @@ The game is built with the default for each. Numbers are kept, as code comments 
 
 # Sound
 
-- [ ] Music: the tracks are placeholders. Apex and Halcyon Vents have none.
+- [ ] Music: the tracks are placeholders. Apex Terraces has none. `colyn-cyclone` (Derailment's) is free.
 - [ ] Music and background sounds need loop points.
 - [ ] Steward integrity: dropout, wobble, stutter and bitcrush on the Steward's voice as the city falls, or pre-rendered variants.
 - [ ] `callouts/combos` and `callouts/blackout` are empty, and there's no `callouts/canopy`.

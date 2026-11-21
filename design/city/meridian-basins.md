@@ -15,7 +15,7 @@ Growth spreading. The forest's seeds take root in the city's basins, and spread 
 
 ## Gameplay
 
-1. At the start, 2 of the 6 main shots are seeded at random. They flash green.
+1. At the start, 2 of the 6 main shots are seeded at random. They flash warm white, the farm's grow lights.
 2. Hit a flashing shot and it blooms: green energy bursts from it, and it turns solid green.
 3. A bloom spreads to the shots on either side, which start flashing. The outer orbits only have one neighbor, so the
    middle shots spread further.
@@ -33,7 +33,7 @@ flashing shot.
 
 ## Lighting
 
-- **Basins:** a hex flashes green when it can be hit, and is solid green once bloomed. Both are shot statuses, not
+- **Basins:** a hex flashes warm white when it can be hit, and is solid green once the forest has bloomed it. Both are shot statuses, not
   scenes.
 - **Progress:** the arc ramp's lights fill from the left, a sixth per bloom.
 - **Bloom** (`bloom.scene`): green energy exploding out from the shot.

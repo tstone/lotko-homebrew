@@ -16,6 +16,9 @@ const OFFERED_PULSE: Duration = Duration::from_millis(900);
 /// What Hydro's perk adds to each mode timer
 const LONGER_TIMERS: Duration = Duration::from_secs(5);
 
+/// The Sentinels' track, over everything while they're out
+const SENTINELS_MUSIC: &str = "65daysofstatic-blackspots.mp3";
+
 /// What's running for the current player: a mode and a multiball, in a slot each, and how far they've got up the
 /// route. Owns the music, the city map and the rules for what can run together.
 ///
@@ -351,7 +354,11 @@ impl ModeManager {
       return;
     }
 
-    let path = music_for(self.mode, self.multiball);
+    let path = if self.sentinels {
+      music_file(SENTINELS_MUSIC)
+    } else {
+      music_for(self.mode, self.multiball)
+    };
     if self.current_music.as_ref() != Some(&path) {
       log::info!("ModeManager: playing {}", path.display());
       self.current_music = Some(path.clone());
@@ -524,11 +531,6 @@ mod tests {
     assert_eq!(
       music_for(Some(Mode::CalderaGenerator), Some(Multiball::Heartwood)),
       Mode::CalderaGenerator.music().unwrap()
-    );
-    // nothing recorded for this one yet, so it's the default rather than the multiball's
-    assert_eq!(
-      music_for(Some(Mode::HalcyonVents), Some(Multiball::Heartwood)),
-      music_file("colyn-rushing.mp3")
     );
   }
 

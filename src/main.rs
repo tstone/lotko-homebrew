@@ -128,6 +128,7 @@ async fn main() {
     ));
     app.system(
       DmdAttractSystem::new(vec![
+        AttractScreen::Scene("dmd/intro.scene"),
         AttractScreen::Scene("dmd/neon_blue.scene"),
         AttractScreen::Scene("dmd/spore.scene"),
         AttractScreen::LastScore(0),

@@ -1,12 +1,232 @@
 Scene(
   version: 2,
+  timing: (
+    duration: 8.0,
+    cycle: Once,
+  ),
   layers: [
     Display(
       display: "Dmd",
       layer: (
+        name: "Background",
         fill: (
+          transform: [
+            Translate(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: (0.0, 0.26),
+                  curve: Linear,
+                ),
+                (
+                  at: 3.47,
+                  value: (0.0, 0.26),
+                  curve: Linear,
+                ),
+                (
+                  at: 6.29,
+                  value: (0.0, 0.57),
+                  curve: EaseOut,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
           base: Image(
             name: "dmd/bg/forest-light.png",
+            size: Native,
+          ),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 7.31,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 7.99,
+                  value: 0.0,
+                  curve: EaseOut,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Last",
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.0,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.85,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.69,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(64.0, 16.0)),
+          ],
+          base: Text(
+            text: Fixed("Last"),
+            font: "SirClive",
+            size: Fixed(16.0),
+            width: Fixed(128.0),
+            height: Fixed(16.0),
+            align: Center,
+            vertical_align: Middle,
+            kerning: Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 10.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 2.0,
+                  value: 15.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            ),
+            leading: Fixed(0.0),
+          ),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Kilmore",
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 5.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 6.3,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(64.0, 16.0)),
+          ],
+          base: Text(
+            text: Fixed("Kilmore Oaks"),
+            font: "Webslinger",
+            size: Fixed(16.0),
+            width: Fixed(128.0),
+            height: Fixed(26.0),
+            align: Center,
+            vertical_align: Middle,
+            kerning: Fixed(0.0),
+            leading: Fixed(-5.0),
+          ),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "of the",
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 3.39,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 4.08,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 4.69,
+                  value: 1.0,
+                  curve: Linear,
+                ),
+                (
+                  at: 5.22,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(64.0, 16.0)),
+          ],
+          base: Text(
+            text: Fixed("of the"),
+            font: "Minimal4",
+            size: Fixed(16.0),
+            width: Fixed(128.0),
+            height: Fixed(16.0),
+            align: Center,
+            vertical_align: Middle,
+            kerning: Fixed(0.0),
+            leading: Fixed(0.0),
           ),
         ),
       ),

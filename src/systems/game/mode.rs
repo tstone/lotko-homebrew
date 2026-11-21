@@ -6,7 +6,7 @@ use frontbox_lighting::prelude::*;
 use crate::hardware::city_map;
 use crate::systems::{Callout, sounds};
 use crate::systems::game::{
-  ApexTerracesMode, CalderaGeneratorMode, CargoQuayMode, HalcyonVentsMode, DerailmentMode, HeartwoodMultiballMode,
+  ApexTerracesMode, CalderaGeneratorMode, CargoQuayMode, HalcyonVentsMode, GroundswellMode, HeartwoodMultiballMode,
   HelixVaultsMode, HydroCoreMode, MeridianBasinsMode, NimbusPromenadeMode, SkyrailStationMode, SolariumAtriumMode,
 };
 
@@ -27,7 +27,7 @@ pub enum Mode {
   SolariumAtrium,
   HelixVaults,
   CalderaGenerator,
-  Derailment,
+  Groundswell,
   HalcyonVents,
 }
 
@@ -53,7 +53,7 @@ impl Mode {
       Self::SolariumAtrium => "SOLARIUM ATRIUM",
       Self::HelixVaults => "HELIX VAULTS",
       Self::CalderaGenerator => "CALDERA GENERATOR",
-      Self::Derailment => "DERAILMENT",
+      Self::Groundswell => "GROUNDSWELL",
       Self::HalcyonVents => "HALCYON VENTS",
     }
   }
@@ -70,15 +70,21 @@ impl Mode {
       Self::SolariumAtrium => "dmd/mode_select/solarium_atrium.scene",
       Self::HelixVaults => "dmd/mode_select/helix_vaults.scene",
       Self::CalderaGenerator => "dmd/mode_select/caldera_generator.scene",
-      Self::Derailment => "dmd/mode_select/derailment.scene",
+      Self::Groundswell => "dmd/mode_select/groundswell.scene",
       Self::HalcyonVents => "dmd/mode_select/halcyon_vents.scene",
     }
+  }
+
+  /// Lit by play rather than reached on the route: Groundswell, from spreading roots. It needs no qualifying, closes
+  /// nothing on the route, and can be earned again once it's completed.
+  pub fn is_earned(&self) -> bool {
+    *self == Self::Groundswell
   }
 
   pub fn is_mini_wizard(&self) -> bool {
     matches!(
       self,
-      Self::HelixVaults | Self::CalderaGenerator | Self::Derailment | Self::HalcyonVents
+      Self::HelixVaults | Self::CalderaGenerator | Self::Groundswell | Self::HalcyonVents
     )
   }
 
@@ -93,13 +99,6 @@ impl Mode {
     self.is_mini_wizard()
   }
 
-  /// The balls a mini-wizard plays with, counting the one in play
-  pub fn balls(&self) -> u8 {
-    match self {
-      Self::HalcyonVents | Self::Derailment => 3,
-      _ => 2,
-    }
-  }
 
   /// The step on the route it's on (DESIGN.md, Primary progression), from 1, which sets what it's worth
   pub fn step(&self) -> u8 {
@@ -107,8 +106,8 @@ impl Mode {
       Self::MeridianBasins | Self::CargoQuay => 1,
       Self::NimbusPromenade => 2,
       Self::HydroCore | Self::HelixVaults | Self::SkyrailStation => 3,
-      // Derailment is off the route for now, and worth what tier 3 is
-      Self::ApexTerraces | Self::HalcyonVents | Self::Derailment => 4,
+      // earned from spreading roots rather than on the route, and worth what tier 3 is
+      Self::ApexTerraces | Self::HalcyonVents | Self::Groundswell => 4,
       Self::CalderaGenerator => 5,
       Self::SolariumAtrium => 6,
     }
@@ -121,7 +120,8 @@ impl Mode {
       Self::NimbusPromenade => Rgba::magenta(),
       Self::HydroCore | Self::CalderaGenerator => Rgba::cyan(),
       Self::HelixVaults => HELIX_VAULTS_COLOR,
-      Self::SkyrailStation | Self::Derailment => Rgba::blue(),
+      Self::SkyrailStation => Rgba::blue(),
+      Self::Groundswell => Rgba::bronze(),
       Self::ApexTerraces | Self::HalcyonVents => Rgba::gold(),
       Self::SolariumAtrium => Rgba::purple(),
     }
@@ -149,7 +149,7 @@ impl Mode {
       Self::MeridianBasins => "glitch-mob-cant-kill-us.mp3",
       Self::NimbusPromenade => "wice-5omething.mp3",
       Self::CalderaGenerator => "65daysofstatic-crash-tactics.mp3",
-      Self::Derailment => "colyn-cyclone.mp3",
+      Self::Groundswell => "inzo-im-dreaming.mp3",
       Self::HelixVaults => "substan-syntax.mp3",
       _ => return None,
     };
@@ -178,7 +178,7 @@ impl Mode {
       Self::SolariumAtrium => &[Callout::AtriumIntegrityVerified],
       Self::HelixVaults => &[Callout::ContainmentNominal],
       Self::CalderaGenerator => &[Callout::OakDarkness],
-      Self::Derailment => &[Callout::TrainDerailmentSubverting, Callout::OakFall],
+      Self::Groundswell => &[Callout::SeismicEventDetected, Callout::OakRise],
       Self::HalcyonVents => &[Callout::OakHigher],
     }
   }
@@ -198,7 +198,8 @@ impl Mode {
       Self::ApexTerraces => &[Callout::ApexTerracesOffline, Callout::OakNothingIsYours],
       Self::SolariumAtrium => &[Callout::TheScienceWillNotBeLost, Callout::OakOpenSky],
       Self::HelixVaults => &[Callout::OakOpenTheGates],
-      Self::CalderaGenerator | Self::Derailment | Self::HalcyonVents => &[],
+      Self::Groundswell => &[Callout::SeismicDamageIdentified],
+      Self::CalderaGenerator | Self::HalcyonVents => &[],
     }
   }
 
@@ -215,7 +216,7 @@ impl Mode {
       Self::ApexTerraces => ctx.systems.spawn(ApexTerracesMode::new()),
       Self::HelixVaults => ctx.systems.spawn(HelixVaultsMode::new()),
       Self::CalderaGenerator => ctx.systems.spawn(CalderaGeneratorMode::new()),
-      Self::Derailment => ctx.systems.spawn(DerailmentMode::new()),
+      Self::Groundswell => ctx.systems.spawn(GroundswellMode::new()),
       Self::HalcyonVents => ctx.systems.spawn(HalcyonVentsMode::new()),
     }
   }
@@ -237,23 +238,18 @@ pub enum ModeState {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize)]
 pub enum Multiball {
   Heartwood,
-  // Comes with the Groundswell lock (design/multiballs.md)
-  #[allow(dead_code)]
-  Groundswell,
 }
 
 impl Multiball {
   pub fn color(&self) -> Rgba<u8> {
     match self {
       Self::Heartwood => Rgba::lime(),
-      Self::Groundswell => Rgba::green(),
     }
   }
 
   pub fn music(&self) -> Option<PathBuf> {
     match self {
       Self::Heartwood => Some(music_file("rezmau5-infraliminal.mp3")),
-      Self::Groundswell => Some(music_file("inzo-im-dreaming.mp3")),
     }
   }
 
@@ -261,7 +257,6 @@ impl Multiball {
   pub fn music_plays_over_modes(&self) -> bool {
     match self {
       Self::Heartwood => false,
-      Self::Groundswell => true,
     }
   }
 
@@ -272,16 +267,13 @@ impl Multiball {
       Self::Heartwood => {
         ctx.systems.spawn(HeartwoodMultiballMode::new());
       }
-      Self::Groundswell => {}
     }
   }
 
-  /// Groundswell stacks with districts but not mini-wizards. Heartwood stacks with any mode. The other way around, a
-  /// mode can start under a multiball by the same rule.
-  pub fn stacks_with(&self, mode: Mode) -> bool {
+  /// Heartwood stacks with any mode. The other way around, a mode can start under a multiball by the same rule.
+  pub fn stacks_with(&self, _mode: Mode) -> bool {
     match self {
       Self::Heartwood => true,
-      Self::Groundswell => !mode.is_mini_wizard(),
     }
   }
 }
@@ -331,12 +323,6 @@ mod tests {
       assert!(!mode.start_lines().is_empty());
       assert!(!mode.completion_lines().is_empty());
     }
-  }
-
-  #[test]
-  fn groundswell_stacks_with_districts_but_not_mini_wizards() {
-    assert!(Multiball::Groundswell.stacks_with(Mode::SkyrailStation));
-    assert!(!Multiball::Groundswell.stacks_with(Mode::HelixVaults));
   }
 
   #[test]

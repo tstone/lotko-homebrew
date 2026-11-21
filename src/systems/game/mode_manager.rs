@@ -137,6 +137,21 @@ impl ModeManager {
     self.progression.available_modes(self.mode)
   }
 
+  /// Light an earned mode ([`Mode::is_earned`]) at the scoop. It's offered there without qualifying. Returns whether it
+  /// lit, which it doesn't while it's already lit or waiting to be resumed.
+  pub fn light_earned(&mut self, mode: Mode) -> bool {
+    let lit = self.progression.light(mode);
+    if lit {
+      log::info!("ModeManager: {mode:?} lit");
+    }
+    lit
+  }
+
+  /// Earned modes that are lit and not started yet
+  pub fn lit_earned_modes(&self) -> Vec<Mode> {
+    self.progression.lit_earned_modes()
+  }
+
   /// For testing, every mode is open this game, and the scoop needs no qualifying
   pub fn all_modes_open(&self) -> bool {
     self.progression.is_all_open()
@@ -501,14 +516,6 @@ mod tests {
     assert_eq!(
       music_for(None, Some(Multiball::Heartwood)),
       Multiball::Heartwood.music().unwrap()
-    );
-  }
-
-  #[test]
-  fn groundswell_music_plays_over_a_district() {
-    assert_eq!(
-      music_for(Some(Mode::HydroCore), Some(Multiball::Groundswell)),
-      Multiball::Groundswell.music().unwrap()
     );
   }
 

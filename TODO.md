@@ -19,6 +19,7 @@ The game is built with the default for each. Numbers are kept, as code comments 
 | 13 | Who says "extra ball" and "shoot again"? | The Oaks, after the Steward's "Error. Invalid resident." |
 | 14 | How many extra balls per game? | The framework default, 5. |
 | 15 | What should the Sentinels reward? See `design/steward/sentinels.md`. | As they were as a side quest. |
+| 16 | What does Skyrail's perk give, now that nothing takes up a lit lock (`LockLit`)? | Unchanged: drones still light locks, which do nothing. |
 
 # Machine checks
 
@@ -31,7 +32,7 @@ The game is built with the default for each. Numbers are kept, as code comments 
 # Hardware
 
 - [ ] Give every GI LED a location, or positional scenes skip them: `gi_l_sling`, `gi_r_sling`, `gi_drop1`, `gi_drop2`. `gi::LEFT_RAMP` is defined but not wired to a port.
-- [ ] Wire up the wireform post (decision 1): check the wiring, connect the coil to a driver and add it to `hardware` and `io_network.rs`, check whether the machine can tell how many balls are on the post, then add `WireformSystem` and switch Groundswell and Derailment to real locks.
+- [ ] Wire up the wireform post (decision 1): check the wiring, connect the coil to a driver and add it to `hardware` and `io_network.rs`, check whether the machine can tell how many balls are on the post, then add `WireformSystem`. Nothing locks balls now, so this is only for Groundswell or another mode wanting the post.
 
 # Display
 

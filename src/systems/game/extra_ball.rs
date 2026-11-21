@@ -20,8 +20,6 @@ pub enum ExtraBallSource {
   MiniWizard,
   /// 10 drones down
   Sentinels,
-  /// The super jackpot in the first Groundswell
-  Groundswell,
   /// Spreading the roots on all three orbits in one ball
   RootNetwork,
 }

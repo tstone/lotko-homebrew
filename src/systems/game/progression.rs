@@ -39,25 +39,43 @@ impl Progression {
       .unwrap_or(ModeState::Unplayed)
   }
 
-  /// What can be chosen, as the rows of the mode select menu: what's open on the route, then what's unfinished.
-  /// `running` is left out, as it can't be resumed.
+  /// What can be chosen, as the rows of the mode select menu: what's lit or open, an earned mode first, then what's
+  /// unfinished. `running` is left out, as it can't be resumed.
   pub fn available_modes(&self, running: Option<Mode>) -> Vec<Mode> {
-    if self.all_open {
-      return ROUTE
+    let modes = || {
+      EARNED
         .iter()
-        .flat_map(|step| step.iter().copied())
-        .chain(OFF_ROUTE.iter().copied())
-        .filter(|mode| self.state(*mode) != ModeState::Completed && Some(*mode) != running)
+        .copied()
+        .chain(ROUTE.iter().flat_map(|step| step.iter().copied()))
+        .filter(move |mode| Some(*mode) != running)
+    };
+    if self.all_open {
+      return modes()
+        .filter(|mode| self.state(*mode) != ModeState::Completed)
         .collect();
     }
-    let with_state = |state| {
-      ROUTE
-        .iter()
-        .flat_map(|step| step.iter().copied())
-        .filter(move |mode| self.state(*mode) == state && Some(*mode) != running)
-    };
+    let with_state = |state| modes().filter(move |mode| self.state(*mode) == state);
     with_state(ModeState::Available)
       .chain(with_state(ModeState::Played))
+      .collect()
+  }
+
+  /// Light an earned mode ([`Mode::is_earned`]), unless it's already lit or waiting to be resumed. Returns whether it
+  /// lit.
+  pub fn light(&mut self, mode: Mode) -> bool {
+    let unlit = self.state(mode) == ModeState::Unplayed;
+    if unlit {
+      self.states.insert(mode, ModeState::Available);
+    }
+    unlit
+  }
+
+  /// Earned modes that are lit and not started, which open the menu without qualifying
+  pub fn lit_earned_modes(&self) -> Vec<Mode> {
+    EARNED
+      .iter()
+      .copied()
+      .filter(|mode| self.state(*mode) == ModeState::Available)
       .collect()
   }
 
@@ -83,8 +101,13 @@ impl Progression {
     }
   }
 
+  /// An earned mode goes back to unlit, to be earned again
   pub fn complete(&mut self, mode: Mode) {
-    self.states.insert(mode, ModeState::Completed);
+    if mode.is_earned() {
+      self.states.remove(&mode);
+    } else {
+      self.states.insert(mode, ModeState::Completed);
+    }
   }
 
   /// Districts started this game, which is what wears the Steward down
@@ -135,8 +158,8 @@ const ROUTE: [&[Mode]; 6] = [
   &[Mode::SolariumAtrium],
 ];
 
-/// Modes waiting for a place on the map, which can only be played with every mode open
-const OFF_ROUTE: &[Mode] = &[Mode::Derailment];
+/// Modes lit by play rather than by the route ([`Mode::is_earned`])
+const EARNED: &[Mode] = &[Mode::Groundswell];
 
 #[cfg(test)]
 mod tests {
@@ -257,7 +280,7 @@ mod tests {
     assert_eq!(progression.districts_completed(), 3);
     assert_eq!(progression.state(Mode::SkyrailStation), ModeState::Unplayed);
     assert_eq!(progression.state(Mode::ApexTerraces), ModeState::Unplayed);
-    assert_eq!(progression.state(Mode::Derailment), ModeState::Unplayed);
+    assert_eq!(progression.state(Mode::Groundswell), ModeState::Unplayed);
   }
 
   #[test]
@@ -280,5 +303,35 @@ mod tests {
     progression.complete(Mode::HydroCore);
     assert!(progression.has_perk(Perk::LongerTimers));
     assert!(!progression.has_perk(Perk::DoubleRoots));
+  }
+
+  #[test]
+  fn a_lit_earned_mode_comes_first_and_closes_nothing() {
+    let mut progression = Progression::new();
+    assert!(progression.light(Mode::Groundswell));
+    assert_eq!(progression.lit_earned_modes(), vec![Mode::Groundswell]);
+    assert_eq!(
+      progression.available_modes(None),
+      vec![Mode::Groundswell, Mode::MeridianBasins, Mode::CargoQuay]
+    );
+
+    progression.start(Mode::Groundswell);
+    assert!(progression.lit_earned_modes().is_empty());
+    assert_eq!(progression.state(Mode::MeridianBasins), ModeState::Available);
+    assert_eq!(progression.state(Mode::CargoQuay), ModeState::Available);
+  }
+
+  #[test]
+  fn an_earned_mode_can_be_earned_again_once_completed() {
+    let mut progression = Progression::new();
+    assert!(progression.light(Mode::Groundswell));
+    progression.start(Mode::Groundswell);
+    assert!(!progression.light(Mode::Groundswell));
+    assert_eq!(progression.state(Mode::Groundswell), ModeState::Played);
+
+    progression.complete(Mode::Groundswell);
+    assert_eq!(progression.state(Mode::Groundswell), ModeState::Unplayed);
+    assert!(progression.light(Mode::Groundswell));
+    assert_eq!(progression.state(Mode::Groundswell), ModeState::Available);
   }
 }

@@ -8,30 +8,29 @@ use crate::systems::game::mini_wizards::MiniWizardRun;
 use crate::systems::game::{Mode, ModeManager, RootLashed, flash_scene, glow_scene, points};
 use crate::systems::sounds;
 
-/// Bank clears that complete it (start value)
+/// Bank clears that complete it, each breaking a foundation (start value)
 const CLEARS: u8 = 3;
 
-/// Off the map for now (DESIGN.md, Mini-wizards), 3-ball. The lift ramp stays up, so the ramp feeds the rear scoop and
-/// the wireform down to the upper flipper, which aims at the drops. Each drop target is a jackpot and each bank clear a
-/// super jackpot, with the bank raising itself after a clear.
-///
-/// There are no locks yet, so there are none to keep as virtual locks. With Groundswell they'd be kept here.
-pub struct DerailmentMode {
+/// The roots heave the ground under the city (DESIGN.md, Groundswell), 2-ball, lit by spreading roots rather than
+/// reached on the route. The lift ramp stays up, so the ramp feeds the rear scoop and the wireform down to the upper
+/// flipper, which aims at the drops: the city's foundations. Each drop target is a jackpot and each bank clear breaks a
+/// foundation for a super jackpot. The bank raises itself after a clear.
+pub struct GroundswellMode {
   wizard: MiniWizardRun,
   clears: u8,
   attention_scene: ScenePlayer,
 }
 
-impl DerailmentMode {
+impl GroundswellMode {
   pub fn new() -> Self {
     Self {
-      wizard: MiniWizardRun::new(Mode::Derailment, CLEARS * 3),
+      wizard: MiniWizardRun::new(Mode::Groundswell, CLEARS * 3),
       clears: 0,
       attention_scene: ScenePlayer::new(Self::attention_scene()),
     }
   }
 
-  /// The drop strips and the lift ramp, in the line's blue
+  /// The drop strips and the lift ramp, in the roots' bronze
   fn attention_scene() -> PlayableScene {
     let leds = LightQ::Or(vec![
       drop_bank::TARGET1_LEDS.q(),
@@ -39,14 +38,14 @@ impl DerailmentMode {
       drop_bank::TARGET3_LEDS.q(),
       lift_ramp::HEX_CENTER_LED.clone(),
     ]);
-    glow_scene(&leds, Mode::Derailment.color())
+    glow_scene(&leds, Mode::Groundswell.color())
   }
 
   fn jackpot(&mut self, target: Option<u8>, ctx: &SystemContext) {
-    log::info!("Derailment: jackpot");
+    log::info!("Groundswell: jackpot");
     self
       .wizard
-      .score(points::DERAIL_JACKPOT * (self.clears as u64 + 1), ctx);
+      .score(points::GROUNDSWELL_JACKPOT * (self.clears as u64 + 1), ctx);
     ctx.play_sfx(sounds::LATCH_DOUBLE);
     let strip = match target {
       Some(1) => Some(&drop_bank::TARGET1_LEDS),
@@ -61,10 +60,10 @@ impl DerailmentMode {
 
   fn cleared(&mut self, ctx: &SystemContext) {
     self.clears += 1;
-    log::info!("Derailment: bank cleared {} of {CLEARS}", self.clears);
+    log::info!("Groundswell: foundation broken, {} of {CLEARS}", self.clears);
     self
       .wizard
-      .score(points::DERAIL_SUPER_JACKPOT * self.clears as u64, ctx);
+      .score(points::GROUNDSWELL_SUPER_JACKPOT * self.clears as u64, ctx);
     self.wizard.progress(self.clears * 3);
 
     if self.clears == CLEARS {
@@ -94,9 +93,9 @@ impl DerailmentMode {
   }
 }
 
-impl System for DerailmentMode {
+impl System for GroundswellMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.systems.expect::<ModeManager>().current_mode() == Some(Mode::Derailment)
+    ctx.systems.expect::<ModeManager>().current_mode() == Some(Mode::Groundswell)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
@@ -146,6 +145,6 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    DerailmentMode::attention_scene();
+    GroundswellMode::attention_scene();
   }
 }

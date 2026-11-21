@@ -30,4 +30,4 @@ Presentation still to do:
 
 - The pops are also Surveillance's cameras. How the two stay distinct.
 - What downing a drone looks like when it's a pop hit, and how many hits a drone takes.
-- What the Sentinels reward, if anything, now that they're a punishment. Groundswell's locks currently come from them.
+- What the Sentinels reward, if anything, now that they're a punishment. The locks they light lead nowhere now that Groundswell is lit by spreading roots.

@@ -81,7 +81,7 @@ hit speeds it up. Hit it 6 times.
 These places play as a multiball. One ends when you're back to one ball, except Helix Vaults, which carries on.
 
 - **Helix Vaults** (2-ball): orbits drain the vat. After enough, a ramp lights for a rupture. Rupture it 3 times.
-- **Halcyon Vents** (3-ball): spinners and pops build the value. The ramps vent it. Vent 3 times.
+- **Halcyon Vents** (2-ball): spinners and pops build the value. The ramps vent it. Vent 3 times.
 - **Caldera Generator** (2-ball): each shot you hit goes dark. When they all are, the left scoop is the super jackpot.
 
 ## Side quests
@@ -105,7 +105,8 @@ These run all the time, alongside the districts.
   needs more each time.
 - **Spread roots — brown.** Orbits grow roots around that shot's ring. A full ring arms **Root Lash**: press the
   action button during a mode for 2 shots in it. The roots then rest for 50 switch hits. The rings start over each
-  ball, and spreading all three orbits in one ball lights an extra ball.
+  ball, and spreading all three orbits in one ball lights an extra ball. Spreading all three over the game lights
+  **Groundswell**.
 
 ## Combos
 
@@ -131,9 +132,10 @@ one after. The ramp feeds back to the scoop, so keep looping it. Miss one and th
 
 ## Multiballs
 
-- **Groundswell.** Lock lit raises the lift ramp. Shoot it to lock. Lock 3 for 3-ball multiball: jackpots are on the
-  main shots, and the super jackpot is the lift ramp, then the drops from the upper flipper. Your first super jackpot
-  lights an extra ball.
+- **Groundswell.** 2-ball. Spread the roots on all three orbits, over any number of balls, to light it at the left
+  scoop: no lit shots needed, and it doesn't close anything on the map. The lift ramp goes up and feeds the upper
+  flipper. The drops are the city's foundations: each target is a jackpot, and each bank clear breaks one. Break 3.
+  Each time after, lighting it takes one more spread on every orbit.
 - **Heartwood.** 2-ball, from a full Heartwood charge. Main shots are jackpots. Make the arc ramp to the subway twice
   to add a ball.
 
@@ -142,6 +144,5 @@ one after. The ramp feeds back to the scoop, so keep looping it. Miss one and th
 - **Ball save** at the start of every ball, multiball and district.
 - **Outlane saves.** Sling hits grow the roots up that side's posts. When they're full, that outlane is lit, and the
   next drain through it is saved. A lit save keeps until you use it, and each use makes that side harder to relight.
-- **Extra balls** are lit by completing your first multiball place, 10 drones, your first Groundswell super jackpot,
-  and spreading the roots on all three orbits in one ball. Collect a lit extra ball with a shot to the front of the
+- **Extra balls** are lit by completing your first multiball place, 10 drones, and spreading the roots on all three orbits in one ball. Collect a lit extra ball with a shot to the front of the
   left scoop.

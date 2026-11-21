@@ -15,7 +15,10 @@ Scene(
         ),
         region: (
           transform: [
-            Scale(Fixed(1.0)),
+            Scale(
+              amount: Fixed(1.0),
+              anchor: Fixed(0.0, 0.0),
+            ),
             Translate(Keyframes(
               keys: [
                 (
@@ -45,11 +48,14 @@ Scene(
       layer: (
         name: "Speakers",
         fill: (
-          base: Solid(Fixed(172, 237, 19, 255)),
+          base: Solid(Fixed(0, 255, 108, 255)),
         ),
         region: (
           transform: [
-            Scale(Fixed(1.0)),
+            Scale(
+              amount: Fixed(1.0),
+              anchor: Fixed(0.0, 0.0),
+            ),
             Translate(Fixed(12.694, 12.016)),
             Rotate(Keyframes(
               keys: [

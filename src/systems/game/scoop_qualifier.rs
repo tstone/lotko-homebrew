@@ -6,7 +6,7 @@ use frontbox_pinball::{BallManagerExt, GameManagerExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::main_shot::{MainShot, MainShotHit};
-use crate::systems::game::{self, ModeManager};
+use crate::systems::game::{self, Mode, ModeManager};
 use crate::systems::sounds;
 
 /// Z of the lit shots' hex centers
@@ -36,12 +36,18 @@ impl ScoopQualifier {
     }
   }
 
-  /// Whether a ball in the scoop gets the mode select menu: it's qualified, and no mode or multiball is running. With
-  /// every mode open for testing it needs no qualifying.
-  pub fn opens_menu(&self, mode_manager: &ModeManager, balls_in_play: u8) -> bool {
-    (self.count.is_qualified() || mode_manager.all_modes_open())
-      && mode_manager.is_between_modes()
-      && balls_in_play <= 1
+  /// What the mode select menu offers a ball in the scoop, if anything. It needs no mode or multiball running. Qualified,
+  /// it offers everything available, and otherwise only a lit earned mode such as Groundswell. With every mode open for
+  /// testing it needs no qualifying.
+  pub fn menu_rows(&self, mode_manager: &ModeManager, balls_in_play: u8) -> Vec<Mode> {
+    if !mode_manager.is_between_modes() || balls_in_play > 1 {
+      return Vec::new();
+    }
+    if self.count.is_qualified() || mode_manager.all_modes_open() {
+      mode_manager.available_modes()
+    } else {
+      mode_manager.lit_earned_modes()
+    }
   }
 
   /// A mode was chosen, so the scoop goes out and the next qualify needs another hit
@@ -92,11 +98,8 @@ impl ScoopQualifier {
   fn update_lit_scene(&mut self, ctx: &SystemContext) {
     let (lit, color) = {
       let mode_manager = ctx.systems.expect::<ModeManager>();
-      let color = mode_manager
-        .available_modes()
-        .first()
-        .map(|mode| mode.color());
-      (self.opens_menu(&mode_manager, ctx.balls_in_play()), color)
+      let rows = self.menu_rows(&mode_manager, ctx.balls_in_play());
+      (!rows.is_empty(), rows.first().map(|mode| mode.color()))
     };
 
     if !lit {

@@ -20,7 +20,7 @@ Canopy's spinners become the plant's turbines, building up air, and the ramps ve
 
 ## Gameplay
 
-A 3-ball multiball, carried over from Canopy.
+A 2-ball multiball, carried over from Canopy, which was 3-ball.
 
 1. The vertical spinner, the center spinner and the pops are the turbines. Each spin and pop builds the value.
 2. The ramps are lit. A ramp vents the air and collects the value, which then starts building again from the base.

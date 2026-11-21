@@ -71,7 +71,7 @@ Until the palettes exist, the recorded SFX stand in like this:
 | `steward-chime` | Before every Steward line |
 | `latch-heavy1`–`3` | First two `city_hit` steps; Meridian's gate clunk; Nimbus blocks; a camera blinded |
 | `impact-dirt` | Last `city_hit` step; spore burst; drone down; roots spread |
-| `impact-cinematic-heavy` | Choosing a mode in the menu; Gridlock; Helix Vaults and Derailment super jackpots |
+| `impact-cinematic-heavy` | Choosing a mode in the menu; Gridlock; Helix Vaults and Groundswell super jackpots |
 | `scan-light` | Ball start, with the status line |
 | `scan-heavy-stutter` | Surveillance set |
 | `woosh-light`, `latch-double` | Skyrail train leaving and stopping |
@@ -189,8 +189,8 @@ A player plays one place on each step, so a game covers 6 of the 10 places on th
 5. Gate 2: Caldera Generator
 6. Finale: Solarium, for now an ordinary district. Spire Core, its second phase, isn't built.
 
-Derailment isn't on the map. It's to come back as a mode unlocked by spreading roots. Cargo Quay has no insert on
-the city map, which has six.
+Groundswell, the forest's own multiball, isn't on the map: spreading roots lights it (see Multiballs). Cargo Quay has
+no insert on the city map, which has six.
 
 ### Rules
 
@@ -307,19 +307,18 @@ The multiball places have no perk.
 ### Multiball places (mini-wizards)
 
 The places that play as a multiball, still called mini-wizards in the code. They're chosen and qualified like
-districts. The balls are added as the ball leaves the scoop, with the multiball ball save (`MULTIBALL_BALL_SAVE`)
-timed from the eject. Completing one ends it while the balls play on, and marks it completed.
+districts. Every one is 2-ball, and Heartwood can still stack on top. The second ball is added as the first leaves
+the scoop, with the multiball ball save (`MULTIBALL_BALL_SAVE`) timed from the eject. Completing one ends it while
+the balls play on, and marks it completed.
 
 - **Helix Vaults** (tier 2, 2-ball, design/city/helix-vaults.md). The forest drains the biomatter vats. Orbit hits
   drain the vat, and after enough of them a ramp lights for a rupture. Complete: 3 ruptures.
-- **Halcyon Vents** (tier 3, 3-ball, design/city/halcyon-vents.md). The spinners and pops are the plant's turbines and
+- **Halcyon Vents** (tier 3, 2-ball, design/city/halcyon-vents.md). The spinners and pops are the plant's turbines and
   build value; the ramps vent it, and the value starts over from its base. Complete: 3 vents.
 - **Caldera Generator** (gate 2, 2-ball, design/city/caldera-generator.md). The forest cuts the city's power. GI goes
   off and the playfield goes dark except for the roots (the vertical spinner's ring and the pop rays) and lit shots.
   Each hit darkens another shot. When they're all dark, the scoop is the super jackpot. Complete: the super jackpot.
-- **Derailment** (off the map, 3-ball). The lift ramp is held up for the whole mode, and the balls feed the upper
-  flipper into the drops. Each drop target is a jackpot and each bank clear a super jackpot. Complete: 3 bank clears.
-  To come back as a mode unlocked by spreading roots.
+- **Groundswell** isn't a place, but runs the same way: see Multiballs.
 
 ### Scoring
 
@@ -339,14 +338,14 @@ worth about 1B from the modes alone, before side quests and bonus.
 | 6: Solarium | 5M | 90M | 120M |
 
 Districts and multiballs on the same step don't match yet: the multiballs kept the values they had as mini-wizards,
-and Derailment is valued as tier 3. To rebalance.
+and Groundswell is valued as tier 3. To rebalance.
 
 - **Hydro** escalates: each combo shot is worth half a step shot more than the last, so the 5 come to 7.5 shots.
 - **Apex** takes 12 hits, so its hits are 2M, plus 2M times the bursts so far on each burst.
 - **Mini-wizards**, so the choices on a step match:
   - **Helix Vaults:** 1M an orbit, super jackpots of 20M times how many.
   - **Caldera Generator:** 4M a shot, and a 120M super jackpot.
-  - **Derailment:** 3M a target times the clears so far plus one, and 16M times the clears on each clear.
+  - **Groundswell:** 3M a target times the clears so far plus one, and 16M times the clears on each clear.
   - **Halcyon Vents:** builds from 25M, at 250K a spin, 1M a pop and 5M a Root Lash hit.
 - A burst or a Root Lash doubles a shot's points along with its progress. Where a shot can't count twice (Hydro,
   Nimbus, Skyrail), it still scores double.
@@ -475,19 +474,24 @@ The arc ramp feeds the subway back to the scoop, so a good player can loop it.
 
 ## Multiballs
 
-### Groundswell (main lock)
+### Groundswell (from spreading roots)
 
-- Sentinels light locks. When a lock is lit, the lift ramp goes up and the shot feeds the rear scoop → VUK → wireform.
-  The post holds up to 3 balls.
-- Lock 3 to start a 3-ball multiball. Jackpots are on the main shots. The super jackpot is the lift ramp: the ball goes
-  up to the upper flipper, then a shot at the drops.
-- Relighting gets harder each time, and jackpot values reset after each run, so it can't be replayed for points over
-  and over.
-- Can stack with a district mode. Can't stack with a mini-wizard.
+The roots heave up the ground under the city. It's the forest's own multiball, earned rather than reached on the map.
+It replaces both Derailment and the old plan for a Groundswell lock, which had lost its locks with the Sentinels
+becoming a punishment.
 
-**Multiplayer.** Each player has their own lock count, and the balls on the post are shared. If a player locks while
-the post holds more balls than that player's count, the post releases one ball. When multiball starts, it tops up from
-the trough. Counts are read from the trough's occupancy, not kept as running totals.
+- **Lit by spreading roots** over the game: once on each of the three orbits. The count is kept across balls, as the
+  rings start over each ball. Each time after, it needs one more spread on every orbit (2 each, then 3). The Steward
+  says *"Seismic activity alert."*
+- **Lit at the scoop without qualifying.** It's the first row of the menu, and choosing it neither uses up a qualify
+  nor closes anything on the map. Unfinished, it stays in the menu to resume like any mode. Completed, it can be lit
+  again.
+- **2-ball.** It takes the mode slot, so it runs between districts. Heartwood can stack on it.
+- **Play:** the lift ramp is up for the whole mode, so the balls feed the upper flipper into the drops: the city's
+  foundations. Each drop target is a jackpot, and each bank clear breaks a foundation for a super jackpot. Complete:
+  3 foundations.
+- Valued as tier 3: 3M a target times the clears so far plus one, 16M times the clears on each clear, and 225M to
+  complete.
 
 ### Heartwood multiball
 
@@ -495,7 +499,7 @@ the trough. Counts are read from the trough's occupancy, not kept as running tot
 - Every main shot is a jackpot. Every 5th jackpot lights the captive ball as a super jackpot for 20s.
 - Making the arc ramp all the way to the subway twice adds a ball, once a multiball, with S: *"Additional
   deployment."*
-- Cannot stack with Groundswell but can stack with any mode
+- Can stack with any mode, multiballs included
 - Its track plays only when no mode is running. Over a mode, the mode's music keeps playing.
 
 ## Extra balls and saves
@@ -510,7 +514,6 @@ Ways to light one, each once per game:
 |---|---|
 | Mini-wizard | Completing your first mini-wizard |
 | Sentinels | 10 drones down |
-| Groundswell | Super jackpot in your first Groundswell |
 | Root network | Spreading the roots on all three orbits in one ball |
 
 - **Collect at the front of the left scoop.** It's the hardest shot on the playfield, so it suits the biggest award.
@@ -680,7 +683,6 @@ These are the biggest moments in the game. Each has a long intro, music synced t
 |---|---|---|---|
 | **Helix Vaults** | A fill rises from the flippers up the playfield with a moving surface; the arc ramp LEDs are the gauge. Super jackpot: a wave crashes over everything from the top down | Gates grinding open; rushing water. O: *"Open the gates."* S: *"Flood barriers… engaged. Engaged. Engaged."* At high water, S: *"Shoot the ramps."* | The gates open; a water-level gauge |
 | **Caldera Generator** | GI off; everything is dark except the roots and lit shots. Each hit kills a section. Super jackpot: one second of total darkness, then the roots explode with light from the spinner outward | A descending power-down whine and a clunk for each section; the Steward fragments, with S: *"System 67 invalid."* at 3 of 6 dark. O: *"Darkness."* | The city grid, with sectors going black one by one |
-| **Derailment** | The lock balls drop like falling railcars, a chase down the wireform for each ball. Jackpots at the drops shatter blue into green | Rail screech, metal tearing, crashes. S: *"Train… train… train."* O: *"Fall."* | Train cars tumbling off the elevated track |
 | **Halcyon Vents** | A green noise field climbs the playfield and up into the backbox speaker LEDs. Collects at the ramps send growth up into the backbox | Giant trunks creaking, a deep roar of wind high above the city. O: *"Higher."* | The forest canopy spreads across the skyline |
 
 ### Side quests
@@ -693,7 +695,6 @@ These are the biggest moments in the game. Each has a long intro, music synced t
 | **Surveillance** | Watching pop targets glow a steady red with a slow, scanning pulse. Hit: a static glitch, then the LED goes dark. Set: all 3 flash white, and a packet flows from each pop down its ray into the roots | A camera whir and a lens crack; on a set, static, then S: *"Camera network… offline."* | A grid of camera feeds, with feeds cutting to static |
 | **Sentinels** | The drop strips scan red like drone eyes. Down: the strip sparks and goes dark | A drone whine pitching down, then a crash. S: *"Drone three offline."* | A drone falls |
 | **Lock lit** | The lift ramp hex's outer ring lights green; the ramp goes up | S: *"Restricted area. Do not use the Skyrail."* | — |
-| **Ball locked** | A pulse up the lift ramp to the wireform; the playfield's ambient throb gets stronger with each lock | A deep earth rumble that gets heavier with each lock | Lock count, with a seismograph |
 | **Heartwood** | The captive ball bolts heartbeat; each hit strengthens the beat and speeds it up | A sub heartbeat and wood knock | Heart charge in the side quest row |
 | **Spread roots** | Each hit grows one segment on the orbit hex's outer ring. Lash: growth runs from the orbits down to the current district on the city map | A dirt crunch per segment; a deep tearing on a spread | The roots' path to the district |
 
@@ -712,9 +713,11 @@ change.
 
 | Multiball | LEDs | Sound / callouts | DMD |
 |---|---|---|---|
+| **Groundswell** lit | The left scoop lights bronze | S: *"Seismic activity alert."* | — |
 | **Groundswell** start | An earthquake: noise-driven strobing across everything, then a plane sweep from the roots up into the backbox | S: *"Seismic event detected."* O: *"Rise."* | The ground splits under the city |
 | **Groundswell** jackpot | A green radial wave from the shot | A heavy hit; S counts the damage | JACKPOT with cracks |
-| **Groundswell** super jackpot | A plane sweep from the drops up into the backbox | The biggest impact in the game | Tower toppling |
+| **Groundswell** super jackpot | A foundation breaks: a plane sweep from the drops up into the backbox | The biggest impact in the game | Tower toppling |
+| **Groundswell** completion | Green spreads from the drops over the playfield | S: *"Seismic damage identified."* | The city tilts on its broken foundations |
 | **Heartwood** start | The whole playfield beats, synced to the music | A heartbeat that drops into the track. O: *"Heartwood."* | The heart of the oak glowing through the bark |
 | **Heartwood** jackpot | A heartbeat radiates from the shot | A double-thump stinger | The heart pulses |
 
@@ -773,7 +776,6 @@ Custom categories, stored with `HighScoresSystem::set_custom_score`:
 | Spore Champion | Most spores applied in a game |
 | Fastest Caldera Generator | Shortest time to complete Caldera Generator |
 | Biggest Flood | Highest Helix Vaults total |
-| Derailment Champion | Highest Derailment total |
 | Halcyon Vents Champion | Highest Halcyon Vents total |
 | Groundswell Champion | Highest Groundswell total |
 | Heartwood Champion | Highest Heartwood multiball total |
@@ -792,7 +794,7 @@ Notes:
 - Replace the per-district qualifiers (`ExclusiveModeQualification<T>`) with a single scoop qualifier.
 - `ModeManager` gains per-player map state: played / completed / saved progress for each mode.
 - Add 4 mini-wizards to `ExclusiveMode`. Nimbus and Apex move from `NonExclusiveMode` to `ExclusiveMode`.
-- `LeftScoopStartable` hosts the mode select menu. `LiftRampStartable` becomes the Groundswell lock.
+- `LeftScoopStartable` hosts the mode select menu.
 - Spore Multiball becomes Heartwood. `SporesSystem` keeps counting spores applied and adds bursts.
 - New side quest systems: Charge, Surveillance, Sentinels, Heartwood, Spread roots.
 - A combo tracker: listens for the shot hit events, tracks the timing window and the lift ramp state, and stores the

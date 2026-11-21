@@ -15,7 +15,7 @@ const COLLECTS: u8 = 3;
 
 const RAMPS: [MainShot; 3] = [MainShot::DomeRamp, MainShot::ArcRamp, MainShot::LiftRamp];
 
-/// The air plant, in tier 3 (design/city/halcyon-vents.md), 3-ball. The vertical and center spinners and the pops build a value, and
+/// The air plant, in tier 3 (design/city/halcyon-vents.md), 2-ball. The vertical and center spinners and the pops build a value, and
 /// the ramps collect it, which starts it building again from the base.
 pub struct HalcyonVentsMode {
   wizard: MiniWizardRun,

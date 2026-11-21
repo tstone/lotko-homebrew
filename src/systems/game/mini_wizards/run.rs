@@ -7,8 +7,8 @@ use crate::systems::game::{MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, poin
 
 /// What every mini-wizard shares on top of its [`ModeRun`]: the balls, the ball save, the end and the total.
 ///
-/// - Tier 1 is 2-ball and tier 2 is 3-ball. The extra balls launch once the ball leaves the scoop, and the ball save is
-///   timed from when they're in play.
+/// - Every one is 2-ball, so with Heartwood stacked on top play stays at 4 balls or fewer. The second ball launches
+///   once the first leaves the scoop, and the ball save is timed from when it's in play.
 /// - It ends when a drain that stands leaves one ball or none (decision 5), unless it keeps going on one ball
 ///   ([`Mode::ends_with_multiball`]). It counts as played, and if it wasn't completed it stays in the menu to resume,
 ///   keeping its progress.
@@ -100,7 +100,7 @@ impl MiniWizardRun {
   fn add_balls(&mut self, ctx: &SystemContext) {
     self.balls_added = true;
     // on top of the one leaving the scoop
-    self.eject_id = ctx.eject_balls(self.mode.balls() - 1, Launch::Auto);
+    self.eject_id = ctx.eject_balls(1, Launch::Auto);
     ctx.request_ball_save_until_released();
   }
 }

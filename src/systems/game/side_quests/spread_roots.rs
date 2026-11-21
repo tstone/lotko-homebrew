@@ -9,10 +9,10 @@ use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::hardware::plunge_lane;
 use crate::systems::game::side_quests::RootLashed;
 use crate::systems::game::{
-  ExtraBallSource, ExtraBallSystem, ModeManager, ModeSelectSystem, ModeSlotsChanged, Perk,
+  ExtraBallSource, ExtraBallSystem, Mode, ModeManager, ModeSelectSystem, ModeSlotsChanged, Perk,
   fill_scene, flash_scene, glow_scene, points,
 };
-use crate::systems::sounds;
+use crate::systems::{Callout, SayExt, sounds};
 
 /// The orbits, which each grow roots (TODO.md, decision 8)
 const ORBITS: [MainShot; 3] = [
@@ -38,7 +38,8 @@ const LASH_COOLDOWN_SWITCHES: u32 = 50;
 ///
 /// An armed lash is bronze on the action button, and pulses lime while there's a mode to strike in.
 ///
-/// Spreading the roots on all three orbits in one ball lights an extra ball, once a game.
+/// Spreading the roots on all three orbits in one ball lights an extra ball, once a game. Spreading them on all three
+/// over the game lights Groundswell at the scoop, and each time after needs one more spread on every orbit.
 ///
 /// Belongs in the player template.
 #[derive(Clone)]
@@ -47,6 +48,10 @@ pub struct SpreadRootsSystem {
   grown: [u8; 3],
   /// Orbits spread this ball, in [`ORBITS`] order
   spread_this_ball: [bool; 3],
+  /// Spreads on each orbit toward lighting Groundswell, in [`ORBITS`] order. Kept for the whole game.
+  toward_groundswell: [u8; 3],
+  /// Times Groundswell has been lit this game
+  groundswell_lit: u8,
   lash: Lash,
   ring_scenes: [ScenePlayer; 3],
   /// On the action button while a lash is armed and a mode is running
@@ -58,6 +63,8 @@ impl SpreadRootsSystem {
     Self {
       grown: [0; 3],
       spread_this_ball: [false; 3],
+      toward_groundswell: [0; 3],
+      groundswell_lit: 0,
       lash: Lash::Ready,
       ring_scenes: ORBITS.map(|orbit| ScenePlayer::new(Self::ring_scene(orbit, 0))),
       lash_glow: None,
@@ -118,6 +125,27 @@ impl SpreadRootsSystem {
         .expect::<ExtraBallSystem>()
         .light(ExtraBallSource::RootNetwork, ctx.into());
     }
+
+    self.toward_groundswell[index] = self.toward_groundswell[index].saturating_add(1);
+    if groundswell_due(&self.toward_groundswell, self.groundswell_lit) {
+      self.light_groundswell(ctx);
+    }
+  }
+
+  /// Lights Groundswell at the scoop, unless it's already lit or waiting to be resumed. Then the spreads count again
+  /// from none.
+  fn light_groundswell(&mut self, ctx: &SystemContext) {
+    let lit = ctx
+      .systems
+      .expect::<ModeManager>()
+      .light_earned(Mode::Groundswell);
+    if !lit {
+      return;
+    }
+    log::info!("SpreadRoots: Groundswell lit, {} times this game", self.groundswell_lit + 1);
+    self.toward_groundswell = [0; 3];
+    self.groundswell_lit += 1;
+    ctx.say(Callout::SeismicActivityAlert);
   }
 
   /// Strike with an armed lash, if there's a mode for it to count in. Not while the action button is for launching a
@@ -234,4 +262,22 @@ enum Lash {
   Armed,
   /// Struck, and not growing, with the playfield switch hits since
   CoolingDown(u32),
+}
+
+/// Every orbit has spread enough to light Groundswell: once each the first time, and one more each time after
+fn groundswell_due(spreads: &[u8; 3], times_lit: u8) -> bool {
+  spreads.iter().all(|spread| *spread > times_lit)
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn groundswell_needs_every_orbit_and_one_more_each_time() {
+    assert!(!groundswell_due(&[1, 1, 0], 0));
+    assert!(groundswell_due(&[1, 1, 1], 0));
+    assert!(!groundswell_due(&[2, 2, 1], 1));
+    assert!(groundswell_due(&[2, 3, 2], 1));
+  }
 }

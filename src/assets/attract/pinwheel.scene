@@ -2,7 +2,7 @@ Scene(
   version: 2,
   timing: (
     duration: 5.0,
-    cycle: Times(3),
+    cycle: Times(2),
   ),
   layers: [
     Lights(
@@ -62,7 +62,10 @@ Scene(
               angle: Fixed(360.0),
               count: Fixed(8.0),
             ),
-            Scale(Fixed(1.549)),
+            Scale(
+              amount: Fixed(1.549),
+              anchor: Fixed(0.0, 0.0),
+            ),
             Translate(Fixed(1.0, 1.0)),
             Rotate(Keyframes(
               keys: [

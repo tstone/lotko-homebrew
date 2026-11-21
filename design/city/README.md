@@ -79,7 +79,7 @@ of that step. Multiball places qualify like districts. A game covers 6 of the 10
 
 ## Open questions
 
-- Derailment isn't on the map. It's to come back as a mode unlocked by spreading roots.
+- Groundswell, the forest's own multiball, isn't on the map: spreading roots lights it (DESIGN.md, Multiballs).
 - The finale is the Solarium Atrium as an ordinary district for now. Spire Core isn't built.
 - The city map on the playfield has six inserts, for seven districts. Cargo Quay has none, and the multiballs never
   had any.

@@ -259,5 +259,63 @@ Scene(
         ),
       ),
     ),
+    Lights(
+      lights: Every,
+      z: 5,
+      surface: Area("Playfield"),
+      layer: (
+        fill: (
+          transform: [
+            Rotate(Fixed(90.0)),
+          ],
+          base: Gradient(
+            stops: [
+              (
+                at: 0.0,
+                color: Fixed(0, 255, 255, 255),
+              ),
+              (
+                at: 1.0,
+                color: Fixed(0, 10, 120, 255),
+              ),
+            ],
+            style: Linear,
+          ),
+        ),
+        region: (
+          transform: [
+            Translate(Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: (9.125, 46.063),
+                  curve: Linear,
+                ),
+                (
+                  at: 3.72,
+                  value: (9.125, 46.063),
+                  curve: Linear,
+                ),
+                (
+                  at: 7.59,
+                  value: (9.125, -6.937),
+                  curve: Linear,
+                ),
+                (
+                  at: 7.6,
+                  value: (9.125, 0.0),
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
+            )),
+          ],
+          base: Rect(
+            width: Fixed(26.25),
+            height: Fixed(10.125),
+          ),
+        ),
+      ),
+    ),
   ],
 )

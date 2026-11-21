@@ -10,7 +10,7 @@ pub use surveillance::*;
 
 use frontbox_core::prelude::*;
 
-/// Sentinels lit a lock, for Groundswell to take up once it exists (design/multiballs.md)
+/// Sentinels lit a lock. Nothing takes it up now that Groundswell is lit by spreading roots (TODO.md, decisions).
 #[derive(serde::Serialize, Event)]
 pub struct LockLit;
 

@@ -72,15 +72,10 @@ impl ModeSelectSystem {
   fn open_menu_or_eject(&mut self, ctx: &SystemContext) {
     let rows = {
       let mode_manager = ctx.systems.expect::<ModeManager>();
-      let opens = ctx
+      ctx
         .systems
         .expect::<ScoopQualifier>()
-        .opens_menu(&mode_manager, ctx.balls_in_play());
-      if opens {
-        mode_manager.available_modes()
-      } else {
-        Vec::new()
-      }
+        .menu_rows(&mode_manager, ctx.balls_in_play())
     };
 
     if rows.is_empty() {
@@ -119,7 +114,10 @@ impl ModeSelectSystem {
       .expect::<ModeManager>()
       .start_mode(mode, ctx.into());
     if started.is_ok() {
-      ctx.systems.expect::<ScoopQualifier>().used(ctx.into());
+      // an earned mode didn't need the qualify, so it doesn't use it up
+      if !mode.is_earned() {
+        ctx.systems.expect::<ScoopQualifier>().used(ctx.into());
+      }
       ctx.add_points(game::points::EXCL_START);
       ctx.play_sfx(sounds::IMPACT_CINEMATIC_HEAVY);
     }

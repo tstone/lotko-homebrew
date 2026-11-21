@@ -22,7 +22,7 @@ const FULL_BEAT: Duration = Duration::from_millis(500);
 /// The captive ball charges the heart of the oak (DESIGN.md, Heartwood), and the bolts beat faster as it does. Full
 /// charge starts Heartwood multiball, and each one after needs more. Hits count double with the Solarium perk.
 ///
-/// Waits while any multiball runs, as Heartwood doesn't stack with Groundswell and has the captive ball to itself.
+/// Waits while another multiball runs, as Heartwood has the captive ball to itself.
 ///
 /// Belongs in the player template.
 #[derive(Clone)]

@@ -114,10 +114,10 @@ mod points {
   /// Each shot Caldera Generator puts out
   pub static CALDERA_HIT: u64 = 4_000_000;
   pub static CALDERA_SUPER_JACKPOT: u64 = 120_000_000;
-  /// Each drop target in Derailment, times the bank clears so far plus one
-  pub static DERAIL_JACKPOT: u64 = 3_000_000;
-  /// Each bank clear in Derailment, times how many there have been
-  pub static DERAIL_SUPER_JACKPOT: u64 = 16_000_000;
+  /// Each drop target in Groundswell, times the bank clears so far plus one
+  pub static GROUNDSWELL_JACKPOT: u64 = 3_000_000;
+  /// Each bank clear in Groundswell, times how many there have been
+  pub static GROUNDSWELL_SUPER_JACKPOT: u64 = 16_000_000;
   /// What Halcyon Vents' value builds from, and starts over at after a collect
   pub static HALCYON_BASE: u64 = 25_000_000;
   /// Each spin of either spinner, onto Halcyon Vents' value

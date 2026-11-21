@@ -55,6 +55,22 @@ impl Mode {
     }
   }
 
+  /// The mode's screen in the mode select menu, from the content folder
+  pub fn menu_scene(&self) -> &'static str {
+    match self {
+      Self::MeridianBasins => "dmd/mode_select/meridian_basins.scene",
+      Self::HydroCore => "dmd/mode_select/hydro_core.scene",
+      Self::NimbusPromenade => "dmd/mode_select/nimbus_promenade.scene",
+      Self::SkyrailStation => "dmd/mode_select/skyrail_station.scene",
+      Self::ApexTerraces => "dmd/mode_select/apex_terraces.scene",
+      Self::SolariumAtrium => "dmd/mode_select/solarium_atrium.scene",
+      Self::HelixVaults => "dmd/mode_select/helix_vaults.scene",
+      Self::Blackout => "dmd/mode_select/blackout.scene",
+      Self::Derailment => "dmd/mode_select/derailment.scene",
+      Self::Canopy => "dmd/mode_select/canopy.scene",
+    }
+  }
+
   pub fn is_mini_wizard(&self) -> bool {
     matches!(
       self,

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use frontbox_core::prelude::*;
 use frontbox_pinball::{
   BallManagerExt, GameManagerExt, PlayerEntry, ScoopBallEntered, ScoopEntry, ScoopSystem,
@@ -33,7 +35,8 @@ pub struct ModeSelectSystem {
   timeout_timer: Option<u64>,
   /// A flipper is down and moves the selection when it's let go, unless the other joins it to choose
   pending_move: Option<bool>,
-  screen: DmdScreen,
+  /// Each mode's menu screen, made the first time it's selected
+  screens: HashMap<Mode, DmdScreen>,
 }
 
 impl ModeSelectSystem {
@@ -42,7 +45,7 @@ impl ModeSelectSystem {
       state: State::Idle,
       timeout_timer: None,
       pending_move: None,
-      screen: DmdScreen::new("dmd/announcement.scene", MENU_DMD_LAYER),
+      screens: HashMap::new(),
     }
   }
 
@@ -129,7 +132,7 @@ impl ModeSelectSystem {
     }
     if matches!(self.state, State::Menu { .. }) {
       ctx.systems.expect::<ModeManager>().hide_menu(ctx.into());
-      self.screen.clear(ctx);
+      self.screens.values_mut().for_each(|screen| screen.clear(ctx));
     }
     self.pending_move = None;
     self.state = State::Idle;
@@ -146,7 +149,11 @@ impl ModeSelectSystem {
       .expect::<ModeManager>()
       .show_menu(rows.clone(), mode, ctx.into());
 
-    self.screen.show([("text", mode.name().into()), ("color", mode.color().into())], ctx);
+    self
+      .screens
+      .entry(mode)
+      .or_insert_with(|| DmdScreen::new(mode.menu_scene(), MENU_DMD_LAYER))
+      .show([("color", mode.color().into())], ctx);
   }
 
   fn hold_ball(&self, ctx: &SystemContext) {

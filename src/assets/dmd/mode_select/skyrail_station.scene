@@ -1,0 +1,42 @@
+Scene(
+  version: 2,
+  variables: {
+    "color": Color(255, 255, 255, 255),
+  },
+  layers: [
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Background",
+        fill: (
+          base: Solid(Fixed(0, 0, 0, 255)),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Text",
+        fill: (
+          base: Solid(Variable("color")),
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(64.0, 16.0)),
+          ],
+          base: Text(
+            text: Fixed("SKYRAIL STATION"),
+            font: "TenFatGuys",
+            size: Fixed(16.0),
+            width: Fixed(124.0),
+            height: Fixed(32.0),
+            align: Center,
+            vertical_align: Middle,
+            kerning: Fixed(0.0),
+            leading: Fixed(0.0),
+          ),
+        ),
+      ),
+    ),
+  ],
+)

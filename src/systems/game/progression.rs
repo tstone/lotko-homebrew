@@ -17,7 +17,7 @@ impl Progression {
       states: HashMap::new(),
       all_open: false,
     };
-    progression.open(&[Mode::MeridianBasins, Mode::HydroCore]);
+    progression.open(&[Mode::MeridianBasins, Mode::CargoQuay]);
     progression
   }
 
@@ -139,10 +139,10 @@ impl Progression {
 }
 
 const ROUTE: [&[Mode]; 6] = [
-  &[Mode::MeridianBasins, Mode::HydroCore],
+  &[Mode::MeridianBasins, Mode::CargoQuay],
   &[Mode::NimbusPromenade],
   &[Mode::HelixVaults, Mode::Blackout],
-  &[Mode::SkyrailStation, Mode::ApexTerraces],
+  &[Mode::SkyrailStation, Mode::ApexTerraces, Mode::HydroCore],
   &[Mode::SolariumAtrium],
   &[Mode::Derailment, Mode::Canopy],
 ];
@@ -155,7 +155,7 @@ mod tests {
   fn the_game_opens_with_the_first_choice() {
     assert_eq!(
       Progression::new().available_modes(None),
-      vec![Mode::MeridianBasins, Mode::HydroCore]
+      vec![Mode::MeridianBasins, Mode::CargoQuay]
     );
   }
 
@@ -165,7 +165,7 @@ mod tests {
     progression.start(Mode::MeridianBasins);
 
     assert_eq!(progression.state(Mode::MeridianBasins), ModeState::Played);
-    assert_eq!(progression.state(Mode::HydroCore), ModeState::Unplayed);
+    assert_eq!(progression.state(Mode::CargoQuay), ModeState::Unplayed);
     assert_eq!(
       progression.state(Mode::NimbusPromenade),
       ModeState::Available
@@ -175,15 +175,15 @@ mod tests {
   #[test]
   fn a_played_mode_is_listed_after_what_is_open_unless_it_is_running() {
     let mut progression = Progression::new();
-    progression.start(Mode::HydroCore);
+    progression.start(Mode::CargoQuay);
 
     assert_eq!(
-      progression.available_modes(Some(Mode::HydroCore)),
+      progression.available_modes(Some(Mode::CargoQuay)),
       vec![Mode::NimbusPromenade]
     );
     assert_eq!(
       progression.available_modes(None),
-      vec![Mode::NimbusPromenade, Mode::HydroCore]
+      vec![Mode::NimbusPromenade, Mode::CargoQuay]
     );
   }
 
@@ -194,7 +194,7 @@ mod tests {
     progression.complete(Mode::HydroCore);
 
     let available = progression.available_modes(Some(Mode::Canopy));
-    assert_eq!(available.len(), 8);
+    assert_eq!(available.len(), 9);
     assert!(available.contains(&Mode::SolariumAtrium));
     assert!(!available.contains(&Mode::HydroCore));
     assert!(!available.contains(&Mode::Canopy));
@@ -211,8 +211,8 @@ mod tests {
   #[test]
   fn a_completed_mode_is_not_listed() {
     let mut progression = Progression::new();
-    progression.start(Mode::HydroCore);
-    progression.complete(Mode::HydroCore);
+    progression.start(Mode::CargoQuay);
+    progression.complete(Mode::CargoQuay);
 
     assert_eq!(
       progression.available_modes(None),
@@ -223,15 +223,15 @@ mod tests {
   #[test]
   fn resuming_does_not_open_anything_or_undo_a_completion() {
     let mut progression = Progression::new();
-    progression.start(Mode::HydroCore);
+    progression.start(Mode::CargoQuay);
     progression.start(Mode::NimbusPromenade);
-    progression.start(Mode::HydroCore);
-    assert_eq!(progression.state(Mode::HydroCore), ModeState::Played);
+    progression.start(Mode::CargoQuay);
+    assert_eq!(progression.state(Mode::CargoQuay), ModeState::Played);
     assert_eq!(progression.state(Mode::Blackout), ModeState::Available);
 
-    progression.complete(Mode::HydroCore);
-    progression.start(Mode::HydroCore);
-    assert_eq!(progression.state(Mode::HydroCore), ModeState::Completed);
+    progression.complete(Mode::CargoQuay);
+    progression.start(Mode::CargoQuay);
+    assert_eq!(progression.state(Mode::CargoQuay), ModeState::Completed);
   }
 
   #[test]
@@ -250,7 +250,7 @@ mod tests {
   fn the_whole_route_covers_six_modes() {
     let mut progression = Progression::new();
     for mode in [
-      Mode::HydroCore,
+      Mode::CargoQuay,
       Mode::NimbusPromenade,
       Mode::Blackout,
       Mode::ApexTerraces,

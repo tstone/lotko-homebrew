@@ -1,0 +1,133 @@
+Scene(
+  version: 2,
+  timing: (
+    duration: 3.6,
+    cycle: Once,
+  ),
+  layers: [
+    Lights(
+      lights: Tag("Playfield"),
+      z: 30,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("the forest takes over"),
+        fill: (
+          base: Solid(Fixed(80, 255, 40, 255)),
+          adjust: [
+            Opacity(Visit(
+              traversal: "spread",
+              from: 0.0,
+              to: 0.8,
+              smooth_in: 2.0,
+              hold: 0.0,
+              curve_in: EaseOut,
+              curve_out: Linear,
+              overlap: Max,
+            )),
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 1.0),
+                (at: 2.8, value: 1.0),
+                (at: 3.6, value: 0.0, curve: EaseIn),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        graph: (
+          traversals: [
+            (
+              name: "spread",
+              from: Nearest(Fixed(13.5, 14.068)),
+              algorithm: Dijkstra(
+                wander: Fixed(0.4),
+              ),
+              speed: Duration(1.4),
+              start: 0.9,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 31,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("shockwave"),
+        fill: (
+          base: Solid(Fixed(255, 140, 20, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 1.0),
+                (at: 1.0, value: 0.0, curve: EaseIn),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(13.5, 14.068)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (at: 0.0, value: 1.0),
+                (at: 1.0, value: 24.0, curve: EaseOut),
+              ],
+              cycle: Once,
+            ),
+          ),
+          adjust: [
+            Stroke(
+              width: Fixed(2.0),
+              align: Inside,
+            ),
+          ],
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 31,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("flash"),
+        fill: (
+          base: Solid(Fixed(255, 240, 200, 255)),
+          adjust: [
+            Brightness(Fixed(1.5)),
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 1.0),
+                (at: 0.1, value: 1.0),
+                (at: 0.4, value: 0.0, curve: EaseIn),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(13.5, 14.068)),
+          ],
+          base: Circle(
+            radius: Keyframes(
+              keys: [
+                (at: 0.0, value: 0.5),
+                (at: 0.15, value: 4.0, curve: EaseOut),
+              ],
+              cycle: Once,
+            ),
+          ),
+        ),
+      ),
+    ),
+    Sound(
+      sound: "sfx/impact-cinematic-heavy.mp3",
+      volume: Fixed(1.0),
+    ),
+  ],
+)

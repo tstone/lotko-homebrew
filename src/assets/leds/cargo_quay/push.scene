@@ -1,0 +1,105 @@
+Scene(
+  version: 2,
+  params: {
+    "from": Vec2(3.507, 25.016),
+    "to": Vec2(5.813, 23.201),
+  },
+  timing: (
+    duration: 0.45,
+    cycle: Once,
+  ),
+  layers: [
+    Lights(
+      lights: Tag("Playfield"),
+      z: 11,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("tail"),
+        fill: (
+          base: Solid(Fixed(255, 90, 0, 255)),
+          adjust: [
+            Opacity(Fixed(0.4)),
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 1.0),
+                (at: 0.3, value: 1.0),
+                (at: 0.45, value: 0.0, curve: EaseIn),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Sweep(
+              path: (
+                base: Polyline(
+                  points: [
+                    Variable("from"),
+                    Variable("to"),
+                  ],
+                ),
+              ),
+              position: Keyframes(
+                keys: [
+                  (at: 0.0, value: 0.0),
+                  (at: 0.07, value: 0.0),
+                  (at: 0.45, value: 1.0, curve: EaseInOut),
+                ],
+                cycle: Once,
+              ),
+            )),
+          ],
+          base: Circle(
+            radius: Fixed(0.7),
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 11,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("container"),
+        fill: (
+          base: Solid(Fixed(255, 160, 40, 255)),
+          adjust: [
+            Opacity(Keyframes(
+              keys: [
+                (at: 0.0, value: 1.0),
+                (at: 0.38, value: 1.0),
+                (at: 0.45, value: 0.0, curve: EaseIn),
+              ],
+              cycle: Once,
+            )),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Sweep(
+              path: (
+                base: Polyline(
+                  points: [
+                    Variable("from"),
+                    Variable("to"),
+                  ],
+                ),
+              ),
+              position: Keyframes(
+                keys: [
+                  (at: 0.0, value: 0.0),
+                  (at: 0.38, value: 1.0, curve: EaseInOut),
+                ],
+                cycle: Once,
+              ),
+            )),
+          ],
+          base: Circle(
+            radius: Fixed(0.85),
+          ),
+        ),
+      ),
+    ),
+  ],
+)

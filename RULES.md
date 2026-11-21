@@ -18,10 +18,10 @@ comes next:
 
 | Step | Choose |
 |---|---|
-| 1 | Meridian Basins **or** Hydro Core |
+| 1 | Meridian Basins **or** Cargo Quay |
 | 2 | Nimbus Promenade |
-| 3 | Mini-wizard: Floodgates (after Meridian) or Blackout (after Hydro) |
-| 4 | Skyrail Station **or** Apex Terraces |
+| 3 | Mini-wizard: Floodgates (after Meridian) or Blackout (after Cargo Quay) |
+| 4 | Skyrail Station **or** Apex Terraces **or** Hydro Core |
 | 5 | Solarium Atrium |
 | 6 | Mini-wizard: Derailment (after Skyrail) or Canopy (after Apex) |
 
@@ -43,6 +43,10 @@ The Steward's announcement at the start tells you what to shoot.
 
 **Meridian Basins — green.** Two shots start flashing. Hit a flashing shot to bloom it, and the growth spreads to the
 shots on either side. Bloom all 6. Go 15 seconds without a bloom and the last one withers.
+
+**Cargo Quay — orange.** The lift ramp is up: it's the crane. Two containers sit on shots. Hit a container's shot to
+push it one shot toward the crane, and containers that meet stack and move together. Once both are in, shoot the
+flashing crane.
 
 **Hydro Core — cyan.** Make the combo in order: lift ramp, arc ramp, left orbit, center orbit, dome ramp. Each shot
 after the first has 25 seconds. Run out and the combo starts over, with 5 more seconds each try.

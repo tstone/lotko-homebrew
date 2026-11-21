@@ -1,0 +1,52 @@
+Scene(
+  version: 2,
+  variables: {
+    "color": Color(255, 255, 255, 255),
+  },
+  layers: [
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Background",
+        fill: (
+          base: Solid(Fixed(0, 0, 0, 255)),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        fill: (
+          base: Image(
+            name: "dmd/mode_select/bg-fern.png",
+          ),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Text",
+        fill: (
+          base: Solid(Variable("color")),
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(66.5, 16.0)),
+          ],
+          base: Text(
+            text: Fixed("CARGO \nQUAY"),
+            font: "SirClive",
+            size: Fixed(16.0),
+            width: Fixed(119.0),
+            height: Fixed(32.0),
+            align: Left,
+            vertical_align: Middle,
+            kerning: Fixed(0.0),
+            leading: Fixed(0.0),
+          ),
+        ),
+      ),
+    ),
+  ],
+)

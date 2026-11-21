@@ -1,6 +1,7 @@
 # Cargo Quay
 
-**Status:** proposed. Takes the Derailment mode.
+**Status:** built as pushing containers to the crane, except the sounds, its own callouts and the DMD. Scenes are first
+drafts to tune by hand. A tier 1 district, with Meridian Basins.
 
 ## The place
 
@@ -8,51 +9,56 @@ The city's river freight terminal, where everything Cascadia Prime doesn't make 
 
 ## Signature
 
-The gantry crane, lifting containers and stacking them on the quay.
-
-## Why Derailment fits
-
-The lift ramp in its up position works as the crane. The ball rides the ramp into the rear scoop, up the VUK and along the wireform to the upper flipper, which aims at the drop targets. That's a load lifted and dropped onto a stack.
-
-Derailment was about trains, which Skyrail Station now covers with the roving train, so moving it here clears that overlap.
+The gantry crane. The forest pushes the city's own containers onto it.
 
 ## Gameplay
 
-A 3-ball multiball, carried over from Derailment.
+The lift ramp is up for the whole mode. It's the crane. The other five main shots are the quay, in a row toward the
+crane: left orbit, dome ramp, arc ramp, center orbit, and the right orbit on the far side.
 
-1. The lift ramp stays up. Shoot it to send the ball up the crane to the upper flipper.
-2. The drop targets are a stack of containers. Each one knocked down is a jackpot.
-3. Clearing the bank topples the stack: a super jackpot. The bank resets with a new stack.
-4. Topple 3 stacks to complete it. Jackpots are worth more with each stack toppled.
-5. It ends when one ball is left.
+1. Two containers start on main shots, in one of three layouts. Each takes 5 pushes to get both to the crane:
+   - left orbit and center orbit
+   - left orbit and right orbit
+   - dome ramp and arc ramp
+2. Hit a container's shot to push it one shot toward the crane.
+3. A container pushed onto the other one's shot stacks on it, and from then on one hit pushes both.
+4. Once both are in, the crane flashes. Shoot the lift ramp to lift them and complete the mode.
+5. Each hit of a Root Lash pushes a container at random, or makes the crane shot once both are in. A shot during a
+   spore burst pushes twice.
+
+Single ball, no timer, and nothing pushes back. It's a tier 1 mode, so it's kept straightforward.
 
 ## Lighting
 
-**Today (Derailment):** the drop strips and the lift ramp glow in the mode color, and a jackpot flashes its strip green.
+All in `assets/leds/cargo_quay/`.
 
-**Direction:**
-
-- **The crane:** the lift ramp's lights climb in a chase when a ball goes up, like a load being hoisted.
-- **The stack:** the drop strips are the containers, lit in the mode color. A container knocked down flashes green and goes dark.
-- **Topple:** the whole bank bursts green, and the burst spreads out across the playfield.
-- **Completion:** to design.
+- **Containers:** a container lights its hex center orange, and a stack lights the whole hex. Shot statuses, not
+  scenes.
+- **Push** (`push.scene`): the container slides from one hex to the next with a short tail. The city map shows the
+  pushes so far.
+- **Crane ready:** the lift ramp's hex center and the bolt under it flash orange.
+- **Completion** (`complete.scene`): a white flash and an orange shockwave from the crane, then green spreads over the
+  playfield from it.
 
 ## Sound
 
-The quay has an obvious background sound: cranes, horns, and water against the hulls.
+The quay has an obvious background sound: cranes, horns, and water against the hulls. Stand-ins are in place:
+`latch-heavy1` for a push, `motor1` when the crane is ready. Still needed (see TODO.md, Sound effects needed):
 
-- The crane: a mechanical whine as the ball goes up.
-- Containers: a heavy metal clang for each one.
-- Topple: a crash of containers falling.
-- Recorded: `train-derailment-subverting` and `oak/fall`, written for trains. `oak/fall` still works.
+- A heavy metal clang for each push, and a crash when a stack forms.
+- The crane's whine when it's ready, and as it lifts.
+- The quay's ambience under the mode.
+
+**Callouts:** the start says `generic/biological-contaminent-identified` as a stand-in, and the completion only the
+Oaks' `oak/fall`. Cargo Quay needs its own Steward lines for both.
 
 ## Display
 
 - **Start:** the gantry cranes over the stacks of containers.
-- **Topple:** a stack falling.
-- **Completion:** to design.
+- **Completion:** a stack falling.
 
 ## Open questions
 
-- Whether it stays a multiball.
-- Where it sits on the map. It's by the river, so it's likely in the lower city.
+- Whether 5 pushes plus the crane is the right length for tier 1.
+- Its perk, and its insert on the city map, which has six for seven districts.
+- Where Derailment goes, now that Cargo Quay doesn't use it.

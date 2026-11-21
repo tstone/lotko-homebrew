@@ -56,6 +56,10 @@ Effects a built feature wants but plays a stand-in for, or nothing. Delete a lin
 - [ ] Skyrail: crossing bells while a station is announced, and station ambience under the mode.
 - [ ] Skyrail: a Steward line for a perfect, every station destroyed before the train (stand-in `generic/skyrail-unavailable`).
 - [ ] Meridian: a sound for a bloom withering.
+- [ ] Cargo Quay: a metal clang for each push (stand-in `latch-heavy1`), and a crash when a stack forms.
+- [ ] Cargo Quay: the crane's whine when it's ready (stand-in `motor1`), and quay ambience under the mode.
+- [ ] Cargo Quay: Steward lines for the start (stand-in `generic/biological-contaminent-identified`) and the
+  completion (none, only `oak/fall`).
 - [ ] Sentinels: an alarm when they're sent, a drone whine under them, and a sting when they're defeated.
 
 # Charge

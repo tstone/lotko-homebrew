@@ -14,7 +14,7 @@ Work through a place in this order:
 | Place | Where | Status | File |
 |---|---|---|---|
 | Meridian Basins | Tier 1 | Built, DMD to do | [meridian-basins.md](meridian-basins.md) |
-| Cargo Quay (Derailment) | Tier 1 | Proposed | [cargo-quay.md](cargo-quay.md) |
+| Cargo Quay | Tier 1 | Built, DMD to do | [cargo-quay.md](cargo-quay.md) |
 | Nimbus Promenade | Gate 1 | Rework with the scan | [nimbus-promenade.md](nimbus-promenade.md) |
 | Hydro Core | Tier 2 | Keep | [hydro-core.md](hydro-core.md) |
 | Helix Vaults (Floodgates) | Tier 2 | Built, DMD to do | [helix-vaults.md](helix-vaults.md) |
@@ -75,4 +75,5 @@ Every place in tiers 2 and 3, and the Caldera Generator, drops a clue toward wha
 ## Open questions
 
 - How many places a player plays in each tier, and what unlocks the next.
-- Which places run as multiball. Cargo Quay is a 3-ball multiball in tier 1, which may be too strong that early.
+- The map needs replanning now that tier 1 is Meridian Basins and Cargo Quay. In the game for now, Hydro Core is a
+  third choice on step 4, Blackout follows Cargo Quay, and Derailment still follows Skyrail.

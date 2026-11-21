@@ -90,6 +90,12 @@ pub static BLACKOUT_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
     .category("Modes")
 });
 
+pub static CARGO_QUAY_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
+  Counter::new("Cargo Quay Completed", "Times Cargo Quay was completed")
+    .key("cargo_quay_completed")
+    .category("Modes")
+});
+
 pub static DERAILMENT_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
   Counter::new("Derailment Completed", "Times Derailment was completed")
     .key("derailment_completed")
@@ -109,6 +115,7 @@ pub fn mode_completed(mode: &Mode) -> &'static Counter {
     Mode::SkyrailStation => &SKYRAIL_STATION_COMPLETED,
     Mode::SolariumAtrium => &SOLARIUM_ATRIUM_COMPLETED,
     Mode::MeridianBasins => &MERIDIAN_BASINS_COMPLETED,
+    Mode::CargoQuay => &CARGO_QUAY_COMPLETED,
     Mode::NimbusPromenade => &NIMBUS_PROMENADE_COMPLETED,
     Mode::ApexTerraces => &APEX_TERRACES_COMPLETED,
     Mode::HelixVaults => &HELIX_VAULTS_COMPLETED,

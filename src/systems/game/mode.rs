@@ -6,7 +6,7 @@ use frontbox_lighting::prelude::*;
 use crate::hardware::city_map;
 use crate::systems::{Callout, sounds};
 use crate::systems::game::{
-  ApexTerracesMode, BlackoutMode, CanopyMode, DerailmentMode, HeartwoodMultiballMode,
+  ApexTerracesMode, BlackoutMode, CargoQuayMode, CanopyMode, DerailmentMode, HeartwoodMultiballMode,
   HelixVaultsMode, HydroCoreMode, MeridianBasinsMode, NimbusPromenadeMode, SkyrailStationMode, SolariumAtriumMode,
 };
 
@@ -19,6 +19,7 @@ const HELIX_VAULTS_COLOR: Rgba<u8> = Rgba([170, 255, 0, 255]);
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize)]
 pub enum Mode {
   MeridianBasins,
+  CargoQuay,
   HydroCore,
   NimbusPromenade,
   SkyrailStation,
@@ -31,8 +32,9 @@ pub enum Mode {
 }
 
 impl Mode {
-  pub const DISTRICTS: [Mode; 6] = [
+  pub const DISTRICTS: [Mode; 7] = [
     Self::MeridianBasins,
+    Self::CargoQuay,
     Self::HydroCore,
     Self::NimbusPromenade,
     Self::SkyrailStation,
@@ -43,6 +45,7 @@ impl Mode {
   pub fn name(&self) -> &'static str {
     match self {
       Self::MeridianBasins => "MERIDIAN BASINS",
+      Self::CargoQuay => "CARGO QUAY",
       Self::HydroCore => "HYDRO CORE",
       Self::NimbusPromenade => "NIMBUS PROMENADE",
       Self::SkyrailStation => "SKYRAIL STATION",
@@ -59,6 +62,7 @@ impl Mode {
   pub fn menu_scene(&self) -> &'static str {
     match self {
       Self::MeridianBasins => "dmd/mode_select/meridian_basins.scene",
+      Self::CargoQuay => "dmd/mode_select/cargo_quay.scene",
       Self::HydroCore => "dmd/mode_select/hydro_core.scene",
       Self::NimbusPromenade => "dmd/mode_select/nimbus_promenade.scene",
       Self::SkyrailStation => "dmd/mode_select/skyrail_station.scene",
@@ -93,11 +97,12 @@ impl Mode {
   pub fn tier(&self) -> u8 {
     match self {
       Self::MeridianBasins
-      | Self::HydroCore
+      | Self::CargoQuay
       | Self::NimbusPromenade
       | Self::HelixVaults
       | Self::Blackout => 1,
-      Self::SkyrailStation
+      Self::HydroCore
+      | Self::SkyrailStation
       | Self::ApexTerraces
       | Self::SolariumAtrium
       | Self::Derailment
@@ -108,10 +113,10 @@ impl Mode {
   /// The step on the route it's on (DESIGN.md, Primary progression), from 1, which sets what it's worth
   pub fn step(&self) -> u8 {
     match self {
-      Self::MeridianBasins | Self::HydroCore => 1,
+      Self::MeridianBasins | Self::CargoQuay => 1,
       Self::NimbusPromenade => 2,
       Self::HelixVaults | Self::Blackout => 3,
-      Self::SkyrailStation | Self::ApexTerraces => 4,
+      Self::SkyrailStation | Self::ApexTerraces | Self::HydroCore => 4,
       Self::SolariumAtrium => 5,
       Self::Derailment | Self::Canopy => 6,
     }
@@ -121,7 +126,8 @@ impl Mode {
   pub fn district(&self) -> Mode {
     match self {
       Self::HelixVaults => Self::MeridianBasins,
-      Self::Blackout => Self::HydroCore,
+      // until the map is replanned (design/city/README.md)
+      Self::Blackout => Self::CargoQuay,
       Self::Derailment => Self::SkyrailStation,
       Self::Canopy => Self::ApexTerraces,
       district => *district,
@@ -129,11 +135,15 @@ impl Mode {
   }
 
   pub fn color(&self) -> Rgba<u8> {
-    if *self == Self::HelixVaults {
-      return HELIX_VAULTS_COLOR;
+    match self {
+      Self::HelixVaults => return HELIX_VAULTS_COLOR,
+      // kept from when it followed Hydro Core
+      Self::Blackout => return Rgba::cyan(),
+      _ => {}
     }
     match self.district() {
       Self::HydroCore => Rgba::cyan(),
+      Self::CargoQuay => Rgba::orange(),
       Self::SkyrailStation => Rgba::blue(),
       Self::SolariumAtrium => Rgba::purple(),
       Self::MeridianBasins => Rgba::green(),
@@ -184,6 +194,8 @@ impl Mode {
   pub fn start_lines(&self) -> &'static [Callout] {
     match self {
       Self::MeridianBasins => &[Callout::CropContaminationDetected],
+      // stand-in until it has its own (TODO.md)
+      Self::CargoQuay => &[Callout::BiologicalContaminantIdentified],
       Self::HydroCore => &[Callout::CoolantCoreDropping],
       Self::NimbusPromenade => &[Callout::PromenadeClosed, Callout::WalkwaysWillBeSealed],
       Self::SkyrailStation => &[Callout::SkyrailServiceSuspended, Callout::ClearThePlatform],
@@ -200,6 +212,8 @@ impl Mode {
   pub fn completion_lines(&self) -> &'static [Callout] {
     match self {
       Self::MeridianBasins => &[Callout::MeridianBasinsUninhabitable, Callout::OakOurs],
+      // the Steward's line is still to record (TODO.md)
+      Self::CargoQuay => &[Callout::OakFall],
       Self::HydroCore => &[Callout::CoreOffline, Callout::OakDrink],
       Self::NimbusPromenade => &[
         Callout::AccessToUpperCityRestricted,
@@ -221,6 +235,7 @@ impl Mode {
       Self::SkyrailStation => ctx.systems.spawn(SkyrailStationMode::new()),
       Self::SolariumAtrium => ctx.systems.spawn(SolariumAtriumMode::new()),
       Self::MeridianBasins => ctx.systems.spawn(MeridianBasinsMode::new()),
+      Self::CargoQuay => ctx.systems.spawn(CargoQuayMode::new()),
       Self::NimbusPromenade => ctx.systems.spawn(NimbusPromenadeMode::new()),
       Self::ApexTerraces => ctx.systems.spawn(ApexTerracesMode::new()),
       Self::HelixVaults => ctx.systems.spawn(HelixVaultsMode::new()),
@@ -357,9 +372,15 @@ mod tests {
 
   #[test]
   fn districts_have_inserts_and_mini_wizards_share_their_districts_color() {
-    assert!(Mode::DISTRICTS.iter().all(|mode| mode.map_led().is_some()));
+    // Cargo Quay has no insert until the map is replanned
+    assert!(
+      Mode::DISTRICTS
+        .iter()
+        .filter(|mode| **mode != Mode::CargoQuay)
+        .all(|mode| mode.map_led().is_some())
+    );
     assert!(Mode::Blackout.map_led().is_none());
-    assert_eq!(Mode::Blackout.color(), Mode::HydroCore.color());
+    assert_eq!(Mode::Derailment.color(), Mode::SkyrailStation.color());
     assert_eq!(Mode::Canopy.color(), Rgba::gold());
   }
 }

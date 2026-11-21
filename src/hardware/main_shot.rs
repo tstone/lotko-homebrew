@@ -84,7 +84,7 @@ impl MainShot {
       .unwrap_or(self)
   }
 
-  fn hex_leds(self) -> &'static LedDefinition {
+  pub fn hex_leds(self) -> &'static LedDefinition {
     match self {
       Self::LeftOrbit => &*left_orbit::HEX_LEDS,
       Self::DomeRamp => &*dome_ramp::HEX_LEDS,

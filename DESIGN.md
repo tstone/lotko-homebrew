@@ -89,8 +89,8 @@ Until the palettes exist, the recorded SFX stand in like this:
   uneven, flickering. Forest effects start at **the roots** (the vertical spinner) or at the point a ball hit.
 - **The central motif is takeover:** a forest effect spreads over a city effect and replaces it. Every completion
   uses it.
-- **District accent colors** stay as they are now (Hydro cyan, Meridian orange, Nimbus magenta, Skyrail blue,
-  Solarium purple), except **Apex changes from green to gold**, so green belongs only to the forest. Heartwood is lime.
+- **District accent colors:** Hydro cyan, Meridian green (its mode is the forest growing), Cargo Quay orange, Nimbus
+  magenta, Skyrail blue, Solarium purple, and Apex gold. Heartwood is lime.
 - **The Steward is red.** Anything the Steward does to the playfield (a blocked walkway, a watching camera) is lit red,
   and red means the player can't make that shot count right now. No district or forest effect uses red.
 - **Lit means "hit this".** A shot stays lit only while hitting it does something. Once it's done, it goes dark.
@@ -176,24 +176,27 @@ Ball paths that matter:
                   Nimbus
               ↙            ↘
      [Floodgates]        [Blackout]
-       Meridian            Hydro
+       Meridian          Cargo Quay
        [ spores bar — the roots ]
 ```
 
-10 modes: 6 districts + 4 mini-wizards. One game covers at most 6 of them:
+11 modes: 7 districts + 4 mini-wizards. One game covers at most 6 of them:
 
-1. Meridian **or** Hydro
+1. Meridian **or** Cargo Quay
 2. Nimbus
-3. Tier-1 mini-wizard: Floodgates (if Meridian) or Blackout (if Hydro)
-4. Skyrail **or** Apex
+3. Tier-1 mini-wizard: Floodgates (if Meridian) or Blackout (if Cargo Quay)
+4. Skyrail **or** Apex **or** Hydro
 5. Solarium
-6. Tier-2 mini-wizard: Derailment (if Skyrail) or Canopy (if Apex)
+6. Tier-2 mini-wizard: Derailment (if Skyrail) or Canopy (if Apex). Hydro has none.
+
+**Interim:** the map is to be replanned (design/city/README.md). Until then, Hydro Core is a third choice on step 4,
+Blackout follows Cargo Quay, and Cargo Quay has no insert on the city map.
 
 ### Rules
 
 - **Playing a mode moves you forward.** Starting a mode marks it *played*, and its next step becomes available.
   A mode only ends by completing it or by draining.
-- **No going back or sideways.** Choosing Meridian closes Hydro for the rest of the game, and so on.
+- **No going back or sideways.** Choosing Meridian closes Cargo Quay for the rest of the game, and so on.
 - **Exception: unfinished modes can be resumed.** A mode that was played but not completed stays in the menu, and
   resuming it keeps its progress.
 - **Completing a district earns a persistent perk** for the rest of the game (see Perks).
@@ -217,7 +220,8 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
 | District | Current | Plan |
 |---|---|---|
 | Meridian Basins | Sweeping window of 3 lit shots | Rework as **spreading growth** (built) |
-| Hydro Core | Timed 5-shot combo | Keep; hexes flash faster as time runs out (TODO) |
+| Cargo Quay | (new) | **Pushing containers to the crane** (built) |
+| Hydro Core | Timed 5-shot combo | Keep; hexes flash faster as time runs out (TODO). On step 4 for now |
 | Nimbus Promenade | Pops (non-exclusive) | Rework as **choke points** |
 | Skyrail Station | Lift ramp and drops in turn, then 2-ball | Rework as **the train** (built) |
 | Apex Terraces | Pop targets + charged center spinner (non-exclusive) | Rework as **overload** |
@@ -232,6 +236,16 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
   seconds after.
 - Each hit of a Root Lash blooms a flashing shot at random.
 - Complete: all 6 shots bloomed.
+
+**Cargo Quay: the crane.** The forest loads the city's freight onto the crane (design/city/cargo-quay.md).
+- The lift ramp is up for the whole mode. It's the crane.
+- 2 containers start on main shots, lit orange, in one of three layouts that each take 5 pushes: left orbit and center
+  orbit, left orbit and right orbit, or dome ramp and arc ramp.
+- Hitting a container's shot pushes it one shot toward the crane. Containers pushed onto the same shot stack (the
+  whole hex lights) and move together.
+- Once both are in, the crane (the lift ramp's hex and the bolt under it) flashes. Shoot it to complete.
+- Each hit of a Root Lash pushes a container at random, or makes the crane shot once both are in.
+- Single ball, no timer.
 
 **Hydro Core: coolant combo.** The forest drinks the core dry, one pipe at a time, before the Steward can reroute.
 - A timed combo: lift ramp → arc ramp → left orbit → center orbit → dome ramp. Each shot has 25s.
@@ -282,6 +296,7 @@ Each perk boosts a side quest, so the progression and the side quests feed each 
 | District | Perk |
 |---|---|
 | Meridian | Spread roots grow twice as fast |
+| Cargo Quay | None yet |
 | Hydro | +5s on all mode timers and hurry-ups |
 | Nimbus | Pops charge spores twice as fast |
 | Skyrail | One Sentinel clear lights a lock (normally two) |
@@ -299,7 +314,7 @@ marks it completed.
 - **Floodgates** (Meridian). The forest holds the basins and opens the gates. The arc ramp LEDs show a rising water
   level in blue, and the orbits glow orange while it rises. Orbit hits raise it, and at high water the ramps glow
   white as super jackpots. A super jackpot lets the water out to rise again. Complete: 3 super jackpots.
-- **Blackout** (Hydro). The forest cuts the city's power. GI goes off and the playfield goes dark except for the
+- **Blackout** (Cargo Quay for now, was Hydro). The forest cuts the city's power. GI goes off and the playfield goes dark except for the
   roots (the vertical spinner's ring and the pop rays) and lit shots. Each hit darkens another shot. When they're all
   dark, the scoop is the super jackpot. Complete: the super jackpot.
 - **Derailment** (Skyrail). The skyrail is cut. The lift ramp is held up for the whole mode, and the balls feed the
@@ -316,10 +331,10 @@ worth about 1B from the modes alone, before side quests and bonus.
 
 | Step | Shot | Completion | About |
 |---|---|---|---|
-| 1: Meridian, Hydro | 1.5M | 35M | 45M |
+| 1: Meridian, Cargo Quay | 1.5M | 35M | 45M |
 | 2: Nimbus | 2.25M | 50M | 60M |
 | 3: Floodgates, Blackout | (own scoring) | 110M | 235–255M |
-| 4: Skyrail, Apex | 3.5M | 70M | 105M |
+| 4: Skyrail, Apex, Hydro | 3.5M | 70M | 105M |
 | 5: Solarium | 5M | 90M | 120M |
 | 6: Derailment, Canopy | (own scoring) | 225M | 345–375M |
 
@@ -580,6 +595,18 @@ The hydroponic farms. The forest's seeds take root in the sterile basins and spr
 | Bloom | Green energy bursts from the shot, and the hexes on either side start flashing | A swell of growth | — |
 | Wither | The last bloomed hex goes back to flashing, and the hexes it spread to go dark | — (TODO) | — |
 | Completion | 7 to 10 bursts all over the playfield | The swell builds; S: *"Meridian Basins uninhabitable."* O: *"Ours."* | Roots wrap the rows of plants |
+
+#### Cargo Quay — the crane, orange
+
+The river freight terminal. The forest pushes the city's containers onto the crane.
+
+| Phase | LEDs | Sound / callouts | DMD |
+|---|---|---|---|
+| Start | The mode's start scene in orange, then the 2 containers light; the lift ramp goes up | S: stand-in *"Biological contaminant identified."* (TODO) | The gantry crane over the stacked containers (TODO) |
+| Attention | A container lights its hex center, a stack its whole hex | — | — |
+| Push | The container slides to the next hex, with a short tail; the map shows the pushes | A heavy latch (stand-in for a metal clang) | — |
+| Crane ready | The lift ramp's hex and the bolt under it flash | A motor (stand-in for the crane's whine) | — |
+| Completion | A white flash and an orange shockwave from the crane, then green spreads over the playfield | O: *"Fall."* (the Steward's line is TODO) | A stack falling (TODO) |
 
 #### Hydro Core — coolant combo, timed, cyan
 

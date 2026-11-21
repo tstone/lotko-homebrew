@@ -1,4 +1,5 @@
 mod apex_terraces;
+mod cargo_quay;
 mod arc_streak;
 mod bonus;
 mod center_spinner;
@@ -28,6 +29,7 @@ mod spores;
 mod tilt_presenter;
 
 pub use apex_terraces::*;
+pub use cargo_quay::*;
 pub use arc_streak::*;
 pub use bonus::*;
 pub use center_spinner::*;

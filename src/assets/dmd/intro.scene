@@ -1,0 +1,15 @@
+Scene(
+  version: 2,
+  layers: [
+    Display(
+      display: "Dmd",
+      layer: (
+        fill: (
+          base: Image(
+            name: "dmd/bg/forest-light.png",
+          ),
+        ),
+      ),
+    ),
+  ],
+)

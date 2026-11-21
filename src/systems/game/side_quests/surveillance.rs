@@ -15,6 +15,9 @@ use crate::systems::{Callout, SayExt, sounds};
 /// Playfield switch hits in a player's game before the cameras come online
 const SWITCHES_TO_ENABLE: u32 = 40;
 
+/// Pop hits that add up to one hit on the pop's camera
+const POPS_PER_HIT: u8 = 3;
+
 /// Every this many sets lights an outlane save
 const SETS_PER_OUTLANE: u8 = 3;
 
@@ -23,7 +26,8 @@ const DEADLINE: u8 = 12;
 
 /// The Steward watches the pops through a camera on each pop target (DESIGN.md, Surveillance). The cameras come online
 /// after [`SWITCHES_TO_ENABLE`] playfield switch hits, and stay on for the rest of the player's game. A watching
-/// camera's target is red, and hitting it enough blinds it and puts it out. Blinding all 3 is a set: the cameras come
+/// camera's target is red, and hitting it enough blinds it and puts it out. While the cameras are on, each pop hit
+/// flashes the pop's insert, and every [`POPS_PER_HIT`] hits on a pop count as one hit on its camera. Blinding all 3 is a set: the cameras come
 /// back on, each needing one more hit than before, and the set counts as a lit shot toward the scoop. Every third set
 /// lights an outlane save.
 ///
@@ -73,7 +77,15 @@ impl SurveillanceSystem {
     self.render(ctx);
   }
 
-  fn on_target_hit(&mut self, pop: PopBumper, ctx: &SystemContext) {
+  fn on_pop_hit(&mut self, pop: PopBumper, ctx: &SystemContext) {
+    let led = pop_cluster::led_for_pop(&pop).q();
+    ctx.play_scene(&flash_scene(&led, Rgba::red()));
+    if self.cameras.pop(pop) {
+      self.on_camera_hit(pop, ctx);
+    }
+  }
+
+  fn on_camera_hit(&mut self, pop: PopBumper, ctx: &SystemContext) {
     let Some(blinded) = self.cameras.hit(pop) else {
       return;
     };
@@ -210,7 +222,9 @@ impl System for SurveillanceSystem {
     }
 
     if let Some(pop) = pop_cluster::match_target_switch(&closed.switch) {
-      self.on_target_hit(pop, ctx);
+      self.on_camera_hit(pop, ctx);
+    } else if let Some(pop) = pop_cluster::match_switch(&closed.switch) {
+      self.on_pop_hit(pop, ctx);
     }
   }
 
@@ -247,6 +261,8 @@ fn ball_waiting(ctx: &SystemContext) -> bool {
 #[derive(Debug, Clone)]
 struct Cameras {
   hits: [u8; 3],
+  /// Pop hits toward each camera's next hit
+  pops: [u8; 3],
   /// Hits that blind a camera this set
   required: u8,
   sets: u8,
@@ -256,6 +272,7 @@ impl Cameras {
   fn new() -> Self {
     Self {
       hits: [0; 3],
+      pops: [0; 3],
       required: 1,
       sets: 0,
     }
@@ -286,11 +303,26 @@ impl Cameras {
     Some(!self.is_watching(pop))
   }
 
+  /// Returns whether the pop hit adds up to a hit on its camera. Pops don't count toward a blind camera.
+  fn pop(&mut self, pop: PopBumper) -> bool {
+    if !self.is_watching(pop) {
+      return false;
+    }
+    let pops = &mut self.pops[pop as usize];
+    *pops += 1;
+    if *pops < POPS_PER_HIT {
+      return false;
+    }
+    *pops = 0;
+    true
+  }
+
   /// The cameras come back on, each needing another hit. Returns the sets made.
   fn next_set(&mut self) -> u8 {
     self.sets += 1;
     self.required += 1;
     self.hits = [0; 3];
+    self.pops = [0; 3];
     self.sets
   }
 }
@@ -314,6 +346,19 @@ mod tests {
     assert!(!cameras.all_blinded());
     cameras.hit(PopBumper::LowerRight);
     assert!(cameras.all_blinded());
+  }
+
+  #[test]
+  fn three_pops_are_one_camera_hit() {
+    let mut cameras = Cameras::new();
+    assert!(!cameras.pop(PopBumper::Left));
+    assert!(!cameras.pop(PopBumper::Left));
+    assert!(cameras.pop(PopBumper::Left));
+    assert_eq!(cameras.hit(PopBumper::Left), Some(true));
+    // a blind camera takes no pops
+    assert!(!cameras.pop(PopBumper::Left));
+    assert!(!cameras.pop(PopBumper::Left));
+    assert!(!cameras.pop(PopBumper::Left));
   }
 
   #[test]

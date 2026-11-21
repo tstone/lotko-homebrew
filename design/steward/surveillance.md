@@ -8,6 +8,7 @@ The Steward watches the pops through three cameras, one on each pop target.
 
 - The cameras come online after 40 playfield switch hits in a player's game, and stay on for the rest of it.
 - The pop target LEDs are lit red while their camera is watching. Hitting a target blinds that camera, and its LED goes dark.
+- While the cameras are on, each pop hit flashes that pop's insert red. Every 3 hits on a pop count as one hit on the camera nearest it (its own target).
 - Blinding all 3 is a set. The cameras come back on, and each set needs one more hit per camera than the last.
 - Each set counts as one lit shot toward lighting the left scoop, between modes only.
 - Every third set lights an outlane save on a side that isn't already lit.

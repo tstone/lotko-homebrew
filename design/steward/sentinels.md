@@ -6,7 +6,8 @@ The city's drones. When Surveillance goes unchecked, the Steward sends them, and
 
 ## Today
 
-- Sent by Surveillance, with the Steward's "Sentinels deployed." Each dispatch sends one more drone than the last: 1, then 2, then 3.
+- Sent by Surveillance, with the Steward's "Sentinels deployed." Each dispatch sends half a drone more than the last, rounded down: 1, 1, 2, 2, 3, and so on.
+- The lift ramp is up while they're out, so the ramp feeds the upper flipper. The bolt under the ramp flashes red and the flashers cycle red.
 - It takes over above everything. A running place is suspended and picks up where it left off once the Sentinels are defeated. Nothing new can start while they're out.
 - It waits for modes that use the drops or add balls, and for multiballs, to end first.
 - Half the GI goes the Steward's red and the other half stays white.

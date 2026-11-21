@@ -4,6 +4,7 @@ use frontbox_pinball::{GameManagerExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::drop_bank::{self, DropBankCleared, DropBankSystem, DropBankTargetHit};
+use crate::hardware::lift_ramp::LiftRampSystem;
 use crate::systems::game::side_quests::{LockLit, SentinelsDispatched};
 use crate::systems::game::{
   ExtraBallSource, ExtraBallSystem, ModeManager, Perk, flash_scene, points,
@@ -15,9 +16,12 @@ use crate::systems::{Callout, SayExt, sounds};
 /// everything, suspending a district that's running. Each bank clear downs a drone, and the strips show the targets
 /// still up, in the Steward's red. Downing all the drones dispatched ends the takeover.
 ///
-/// Each dispatch sends one more drone than the last, counting dispatches rather than defeats, so draining during the
-/// Sentinels doesn't make the next one easier. A drain ends them, and a district they suspended is left to resume from
-/// the menu.
+/// While they're out the lift ramp is up, so the ramp feeds the upper flipper (which aims at the drops) more gently
+/// than the left orbit does. The bolt under the ramp flashes red and the flashers cycle red.
+///
+/// Each dispatch sends half a drone more than the last, rounded down: 1, 1, 2, 2, 3... It counts dispatches rather
+/// than defeats, so draining during the Sentinels doesn't make the next one easier. A drain ends them, and a district
+/// they suspended is left to resume from the menu.
 ///
 /// Every 2 drones downed lights a lock, or every one with the Skyrail perk, and 5, 10 and 15 drones give awards, 10
 /// being an extra ball. Outside the Sentinels the drops only score consolation points.
@@ -27,7 +31,7 @@ use crate::systems::{Callout, SayExt, sounds};
 pub struct SentinelsSystem {
   /// The Sentinels have taken over
   running: bool,
-  /// Times the Sentinels have been dispatched this game, which is how many drones the latest sent
+  /// Times the Sentinels have been dispatched this game
   dispatches: u8,
   /// Drones still to down before the Sentinels are defeated
   remaining: u8,
@@ -35,6 +39,10 @@ pub struct SentinelsSystem {
   drones: u8,
   /// Drones toward the next lock
   toward_lock: u8,
+  /// The lift ramp's bolt flashing red
+  bolt_scene: ScenePlayer,
+  /// The flashers cycling red
+  flashers_scene: ScenePlayer,
 }
 
 impl SentinelsSystem {
@@ -45,13 +53,18 @@ impl SentinelsSystem {
       remaining: 0,
       drones: 0,
       toward_lock: 0,
+      bolt_scene: ScenePlayer::new(
+        scene!("startable/lift_ramp_attention.scene").variable("color", Rgba::red()),
+      ),
+      flashers_scene: ScenePlayer::new(scene!("side/sentinels_flashers.scene")),
     }
   }
 
   fn dispatch(&mut self, ctx: &SystemContext) {
-    self.dispatches += 1;
-    self.remaining = self.dispatches;
+    self.dispatches = self.dispatches.saturating_add(1);
+    self.remaining = drones_sent(self.dispatches);
     self.running = true;
+    self.start_takeover(ctx);
     log::info!("Sentinels: {} drones dispatched", self.remaining);
     ctx.say(Callout::SentinelsDeployed);
     ctx.play_sfx(sounds::SCAN_HEAVY_STUTTER);
@@ -120,8 +133,29 @@ impl SentinelsSystem {
   fn defeated(&mut self, ctx: &SystemContext) {
     log::info!("Sentinels: defeated");
     self.running = false;
+    self.end_takeover(ctx);
     ctx.systems.expect::<ModeManager>().end_sentinels(ctx.into());
     self.render(ctx);
+  }
+
+  /// Lifts the ramp to feed the upper flipper, and starts the bolt and flashers
+  fn start_takeover(&mut self, ctx: &SystemContext) {
+    ctx
+      .systems
+      .expect::<LiftRampSystem>()
+      .request_up(ctx.id(), ctx.into());
+    self.bolt_scene.start(ctx);
+    self.flashers_scene.start(ctx);
+  }
+
+  /// Undoes [`Self::start_takeover`]
+  fn end_takeover(&mut self, ctx: &SystemContext) {
+    ctx
+      .systems
+      .expect::<LiftRampSystem>()
+      .release(ctx.id(), ctx.into());
+    self.bolt_scene.stop(ctx);
+    self.flashers_scene.stop(ctx);
   }
 
   /// Red on the targets still up while the Sentinels are out
@@ -153,6 +187,7 @@ impl System for SentinelsSystem {
       log::info!("Sentinels: the ball ended with {} drones still up", self.remaining);
       self.running = false;
       self.remaining = 0;
+      self.end_takeover(ctx);
     }
     ctx.deactivate_light_declarations();
   }
@@ -189,6 +224,11 @@ impl System for SentinelsSystem {
   }
 }
 
+/// The drones the `dispatch`th dispatch sends: half a drone more each time, rounded down
+fn drones_sent(dispatch: u8) -> u8 {
+  dispatch.div_ceil(2)
+}
+
 /// Each target's strip and switch
 fn targets() -> [(&'static LedDefinition, &'static str); 3] {
   [
@@ -196,4 +236,20 @@ fn targets() -> [(&'static LedDefinition, &'static str); 3] {
     (&drop_bank::TARGET2_LEDS, drop_bank::TARGET2.name),
     (&drop_bank::TARGET3_LEDS, drop_bank::TARGET3.name),
   ]
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn each_dispatch_sends_half_a_drone_more_rounded_down() {
+    let sent: Vec<u8> = (1..=6).map(drones_sent).collect();
+    assert_eq!(sent, vec![1, 1, 2, 2, 3, 3]);
+  }
+
+  #[test]
+  fn the_scenes_load() {
+    SentinelsSystem::new();
+  }
 }

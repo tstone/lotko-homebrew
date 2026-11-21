@@ -93,8 +93,9 @@ These run all the time, alongside the districts.
   lighting the scoop, and every third set lights an outlane save. Once they're online, blind a camera at least once
   a minute, or the Steward sends the Sentinels.
 - **Sentinels — red.** The drones take over: half the playfield lights go red, and whatever district is running
-  waits. Clear the drop targets to down a drone, and down them all to get back to it. The first time sends 1 drone,
-  then 2, then 3. Draining ends them, but the next time still sends one more. Every 2 drones lights a lock. At 5
+  waits. The lift ramp goes up to feed the upper flipper. Clear the drop targets to down a drone, and down them all
+  to get back to it. The drones sent go 1, 1, 2, 2, 3, and so on. Draining ends them, but the next time still counts
+  up. Every 2 drones lights a lock. At 5
   drones: points. 10: extra ball lit. 15: big points. *(These rewards are left over from the old Sentinels and will
   be revisited.)*
 - **Heartwood — lime.** Hit the captive ball to charge the heart. A full charge starts **Heartwood multiball**. It

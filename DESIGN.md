@@ -362,9 +362,9 @@ The Steward watches the pops through three cameras, one on each pop target.
 ### Sentinels (city drones)
 
 A takeover mode: the city's drones are the drop targets.
-- Dispatched by Surveillance (above), with S: *"Sentinels deployed."* Each dispatch sends one more drone than the last:
-  1 the first time, then 2, then 3. The count goes by dispatches, not defeats, so draining doesn't make the next one
-  easier.
+- Dispatched by Surveillance (above), with S: *"Sentinels deployed."* Each dispatch sends half a drone more than the
+  last, rounded down: 1, 1, 2, 2, 3, and so on. The count goes by dispatches, not defeats, so draining doesn't make the
+  next one easier.
 - **It takes over above everything.** The priority is the Sentinels, then the district, then everything else. A
   running district is suspended, and picks up again in play where it left off once the Sentinels are defeated. No
   district or multiball can start while they're out.
@@ -373,6 +373,8 @@ A takeover mode: the city's drones are the drop targets.
   the next ball if it ended with a drain. They also wait for the ball to leave a scoop.
 - Half the GI goes the Steward's red and the other half stays white. The drop strips are red on the targets still up,
   and the bank is raised at the start.
+- The lift ramp is up while they're out, so the ramp feeds the upper flipper, which aims at the drops. This is a
+  gentler feed than the left orbit. The bolt under the ramp flashes red and the flashers cycle red.
 - Each drop bank clear downs a drone. Down all the drones dispatched to defeat the Sentinels.
 - A drain ends them. A district they suspended is left to resume from the menu.
 - Outside the Sentinels the drops only score consolation points.

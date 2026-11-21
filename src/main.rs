@@ -156,6 +156,7 @@ async fn main() {
     app.system(right_outlane::RightOutlaneSystem::new());
     app.system(right_pass_lane::RightPassLaneSystem::new());
     app.system(slingshots::SlingshotSystem::new());
+
     app.system(
       StandardBallManager::builder(
         [
@@ -178,7 +179,9 @@ async fn main() {
     );
 
     // game
-    app.system(PlayfieldDrivers::new(DriverQ::tag::<frontbox_pinball::tags::Playfield>()));
+    app.system(PlayfieldDrivers::new(DriverQ::tag::<
+      frontbox_pinball::tags::Playfield,
+    >()));
     app.routine::<TurnEnding>(routine![EndOfBallSystem, BonusSystem, TurnEndScoreSystem]);
     app.routine::<BallDraining>(routine![BallSaveSystem, OutlaneSaveSystem]);
     app.routine::<GameEnding>(routine![EndOfBallSystem]);

@@ -197,8 +197,9 @@ impl Mode {
     }
   }
 
-  /// Starts the mode's system, which stays around until the mode is completed so that the mode can be resumed
-  pub fn spawn(&self, ctx: &SystemContext) {
+  /// Starts the mode's system as a child of the caller, returning its id. It stays around until the mode is completed
+  /// so that the mode can be resumed.
+  pub fn spawn(&self, ctx: &SystemContext) -> u64 {
     match self {
       Self::HydroCore => ctx.systems.spawn(HydroCoreMode::new()),
       Self::SkyrailStation => ctx.systems.spawn(SkyrailStationMode::new()),

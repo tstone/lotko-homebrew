@@ -1,7 +1,7 @@
 use frontbox_core::prelude::*;
 use frontbox_display::{InitialsEntered, InitialsEntrySystem};
 use frontbox_pinball::{
-  GameEndReason, GameEnding, HighScoreSlot, HighScoresSystem, TurnEndReason, TurnEnding,
+  GameEndReason, GameEnding, GameManagerExt, HighScoreSlot, HighScoresSystem, TurnEndReason, TurnEnding,
 };
 use frontbox_sound::SoundSystem;
 
@@ -95,10 +95,13 @@ impl System for EndOfBallSystem {
       // insert a slice delay to let hardware settle and final points come in
       ctx.timers.start(Continue, Duration::from_millis(500).once());
     } else if let Some(GameEnding { scores, reason }) = routine.downcast_ref::<GameEnding>() {
-      // the forest promises to be back once it has taken enough of the city
-      let overgrown = ctx
-        .systems
-        .get::<ModeManager>()
+      // the forest promises to be back once it has taken enough of the city, as the last player to play left it. Their
+      // `ModeManager` is in their group, which this system (at the top level) has to name to reach.
+      let last_player_group = ctx
+        .game_manager()
+        .and_then(|game| game.player_group(game.session()?.current_player()));
+      let overgrown = last_player_group
+        .and_then(|group| ctx.systems.get_in::<ModeManager>(group))
         .is_some_and(|modes| modes.districts_completed() >= HIGH_OVERGROWTH);
       if overgrown && *reason != GameEndReason::SlamTilted {
         ctx.say(Callout::OakSoon);

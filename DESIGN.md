@@ -164,7 +164,7 @@ any other LED. They also have jobs of their own, because they're the one place a
 | Roots + pop rays around the vertical spinner | Charge animation flowing into the roots |
 | Main shot hexes (7 LEDs) | Center: district mode / qualifier. Outer 6: side quest progress or lock lit |
 | Arc ramp LEDs | Mode timers and hurry-ups |
-| Drop target strips (4 LEDs × 3) | Sentinel progress |
+| Drop target strips (4 LEDs × 3) | Each orbit's spreads toward Groundswell; Sentinel drones; Groundswell's foundations |
 | Captive ball bolts | Heartwood charge |
 | Left scoop bolts | Scoop lit (district/mini-wizard select) |
 | Pop LEDs, pop target LEDs | Charge (pops) and Surveillance (pop targets) |
@@ -412,7 +412,7 @@ A takeover mode: the city's drones are the drop targets.
   gentler feed than the left orbit. The bolt under the ramp flashes red and the flashers cycle red.
 - Each drop bank clear downs a drone. Down all the drones dispatched to defeat the Sentinels.
 - A drain ends them. A district they suspended is left to resume from the menu.
-- Outside the Sentinels the drops only score consolation points.
+- Outside the Sentinels the drops score consolation points and feed the roots (see Spread roots).
 - **Rewards, for now:** every 2 drones downed lights a lock (1 with the Skyrail perk), and 5 and 15 drones give
   points. These came from when the drones were a side quest, and need
   revisiting now that they're a punishment (see design/steward/sentinels.md).
@@ -427,6 +427,13 @@ A takeover mode: the city's drones are the drop targets.
 
 - Orbit hits grow roots. The orbit hexes' outer rings fill one segment per hit, 6 to a ring. The rings start over
   each ball.
+- **The drops feed the orbits**, one each: target 1 (nearest the player) the left orbit, target 2 the center, target 3
+  (nearest the arc ramp) the right. Knocking one down grows its orbit's ring a segment, like an orbit hit. The orbits
+  can be hard to make, and confusing, so this is a second way in.
+- **Clearing the bank ends a Root Lash's cooldown**, so the roots grow again straight away.
+- **The strips show the way to Groundswell.** Each target's strip fills bronze with its orbit's spreads toward
+  lighting Groundswell, and is lit only while the target is standing.
+- The Sentinels and Groundswell have the drops to themselves while they run, so none of this happens then.
 - A full ring spreads the roots, scoring their value, and arms **Root Lash** on the action button. It's bronze, and
   pulses lime while a district mode or mini-wizard is running.
 - Pressing it during a mode counts as 2 shots in it. With no mode running, it stays armed. It doesn't fire while the ball is in the shooter lane (the button launches it) or the mode select menu is open.

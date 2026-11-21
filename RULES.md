@@ -106,7 +106,8 @@ These run all the time, alongside the districts.
 - **Spread roots — brown.** Orbits grow roots around that shot's ring. A full ring arms **Root Lash**: press the
   action button during a mode for 2 shots in it. The roots then rest for 50 switch hits. The rings start over each
   ball, and spreading all three orbits in one ball lights an extra ball. Spreading all three over the game lights
-  **Groundswell**.
+  **Groundswell**. The drop targets feed the orbits too: left, center and right, from the target nearest you. Each
+  strip shows how close its orbit is to Groundswell, and clearing the bank ends a Root Lash's rest.
 
 ## Combos
 

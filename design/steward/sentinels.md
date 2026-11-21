@@ -1,6 +1,6 @@
 # Sentinels
 
-**Status:** built. Change planned: move the drones from the drops to the pops.
+**Status:** built. The drones stay on the drops: the full red takeover works.
 
 The city's drones. When Surveillance goes unchecked, the Steward sends them, and they take over the playfield.
 
@@ -15,11 +15,9 @@ The city's drones. When Surveillance goes unchecked, the Steward sends them, and
 - A drain ends them.
 - **Rewards, for now:** every 2 drones downed lights a lock. 5 and 15 drones give points. These came from when the drones were a side quest, and need revisiting now that they're a punishment.
 
-## Direction
+## To do
 
-- **Use the pops as the targets instead of the drops.** Pops are more dangerous, which fits drones, and it leaves the drops for places such as Cargo Quay.
-
-Presentation still to do:
+Presentation:
 
 - Their own music, an alarm when they're sent, and a sting when they're defeated. A drone whine under them.
 - A spark when a drone goes down.
@@ -28,6 +26,4 @@ Presentation still to do:
 
 ## Open questions
 
-- The pops are also Surveillance's cameras. How the two stay distinct.
-- What downing a drone looks like when it's a pop hit, and how many hits a drone takes.
 - What the Sentinels reward, if anything, now that they're a punishment. The locks they light lead nowhere now that Groundswell is lit by spreading roots.

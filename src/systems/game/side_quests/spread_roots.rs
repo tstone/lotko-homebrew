@@ -5,6 +5,7 @@ use frontbox_pinball::{GameManagerExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::cabinet::action_button;
+use crate::hardware::drop_bank::{self, DropBankCleared, DropBankTargetHit};
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::hardware::plunge_lane;
 use crate::systems::game::side_quests::RootLashed;
@@ -30,6 +31,9 @@ const LASH_HITS: u8 = 2;
 /// Playfield switch hits after a Root Lash before the roots grow again
 const LASH_COOLDOWN_SWITCHES: u32 = 50;
 
+/// LEDs on a drop target's strip, which show its orbit's spreads toward Groundswell
+const STRIP_LEDS: usize = 4;
+
 /// Orbit hits grow roots (DESIGN.md, Spread roots), filling the orbit hex's outer ring a segment a hit, or two with the
 /// Meridian perk. A full ring spreads the roots, which arms Root Lash on the action button. Pressing it while a mode is
 /// running counts as [`LASH_HITS`] shots in that mode ([`RootLashed`]). The roots then stop growing until
@@ -37,6 +41,10 @@ const LASH_COOLDOWN_SWITCHES: u32 = 50;
 /// each ball.
 ///
 /// An armed lash is bronze on the action button, and pulses lime while there's a mode to strike in.
+///
+/// The drop targets feed the orbits, one each, in [`ORBITS`] order: knocking one down grows its orbit's ring a segment,
+/// and clearing the bank ends a Root Lash's cooldown. Each target's strip shows its orbit's spreads toward Groundswell
+/// while it's standing. The Sentinels and Groundswell have the drops to themselves while they run.
 ///
 /// Spreading the roots on all three orbits in one ball lights an extra ball, once a game. Spreading them on all three
 /// over the game lights Groundswell at the scoop, and each time after needs one more spread on every orbit.
@@ -54,6 +62,8 @@ pub struct SpreadRootsSystem {
   groundswell_lit: u8,
   lash: Lash,
   ring_scenes: [ScenePlayer; 3],
+  /// Each drop target's strip, showing its orbit's spreads toward Groundswell, in [`ORBITS`] order
+  strip_scenes: [ScenePlayer; 3],
   /// On the action button while a lash is armed and a mode is running
   lash_glow: Option<ScenePlayer>,
 }
@@ -67,8 +77,14 @@ impl SpreadRootsSystem {
       groundswell_lit: 0,
       lash: Lash::Ready,
       ring_scenes: ORBITS.map(|orbit| ScenePlayer::new(Self::ring_scene(orbit, 0))),
+      strip_scenes: [0, 1, 2].map(|index| ScenePlayer::new(Self::strip_scene(index, 0, 0))),
       lash_glow: None,
     }
+  }
+
+  /// A drop target's strip, filled by how far its orbit is toward the `needed` spreads that light Groundswell
+  fn strip_scene(index: usize, spreads: u8, needed: u8) -> PlayableScene {
+    fill_scene(&target_strip(index).q(), STRIP_LEDS, strip_lit(spreads, needed), Rgba::bronze())
   }
 
   fn ring_scene(orbit: MainShot, grown: u8) -> PlayableScene {
@@ -127,6 +143,7 @@ impl SpreadRootsSystem {
     }
 
     self.toward_groundswell[index] = self.toward_groundswell[index].saturating_add(1);
+    self.update_strips(ctx);
     if groundswell_due(&self.toward_groundswell, self.groundswell_lit) {
       self.light_groundswell(ctx);
     }
@@ -145,7 +162,56 @@ impl SpreadRootsSystem {
     log::info!("SpreadRoots: Groundswell lit, {} times this game", self.groundswell_lit + 1);
     self.toward_groundswell = [0; 3];
     self.groundswell_lit += 1;
+    self.update_strips(ctx);
     ctx.say(Callout::SeismicActivityAlert);
+  }
+
+  /// The Sentinels (the drops are their drones) or Groundswell (the drops are the foundations) have the drops
+  fn drops_taken(ctx: &SystemContext) -> bool {
+    let mode_manager = ctx.systems.expect::<ModeManager>();
+    mode_manager.sentinels_running() || mode_manager.current_mode() == Some(Mode::Groundswell)
+  }
+
+  /// A drop target grows its orbit's ring, like a hit to that orbit
+  fn on_target_down(&mut self, target: u8, ctx: &SystemContext) {
+    let Some(orbit) = ORBITS.get(target as usize - 1).copied() else {
+      return;
+    };
+    if Self::drops_taken(ctx) {
+      return;
+    }
+    self.grow(orbit, ctx);
+  }
+
+  /// A cleared bank ends a Root Lash's cooldown, so the roots grow again
+  fn on_bank_cleared(&mut self, ctx: &SystemContext) {
+    if Self::drops_taken(ctx) || !matches!(self.lash, Lash::CoolingDown(_)) {
+      return;
+    }
+    log::info!("SpreadRoots: drop bank cleared, growing again");
+    self.lash = Lash::Ready;
+  }
+
+  /// Refills the strips from the spreads toward Groundswell
+  fn update_strips(&mut self, ctx: &SystemContext) {
+    let needed = self.groundswell_lit + 1;
+    for (index, scene) in self.strip_scenes.iter_mut().enumerate() {
+      scene.replace_scene(Self::strip_scene(index, self.toward_groundswell[index], needed), ctx);
+    }
+  }
+
+  /// A strip is lit while its target is standing, as that's when hitting it does something, and not while another
+  /// system has the drops
+  fn render_strips(&mut self, ctx: &SystemContext) {
+    let taken = Self::drops_taken(ctx);
+    for (index, scene) in self.strip_scenes.iter_mut().enumerate() {
+      let down = ctx.switches.is_closed(target_switch(index).name).unwrap_or(false);
+      if taken || down {
+        scene.stop(ctx);
+      } else {
+        scene.start(ctx);
+      }
+    }
   }
 
   /// Strike with an armed lash, if there's a mode for it to count in. Not while the action button is for launching a
@@ -233,6 +299,10 @@ impl System for SpreadRootsSystem {
       } else if closed.switch.has_tag::<Playfield>() {
         self.on_playfield_switch();
       }
+    } else if let Some(DropBankTargetHit(target)) = event.downcast_ref::<DropBankTargetHit>() {
+      self.on_target_down(*target, ctx);
+    } else if event.is::<DropBankCleared>() {
+      self.on_bank_cleared(ctx);
     } else if event.is::<ModeSlotsChanged>() {
       self.render(ctx);
     }
@@ -242,6 +312,7 @@ impl System for SpreadRootsSystem {
     for scene in self.ring_scenes.iter_mut() {
       scene.start(ctx);
     }
+    self.render_strips(ctx);
   }
 
   /// The ball is over, and the rings and the network start over in the next
@@ -250,6 +321,9 @@ impl System for SpreadRootsSystem {
     self.reset_rings(ctx);
     if let Some(mut glow) = self.lash_glow.take() {
       glow.stop(ctx);
+    }
+    for scene in self.strip_scenes.iter_mut() {
+      scene.stop(ctx);
     }
   }
 }
@@ -262,6 +336,32 @@ enum Lash {
   Armed,
   /// Struck, and not growing, with the playfield switch hits since
   CoolingDown(u32),
+}
+
+/// LEDs lit on a strip for `spreads` of the `needed` that light Groundswell
+fn strip_lit(spreads: u8, needed: u8) -> usize {
+  if needed == 0 {
+    return 0;
+  }
+  spreads.min(needed) as usize * STRIP_LEDS / needed as usize
+}
+
+/// The strip of the drop target that feeds the orbit at `index` in [`ORBITS`]
+fn target_strip(index: usize) -> &'static LedDefinition {
+  match index {
+    0 => &drop_bank::TARGET1_LEDS,
+    1 => &drop_bank::TARGET2_LEDS,
+    _ => &drop_bank::TARGET3_LEDS,
+  }
+}
+
+/// The switch of the drop target that feeds the orbit at `index`, closed while the target is down
+fn target_switch(index: usize) -> &'static SwitchDefinition {
+  match index {
+    0 => &drop_bank::TARGET1,
+    1 => &drop_bank::TARGET2,
+    _ => &drop_bank::TARGET3,
+  }
 }
 
 /// Every orbit has spread enough to light Groundswell: once each the first time, and one more each time after
@@ -279,5 +379,19 @@ mod tests {
     assert!(groundswell_due(&[1, 1, 1], 0));
     assert!(!groundswell_due(&[2, 2, 1], 1));
     assert!(groundswell_due(&[2, 3, 2], 1));
+  }
+
+  #[test]
+  fn a_strip_fills_toward_the_spreads_groundswell_needs() {
+    assert_eq!(strip_lit(0, 1), 0);
+    assert_eq!(strip_lit(1, 1), STRIP_LEDS);
+    assert_eq!(strip_lit(1, 2), 2);
+    assert_eq!(strip_lit(1, 3), 1);
+    assert_eq!(strip_lit(5, 3), STRIP_LEDS);
+  }
+
+  #[test]
+  fn the_strip_scenes_load() {
+    SpreadRootsSystem::strip_scene(0, 1, 2);
   }
 }

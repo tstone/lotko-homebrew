@@ -160,6 +160,11 @@ impl ModeManager {
     self.progression.is_all_open()
   }
 
+  /// The place played in tier 1 and Nimbus Promenade, gate 1, are both completed, which lights an extra ball
+  pub fn tier_one_and_gate_one_completed(&self) -> bool {
+    self.progression.steps_completed(2)
+  }
+
   // For Steward integrity (TODO.md, Sound)
   #[allow(dead_code)]
   pub fn districts_played(&self) -> usize {

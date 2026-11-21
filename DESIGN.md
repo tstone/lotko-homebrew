@@ -413,8 +413,8 @@ A takeover mode: the city's drones are the drop targets.
 - Each drop bank clear downs a drone. Down all the drones dispatched to defeat the Sentinels.
 - A drain ends them. A district they suspended is left to resume from the menu.
 - Outside the Sentinels the drops only score consolation points.
-- **Rewards, for now:** every 2 drones downed lights a lock (1 with the Skyrail perk), and 5 / 10 / 15 drones give
-  points, then extra ball lit (see Extra balls), then TBD. These came from when the drones were a side quest, and need
+- **Rewards, for now:** every 2 drones downed lights a lock (1 with the Skyrail perk), and 5 and 15 drones give
+  points. These came from when the drones were a side quest, and need
   revisiting now that they're a punishment (see design/steward/sentinels.md).
 
 ### Heartwood (captive ball)
@@ -524,8 +524,7 @@ Ways to light one, each once per game:
 
 | Source | When |
 |---|---|
-| Mini-wizard | Completing your first mini-wizard |
-| Sentinels | 10 drones down |
+| Tier 1 and gate 1 | Completing both the place played in tier 1 and Nimbus Promenade (gate 1). Unfinished places can be resumed, so it's a reason to go back and finish them |
 | Root network | Spreading the roots on all three orbits in one ball |
 
 - **Collect at the front of the left scoop.** It's the hardest shot on the playfield, so it suits the biggest award.

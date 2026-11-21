@@ -7,7 +7,7 @@ use crate::hardware::drop_bank::{self, DropBankCleared, DropBankSystem, DropBank
 use crate::hardware::lift_ramp::LiftRampSystem;
 use crate::systems::game::side_quests::{LockLit, SentinelsDispatched};
 use crate::systems::game::{
-  ExtraBallSource, ExtraBallSystem, ModeManager, Perk, flash_scene, points,
+  ModeManager, Perk, flash_scene, points,
 };
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -23,8 +23,8 @@ use crate::systems::{Callout, SayExt, sounds};
 /// than defeats, so draining during the Sentinels doesn't make the next one easier. A drain ends them, and a district
 /// they suspended is left to resume from the menu.
 ///
-/// Every 2 drones downed lights a lock, or every one with the Skyrail perk, and 5, 10 and 15 drones give awards, 10
-/// being an extra ball. Outside the Sentinels the drops only score consolation points.
+/// Every 2 drones downed lights a lock, or every one with the Skyrail perk, and 5 and 15 drones give points.
+/// Outside the Sentinels the drops only score consolation points.
 ///
 /// Belongs in the player template.
 #[derive(Clone)]
@@ -114,12 +114,6 @@ impl SentinelsSystem {
 
     match self.drones {
       5 => ctx.add_points(points::SENTINELS_FIRST_AWARD),
-      10 => {
-        ctx
-          .systems
-          .expect::<ExtraBallSystem>()
-          .light(ExtraBallSource::Sentinels, ctx.into());
-      }
       // DESIGN.md leaves the third award open
       15 => ctx.add_points(points::SENTINELS_THIRD_AWARD),
       _ => {}

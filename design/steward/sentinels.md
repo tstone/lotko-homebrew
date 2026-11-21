@@ -13,7 +13,7 @@ The city's drones. When Surveillance goes unchecked, the Steward sends them, and
 - Half the GI goes the Steward's red and the other half stays white.
 - The drones are the drop targets. Each bank clear downs a drone. Down them all to defeat the Sentinels.
 - A drain ends them.
-- **Rewards, for now:** every 2 drones downed lights a lock. 5, 10 and 15 drones give points, then an extra ball, then points. These came from when the drones were a side quest, and need revisiting now that they're a punishment.
+- **Rewards, for now:** every 2 drones downed lights a lock. 5 and 15 drones give points. These came from when the drones were a side quest, and need revisiting now that they're a punishment.
 
 ## Direction
 

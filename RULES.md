@@ -99,7 +99,7 @@ These run all the time, alongside the districts.
   waits. The lift ramp goes up to feed the upper flipper. Clear the drop targets to down a drone, and down them all
   to get back to it. The drones sent go 1, 1, 2, 2, 3, and so on. Draining ends them, but the next time still counts
   up. Every 2 drones lights a lock. At 5
-  drones: points. 10: extra ball lit. 15: big points. *(These rewards are left over from the old Sentinels and will
+  drones: points. 15: big points. *(These rewards are left over from the old Sentinels and will
   be revisited.)*
 - **Heartwood — lime.** Hit the captive ball to charge the heart. A full charge starts **Heartwood multiball**. It
   needs more each time.
@@ -144,5 +144,6 @@ one after. The ramp feeds back to the scoop, so keep looping it. Miss one and th
 - **Ball save** at the start of every ball, multiball and district.
 - **Outlane saves.** Sling hits grow the roots up that side's posts. When they're full, that outlane is lit, and the
   next drain through it is saved. A lit save keeps until you use it, and each use makes that side harder to relight.
-- **Extra balls** are lit by completing your first multiball place, 10 drones, and spreading the roots on all three orbits in one ball. Collect a lit extra ball with a shot to the front of the
-  left scoop.
+- **Extra balls** are lit by completing both your tier 1 place and Nimbus Promenade, and by spreading the roots on
+  all three orbits in one ball. Each lights once a game. Collect a lit extra ball with a shot to the front of the left
+  scoop.

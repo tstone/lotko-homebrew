@@ -110,6 +110,15 @@ impl Progression {
     }
   }
 
+  /// Each of the first `steps` on the route has a completed place
+  pub fn steps_completed(&self, steps: usize) -> bool {
+    ROUTE.iter().take(steps).all(|step| {
+      step
+        .iter()
+        .any(|mode| self.state(*mode) == ModeState::Completed)
+    })
+  }
+
   /// Districts started this game, which is what wears the Steward down
   pub fn districts_played(&self) -> usize {
     self.count_districts(|state| matches!(state, ModeState::Played | ModeState::Completed))
@@ -333,5 +342,18 @@ mod tests {
     assert_eq!(progression.state(Mode::Groundswell), ModeState::Unplayed);
     assert!(progression.light(Mode::Groundswell));
     assert_eq!(progression.state(Mode::Groundswell), ModeState::Available);
+  }
+
+  #[test]
+  fn tier_one_and_gate_one_count_once_both_are_completed() {
+    let mut progression = Progression::new();
+    progression.start(Mode::CargoQuay);
+    progression.start(Mode::NimbusPromenade);
+    progression.complete(Mode::NimbusPromenade);
+    assert!(!progression.steps_completed(2));
+
+    progression.complete(Mode::CargoQuay);
+    assert!(progression.steps_completed(2));
+    assert!(!progression.steps_completed(3));
   }
 }

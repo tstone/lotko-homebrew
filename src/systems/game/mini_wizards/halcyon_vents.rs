@@ -15,20 +15,20 @@ const COLLECTS: u8 = 3;
 
 const RAMPS: [MainShot; 3] = [MainShot::DomeRamp, MainShot::ArcRamp, MainShot::LiftRamp];
 
-/// Apex's mini-wizard (DESIGN.md, Mini-wizards), 3-ball. The vertical and center spinners and the pops build a value, and
+/// The air plant, in tier 3 (design/city/halcyon-vents.md), 3-ball. The vertical and center spinners and the pops build a value, and
 /// the ramps collect it, which starts it building again from the base.
-pub struct CanopyMode {
+pub struct HalcyonVentsMode {
   wizard: MiniWizardRun,
   value: u64,
   collects: u8,
   attention_scene: ScenePlayer,
 }
 
-impl CanopyMode {
+impl HalcyonVentsMode {
   pub fn new() -> Self {
     Self {
-      wizard: MiniWizardRun::new(Mode::Canopy, COLLECTS),
-      value: points::CANOPY_BASE,
+      wizard: MiniWizardRun::new(Mode::HalcyonVents, COLLECTS),
+      value: points::HALCYON_BASE,
       collects: 0,
       attention_scene: ScenePlayer::new(Self::attention_scene()),
     }
@@ -36,7 +36,7 @@ impl CanopyMode {
 
   fn attention_scene() -> PlayableScene {
     let qs: Vec<&LightQ> = RAMPS.iter().map(|shot| shot.hex_center()).collect();
-    glow_scene(&LightQ::any(qs), Mode::Canopy.color())
+    glow_scene(&LightQ::any(qs), Mode::HalcyonVents.color())
   }
 
   fn build(&mut self, amount: u64) {
@@ -46,12 +46,12 @@ impl CanopyMode {
   fn collect(&mut self, shot: MainShot, ctx: &SystemContext) {
     self.collects += 1;
     log::info!(
-      "Canopy: collected {} ({} of {COLLECTS})",
+      "HalcyonVents: collected {} ({} of {COLLECTS})",
       self.value,
       self.collects
     );
     self.wizard.score(self.value, ctx);
-    self.value = points::CANOPY_BASE;
+    self.value = points::HALCYON_BASE;
     self.wizard.progress(self.collects);
     ctx.play_scene(&flash_scene(shot.hex_ring(), Rgba::green()));
 
@@ -67,9 +67,9 @@ impl CanopyMode {
   }
 }
 
-impl System for CanopyMode {
+impl System for HalcyonVentsMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.systems.expect::<ModeManager>().current_mode() == Some(Mode::Canopy)
+    ctx.systems.expect::<ModeManager>().current_mode() == Some(Mode::HalcyonVents)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
@@ -91,13 +91,13 @@ impl System for CanopyMode {
     self.wizard.on_event(event, ctx);
 
     if event.is::<VerticalSpinnerHit>() || event.is::<CenterSpinnerHit>() {
-      self.build(points::CANOPY_SPIN);
+      self.build(points::HALCYON_SPIN);
     } else if let Some(closed) = event.downcast_ref::<SwitchClosed>()
       && pop_cluster::match_switch(&closed.switch).is_some()
     {
-      self.build(points::CANOPY_POP);
+      self.build(points::HALCYON_POP);
     } else if let Some(lash) = event.downcast_ref::<RootLashed>() {
-      self.build(points::CANOPY_ROOTS * lash.hits as u64);
+      self.build(points::HALCYON_ROOTS * lash.hits as u64);
     } else if let Some(hit) = event.downcast_ref::<MainShotHit>()
       && RAMPS.contains(&hit.shot)
     {
@@ -120,13 +120,13 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    CanopyMode::attention_scene();
+    HalcyonVentsMode::attention_scene();
   }
 
   #[test]
   fn building_adds_to_the_base_value() {
-    let mut mode = CanopyMode::new();
-    mode.build(points::CANOPY_POP);
-    assert_eq!(mode.value, points::CANOPY_BASE + points::CANOPY_POP);
+    let mut mode = HalcyonVentsMode::new();
+    mode.build(points::HALCYON_POP);
+    assert_eq!(mode.value, points::HALCYON_BASE + points::HALCYON_POP);
   }
 }

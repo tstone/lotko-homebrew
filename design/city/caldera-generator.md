@@ -1,6 +1,6 @@
 # Caldera Generator
 
-**Status:** new place, built from the Blackout mini-wizard.
+**Status:** built (renamed from Blackout), the gate 2 multiball. The direction below is still to do.
 
 ## The place
 
@@ -14,9 +14,9 @@ The lights going out. The grid goes black sector by sector, and as it does the S
 
 ## Gameplay
 
-**Today (Blackout, 2-ball multiball):** each shot you hit goes dark. When they all are, the left scoop is the super jackpot.
+**Today (2-ball multiball):** each shot you hit goes dark. When they all are, the left scoop is the super jackpot.
 
-**Direction:** keep it. It's the most memorable mini-wizard, and its lighting is the reason.
+**Direction:** keep it. It's the most memorable of the multiballs, and its lighting is the reason.
 
 ## Lighting
 
@@ -32,7 +32,7 @@ The lights going out. The grid goes black sector by sector, and as it does the S
 - A heavy clunk as each sector goes dark.
 - A descending power-down whine.
 - The Steward breaking up more with each sector. Only "System 67 invalid" is recorded so far.
-- A high score for the fastest Blackout, which is lower-is-better.
+- A high score for the fastest Caldera Generator, which is lower-is-better.
 
 ## Display
 

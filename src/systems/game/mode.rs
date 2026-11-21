@@ -6,7 +6,7 @@ use frontbox_lighting::prelude::*;
 use crate::hardware::city_map;
 use crate::systems::{Callout, sounds};
 use crate::systems::game::{
-  ApexTerracesMode, BlackoutMode, CargoQuayMode, CanopyMode, DerailmentMode, HeartwoodMultiballMode,
+  ApexTerracesMode, CalderaGeneratorMode, CargoQuayMode, HalcyonVentsMode, DerailmentMode, HeartwoodMultiballMode,
   HelixVaultsMode, HydroCoreMode, MeridianBasinsMode, NimbusPromenadeMode, SkyrailStationMode, SolariumAtriumMode,
 };
 
@@ -26,9 +26,9 @@ pub enum Mode {
   ApexTerraces,
   SolariumAtrium,
   HelixVaults,
-  Blackout,
+  CalderaGenerator,
   Derailment,
-  Canopy,
+  HalcyonVents,
 }
 
 impl Mode {
@@ -52,9 +52,9 @@ impl Mode {
       Self::ApexTerraces => "APEX TERRACES",
       Self::SolariumAtrium => "SOLARIUM ATRIUM",
       Self::HelixVaults => "HELIX VAULTS",
-      Self::Blackout => "BLACKOUT",
+      Self::CalderaGenerator => "CALDERA GENERATOR",
       Self::Derailment => "DERAILMENT",
-      Self::Canopy => "CANOPY",
+      Self::HalcyonVents => "HALCYON VENTS",
     }
   }
 
@@ -69,16 +69,16 @@ impl Mode {
       Self::ApexTerraces => "dmd/mode_select/apex_terraces.scene",
       Self::SolariumAtrium => "dmd/mode_select/solarium_atrium.scene",
       Self::HelixVaults => "dmd/mode_select/helix_vaults.scene",
-      Self::Blackout => "dmd/mode_select/blackout.scene",
+      Self::CalderaGenerator => "dmd/mode_select/caldera_generator.scene",
       Self::Derailment => "dmd/mode_select/derailment.scene",
-      Self::Canopy => "dmd/mode_select/canopy.scene",
+      Self::HalcyonVents => "dmd/mode_select/halcyon_vents.scene",
     }
   }
 
   pub fn is_mini_wizard(&self) -> bool {
     matches!(
       self,
-      Self::HelixVaults | Self::Blackout | Self::Derailment | Self::Canopy
+      Self::HelixVaults | Self::CalderaGenerator | Self::Derailment | Self::HalcyonVents
     )
   }
 
@@ -93,20 +93,11 @@ impl Mode {
     self.is_mini_wizard()
   }
 
-  /// Tier 1 is the lower city, up to its mini-wizard. Tier 2 is the upper city.
-  pub fn tier(&self) -> u8 {
+  /// The balls a mini-wizard plays with, counting the one in play
+  pub fn balls(&self) -> u8 {
     match self {
-      Self::MeridianBasins
-      | Self::CargoQuay
-      | Self::NimbusPromenade
-      | Self::HelixVaults
-      | Self::Blackout => 1,
-      Self::HydroCore
-      | Self::SkyrailStation
-      | Self::ApexTerraces
-      | Self::SolariumAtrium
-      | Self::Derailment
-      | Self::Canopy => 2,
+      Self::HalcyonVents | Self::Derailment => 3,
+      _ => 2,
     }
   }
 
@@ -115,40 +106,24 @@ impl Mode {
     match self {
       Self::MeridianBasins | Self::CargoQuay => 1,
       Self::NimbusPromenade => 2,
-      Self::HelixVaults | Self::Blackout => 3,
-      Self::SkyrailStation | Self::ApexTerraces | Self::HydroCore => 4,
-      Self::SolariumAtrium => 5,
-      Self::Derailment | Self::Canopy => 6,
-    }
-  }
-
-  /// The district that leads to a mini-wizard
-  pub fn district(&self) -> Mode {
-    match self {
-      Self::HelixVaults => Self::MeridianBasins,
-      // until the map is replanned (design/city/README.md)
-      Self::Blackout => Self::CargoQuay,
-      Self::Derailment => Self::SkyrailStation,
-      Self::Canopy => Self::ApexTerraces,
-      district => *district,
+      Self::HydroCore | Self::HelixVaults | Self::SkyrailStation => 3,
+      // Derailment is off the route for now, and worth what tier 3 is
+      Self::ApexTerraces | Self::HalcyonVents | Self::Derailment => 4,
+      Self::CalderaGenerator => 5,
+      Self::SolariumAtrium => 6,
     }
   }
 
   pub fn color(&self) -> Rgba<u8> {
     match self {
-      Self::HelixVaults => return HELIX_VAULTS_COLOR,
-      // kept from when it followed Hydro Core
-      Self::Blackout => return Rgba::cyan(),
-      _ => {}
-    }
-    match self.district() {
-      Self::HydroCore => Rgba::cyan(),
-      Self::CargoQuay => Rgba::orange(),
-      Self::SkyrailStation => Rgba::blue(),
-      Self::SolariumAtrium => Rgba::purple(),
       Self::MeridianBasins => Rgba::green(),
+      Self::CargoQuay => Rgba::orange(),
       Self::NimbusPromenade => Rgba::magenta(),
-      _ => Rgba::gold(),
+      Self::HydroCore | Self::CalderaGenerator => Rgba::cyan(),
+      Self::HelixVaults => HELIX_VAULTS_COLOR,
+      Self::SkyrailStation | Self::Derailment => Rgba::blue(),
+      Self::ApexTerraces | Self::HalcyonVents => Rgba::gold(),
+      Self::SolariumAtrium => Rgba::purple(),
     }
   }
 
@@ -173,7 +148,7 @@ impl Mode {
       Self::SolariumAtrium => "fehrplay-arcadia.mp3",
       Self::MeridianBasins => "glitch-mob-cant-kill-us.mp3",
       Self::NimbusPromenade => "wice-5omething.mp3",
-      Self::Blackout => "65daysofstatic-crash-tactics.mp3",
+      Self::CalderaGenerator => "65daysofstatic-crash-tactics.mp3",
       Self::Derailment => "colyn-cyclone.mp3",
       Self::HelixVaults => "substan-syntax.mp3",
       _ => return None,
@@ -202,9 +177,9 @@ impl Mode {
       Self::ApexTerraces => &[Callout::ResidentsEvacuateNow],
       Self::SolariumAtrium => &[Callout::AtriumIntegrityVerified],
       Self::HelixVaults => &[Callout::ContainmentNominal],
-      Self::Blackout => &[Callout::OakDarkness],
+      Self::CalderaGenerator => &[Callout::OakDarkness],
       Self::Derailment => &[Callout::TrainDerailmentSubverting, Callout::OakFall],
-      Self::Canopy => &[Callout::OakHigher],
+      Self::HalcyonVents => &[Callout::OakHigher],
     }
   }
 
@@ -223,7 +198,7 @@ impl Mode {
       Self::ApexTerraces => &[Callout::ApexTerracesOffline, Callout::OakNothingIsYours],
       Self::SolariumAtrium => &[Callout::TheScienceWillNotBeLost, Callout::OakOpenSky],
       Self::HelixVaults => &[Callout::OakOpenTheGates],
-      Self::Blackout | Self::Derailment | Self::Canopy => &[],
+      Self::CalderaGenerator | Self::Derailment | Self::HalcyonVents => &[],
     }
   }
 
@@ -239,9 +214,9 @@ impl Mode {
       Self::NimbusPromenade => ctx.systems.spawn(NimbusPromenadeMode::new()),
       Self::ApexTerraces => ctx.systems.spawn(ApexTerracesMode::new()),
       Self::HelixVaults => ctx.systems.spawn(HelixVaultsMode::new()),
-      Self::Blackout => ctx.systems.spawn(BlackoutMode::new()),
+      Self::CalderaGenerator => ctx.systems.spawn(CalderaGeneratorMode::new()),
       Self::Derailment => ctx.systems.spawn(DerailmentMode::new()),
-      Self::Canopy => ctx.systems.spawn(CanopyMode::new()),
+      Self::HalcyonVents => ctx.systems.spawn(HalcyonVentsMode::new()),
     }
   }
 }
@@ -367,11 +342,11 @@ mod tests {
   #[test]
   fn heartwood_stacks_with_any_mode() {
     assert!(Multiball::Heartwood.stacks_with(Mode::HydroCore));
-    assert!(Multiball::Heartwood.stacks_with(Mode::Canopy));
+    assert!(Multiball::Heartwood.stacks_with(Mode::HalcyonVents));
   }
 
   #[test]
-  fn districts_have_inserts_and_mini_wizards_share_their_districts_color() {
+  fn districts_have_inserts_except_cargo_quay() {
     // Cargo Quay has no insert until the map is replanned
     assert!(
       Mode::DISTRICTS
@@ -379,8 +354,6 @@ mod tests {
         .filter(|mode| **mode != Mode::CargoQuay)
         .all(|mode| mode.map_led().is_some())
     );
-    assert!(Mode::Blackout.map_led().is_none());
-    assert_eq!(Mode::Derailment.color(), Mode::SkyrailStation.color());
-    assert_eq!(Mode::Canopy.color(), Rgba::gold());
+    assert!(Mode::CalderaGenerator.map_led().is_none());
   }
 }

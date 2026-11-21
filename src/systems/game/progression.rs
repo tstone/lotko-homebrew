@@ -2,8 +2,9 @@ use std::collections::HashMap;
 
 use crate::systems::game::{Mode, ModeState, Perk};
 
-/// One player's way up the city (DESIGN.md, Primary progression). Each step has a mode or two to choose between, and
-/// starting one marks it played and opens the next step. Choosing one road closes the other for the game.
+/// One player's way up the city (DESIGN.md, Primary progression). Each step is a tier or a gate, with one or more
+/// places to choose between, and starting one marks it played and opens the next step. Choosing one closes the rest
+/// of its step for the game.
 #[derive(Debug, Clone)]
 pub struct Progression {
   states: HashMap<Mode, ModeState>,
@@ -45,6 +46,7 @@ impl Progression {
       return ROUTE
         .iter()
         .flat_map(|step| step.iter().copied())
+        .chain(OFF_ROUTE.iter().copied())
         .filter(|mode| self.state(*mode) != ModeState::Completed && Some(*mode) != running)
         .collect();
     }
@@ -57,14 +59,6 @@ impl Progression {
     with_state(ModeState::Available)
       .chain(with_state(ModeState::Played))
       .collect()
-  }
-
-  /// Whether a mini-wizard is waiting. They light the scoop by being reached, with no qualifying.
-  pub fn mini_wizard_available(&self) -> bool {
-    self
-      .states
-      .iter()
-      .any(|(mode, state)| mode.is_mini_wizard() && *state == ModeState::Available)
   }
 
   /// Mark a mode as started. The first time, that closes the rest of its step and opens the next one. After that it's
@@ -120,32 +114,29 @@ impl Progression {
     }
   }
 
-  fn was_played(&self, mode: Mode) -> bool {
-    matches!(self.state(mode), ModeState::Played | ModeState::Completed)
-  }
-
-  /// What the step after `step` offers. A mini-wizard belongs to the road taken to it.
   fn next_step(&self, step: usize) -> Vec<Mode> {
-    match ROUTE.get(step + 1) {
-      Some(next) if next.iter().all(Mode::is_mini_wizard) => next
-        .iter()
-        .copied()
-        .filter(|mode| self.was_played(mode.district()))
-        .collect(),
-      Some(next) => next.to_vec(),
-      None => Vec::new(),
-    }
+    ROUTE.get(step + 1).map(|next| next.to_vec()).unwrap_or_default()
   }
 }
 
+/// The city map (design/city/README.md): a tier, then a gate, from the riverfront up to the finale
 const ROUTE: [&[Mode]; 6] = [
+  // tier 1, the riverfront
   &[Mode::MeridianBasins, Mode::CargoQuay],
+  // gate 1
   &[Mode::NimbusPromenade],
-  &[Mode::HelixVaults, Mode::Blackout],
-  &[Mode::SkyrailStation, Mode::ApexTerraces, Mode::HydroCore],
+  // tier 2, the mid-city
+  &[Mode::HydroCore, Mode::HelixVaults, Mode::SkyrailStation],
+  // tier 3, the mountain
+  &[Mode::ApexTerraces, Mode::HalcyonVents],
+  // gate 2
+  &[Mode::CalderaGenerator],
+  // the finale
   &[Mode::SolariumAtrium],
-  &[Mode::Derailment, Mode::Canopy],
 ];
+
+/// Modes waiting for a place on the map, which can only be played with every mode open
+const OFF_ROUTE: &[Mode] = &[Mode::Derailment];
 
 #[cfg(test)]
 mod tests {
@@ -193,11 +184,11 @@ mod tests {
     progression.open_all();
     progression.complete(Mode::HydroCore);
 
-    let available = progression.available_modes(Some(Mode::Canopy));
+    let available = progression.available_modes(Some(Mode::HalcyonVents));
     assert_eq!(available.len(), 9);
     assert!(available.contains(&Mode::SolariumAtrium));
     assert!(!available.contains(&Mode::HydroCore));
-    assert!(!available.contains(&Mode::Canopy));
+    assert!(!available.contains(&Mode::HalcyonVents));
   }
 
   #[test]
@@ -227,7 +218,7 @@ mod tests {
     progression.start(Mode::NimbusPromenade);
     progression.start(Mode::CargoQuay);
     assert_eq!(progression.state(Mode::CargoQuay), ModeState::Played);
-    assert_eq!(progression.state(Mode::Blackout), ModeState::Available);
+    assert_eq!(progression.state(Mode::HelixVaults), ModeState::Available);
 
     progression.complete(Mode::CargoQuay);
     progression.start(Mode::CargoQuay);
@@ -235,15 +226,14 @@ mod tests {
   }
 
   #[test]
-  fn a_mini_wizard_follows_the_road_taken_to_it() {
+  fn tier_2_offers_its_three_places_whichever_tier_1_place_was_played() {
     let mut progression = Progression::new();
     progression.start(Mode::MeridianBasins);
-    assert!(!progression.mini_wizard_available());
     progression.start(Mode::NimbusPromenade);
 
-    assert!(progression.mini_wizard_available());
-    assert_eq!(progression.state(Mode::HelixVaults), ModeState::Available);
-    assert_eq!(progression.state(Mode::Blackout), ModeState::Unplayed);
+    for mode in [Mode::HydroCore, Mode::HelixVaults, Mode::SkyrailStation] {
+      assert_eq!(progression.state(mode), ModeState::Available, "{mode:?}");
+    }
   }
 
   #[test]
@@ -252,10 +242,10 @@ mod tests {
     for mode in [
       Mode::CargoQuay,
       Mode::NimbusPromenade,
-      Mode::Blackout,
-      Mode::ApexTerraces,
+      Mode::HelixVaults,
+      Mode::HalcyonVents,
+      Mode::CalderaGenerator,
       Mode::SolariumAtrium,
-      Mode::Canopy,
     ] {
       assert_eq!(progression.state(mode), ModeState::Available, "{mode:?}");
       progression.start(mode);
@@ -263,9 +253,10 @@ mod tests {
     }
 
     assert!(progression.available_modes(None).is_empty());
-    assert_eq!(progression.districts_played(), 4);
-    assert_eq!(progression.districts_completed(), 4);
+    assert_eq!(progression.districts_played(), 3);
+    assert_eq!(progression.districts_completed(), 3);
     assert_eq!(progression.state(Mode::SkyrailStation), ModeState::Unplayed);
+    assert_eq!(progression.state(Mode::ApexTerraces), ModeState::Unplayed);
     assert_eq!(progression.state(Mode::Derailment), ModeState::Unplayed);
   }
 

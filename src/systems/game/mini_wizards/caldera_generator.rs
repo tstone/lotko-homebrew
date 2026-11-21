@@ -20,11 +20,11 @@ const LIT_Z: i8 = 41;
 /// Dark shots at which the Steward starts to break up
 const STEWARD_FRAGMENTS: u8 = 3;
 
-/// Hydro's mini-wizard (DESIGN.md, Mini-wizards), 2-ball. The playfield goes dark but for the roots and the lit shots,
+/// The geothermal plant, gate 2 (design/city/caldera-generator.md), 2-ball. The playfield goes dark but for the roots and the lit shots,
 /// and each lit shot hit goes dark too. Once they're all dark the left scoop is the super jackpot, which completes it.
 ///
-/// The time from the start to the super jackpot is Fastest Blackout, counting only the time it was running.
-pub struct BlackoutMode {
+/// The time from the start to the super jackpot is Fastest Caldera Generator, counting only the time it was running.
+pub struct CalderaGeneratorMode {
   wizard: MiniWizardRun,
   /// By shot, in [`MainShot::ALL`] order
   dark: [bool; 6],
@@ -35,10 +35,10 @@ pub struct BlackoutMode {
   elapsed: Duration,
 }
 
-impl BlackoutMode {
+impl CalderaGeneratorMode {
   pub fn new() -> Self {
     Self {
-      wizard: MiniWizardRun::new(Mode::Blackout, MainShot::ALL.len() as u8 + 1),
+      wizard: MiniWizardRun::new(Mode::CalderaGenerator, MainShot::ALL.len() as u8 + 1),
       dark: [false; 6],
       lit_scene: None,
       darkened: false,
@@ -47,7 +47,7 @@ impl BlackoutMode {
   }
 
   fn lit_scene(leds: LightQ) -> PlayableScene {
-    scene!("blackout/lit.scene", leds).variable("color", Rgba::white())
+    scene!("caldera_generator/lit.scene", leds).variable("color", Rgba::white())
   }
 
   fn lit_shots(&self) -> Vec<MainShot> {
@@ -70,8 +70,8 @@ impl BlackoutMode {
   fn darken(&mut self, shot: MainShot, ctx: &SystemContext) {
     self.dark[shot as usize] = true;
     let dark = self.dark.iter().filter(|dark| **dark).count() as u8;
-    log::info!("Blackout: {shot:?} dark, {dark} of 6");
-    self.wizard.score(points::BLACKOUT_HIT, ctx);
+    log::info!("CalderaGenerator: {shot:?} dark, {dark} of 6");
+    self.wizard.score(points::CALDERA_HIT, ctx);
     self.wizard.progress(dark);
     ctx.play_sfx(sounds::rnd_latch());
     if dark == STEWARD_FRAGMENTS {
@@ -85,10 +85,10 @@ impl BlackoutMode {
 
   fn super_jackpot(&mut self, ctx: &SystemContext) {
     log::info!(
-      "Blackout: super jackpot, Fastest Blackout {:?}",
+      "CalderaGenerator: super jackpot, Fastest Caldera Generator {:?}",
       self.elapsed
     );
-    self.wizard.score(points::BLACKOUT_SUPER_JACKPOT, ctx);
+    self.wizard.score(points::CALDERA_SUPER_JACKPOT, ctx);
     self.lift_dark(ctx);
     self.wizard.complete(
       completing_scene!("startable/hit.scene").variable("color", Rgba::white()),
@@ -127,9 +127,9 @@ impl BlackoutMode {
   }
 }
 
-impl System for BlackoutMode {
+impl System for CalderaGeneratorMode {
   fn is_active(&self, ctx: &SystemContext) -> bool {
-    ctx.systems.expect::<ModeManager>().current_mode() == Some(Mode::Blackout)
+    ctx.systems.expect::<ModeManager>().current_mode() == Some(Mode::CalderaGenerator)
   }
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
@@ -194,12 +194,12 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    BlackoutMode::lit_scene(lower_scoop::BOLTS_Q.clone());
+    CalderaGeneratorMode::lit_scene(lower_scoop::BOLTS_Q.clone());
   }
 
   #[test]
   fn the_scoop_is_lit_once_every_shot_is_dark() {
-    let mut mode = BlackoutMode::new();
+    let mut mode = CalderaGeneratorMode::new();
     mode.dark = [true, true, true, true, true, false];
     assert!(!mode.super_jackpot_lit());
     mode.dark[5] = true;

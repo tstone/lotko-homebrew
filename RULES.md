@@ -13,28 +13,28 @@ Plunge the ball and:
 
 ## Overgrow the city
 
-The city map shows the six districts. You play at most one district on each step, and the route you take decides what
-comes next:
+Climb the city from the riverfront to the top: three tiers, with a gate between each. You play one place on each
+step. Places marked * are multiballs.
 
 | Step | Choose |
 |---|---|
-| 1 | Meridian Basins **or** Cargo Quay |
-| 2 | Nimbus Promenade |
-| 3 | Mini-wizard: Floodgates (after Meridian) or Blackout (after Cargo Quay) |
-| 4 | Skyrail Station **or** Apex Terraces **or** Hydro Core |
-| 5 | Solarium Atrium |
-| 6 | Mini-wizard: Derailment (after Skyrail) or Canopy (after Apex) |
+| 1. Tier 1 | Meridian Basins **or** Cargo Quay |
+| 2. Gate 1 | Nimbus Promenade |
+| 3. Tier 2 | Hydro Core **or** Helix Vaults* **or** Skyrail Station |
+| 4. Tier 3 | Apex Terraces **or** Halcyon Vents* |
+| 5. Gate 2 | Caldera Generator* |
+| 6. Finale | Solarium Atrium |
 
 **Light the scoop.** Main shots with a white center are lit, and go out when you hit them. Hit 2 to light the left
 scoop, then 3 the next time, then 4, and so on. A Surveillance set counts as one.
 
-**Choose a district.** Shoot the lit left scoop to open the menu. The flippers move, and both flippers (or Start)
-choose. A mini-wizard is lit as soon as you reach its step.
+**Choose a place.** Shoot the lit left scoop to open the menu. The flippers move, and both flippers (or Start)
+choose.
 
-- Choosing a district closes the other one on that step for the rest of the game.
-- A district ends when you complete it or drain. An unfinished district stays in the menu, and you can resume it with
-  its progress.
-- **Completing a district** earns a perk for the rest of the game.
+- Choosing a place closes the others on that step for the rest of the game.
+- A place ends when you complete it or drain. An unfinished place stays in the menu, and you can resume it with its
+  progress.
+- **Completing a district** earns a perk for the rest of the game. The multiballs don't have one.
 
 ## Districts
 
@@ -76,15 +76,13 @@ hit speeds it up. Hit it 6 times.
 | Apex Terraces | Center spinner values ×2 |
 | Solarium Atrium | Captive ball charges Heartwood twice as fast |
 
-## Mini-wizards
+## Multiball places
 
-Multiball modes at the end of each tier. Tier 1 is 2-ball, tier 2 is 3-ball and worth more. A mini-wizard ends when
-you're back to one ball.
+These places play as a multiball. One ends when you're back to one ball, except Helix Vaults, which carries on.
 
-- **Floodgates:** orbits raise the water. At high water, the ramps are super jackpots.
-- **Blackout:** each shot you hit goes dark. When they all are, the left scoop is the super jackpot.
-- **Derailment:** feed the upper flipper and shoot the drops for jackpots.
-- **Canopy:** spinners and pops build the value. The ramps collect it.
+- **Helix Vaults** (2-ball): orbits drain the vat. After enough, a ramp lights for a rupture. Rupture it 3 times.
+- **Halcyon Vents** (3-ball): spinners and pops build the value. The ramps vent it. Vent 3 times.
+- **Caldera Generator** (2-ball): each shot you hit goes dark. When they all are, the left scoop is the super jackpot.
 
 ## Side quests
 
@@ -144,6 +142,6 @@ one after. The ramp feeds back to the scoop, so keep looping it. Miss one and th
 - **Ball save** at the start of every ball, multiball and district.
 - **Outlane saves.** Sling hits grow the roots up that side's posts. When they're full, that outlane is lit, and the
   next drain through it is saved. A lit save keeps until you use it, and each use makes that side harder to relight.
-- **Extra balls** are lit by your first mini-wizard completion, 10 drones, your first Groundswell super jackpot,
+- **Extra balls** are lit by completing your first multiball place, 10 drones, your first Groundswell super jackpot,
   and spreading the roots on all three orbits in one ball. Collect a lit extra ball with a shot to the front of the
   left scoop.

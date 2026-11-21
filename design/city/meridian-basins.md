@@ -75,4 +75,3 @@ The DMD shows the scores while the mode runs. It only plays an animation at the 
 ## Open questions
 
 - Whether 15 seconds to wither is too harsh or too soft.
-- Whether its multiball companion (today Floodgates) still fits once it's no longer about water channels.

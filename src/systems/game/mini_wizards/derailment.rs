@@ -11,7 +11,7 @@ use crate::systems::sounds;
 /// Bank clears that complete it (start value)
 const CLEARS: u8 = 3;
 
-/// Skyrail's mini-wizard (DESIGN.md, Mini-wizards), 3-ball. The lift ramp stays up, so the ramp feeds the rear scoop and
+/// Off the map for now (DESIGN.md, Mini-wizards), 3-ball. The lift ramp stays up, so the ramp feeds the rear scoop and
 /// the wireform down to the upper flipper, which aims at the drops. Each drop target is a jackpot and each bank clear a
 /// super jackpot, with the bank raising itself after a clear.
 ///

@@ -17,11 +17,11 @@ Work through a place in this order:
 | Cargo Quay | Tier 1 | Built, DMD to do | [cargo-quay.md](cargo-quay.md) |
 | Nimbus Promenade | Gate 1 | Rework with the scan | [nimbus-promenade.md](nimbus-promenade.md) |
 | Hydro Core | Tier 2 | Keep | [hydro-core.md](hydro-core.md) |
-| Helix Vaults (Floodgates) | Tier 2 | Built, DMD to do | [helix-vaults.md](helix-vaults.md) |
+| Helix Vaults | Tier 2 | Built, DMD to do | [helix-vaults.md](helix-vaults.md) |
 | Skyrail Station | Tier 2 | Becomes the roving shot | [skyrail-station.md](skyrail-station.md) |
 | Apex Terraces | Tier 3 | Revisit | [apex-terraces.md](apex-terraces.md) |
-| Halcyon Vents (Canopy) | Tier 3 | Sketched | [halcyon-vents.md](halcyon-vents.md) |
-| Caldera Generator (Blackout) | Gate 2 | Place set | [caldera-generator.md](caldera-generator.md) |
+| Halcyon Vents | Tier 3 | Renamed from Canopy; sketched | [halcyon-vents.md](halcyon-vents.md) |
+| Caldera Generator | Gate 2 | Renamed from Blackout | [caldera-generator.md](caldera-generator.md) |
 | Solarium Atrium | Finale, phase 1 | Needs the mystery | [solarium-atrium.md](solarium-atrium.md) |
 | Spire Core | Finale, phase 2 | Holding Apex's old rules | [spire-core.md](spire-core.md) |
 
@@ -72,8 +72,15 @@ The playfield is a whitewood with temporary art, so the next version can have an
 
 Every place in tiers 2 and 3, and the Caldera Generator, drops a clue toward what the finale reveals. Some are small and some are big, and a player has to play them all to get every piece. See [mystery.md](../mystery.md).
 
+### In the game
+
+The game follows this map. A player plays one place on each step, a tier or a gate, and choosing one closes the rest
+of that step. Multiball places qualify like districts. A game covers 6 of the 10 places.
+
 ## Open questions
 
-- How many places a player plays in each tier, and what unlocks the next.
-- The map needs replanning now that tier 1 is Meridian Basins and Cargo Quay. In the game for now, Hydro Core is a
-  third choice on step 4, Blackout follows Cargo Quay, and Derailment still follows Skyrail.
+- Derailment isn't on the map. It's to come back as a mode unlocked by spreading roots.
+- The finale is the Solarium Atrium as an ordinary district for now. Spire Core isn't built.
+- The city map on the playfield has six inserts, for seven districts. Cargo Quay has none, and the multiballs never
+  had any.
+- Scoring by step doesn't match yet between districts and multiballs on the same step (DESIGN.md, Scoring).

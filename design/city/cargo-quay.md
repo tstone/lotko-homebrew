@@ -61,4 +61,3 @@ Oaks' `oak/fall`. Cargo Quay needs its own Steward lines for both.
 
 - Whether 5 pushes plus the crane is the right length for tier 1.
 - Its perk, and its insert on the city map, which has six for seven districts.
-- Where Derailment goes, now that Cargo Quay doesn't use it.

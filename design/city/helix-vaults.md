@@ -1,6 +1,6 @@
 # Helix Vaults
 
-**Status:** built, except the DMD and the bubbling on the orbits. Scenes are first drafts to tune by hand. Tier 2, though it still sits in Floodgates' old slot after Meridian until the map is reworked.
+**Status:** built, except the DMD and the bubbling on the orbits. Scenes are first drafts to tune by hand. A tier 2 place.
 
 ## The place
 

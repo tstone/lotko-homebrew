@@ -32,7 +32,7 @@ const SHOT_Z: i8 = 10;
 /// A ramp lit for a rupture, lime so it reads apart from the orbits
 const RUPTURE_COLOR: Rgba<u8> = Rgba([90, 255, 0, 255]);
 
-/// Meridian's mini-wizard (design/city/helix-vaults.md), 2-ball. The vat, shown in the subway, starts full. Orbit hits
+/// The biomatter vats, in tier 2 (design/city/helix-vaults.md), 2-ball. The vat, shown in the subway, starts full. Orbit hits
 /// drain it, and after enough of them a ramp lights for a rupture, a super jackpot. The third rupture empties it. Each
 /// ramp lights once.
 pub struct HelixVaultsMode {

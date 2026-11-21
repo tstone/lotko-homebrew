@@ -84,9 +84,9 @@ pub static HELIX_VAULTS_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
     .category("Modes")
 });
 
-pub static BLACKOUT_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
-  Counter::new("Blackout Completed", "Times Blackout was completed")
-    .key("blackout_completed")
+pub static CALDERA_GENERATOR_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
+  Counter::new("Caldera Generator Completed", "Times Caldera Generator was completed")
+    .key("caldera_generator_completed")
     .category("Modes")
 });
 
@@ -102,9 +102,9 @@ pub static DERAILMENT_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
     .category("Modes")
 });
 
-pub static CANOPY_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
-  Counter::new("Canopy Completed", "Times Canopy was completed")
-    .key("canopy_completed")
+pub static HALCYON_VENTS_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
+  Counter::new("Halcyon Vents Completed", "Times Halcyon Vents was completed")
+    .key("halcyon_vents_completed")
     .category("Modes")
 });
 
@@ -119,8 +119,8 @@ pub fn mode_completed(mode: &Mode) -> &'static Counter {
     Mode::NimbusPromenade => &NIMBUS_PROMENADE_COMPLETED,
     Mode::ApexTerraces => &APEX_TERRACES_COMPLETED,
     Mode::HelixVaults => &HELIX_VAULTS_COMPLETED,
-    Mode::Blackout => &BLACKOUT_COMPLETED,
+    Mode::CalderaGenerator => &CALDERA_GENERATOR_COMPLETED,
     Mode::Derailment => &DERAILMENT_COMPLETED,
-    Mode::Canopy => &CANOPY_COMPLETED,
+    Mode::HalcyonVents => &HALCYON_VENTS_COMPLETED,
   }
 }

@@ -69,20 +69,26 @@ mod points {
     match mode.step() {
       1 => 1_500_000,
       2 => 2_250_000,
-      4 => 3_500_000,
+      3 => 3_500_000,
+      4 => 4_250_000,
       _ => 5_000_000,
     }
   }
 
   /// Completing a district or a mini-wizard, by its step (DESIGN.md, Scoring)
   pub fn mode_completion(mode: Mode) -> u64 {
+    if mode.is_mini_wizard() {
+      return match mode.step() {
+        3 => 110_000_000,
+        _ => 225_000_000,
+      };
+    }
     match mode.step() {
       1 => 35_000_000,
       2 => 50_000_000,
-      3 => 110_000_000,
-      4 => 70_000_000,
-      5 => 90_000_000,
-      _ => 225_000_000,
+      3 => 70_000_000,
+      4 => 80_000_000,
+      _ => 90_000_000,
     }
   }
 
@@ -105,21 +111,21 @@ mod points {
   pub static HELIX_DRAIN: u64 = 1_000_000;
   /// A rupture, times how many there have been
   pub static HELIX_RUPTURE: u64 = 20_000_000;
-  /// Each shot Blackout puts out
-  pub static BLACKOUT_HIT: u64 = 4_000_000;
-  pub static BLACKOUT_SUPER_JACKPOT: u64 = 120_000_000;
+  /// Each shot Caldera Generator puts out
+  pub static CALDERA_HIT: u64 = 4_000_000;
+  pub static CALDERA_SUPER_JACKPOT: u64 = 120_000_000;
   /// Each drop target in Derailment, times the bank clears so far plus one
   pub static DERAIL_JACKPOT: u64 = 3_000_000;
   /// Each bank clear in Derailment, times how many there have been
   pub static DERAIL_SUPER_JACKPOT: u64 = 16_000_000;
-  /// What Canopy's value builds from, and starts over at after a collect
-  pub static CANOPY_BASE: u64 = 25_000_000;
-  /// Each spin of either spinner, onto Canopy's value
-  pub static CANOPY_SPIN: u64 = 250_000;
-  /// Each pop, onto Canopy's value
-  pub static CANOPY_POP: u64 = 1_000_000;
-  /// Each hit of a Root Lash, onto Canopy's value
-  pub static CANOPY_ROOTS: u64 = 5_000_000;
+  /// What Halcyon Vents' value builds from, and starts over at after a collect
+  pub static HALCYON_BASE: u64 = 25_000_000;
+  /// Each spin of either spinner, onto Halcyon Vents' value
+  pub static HALCYON_SPIN: u64 = 250_000;
+  /// Each pop, onto Halcyon Vents' value
+  pub static HALCYON_POP: u64 = 1_000_000;
+  /// Each hit of a Root Lash, onto Halcyon Vents' value
+  pub static HALCYON_ROOTS: u64 = 5_000_000;
   pub static HEARTWOOD_JACKPOT: u64 = 5_000_000;
   pub static HEARTWOOD_SUPER_JACKPOT: u64 = 25_000_000;
   /// Each captive ball hit toward the multiball

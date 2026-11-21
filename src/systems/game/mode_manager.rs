@@ -137,10 +137,6 @@ impl ModeManager {
     self.progression.available_modes(self.mode)
   }
 
-  pub fn mini_wizard_available(&self) -> bool {
-    self.progression.mini_wizard_available()
-  }
-
   /// For testing, every mode is open this game, and the scoop needs no qualifying
   pub fn all_modes_open(&self) -> bool {
     self.progression.is_all_open()
@@ -204,8 +200,8 @@ impl ModeManager {
     self.progression.start(mode);
     self.mode = Some(mode);
     if !resuming {
-      // the braam is kept for the game's biggest moments, the first of which is reaching the top of the city
-      if mode.is_mini_wizard() && mode.tier() == 2 {
+      // the braam is kept for the game's biggest moments, the first of which is reaching the top of the city: the finale
+      if mode == Mode::SolariumAtrium {
         ctx.play_sfx(sounds::BRAAM_BIO1);
       }
       mode.spawn(ctx);
@@ -519,12 +515,12 @@ mod tests {
   #[test]
   fn a_mini_wizard_keeps_its_slot_in_the_music_over_a_multiball() {
     assert_eq!(
-      music_for(Some(Mode::Blackout), Some(Multiball::Heartwood)),
-      Mode::Blackout.music().unwrap()
+      music_for(Some(Mode::CalderaGenerator), Some(Multiball::Heartwood)),
+      Mode::CalderaGenerator.music().unwrap()
     );
     // nothing recorded for this one yet, so it's the default rather than the multiball's
     assert_eq!(
-      music_for(Some(Mode::Canopy), Some(Multiball::Heartwood)),
+      music_for(Some(Mode::HalcyonVents), Some(Multiball::Heartwood)),
       music_file("colyn-rushing.mp3")
     );
   }
@@ -544,7 +540,7 @@ mod tests {
     assert!(manager.sentinels_can_take_over());
     manager.mode = Some(Mode::HydroCore);
     assert!(manager.sentinels_can_take_over());
-    manager.mode = Some(Mode::Blackout);
+    manager.mode = Some(Mode::CalderaGenerator);
     assert!(!manager.sentinels_can_take_over());
     manager.mode = None;
     manager.multiball = Some(Multiball::Heartwood);

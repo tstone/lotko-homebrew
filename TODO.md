@@ -41,7 +41,7 @@ The game is built with the default for each. Numbers are kept, as code comments 
 
 # Sound
 
-- [ ] Music: the tracks are placeholders. Apex and Canopy have none.
+- [ ] Music: the tracks are placeholders. Apex and Halcyon Vents have none.
 - [ ] Music and background sounds need loop points.
 - [ ] Steward integrity: dropout, wobble, stutter and bitcrush on the Steward's voice as the city falls, or pre-rendered variants.
 - [ ] `callouts/combos` and `callouts/blackout` are empty, and there's no `callouts/canopy`.
@@ -70,8 +70,8 @@ Effects a built feature wants but plays a stand-in for, or nothing. Delete a lin
 # High scores
 
 - [ ] Register `HighScoresSystem` in `main.rs`, so scores are saved and entered, and set the custom categories at game end. Say `new-high-score`.
-- [ ] The fastest Blackout is lower-is-better, so it needs comparing by hand and showing as a time.
-- [ ] Record the mini-wizard totals (`MiniWizardRun::total`) and Blackout's time, which are kept but only logged.
+- [ ] The fastest Caldera Generator is lower-is-better, so it needs comparing by hand and showing as a time.
+- [ ] Record the mini-wizard totals (`MiniWizardRun::total`) and Caldera Generator's time, which are kept but only logged.
 
 # Framework gaps
 

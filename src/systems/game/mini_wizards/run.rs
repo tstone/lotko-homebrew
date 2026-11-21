@@ -100,7 +100,7 @@ impl MiniWizardRun {
   fn add_balls(&mut self, ctx: &SystemContext) {
     self.balls_added = true;
     // on top of the one leaving the scoop
-    self.eject_id = ctx.eject_balls(self.mode.tier(), Launch::Auto);
+    self.eject_id = ctx.eject_balls(self.mode.balls() - 1, Launch::Auto);
     ctx.request_ball_save_until_released();
   }
 }

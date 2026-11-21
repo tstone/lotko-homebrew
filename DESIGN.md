@@ -57,7 +57,7 @@ game end. Lines are one to three words.
 - **Music:** cyberpunk / synthwave for the city, with forest percussion and drones layering in.
   - Each district mode, mini-wizard and multiball has its own track.
   - Stretch goal: the base track is built from stems, and organic layers come in as more districts are played.
-- **Braams are for the biggest moments only:** the start of the tier-2 mini-wizard (`braam-bio1`, not on a resume) and
+- **Braams are for the biggest moments only:** the start of the finale (`braam-bio1`, not on a resume) and
   the start of the final wizard (`braam-bio2`). Completions don't get one.
 - **The Oaks' lines have no chime** and are never dropped for waiting. The Steward's passing commentary is dropped if it
   waits more than 3s.
@@ -71,7 +71,7 @@ Until the palettes exist, the recorded SFX stand in like this:
 | `steward-chime` | Before every Steward line |
 | `latch-heavy1`–`3` | First two `city_hit` steps; Meridian's gate clunk; Nimbus blocks; a camera blinded |
 | `impact-dirt` | Last `city_hit` step; spore burst; drone down; roots spread |
-| `impact-cinematic-heavy` | Choosing a mode in the menu; Gridlock; Floodgates and Derailment super jackpots |
+| `impact-cinematic-heavy` | Choosing a mode in the menu; Gridlock; Helix Vaults and Derailment super jackpots |
 | `scan-light` | Ball start, with the status line |
 | `scan-heavy-stutter` | Surveillance set |
 | `woosh-light`, `latch-double` | Skyrail train leaving and stopping |
@@ -106,8 +106,8 @@ Until the palettes exist, the recorded SFX stand in like this:
 | 10 | Mode attention, hex centers |
 | 20 | Hits and short reactions, mode progress on the spore bar |
 | 30 | Full-field moments: starts, completions, multiball starts, spore burst |
-| 40 | Blackout's dark layer |
-| 41 | What Blackout leaves lit: roots and lit shots |
+| 40 | Caldera Generator's dark layer |
+| 41 | What Caldera Generator leaves lit: roots and lit shots |
 | 50 | Tilt |
 
 ### Effect primitives (input to the 2D/3D LED roadmap)
@@ -121,11 +121,11 @@ speakers, cabinet), and all of them take part.
 | Plane sweep | A plane moving through space, e.g. from the playfield up into the backbox | Steward alerts, multiball starts, super jackpots |
 | Growth | Spreads from a seed along an LED nearest-neighbor graph, branching randomly; the trail fades or stays | Roots, completions, Charge, Spread roots |
 | Path flow | Packets travel along an ordered path (pop rays, ramps, subway, orbits) | Charge, locks, Hydro, Skyrail |
-| Noise field | An animated simplex noise field for color and brightness | Ambient forest, intensity, Canopy |
-| Glitch | Random dropouts, stutter, wrong colors, hard cuts | Steward breakdown, Blackout, Hydro intensity |
+| Noise field | An animated simplex noise field for color and brightness | Ambient forest, intensity, Halcyon Vents |
+| Glitch | Random dropouts, stutter, wrong colors, hard cuts | Steward breakdown, Caldera Generator, Hydro intensity |
 | Heartbeat | A double pulse at a tempo, local or global | Heartwood, timers, spore burst ready |
-| Fill | Fills space up to a height, with a moving surface | Floodgates, mode progress |
-| Layers and masks | Effects composited by priority with blend modes, limited to regions (e.g. "all but the roots") | Side quests over modes, Blackout |
+| Fill | Fills space up to a height, with a moving surface | Helix Vaults, mode progress |
+| Layers and masks | Effects composited by priority with blend modes, limited to regions (e.g. "all but the roots") | Side quests over modes, Caldera Generator |
 | Tempo sync | Effect timing locks to the music's BPM | Multiballs, mini-wizards |
 
 ### Backbox speaker LEDs
@@ -167,30 +167,30 @@ Ball paths that matter:
 
 ## Primary progression: overgrow the city
 
+The city map (design/city/README.md): three tiers by height, with a gate between each, and the finale at the top.
+Multiballs (*) are places like any other.
+
 ```
-                 Solarium
-              ↙            ↘
-     [Derailment]        [Canopy]
-       Skyrail              Apex
-              ↖            ↗
-                  Nimbus
-              ↙            ↘
-     [Floodgates]        [Blackout]
-       Meridian          Cargo Quay
-       [ spores bar — the roots ]
+FINALE   Solarium Atrium
+GATE 2   Caldera Generator*
+TIER 3   Apex Terraces · Halcyon Vents*
+TIER 2   Hydro Core · Helix Vaults* · Skyrail Station
+GATE 1   Nimbus Promenade
+TIER 1   Meridian Basins · Cargo Quay
+         [ spores bar — the roots ]
 ```
 
-11 modes: 7 districts + 4 mini-wizards. One game covers at most 6 of them:
+A player plays one place on each step, so a game covers 6 of the 10 places on the map:
 
-1. Meridian **or** Cargo Quay
-2. Nimbus
-3. Tier-1 mini-wizard: Floodgates (if Meridian) or Blackout (if Cargo Quay)
-4. Skyrail **or** Apex **or** Hydro
-5. Solarium
-6. Tier-2 mini-wizard: Derailment (if Skyrail) or Canopy (if Apex). Hydro has none.
+1. Tier 1: Meridian **or** Cargo Quay
+2. Gate 1: Nimbus
+3. Tier 2: Hydro **or** Helix Vaults **or** Skyrail
+4. Tier 3: Apex **or** Halcyon Vents
+5. Gate 2: Caldera Generator
+6. Finale: Solarium, for now an ordinary district. Spire Core, its second phase, isn't built.
 
-**Interim:** the map is to be replanned (design/city/README.md). Until then, Hydro Core is a third choice on step 4,
-Blackout follows Cargo Quay, and Cargo Quay has no insert on the city map.
+Derailment isn't on the map. It's to come back as a mode unlocked by spreading roots. Cargo Quay has no insert on
+the city map, which has six.
 
 ### Rules
 
@@ -201,15 +201,14 @@ Blackout follows Cargo Quay, and Cargo Quay has no insert on the city map.
   resuming it keeps its progress.
 - **Completing a district earns a persistent perk** for the rest of the game (see Perks).
 - **Starting modes:** lit shots (white hex centers) light the left scoop. A shot into the scoop, from the arc ramp or
-  the front, opens the mode select menu. Mini-wizards are lit as soon as their step is reached and need no qualifying.
+  the front, opens the mode select menu. Multiball places qualify the same way as districts.
 - Qualifying gets harder each time (e.g. 2, 3, 4… lit shots).
 - Each player has their own map state.
 
 Open:
-- Is the mini-wizard a required step, or can a player skip it and go up a tier? Draft: required, since it's the
-  climax of the tier and keeps the route to 6 modes.
-- Final wizard after the tier-2 mini-wizard ("Last of the Kilmore Oaks"). Out of scope for now, and finishing
-  everything leaves the scoop unlit. `final/steward-core-breached` and `braam-bio2` are recorded for its start.
+- The finale as a wizard mode in two phases, Solarium Atrium then Spire Core ("Last of the Kilmore Oaks"). Out of
+  scope for now, and finishing everything leaves the scoop unlit. `final/steward-core-breached` and `braam-bio2` are
+  recorded for its start.
 - Hydro's timer currently restarts when it runs out. Leave it, and revisit once modes can be resumed.
 
 ### District modes
@@ -221,7 +220,7 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
 |---|---|---|
 | Meridian Basins | Sweeping window of 3 lit shots | Rework as **spreading growth** (built) |
 | Cargo Quay | (new) | **Pushing containers to the crane** (built) |
-| Hydro Core | Timed 5-shot combo | Keep; hexes flash faster as time runs out (TODO). On step 4 for now |
+| Hydro Core | Timed 5-shot combo | Keep; hexes flash faster as time runs out (TODO) |
 | Nimbus Promenade | Pops (non-exclusive) | Rework as **choke points** |
 | Skyrail Station | Lift ramp and drops in turn, then 2-ball | Rework as **the train** (built) |
 | Apex Terraces | Pop targets + charged center spinner (non-exclusive) | Rework as **overload** |
@@ -287,7 +286,7 @@ of the upper city.
   next one pre-lights dimly. The shot it leaves flashes green as the trail.
 - A hit on the head moves the vine on at once, and speeds it up: it moves every 3.5s, 0.35s sooner per hit, down to
   1.5s (start values).
-- Complete: 6 hits. Solarium is the last district before the tier-2 mini-wizard, so it's the hardest.
+- Complete: 6 hits. Solarium is the finale, so it's the hardest.
 
 ### Perks (from completing a district)
 
@@ -303,25 +302,24 @@ Each perk boosts a side quest, so the progression and the side quests feed each 
 | Apex | Center spinner values ×2 |
 | Solarium | Captive ball hits charge Heartwood twice as fast |
 
-Completing a district may also give its mini-wizard a bonus (e.g. a longer ball save). Optional.
+The multiball places have no perk.
 
-### Mini-wizards
+### Multiball places (mini-wizards)
 
-Tier 1 is 2-ball. Tier 2 is 3-ball with higher values. The balls are added as the ball leaves the scoop, with the
-multiball ball save (`MULTIBALL_BALL_SAVE`) timed from the eject. Completing one ends it while the balls play on, and
-marks it completed.
+The places that play as a multiball, still called mini-wizards in the code. They're chosen and qualified like
+districts. The balls are added as the ball leaves the scoop, with the multiball ball save (`MULTIBALL_BALL_SAVE`)
+timed from the eject. Completing one ends it while the balls play on, and marks it completed.
 
-- **Floodgates** (Meridian). The forest holds the basins and opens the gates. The arc ramp LEDs show a rising water
-  level in blue, and the orbits glow orange while it rises. Orbit hits raise it, and at high water the ramps glow
-  white as super jackpots. A super jackpot lets the water out to rise again. Complete: 3 super jackpots.
-- **Blackout** (Cargo Quay for now, was Hydro). The forest cuts the city's power. GI goes off and the playfield goes dark except for the
-  roots (the vertical spinner's ring and the pop rays) and lit shots. Each hit darkens another shot. When they're all
-  dark, the scoop is the super jackpot. Complete: the super jackpot.
-- **Derailment** (Skyrail). The skyrail is cut. The lift ramp is held up for the whole mode, and the balls feed the
-  upper flipper into the drops. Each drop target is a jackpot and each bank clear a super jackpot. Locked balls the
-  player had are kept as virtual locks. Complete: 3 bank clears.
-- **Canopy** (Apex). The forest reaches the tops of the towers. The spinner and pops build value; the ramps collect
-  it, and the value starts over from its base. Complete: 3 collects.
+- **Helix Vaults** (tier 2, 2-ball, design/city/helix-vaults.md). The forest drains the biomatter vats. Orbit hits
+  drain the vat, and after enough of them a ramp lights for a rupture. Complete: 3 ruptures.
+- **Halcyon Vents** (tier 3, 3-ball, design/city/halcyon-vents.md). The spinners and pops are the plant's turbines and
+  build value; the ramps vent it, and the value starts over from its base. Complete: 3 vents.
+- **Caldera Generator** (gate 2, 2-ball, design/city/caldera-generator.md). The forest cuts the city's power. GI goes
+  off and the playfield goes dark except for the roots (the vertical spinner's ring and the pop rays) and lit shots.
+  Each hit darkens another shot. When they're all dark, the scoop is the super jackpot. Complete: the super jackpot.
+- **Derailment** (off the map, 3-ball). The lift ramp is held up for the whole mode, and the balls feed the upper
+  flipper into the drops. Each drop target is a jackpot and each bank clear a super jackpot. Complete: 3 bank clears.
+  To come back as a mode unlocked by spreading roots.
 
 ### Scoring
 
@@ -333,18 +331,23 @@ worth about 1B from the modes alone, before side quests and bonus.
 |---|---|---|---|
 | 1: Meridian, Cargo Quay | 1.5M | 35M | 45M |
 | 2: Nimbus | 2.25M | 50M | 60M |
-| 3: Floodgates, Blackout | (own scoring) | 110M | 235–255M |
-| 4: Skyrail, Apex, Hydro | 3.5M | 70M | 105M |
-| 5: Solarium | 5M | 90M | 120M |
-| 6: Derailment, Canopy | (own scoring) | 225M | 345–375M |
+| 3: Hydro, Skyrail | 3.5M | 70M | 105M |
+| 3: Helix Vaults | (own scoring) | 110M | 235M |
+| 4: Apex | 4.25M | 80M | 105M |
+| 4: Halcyon Vents | (own scoring) | 225M | 345–375M |
+| 5: Caldera Generator | (own scoring) | 225M | 375M |
+| 6: Solarium | 5M | 90M | 120M |
+
+Districts and multiballs on the same step don't match yet: the multiballs kept the values they had as mini-wizards,
+and Derailment is valued as tier 3. To rebalance.
 
 - **Hydro** escalates: each combo shot is worth half a step shot more than the last, so the 5 come to 7.5 shots.
 - **Apex** takes 12 hits, so its hits are 2M, plus 2M times the bursts so far on each burst.
 - **Mini-wizards**, so the choices on a step match:
-  - **Floodgates:** 1M an orbit, super jackpots of 20M times how many.
-  - **Blackout:** 4M a shot, and a 120M super jackpot.
+  - **Helix Vaults:** 1M an orbit, super jackpots of 20M times how many.
+  - **Caldera Generator:** 4M a shot, and a 120M super jackpot.
   - **Derailment:** 3M a target times the clears so far plus one, and 16M times the clears on each clear.
-  - **Canopy:** builds from 25M, at 250K a spin, 1M a pop and 5M a Root Lash hit.
+  - **Halcyon Vents:** builds from 25M, at 250K a spin, 1M a pop and 5M a Root Lash hit.
 - A burst or a Root Lash doubles a shot's points along with its progress. Where a shot can't count twice (Hydro,
   Nimbus, Skyrail), it still scores double.
 
@@ -675,10 +678,10 @@ These are the biggest moments in the game. Each has a long intro, music synced t
 
 | Mini-wizard | LEDs | Sound / callouts | DMD |
 |---|---|---|---|
-| **Floodgates** | A fill rises from the flippers up the playfield with a moving surface; the arc ramp LEDs are the gauge. Super jackpot: a wave crashes over everything from the top down | Gates grinding open; rushing water. O: *"Open the gates."* S: *"Flood barriers… engaged. Engaged. Engaged."* At high water, S: *"Shoot the ramps."* | The gates open; a water-level gauge |
-| **Blackout** | GI off; everything is dark except the roots and lit shots. Each hit kills a section. Super jackpot: one second of total darkness, then the roots explode with light from the spinner outward | A descending power-down whine and a clunk for each section; the Steward fragments, with S: *"System 67 invalid."* at 3 of 6 dark. O: *"Darkness."* | The city grid, with sectors going black one by one |
+| **Helix Vaults** | A fill rises from the flippers up the playfield with a moving surface; the arc ramp LEDs are the gauge. Super jackpot: a wave crashes over everything from the top down | Gates grinding open; rushing water. O: *"Open the gates."* S: *"Flood barriers… engaged. Engaged. Engaged."* At high water, S: *"Shoot the ramps."* | The gates open; a water-level gauge |
+| **Caldera Generator** | GI off; everything is dark except the roots and lit shots. Each hit kills a section. Super jackpot: one second of total darkness, then the roots explode with light from the spinner outward | A descending power-down whine and a clunk for each section; the Steward fragments, with S: *"System 67 invalid."* at 3 of 6 dark. O: *"Darkness."* | The city grid, with sectors going black one by one |
 | **Derailment** | The lock balls drop like falling railcars, a chase down the wireform for each ball. Jackpots at the drops shatter blue into green | Rail screech, metal tearing, crashes. S: *"Train… train… train."* O: *"Fall."* | Train cars tumbling off the elevated track |
-| **Canopy** | A green noise field climbs the playfield and up into the backbox speaker LEDs. Collects at the ramps send growth up into the backbox | Giant trunks creaking, a deep roar of wind high above the city. O: *"Higher."* | The forest canopy spreads across the skyline |
+| **Halcyon Vents** | A green noise field climbs the playfield and up into the backbox speaker LEDs. Collects at the ramps send growth up into the backbox | Giant trunks creaking, a deep roar of wind high above the city. O: *"Higher."* | The forest canopy spreads across the skyline |
 
 ### Side quests
 
@@ -768,10 +771,10 @@ Custom categories, stored with `HighScoresSystem::set_custom_score`:
 | Category | Measure |
 |---|---|
 | Spore Champion | Most spores applied in a game |
-| Fastest Blackout | Shortest time to complete Blackout |
-| Biggest Flood | Highest Floodgates total |
+| Fastest Caldera Generator | Shortest time to complete Caldera Generator |
+| Biggest Flood | Highest Helix Vaults total |
 | Derailment Champion | Highest Derailment total |
-| Canopy Champion | Highest Canopy total |
+| Halcyon Vents Champion | Highest Halcyon Vents total |
 | Groundswell Champion | Highest Groundswell total |
 | Heartwood Champion | Highest Heartwood multiball total |
 | Sentinel Hunter | Most drones downed in a game |
@@ -782,7 +785,7 @@ Notes:
 - "Fastest" scores are lower-is-better. The caller must compare before setting, and the DMD must show the value as a
   time.
 - Each category is a single entry today. That's fine to start with.
-- Fastest Blackout counts only the time it was running, from the dark coming down to the super jackpot.
+- Fastest Caldera Generator counts only the time it was running, from the dark coming down to the super jackpot.
 
 ## Code impact (lotko-homebrew)
 

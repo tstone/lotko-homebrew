@@ -1,6 +1,6 @@
 # Halcyon Vents
 
-**Status:** sketched. Replaces Canopy.
+**Status:** built as the old Canopy (renamed), the tier 3 multiball. The direction below is sketched.
 
 ## The place
 

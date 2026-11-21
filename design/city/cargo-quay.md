@@ -13,8 +13,8 @@ The gantry crane. The forest pushes the city's own containers onto it.
 
 ## Gameplay
 
-The lift ramp is up for the whole mode. It's the crane. The other five main shots are the quay, in a row toward the
-crane: left orbit, dome ramp, arc ramp, center orbit, and the right orbit on the far side.
+The lift ramp is the crane. It stays down until both containers are in, as its coil buzzes while holding it up.
+The other five main shots are the quay, in a row toward the crane: left orbit, dome ramp, arc ramp, center orbit, and the right orbit on the far side.
 
 1. Two containers start on main shots, in one of three layouts. Each takes 5 pushes to get both to the crane:
    - left orbit and center orbit
@@ -22,7 +22,7 @@ crane: left orbit, dome ramp, arc ramp, center orbit, and the right orbit on the
    - dome ramp and arc ramp
 2. Hit a container's shot to push it one shot toward the crane.
 3. A container pushed onto the other one's shot stacks on it, and from then on one hit pushes both.
-4. Once both are in, the crane flashes. Shoot the lift ramp to lift them and complete the mode.
+4. Once both are in, the ramp goes up and the crane flashes. Shoot the lift ramp to lift them and complete the mode.
 5. Each hit of a Root Lash pushes a container at random, or makes the crane shot once both are in. A shot during a
    spore burst pushes twice.
 
@@ -36,7 +36,7 @@ All in `assets/leds/cargo_quay/`.
   scenes.
 - **Push** (`push.scene`): the container slides from one hex to the next with a short tail. The city map shows the
   pushes so far.
-- **Crane ready:** the lift ramp's hex center and the bolt under it flash orange.
+- **Crane ready:** the lift ramp goes up, and its hex center and the bolt under it flash orange.
 - **Completion** (`complete.scene`): a white flash and an orange shockwave from the crane, then green spreads over the
   playfield from it.
 

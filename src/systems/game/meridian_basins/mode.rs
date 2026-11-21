@@ -4,7 +4,7 @@ use rand::prelude::IndexedRandom;
 
 use crate::hardware::arc_ramp;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
-use crate::systems::game::meridian_basins::{BLOOM_COLOR, MODE_COLOR};
+use crate::systems::game::meridian_basins::MODE_COLOR;
 use crate::systems::game::{Mode, ModeManager, ModeRun, RootLashed, SporesSystem, fill_scene};
 use crate::systems::sounds;
 use frontbox_sound::*;
@@ -52,7 +52,7 @@ impl MeridianBasinsMode {
 
   fn progress_scene(blooms: usize) -> PlayableScene {
     let lit = blooms * ARC_LEDS / REQUIRED_HITS as usize;
-    fill_scene(&arc_ramp::ARC_LEDS.q(), ARC_LEDS, lit, *BLOOM_COLOR)
+    fill_scene(&arc_ramp::ARC_LEDS.q(), ARC_LEDS, lit, *MODE_COLOR)
   }
 
   fn bloom_scene(shot: MainShot) -> PlayableScene<Completes> {
@@ -140,13 +140,12 @@ impl MeridianBasinsMode {
     self.wither_timer = Some(ctx.timers.start(WitherDue, WITHER_AFTER.once()));
   }
 
-  /// Each basin's status on its hex center, and the progress on the arc ramp
+  /// A basin that can be hit flashes on its hex center, and a bloomed one goes dark as it's done. The arc ramp shows
+  /// the progress.
   fn render(&mut self, ctx: &SystemContext) {
     for shot in MainShot::ALL {
       let leds = shot.hex_center();
-      if self.bloomed.contains(&shot) {
-        ctx.declare_lights(leds, BASIN_Z, *BLOOM_COLOR);
-      } else if self.is_lit(shot) {
+      if self.is_lit(shot) {
         ctx.declare_lights_flashing(leds, BASIN_Z, *MODE_COLOR);
       } else {
         ctx.undeclare_lights(leds, BASIN_Z);

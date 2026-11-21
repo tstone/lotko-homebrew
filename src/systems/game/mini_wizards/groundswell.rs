@@ -18,7 +18,10 @@ const CLEARS: u8 = 3;
 pub struct GroundswellMode {
   wizard: MiniWizardRun,
   clears: u8,
-  attention_scene: ScenePlayer,
+  /// Each drop target's strip, lit while the target is standing, in [`targets`] order
+  strip_scenes: [ScenePlayer; 3],
+  /// The lift ramp, the way up to the upper flipper
+  ramp_scene: ScenePlayer,
 }
 
 impl GroundswellMode {
@@ -26,19 +29,35 @@ impl GroundswellMode {
     Self {
       wizard: MiniWizardRun::new(Mode::Groundswell, CLEARS * 3),
       clears: 0,
-      attention_scene: ScenePlayer::new(Self::attention_scene()),
+      strip_scenes: targets().map(|(_, leds)| ScenePlayer::new(Self::attention_scene(&leds.q()))),
+      ramp_scene: ScenePlayer::new(Self::attention_scene(&lift_ramp::HEX_CENTER_LED)),
     }
   }
 
-  /// The drop strips and the lift ramp, in the roots' bronze
-  fn attention_scene() -> PlayableScene {
-    let leds = LightQ::Or(vec![
-      drop_bank::TARGET1_LEDS.q(),
-      drop_bank::TARGET2_LEDS.q(),
-      drop_bank::TARGET3_LEDS.q(),
-      lift_ramp::HEX_CENTER_LED.clone(),
-    ]);
-    glow_scene(&leds, Mode::Groundswell.color())
+  /// A drop strip or the lift ramp, in the roots' bronze
+  fn attention_scene(leds: &LightQ) -> PlayableScene {
+    glow_scene(leds, Mode::Groundswell.color())
+  }
+
+  /// Lights the strips of the targets still standing, and the ramp. A knocked down target is done, so its strip goes
+  /// dark until the bank comes back up.
+  fn render(&mut self, ctx: &SystemContext) {
+    for ((switch, _), scene) in targets().iter().zip(self.strip_scenes.iter_mut()) {
+      let down = ctx.switches.is_closed(switch.name).unwrap_or(false);
+      if down {
+        scene.stop(ctx);
+      } else {
+        scene.start(ctx);
+      }
+    }
+    self.ramp_scene.start(ctx);
+  }
+
+  fn stop_scenes(&mut self, ctx: &SystemContext) {
+    for scene in &mut self.strip_scenes {
+      scene.stop(ctx);
+    }
+    self.ramp_scene.stop(ctx);
   }
 
   fn jackpot(&mut self, target: Option<u8>, ctx: &SystemContext) {
@@ -67,7 +86,7 @@ impl GroundswellMode {
     self.wizard.progress(self.clears * 3);
 
     if self.clears == CLEARS {
-      self.attention_scene.stop(ctx);
+      self.stop_scenes(ctx);
       self.release_ramp(ctx);
       self.wizard.complete(
         completing_scene!("startable/hit.scene").variable("color", Rgba::green()),
@@ -135,8 +154,17 @@ impl System for GroundswellMode {
       return;
     }
 
-    self.attention_scene.start(ctx);
+    self.render(ctx);
   }
+}
+
+/// The drop targets' switches, closed when the target is down, and their strips
+fn targets() -> [(&'static SwitchDefinition, &'static LedDefinition); 3] {
+  [
+    (&drop_bank::TARGET1, &drop_bank::TARGET1_LEDS),
+    (&drop_bank::TARGET2, &drop_bank::TARGET2_LEDS),
+    (&drop_bank::TARGET3, &drop_bank::TARGET3_LEDS),
+  ]
 }
 
 #[cfg(test)]
@@ -145,6 +173,6 @@ mod tests {
 
   #[test]
   fn the_scenes_load() {
-    GroundswellMode::attention_scene();
+    GroundswellMode::attention_scene(&lift_ramp::HEX_CENTER_LED);
   }
 }

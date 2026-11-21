@@ -94,7 +94,7 @@ Until the palettes exist, the recorded SFX stand in like this:
 
   | Tier | Colors |
   |---|---|
-  | 1 | Meridian warm white (255, 190, 120) with its blooms in green, Cargo Quay orange |
+  | 1 | Meridian yellow (255, 220, 0), Cargo Quay orange |
   | Gate 1 | Nimbus magenta |
   | 2 | Hydro cyan, Helix Vaults neon yellow-green (the only green place), Skyrail blue |
   | 3 | Apex gold, Halcyon Vents pale sky blue (120, 200, 255) |
@@ -238,8 +238,8 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
 
 **Meridian Basins: spreading growth.** The forest takes root in the farm's basins and spreads from one to the next
 (design/city/meridian-basins.md).
-- 2 main shots are seeded at random, flashing warm white: the farm's grow lights.
-- Hitting a flashing shot blooms it (solid green), and the growth spreads to the shots on either side, which start
+- 2 main shots are seeded at random, flashing yellow: the farm's grow lights.
+- Hitting a flashing shot blooms it (it goes dark, as it's done), and the growth spreads to the shots on either side, which start
   flashing. The outer orbits have only one neighbor.
 - 15 seconds without a bloom withers the last one back to flashing, along with the spread it gave, and again every 15
   seconds after.
@@ -247,12 +247,13 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
 - Complete: all 6 shots bloomed.
 
 **Cargo Quay: the crane.** The forest loads the city's freight onto the crane (design/city/cargo-quay.md).
-- The lift ramp is up for the whole mode. It's the crane.
+- The lift ramp is the crane. It stays down until both containers are in, as its coil buzzes while holding it up.
 - 2 containers start on main shots, lit orange, in one of three layouts that each take 5 pushes: left orbit and center
   orbit, left orbit and right orbit, or dome ramp and arc ramp.
 - Hitting a container's shot pushes it one shot toward the crane. Containers pushed onto the same shot stack (the
   whole hex lights) and move together.
-- Once both are in, the crane (the lift ramp's hex and the bolt under it) flashes. Shoot it to complete.
+- Once both are in, the ramp goes up and the crane (the lift ramp's hex and the bolt under it) flashes. Shoot it to
+  complete.
 - Each hit of a Root Lash pushes a container at random, or makes the crane shot once both are in.
 - Single ball, no timer.
 
@@ -292,8 +293,8 @@ of the upper city.
 - While the mode runs, the lit shot's outer ring shows overload instead of Spread roots progress.
 
 **Solarium Atrium: crawling vine.** A vine crawls across the glass dome, and you chase its head.
-- One shot is lit, starting on a random main shot. Every few seconds the lit shot moves to a neighboring shot, and the
-  next one pre-lights dimly. The shot it leaves flashes green as the trail.
+- One shot is lit, starting on a random main shot. Every few seconds the lit shot moves to a neighboring shot. Only the
+  head is lit. The shot it leaves flashes green as the trail.
 - A hit on the head moves the vine on at once, and speeds it up: it moves every 3.5s, 0.35s sooner per hit, down to
   1.5s (start values).
 - Complete: 6 hits. Solarium is the finale, so it's the hardest.
@@ -499,7 +500,8 @@ becoming a punishment.
 - **2-ball.** It takes the mode slot, so it runs between districts. Heartwood can stack on it.
 - **Play:** the lift ramp is up for the whole mode, so the balls feed the upper flipper into the drops: the city's
   foundations. Each drop target is a jackpot, and each bank clear breaks a foundation for a super jackpot. Complete:
-  3 foundations.
+  3 foundations. Only the targets still standing are lit, so a knocked down target goes dark until the bank
+  comes back up.
 - Valued as tier 3: 3M a target times the clears so far plus one, 16M times the clears on each clear, and 225M to
   complete.
 
@@ -600,14 +602,14 @@ Lines in quotes are callouts: **S** is the Steward, **O** is the Oaks. Lines are
 
 ### District modes
 
-#### Meridian Basins — spreading growth, warm white
+#### Meridian Basins — spreading growth, yellow
 
 The hydroponic farms. The forest's seeds take root in the sterile basins and spread from one to the next.
 
 | Phase | LEDs | Sound / callouts | DMD |
 |---|---|---|---|
-| Start | The mode's start scene in warm white, then 2 seeded hexes flash warm white | Air pressure release; S: *"Crop contamination detected."* | Rows of plants fade in |
-| Attention | Flashing hexes are the shots to hit; bloomed hexes are solid green | — | — |
+| Start | The mode's start scene in yellow, then 2 seeded hexes flash yellow | Air pressure release; S: *"Crop contamination detected."* | Rows of plants fade in |
+| Attention | Flashing hexes are the shots to hit; bloomed hexes are dark | — | — |
 | Bloom | Green energy bursts from the shot, and the hexes on either side start flashing | A swell of growth | — |
 | Wither | The last bloomed hex goes back to flashing, and the hexes it spread to go dark | — (TODO) | — |
 | Completion | 7 to 10 bursts all over the playfield | The swell builds; S: *"Meridian Basins uninhabitable."* O: *"Ours."* | Roots wrap the rows of plants |
@@ -618,10 +620,10 @@ The river freight terminal. The forest pushes the city's containers onto the cra
 
 | Phase | LEDs | Sound / callouts | DMD |
 |---|---|---|---|
-| Start | The mode's start scene in orange, then the 2 containers light; the lift ramp goes up | S: stand-in *"Biological contaminant identified."* (TODO) | The gantry crane over the stacked containers (TODO) |
+| Start | The mode's start scene in orange, then the 2 containers light | S: stand-in *"Biological contaminant identified."* (TODO) | The gantry crane over the stacked containers (TODO) |
 | Attention | A container lights its hex center, a stack its whole hex | — | — |
 | Push | The container slides to the next hex, with a short tail; the map shows the pushes | A heavy latch (stand-in for a metal clang) | — |
-| Crane ready | The lift ramp's hex and the bolt under it flash | A motor (stand-in for the crane's whine) | — |
+| Crane ready | The lift ramp goes up, and its hex and the bolt under it flash | A motor (stand-in for the crane's whine) | — |
 | Completion | A white flash and an orange shockwave from the crane, then green spreads over the playfield | O: *"Fall."* (the Steward's line is TODO) | A stack falling (TODO) |
 
 #### Hydro Core — coolant combo, timed, cyan
@@ -680,7 +682,7 @@ The glass dome at the top of the city. A vine crawls across the glass.
 | Phase | LEDs | Sound / callouts | DMD |
 |---|---|---|---|
 | Start | A purple sweep from the top down, then a vine grows from the roots to the first shot | S: *"Atrium integrity: excellent. There is nothing on the glass."* | The dome from below, in clear light |
-| Attention | The vine's head (the lit shot) glows purple with a green trail. The next shot it will move to pre-lights dimly | Slow glass stress groans | The vine's head moves across the dome |
+| Attention | The vine's head (the lit shot) glows purple with a green trail. | Slow glass stress groans | The vine's head moves across the dome |
 | Hit | A white shatter flash radiates from the shot; the vine speeds up | Glass cracking; louder each hit | A crack spreads |
 | Intensity | Cracks build up: white points flicker across the playfield. 75%: GI shifts to a warm purple-white like sunlight through broken glass | Groans become creaks; S stutters: *"There is nothing on the… glass."* | The dome is crazed with cracks |
 | Completion | The dome shatters: a white burst over the whole playfield, then green comes down from the top as a plane sweep | A huge shatter and falling glass. O: *"Open sky."* | The glass falls and the vine fills the frame |

@@ -25,8 +25,8 @@ const SPEEDUP: Duration = Duration::from_millis(350);
 const MIN_INTERVAL: Duration = Duration::from_millis(1500);
 
 /// Crawling vine (DESIGN.md). One main shot is lit as the vine's head, and every few seconds it moves to a neighbor,
-/// never straight back unless it's at the end of the row. Where it goes next is chosen ahead of time and pre-lit dimly.
-/// Hitting the head is a hit, which moves the vine on and speeds it up. A resume keeps the hits.
+/// never straight back unless it's at the end of the row. Only the head is lit, as it's the only shot to hit. Hitting
+/// the head is a hit, which moves the vine on and speeds it up. A resume keeps the hits.
 pub struct SolariumAtriumMode {
   run: ModeRun,
   head: MainShot,
@@ -100,7 +100,6 @@ impl SolariumAtriumMode {
     if self.hits == REQUIRED_HITS {
       self.cancel_move(ctx);
       self.head_scene.stop(ctx);
-      ctx.undeclare_lights(self.next.hex_center(), 0);
       self.run.complete(Self::complete_scene(), ctx);
       return;
     }
@@ -119,7 +118,7 @@ impl SolariumAtriumMode {
     self.move_vine(ctx);
   }
 
-  /// The head moves to the shot that was pre-lit, leaving a fading green trail, and the next one is chosen
+  /// The head moves on to the shot chosen for it, leaving a fading green trail, and the next one is chosen
   fn move_vine(&mut self, ctx: &SystemContext) {
     let from = self.head;
     ctx.play_scene(&flash_scene(from.hex_center(), Rgba::green()));
@@ -129,13 +128,9 @@ impl SolariumAtriumMode {
     self.schedule_move(ctx);
   }
 
-  /// The head glows, and the shot it's moving to next is dimly lit beneath it
+  /// The head glows
   fn render(&mut self, ctx: &SystemContext) {
     self.head_scene.replace_scene(Self::head_scene(self.head), ctx);
-    for shot in MainShot::ALL {
-      ctx.undeclare_lights(shot.hex_center(), 0);
-    }
-    ctx.declare_lights(self.next.hex_center(), 0, MODE_COLOR.mix_with(Rgba::black(), 0.8));
   }
 
   fn schedule_move(&mut self, ctx: &SystemContext) {

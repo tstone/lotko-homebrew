@@ -26,10 +26,10 @@ const PUSHES: u8 = 5;
 /// The z of a container on its hex, the mode attention z
 const CONTAINER_Z: i8 = 10;
 
-/// The river freight terminal (design/city/cargo-quay.md). The lift ramp stays up the whole mode as the crane. Two
-/// containers sit on main shots, and hitting a container's shot pushes it one shot along toward the crane. Containers
-/// pushed onto the same shot stack, and move together from then on. Once both are in, the crane flashes, and hitting it
-/// completes the mode.
+/// The river freight terminal (design/city/cargo-quay.md). The lift ramp is the crane. Two containers sit on main
+/// shots, and hitting a container's shot pushes it one shot along toward the crane. Containers pushed onto the same
+/// shot stack, and move together from then on. Once both are in, the crane flashes and the ramp goes up, and hitting it
+/// completes the mode. The ramp stays down until then, as its coil buzzes while it holds the ramp up.
 pub struct CargoQuayMode {
   run: ModeRun,
   /// Where each container is. One at [`CRANE`] is loaded.
@@ -118,6 +118,7 @@ impl CargoQuayMode {
     ctx.play_scene(&Self::progress_scene(pushes));
     if self.is_loaded() {
       log::info!("CargoQuay: both containers loaded, the crane is ready");
+      self.request_ramp(ctx);
       ctx.play_sfx(sounds::MOTOR1);
     } else {
       ctx.play_sfx(sounds::LATCH_HEAVY1);
@@ -174,14 +175,15 @@ impl System for CargoQuayMode {
 
   fn on_spawn(&mut self, ctx: &SystemContext) {
     log::info!("CargoQuay: started, containers on {:?}", self.containers);
-    self.request_ramp(ctx);
     self.run.begin(ctx);
     self.render(ctx);
   }
 
   fn on_reactivate(&mut self, ctx: &SystemContext) {
     ctx.activate_light_declarations();
-    self.request_ramp(ctx);
+    if self.is_loaded() {
+      self.request_ramp(ctx);
+    }
     self.run.begin(ctx);
   }
 

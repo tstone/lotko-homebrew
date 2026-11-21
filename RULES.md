@@ -41,12 +41,12 @@ choose.
 Each district plays on the six main shots: left orbit, dome ramp, arc ramp, center orbit, lift ramp and right orbit.
 The Steward's announcement at the start tells you what to shoot.
 
-**Meridian Basins — warm white.** Two shots start flashing. Hit a flashing shot to bloom it green, and the growth
+**Meridian Basins — yellow.** Two shots start flashing. Hit a flashing shot to bloom it, and the growth
 spreads to the shots on either side. Bloom all 6. Go 15 seconds without a bloom and the last one withers.
 
-**Cargo Quay — orange.** The lift ramp is up: it's the crane. Two containers sit on shots. Hit a container's shot to
-push it one shot toward the crane, and containers that meet stack and move together. Once both are in, shoot the
-flashing crane.
+**Cargo Quay — orange.** The lift ramp is the crane. Two containers sit on shots. Hit a container's shot to push it
+one shot toward the crane, and containers that meet stack and move together. Once both are in, the ramp goes up:
+shoot the flashing crane.
 
 **Hydro Core — cyan.** Make the combo in order: lift ramp, arc ramp, left orbit, center orbit, dome ramp. Each shot
 after the first has 25 seconds. Run out and the combo starts over, with 5 more seconds each try.
@@ -62,8 +62,8 @@ perfect bonus.
 **Apex Terraces — gold.** One shot is lit. Each hit fills its ring. A full ring bursts the terrace, and the lit shot
 jumps to the far side. Take too long and the ring drains. Terraces need 3, then 4, then 5 hits. Burst 3.
 
-**Solarium Atrium — purple.** The vine's head moves from shot to shot, and the dim shot is where it goes next. Each
-hit speeds it up. Hit it 6 times.
+**Solarium Atrium — purple.** The vine's head, the lit shot, moves from shot to shot. Each hit speeds it
+up. Hit it 6 times.
 
 ### Perks
 

@@ -15,8 +15,8 @@ const MUSIC_FOLDER: &str = "/userdata/home/armsom/music";
 /// The Helix Vaults' growth medium, a neon yellow-green
 const HELIX_VAULTS_COLOR: Rgba<u8> = Rgba([170, 255, 0, 255]);
 
-/// Meridian Basins' grow lights, a warm white. Green is the forest's, which its blooms take.
-const MERIDIAN_BASINS_COLOR: Rgba<u8> = Rgba([255, 190, 120, 255]);
+/// Meridian Basins' grow lights, a yellow between Helix Vaults' yellow-green and Apex's gold
+const MERIDIAN_BASINS_COLOR: Rgba<u8> = Rgba([255, 220, 0, 255]);
 
 /// The Caldera Generator's embers, a deeper orange than Cargo Quay's
 const CALDERA_GENERATOR_COLOR: Rgba<u8> = Rgba([255, 75, 0, 255]);

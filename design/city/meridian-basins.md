@@ -15,8 +15,8 @@ Growth spreading. The forest's seeds take root in the city's basins, and spread 
 
 ## Gameplay
 
-1. At the start, 2 of the 6 main shots are seeded at random. They flash warm white, the farm's grow lights.
-2. Hit a flashing shot and it blooms: green energy bursts from it, and it turns solid green.
+1. At the start, 2 of the 6 main shots are seeded at random. They flash yellow, the farm's grow lights.
+2. Hit a flashing shot and it blooms: green energy bursts from it, and its hex goes dark, as it's done.
 3. A bloom spreads to the shots on either side, which start flashing. The outer orbits only have one neighbor, so the
    middle shots spread further.
 4. Bloom all 6 shots to complete the mode. That's always 6 hits, and there's always a flashing shot until then.
@@ -26,14 +26,14 @@ Growth spreading. The forest's seeds take root in the city's basins, and spread 
 
 Every bloom fills the arc ramp's lights by a sixth, from the left, and a wither takes a sixth back.
 
-A flashing shot is always something to hit, and a solid one is done.
+A flashing shot is always something to hit, and a dark one is either done or not reached yet.
 
 Each hit of a Root Lash blooms a flashing shot at random. A shot made during a spore burst blooms it and another
 flashing shot.
 
 ## Lighting
 
-- **Basins:** a hex flashes warm white when it can be hit, and is solid green once the forest has bloomed it. Both are shot statuses, not
+- **Basins:** a hex flashes yellow when it can be hit, and goes dark once it has bloomed. Both are shot statuses, not
   scenes.
 - **Progress:** the arc ramp's lights fill from the left, a sixth per bloom.
 - **Bloom** (`bloom.scene`): green energy exploding out from the shot.

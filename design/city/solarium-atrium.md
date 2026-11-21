@@ -29,7 +29,7 @@ Clues other places could drop:
 
 ## Gameplay
 
-**Today:** the vine's head moves from shot to shot, and the dim shot is where it goes next. Each hit speeds it up. Hit it 6 times.
+**Today:** the vine's head, the lit shot, moves from shot to shot. Each hit speeds it up. Hit it 6 times.
 
 **Direction:** the outer domes are the side shots. Each cracks in stages, from crazed to shattered. With the outer domes broken, the central dome opens on the dome ramp. Shatter it to free what's inside. The moving vine could still be what cracks the outer domes.
 ## Lighting

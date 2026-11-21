@@ -46,8 +46,8 @@ async fn main() {
       Platform::Virtual
     } else {
       Platform::Neuron {
-        io_net_port_path: "/dev/ttyACM0",
-        exp_port_path: "/dev/ttyACM1",
+        io_net_port_path: "/dev/serial/by-id/usb-FAST_Pinball_Neuron_Controller_E663A0079B4DB637-if00",
+        exp_port_path: "/dev/serial/by-id/usb-FAST_Pinball_Neuron_Controller_E663A0079B4DB637-if02",
         watchdog_interval: Duration::from_millis(1500),
       }
     },

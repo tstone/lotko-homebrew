@@ -92,13 +92,17 @@ async fn main() {
     app.system(credits());
     app.system(CoinDoorSystem::new(coin_door::OPEN_SWITCH.name));
     app.system(SoundLoaderSystem::new());
-    app.system(action_button_attract());
     app.system(attract_mode_leds());
-    app.system(quit_game_combo(vec![
-      &cabinet::LEFT_FLIPPER_SWITCH1,
-      &start_button::SWITCH,
-    ]));
-    app.system(cabinet::double_flip_combo());
+    app.system(Multi::new(
+      "switch combos",
+      vec![
+        quit_game_combo(vec![
+          &cabinet::LEFT_FLIPPER_SWITCH1,
+          &start_button::SWITCH,
+        ]),
+        cabinet::double_flip_combo(),
+      ],
+    ));
 
     // dmd
     app.system(DisplaySystem::new().display(

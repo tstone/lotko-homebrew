@@ -5,7 +5,7 @@ use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::captive_ball::{self, CaptiveBallHit};
 use crate::systems::game::{
-  HeartwoodMultiballMode, ModeManager, Multiball, Perk, heartbeat_scene, points,
+  ModeManager, Multiball, Perk, heartbeat_scene, points,
 };
 use crate::systems::sounds;
 
@@ -81,7 +81,6 @@ impl HeartwoodCharge {
       ctx.play_scene(&completing_scene!(
         "heartwood_multiball/startable_hit.scene"
       ));
-      ctx.systems.spawn(HeartwoodMultiballMode::new());
     }
   }
 }

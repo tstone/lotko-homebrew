@@ -6,8 +6,8 @@ use frontbox_lighting::prelude::*;
 use crate::hardware::city_map;
 use crate::systems::{Callout, sounds};
 use crate::systems::game::{
-  ApexTerracesMode, BlackoutMode, CanopyMode, DerailmentMode, HelixVaultsMode, HydroCoreMode,
-  MeridianBasinsMode, NimbusPromenadeMode, SkyrailStationMode, SolariumAtriumMode,
+  ApexTerracesMode, BlackoutMode, CanopyMode, DerailmentMode, HeartwoodMultiballMode,
+  HelixVaultsMode, HydroCoreMode, MeridianBasinsMode, NimbusPromenadeMode, SkyrailStationMode, SolariumAtriumMode,
 };
 
 const MUSIC_FOLDER: &str = "/userdata/home/armsom/music";
@@ -248,6 +248,17 @@ impl Multiball {
     match self {
       Self::Heartwood => Some(music_file("rezmau5-infraliminal.mp3")),
       Self::Groundswell => Some(music_file("inzo-im-dreaming.mp3")),
+    }
+  }
+
+  /// Starts the multiball's system as a child of the caller, for those that have one so far. It despawns itself when
+  /// the multiball ends.
+  pub fn spawn(&self, ctx: &SystemContext) {
+    match self {
+      Self::Heartwood => {
+        ctx.systems.spawn(HeartwoodMultiballMode::new());
+      }
+      Self::Groundswell => {}
     }
   }
 

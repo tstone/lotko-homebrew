@@ -243,7 +243,9 @@ impl ModeManager {
     }
   }
 
-  /// Take the multiball slot
+  /// Take the multiball slot, and start the multiball's system. It's a child of this system, which is always active,
+  /// rather than of the one that started it: that one may stop being active once a multiball runs, and its children
+  /// with it.
   pub fn take_multiball(
     &mut self,
     multiball: Multiball,
@@ -261,6 +263,7 @@ impl ModeManager {
 
     let ctx = &ctx.for_system(self.handle);
     self.multiball = Some(multiball);
+    multiball.spawn(ctx);
     self.slots_changed(ctx);
     Ok(())
   }

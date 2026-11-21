@@ -94,19 +94,26 @@ impl ModeSelectSystem {
     }
   }
 
+  /// Moves the highlight, and gives the player the full timeout again from here
   fn move_selection(&mut self, ahead: bool, ctx: &SystemContext) {
     if let State::Menu { rows, selected } = &mut self.state {
       *selected = step(*selected, rows.len(), ahead);
       ctx.play_sfx(sounds::COUNTING);
+      if let Some(timer) = self.timeout_timer.take() {
+        ctx.timers.cancel(timer);
+      }
+      let timeout = if rows.len() == 1 { SINGLE_OPTION_TIME } else { MENU_TIMEOUT };
+      self.timeout_timer = Some(ctx.timers.start(MenuTimedOut, timeout.once()));
       self.show_selection(ctx);
     }
   }
 
-  fn choose(&mut self, ctx: &SystemContext) {
+  fn choose(&mut self, by: &str, ctx: &SystemContext) {
     let State::Menu { rows, selected } = &self.state else {
       return;
     };
     let mode = rows[*selected];
+    log::info!("ModeSelect: chose {mode:?} by {by}");
     self.close_menu(ctx);
 
     let started = ctx
@@ -176,17 +183,17 @@ impl ModeSelectSystem {
     let held = |name: &str| ctx.switches.is_closed(name).unwrap_or(false);
 
     if switch.name == action_button::SWITCH.name {
-      self.choose(ctx);
+      self.choose("the action button", ctx);
     } else if switch.name == start_button::SWITCH.name {
       // while players can still join, start is for that
       if ctx.states.is(PlayerEntry::Closed) {
-        self.choose(ctx);
+        self.choose("start", ctx);
       }
     } else if switch.name == left || switch.name == right {
       let other = if switch.name == left { right } else { left };
       if held(other) {
         self.pending_move = None;
-        self.choose(ctx);
+        self.choose("both flippers", ctx);
       } else {
         self.pending_move = Some(switch.name == right);
       }
@@ -216,7 +223,7 @@ impl System for ModeSelectSystem {
       self.open_menu_or_eject(ctx);
     } else if event.is::<MenuTimedOut>() {
       self.timeout_timer = None;
-      self.choose(ctx);
+      self.choose("the timeout", ctx);
     } else if let Some(event) = event.downcast_ref::<SwitchClosed>()
       && matches!(self.state, State::Menu { .. })
     {

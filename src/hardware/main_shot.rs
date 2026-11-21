@@ -1,4 +1,5 @@
 use frontbox_core::prelude::*;
+use frontbox_pinball::{ScoopBallEntered, TurnPhase};
 
 use crate::hardware::arc_ramp::{self, ArcRampHit};
 use crate::hardware::center_orbit::{self, CenterOrbitHit};
@@ -6,6 +7,7 @@ use crate::hardware::dome_ramp::{self, DomeRampHit};
 use crate::hardware::left_orbit::{self, LeftOrbitHit};
 use crate::hardware::lift_ramp::{self, LiftRampHit, LiftRampSystem};
 use crate::hardware::planes;
+use crate::hardware::rear_scoop::Rear;
 use crate::hardware::right_orbit::{self, RightOrbitHit};
 
 /// The six shots with a hex insert, in playfield order.
@@ -97,6 +99,9 @@ impl MainShot {
 }
 
 /// Reports every main shot as one [`MainShotHit`], so that modes don't match on six hit events.
+///
+/// With the lift ramp up, the ball passes under the ramp's opto into the rear scoop, so a ball entering that scoop is
+/// the lift ramp shot.
 pub struct ShotSystem;
 
 impl ShotSystem {
@@ -116,6 +121,11 @@ impl System for ShotSystem {
     } else if event.is::<CenterOrbitHit>() {
       MainShot::CenterOrbit
     } else if event.is::<LiftRampHit>() {
+      MainShot::LiftRamp
+    } else if event.is::<ScoopBallEntered<Rear>>()
+      && ctx.states.is(TurnPhase::Active)
+      && ctx.systems.expect::<LiftRampSystem>().is_lifted()
+    {
       MainShot::LiftRamp
     } else if event.is::<RightOrbitHit>() {
       MainShot::RightOrbit

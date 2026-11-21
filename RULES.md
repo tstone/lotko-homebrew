@@ -41,8 +41,8 @@ choose. A mini-wizard is lit as soon as you reach its step.
 Each district plays on the six main shots: left orbit, dome ramp, arc ramp, center orbit, lift ramp and right orbit.
 The Steward's announcement at the start tells you what to shoot.
 
-**Meridian Basins — orange.** Three neighboring shots are lit, and the window moves right every couple of seconds.
-Hit lit shots 6 times.
+**Meridian Basins — green.** Two shots start flashing. Hit a flashing shot to bloom it, and the growth spreads to the
+shots on either side. Bloom all 6. Go 15 seconds without a bloom and the last one withers.
 
 **Hydro Core — cyan.** Make the combo in order: lift ramp, arc ramp, left orbit, center orbit, dome ramp. Each shot
 after the first has 25 seconds. Run out and the combo starts over, with 5 more seconds each try.
@@ -51,9 +51,9 @@ after the first has 25 seconds. Run out and the combo starts over, with 5 more s
 it again to close it (dark). The Steward blocks walkways for a few seconds, flashing them red first, and a red walkway
 can't be hit. Close 3 walkways.
 
-**Skyrail Station — blue.** The train is 3 lit shots that race back and forth across the main shots, then stop at a
-station at either end for a few seconds. Hit a car while it's stopped to turn it cyan, and again to knock it off. The
-train gets shorter and faster. Knock off all 3 cars to finish.
+**Skyrail Station — blue.** A station flashes, then the train races to it. Hit the station before the train gets there
+for double points, or after for three quarters. Destroy 4 stations to finish, and beat the train to all 4 for a
+perfect bonus.
 
 **Apex Terraces — gold.** One shot is lit. Each hit fills its ring. A full ring bursts the terrace, and the lit shot
 jumps to the far side. Take too long and the ring drains. Terraces need 3, then 4, then 5 hits. Burst 3.

@@ -7,18 +7,12 @@ Scene(
     "p3": Vec2(11.772, 10.203),
     "p4": Vec2(13.5, 14.068),
     "p5": Vec2(18.031, 15.394),
-    "car0_pos": Float(0.0),
-    "car0_color": Color(0, 0, 255, 255),
-    "car0_moving": Bool(false),
-    "car0_stopped": Bool(false),
-    "car1_pos": Float(0.0),
-    "car1_color": Color(0, 0, 255, 255),
-    "car1_moving": Bool(false),
-    "car1_stopped": Bool(false),
-    "car2_pos": Float(0.0),
-    "car2_color": Color(0, 0, 255, 255),
-    "car2_moving": Bool(false),
-    "car2_stopped": Bool(false),
+    "seg0_pos": Float(0.0),
+    "seg1_pos": Float(0.0),
+    "seg2_pos": Float(0.0),
+    "seg3_pos": Float(0.0),
+    "seg4_pos": Float(0.0),
+    "opacity": Float(0.0),
   },
   timing: (
     duration: 0.9,
@@ -30,53 +24,12 @@ Scene(
       z: 11,
       surface: Area("Playfield"),
       layer: (
-        name: Some("car 0 moving"),
-        visible: Variable("car0_moving"),
+        name: Some("tail 4"),
         fill: (
-          base: Solid(Variable("car0_color")),
-        ),
-        region: (
-          transform: [
-            Translate(Sweep(
-              path: (
-                base: Polyline(
-                  points: [
-                    Variable("p0"),
-                    Variable("p1"),
-                    Variable("p2"),
-                    Variable("p3"),
-                    Variable("p4"),
-                    Variable("p5"),
-                  ],
-                ),
-              ),
-              position: Variable("car0_pos"),
-            )),
-          ],
-          base: Circle(
-            radius: Fixed(0.75),
-          ),
-        ),
-      ),
-    ),
-    Lights(
-      lights: Tag("Playfield"),
-      z: 11,
-      surface: Area("Playfield"),
-      layer: (
-        name: Some("car 0 stopped"),
-        visible: Variable("car0_stopped"),
-        fill: (
-          base: Solid(Variable("car0_color")),
+          base: Solid(Fixed(0, 0, 255, 255)),
           adjust: [
-            Opacity(Modulated(
-              envelope: (
-                attack: (curve: SineInOut, reversed: true),
-                decay: (curve: SineInOut),
-              ),
-              spread: Float(0.35, 1.0),
-              rate: 1.0,
-            )),
+            Opacity(Fixed(0.1)),
+            Opacity(Variable("opacity")),
           ],
         ),
         region: (
@@ -94,11 +47,11 @@ Scene(
                   ],
                 ),
               ),
-              position: Variable("car0_pos"),
+              position: Variable("seg4_pos"),
             )),
           ],
           base: Circle(
-            radius: Fixed(0.75),
+            radius: Fixed(0.6),
           ),
         ),
       ),
@@ -108,53 +61,12 @@ Scene(
       z: 11,
       surface: Area("Playfield"),
       layer: (
-        name: Some("car 1 moving"),
-        visible: Variable("car1_moving"),
+        name: Some("tail 3"),
         fill: (
-          base: Solid(Variable("car1_color")),
-        ),
-        region: (
-          transform: [
-            Translate(Sweep(
-              path: (
-                base: Polyline(
-                  points: [
-                    Variable("p0"),
-                    Variable("p1"),
-                    Variable("p2"),
-                    Variable("p3"),
-                    Variable("p4"),
-                    Variable("p5"),
-                  ],
-                ),
-              ),
-              position: Variable("car1_pos"),
-            )),
-          ],
-          base: Circle(
-            radius: Fixed(0.75),
-          ),
-        ),
-      ),
-    ),
-    Lights(
-      lights: Tag("Playfield"),
-      z: 11,
-      surface: Area("Playfield"),
-      layer: (
-        name: Some("car 1 stopped"),
-        visible: Variable("car1_stopped"),
-        fill: (
-          base: Solid(Variable("car1_color")),
+          base: Solid(Fixed(0, 0, 255, 255)),
           adjust: [
-            Opacity(Modulated(
-              envelope: (
-                attack: (curve: SineInOut, reversed: true),
-                decay: (curve: SineInOut),
-              ),
-              spread: Float(0.35, 1.0),
-              rate: 1.0,
-            )),
+            Opacity(Fixed(0.22)),
+            Opacity(Variable("opacity")),
           ],
         ),
         region: (
@@ -172,11 +84,11 @@ Scene(
                   ],
                 ),
               ),
-              position: Variable("car1_pos"),
+              position: Variable("seg3_pos"),
             )),
           ],
           base: Circle(
-            radius: Fixed(0.75),
+            radius: Fixed(0.65),
           ),
         ),
       ),
@@ -186,53 +98,12 @@ Scene(
       z: 11,
       surface: Area("Playfield"),
       layer: (
-        name: Some("car 2 moving"),
-        visible: Variable("car2_moving"),
+        name: Some("tail 2"),
         fill: (
-          base: Solid(Variable("car2_color")),
-        ),
-        region: (
-          transform: [
-            Translate(Sweep(
-              path: (
-                base: Polyline(
-                  points: [
-                    Variable("p0"),
-                    Variable("p1"),
-                    Variable("p2"),
-                    Variable("p3"),
-                    Variable("p4"),
-                    Variable("p5"),
-                  ],
-                ),
-              ),
-              position: Variable("car2_pos"),
-            )),
-          ],
-          base: Circle(
-            radius: Fixed(0.75),
-          ),
-        ),
-      ),
-    ),
-    Lights(
-      lights: Tag("Playfield"),
-      z: 11,
-      surface: Area("Playfield"),
-      layer: (
-        name: Some("car 2 stopped"),
-        visible: Variable("car2_stopped"),
-        fill: (
-          base: Solid(Variable("car2_color")),
+          base: Solid(Fixed(0, 0, 255, 255)),
           adjust: [
-            Opacity(Modulated(
-              envelope: (
-                attack: (curve: SineInOut, reversed: true),
-                decay: (curve: SineInOut),
-              ),
-              spread: Float(0.35, 1.0),
-              rate: 1.0,
-            )),
+            Opacity(Fixed(0.38)),
+            Opacity(Variable("opacity")),
           ],
         ),
         region: (
@@ -250,11 +121,84 @@ Scene(
                   ],
                 ),
               ),
-              position: Variable("car2_pos"),
+              position: Variable("seg2_pos"),
+            )),
+          ],
+          base: Circle(
+            radius: Fixed(0.7),
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 11,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("tail 1"),
+        fill: (
+          base: Solid(Fixed(0, 0, 255, 255)),
+          adjust: [
+            Opacity(Fixed(0.6)),
+            Opacity(Variable("opacity")),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Sweep(
+              path: (
+                base: Polyline(
+                  points: [
+                    Variable("p0"),
+                    Variable("p1"),
+                    Variable("p2"),
+                    Variable("p3"),
+                    Variable("p4"),
+                    Variable("p5"),
+                  ],
+                ),
+              ),
+              position: Variable("seg1_pos"),
             )),
           ],
           base: Circle(
             radius: Fixed(0.75),
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 11,
+      surface: Area("Playfield"),
+      layer: (
+        name: Some("head"),
+        fill: (
+          base: Solid(Fixed(110, 110, 255, 255)),
+          adjust: [
+            Opacity(Variable("opacity")),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Sweep(
+              path: (
+                base: Polyline(
+                  points: [
+                    Variable("p0"),
+                    Variable("p1"),
+                    Variable("p2"),
+                    Variable("p3"),
+                    Variable("p4"),
+                    Variable("p5"),
+                  ],
+                ),
+              ),
+              position: Variable("seg0_pos"),
+            )),
+          ],
+          base: Circle(
+            radius: Fixed(0.85),
           ),
         ),
       ),

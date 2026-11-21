@@ -19,12 +19,12 @@ Scene(
                   curve: Linear,
                 ),
                 (
-                  at: 3.47,
+                  at: 3.71,
                   value: (0.0, 0.26),
                   curve: Linear,
                 ),
                 (
-                  at: 6.29,
+                  at: 6.48,
                   value: (0.0, 0.57),
                   curve: EaseOut,
                 ),
@@ -45,7 +45,7 @@ Scene(
                   curve: Linear,
                 ),
                 (
-                  at: 7.31,
+                  at: 7.53,
                   value: 1.0,
                   curve: Linear,
                 ),
@@ -101,7 +101,7 @@ Scene(
           ],
           base: Text(
             text: Fixed("Last"),
-            font: "SirClive",
+            font: "Webslinger",
             size: Fixed(16.0),
             width: Fixed(128.0),
             height: Fixed(16.0),
@@ -115,8 +115,8 @@ Scene(
                   curve: Linear,
                 ),
                 (
-                  at: 2.0,
-                  value: 15.0,
+                  at: 1.64,
+                  value: 13.0,
                   curve: Linear,
                 ),
               ],
@@ -147,9 +147,14 @@ Scene(
                   curve: Linear,
                 ),
                 (
-                  at: 6.3,
+                  at: 6.89,
                   value: 1.0,
                   curve: Linear,
+                ),
+                (
+                  at: 7.84,
+                  value: 0.0,
+                  curve: EaseInOut,
                 ),
               ],
               cycle: Once,
@@ -159,9 +164,32 @@ Scene(
         region: (
           transform: [
             Translate(Fixed(64.0, 16.0)),
+            Scale(
+              amount: Keyframes(
+                keys: [
+                  (
+                    at: 0.0,
+                    value: 1.0,
+                    curve: Linear,
+                  ),
+                  (
+                    at: 7.17,
+                    value: 1.0,
+                    curve: Linear,
+                  ),
+                  (
+                    at: 8.0,
+                    value: 1.38,
+                    curve: EaseInOut,
+                  ),
+                ],
+                cycle: Once,
+              ),
+              anchor: Fixed(0.0, 0.0),
+            ),
           ],
           base: Text(
-            text: Fixed("Kilmore Oaks"),
+            text: Fixed("Kilmore\nOaks"),
             font: "Webslinger",
             size: Fixed(16.0),
             width: Fixed(128.0),
@@ -169,7 +197,7 @@ Scene(
             align: Center,
             vertical_align: Middle,
             kerning: Fixed(0.0),
-            leading: Fixed(-5.0),
+            leading: Fixed(-3.0),
           ),
         ),
       ),

@@ -51,9 +51,11 @@ The game is built with the default for each. Numbers are kept, as code comments 
 Effects a built feature wants but plays a stand-in for, or nothing. Delete a line once the effect is in.
 
 - [ ] Skyrail: the train rushing past as it moves (stand-in `woosh-light`).
-- [ ] Skyrail: brakes and a chime as it stops at a station (stand-in `latch-double`).
-- [ ] Skyrail: a rail screech and crash for each car knocked off (stand-in `impact-cinematic-heavy`).
-- [ ] Skyrail: crossing bells and station ambience under the mode.
+- [ ] Skyrail: brakes and a chime as it arrives at a station (stand-in `latch-double`).
+- [ ] Skyrail: a rail screech and crash for each station destroyed (stand-in `impact-cinematic-heavy`).
+- [ ] Skyrail: crossing bells while a station is announced, and station ambience under the mode.
+- [ ] Skyrail: a Steward line for a perfect, every station destroyed before the train (stand-in `generic/skyrail-unavailable`).
+- [ ] Meridian: a sound for a bloom withering.
 - [ ] Sentinels: an alarm when they're sent, a drone whine under them, and a sting when they're defeated.
 
 # Charge

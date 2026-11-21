@@ -142,7 +142,12 @@ impl ModeRun {
 
   /// Score a shot in the mode at its step's value, `times` over for a burst or a Root Lash
   pub fn score_hit(&self, times: u8, ctx: &SystemContext) {
-    ctx.add_points(points::mode_hit(self.mode) * times as u64);
+    self.score_hit_percent(times, 100, ctx);
+  }
+
+  /// [`ModeRun::score_hit`] at `percent` of the step's value, for a shot worth more or less than usual
+  pub fn score_hit_percent(&self, times: u8, percent: u64, ctx: &SystemContext) {
+    ctx.add_points(points::mode_hit(self.mode) * times as u64 * percent / 100);
   }
 
   /// The completion phase: the mode ends here, and the takeover plays on without it, so a drain during `scene` can't

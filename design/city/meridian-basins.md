@@ -1,6 +1,7 @@
 # Meridian Basins
 
-**Status:** built, except the DMD animations. Scenes are first drafts to tune by hand.
+**Status:** built as spreading growth, except the DMD animations and a wither sound. Scenes are first drafts to tune by
+hand, and the wither time is a first guess to tune by playing.
 
 ## The place
 
@@ -10,27 +11,35 @@ It sits low by the river, it's wet, and it's made for growing. It's the easiest 
 
 ## Signature
 
-Planting seeds. The forest plants its own seeds in the city's basins, and they burst up through the sterile crops.
+Growth spreading. The forest's seeds take root in the city's basins, and spread from one basin to the next.
 
 ## Gameplay
 
-1. At the start, 4 of the 6 main shots light up green, chosen at random. Each is a basin.
-2. Hit a lit basin once to plant a seed. It starts to flash.
-3. Hit it again and the seed bursts: the area around that shot explodes with green energy, and the shot goes out.
-4. Burst 3 basins to complete the mode. Basins can be worked in any order, so the player can have more than one flashing at a time.
+1. At the start, 2 of the 6 main shots are seeded at random. They flash green.
+2. Hit a flashing shot and it blooms: green energy bursts from it, and it turns solid green.
+3. A bloom spreads to the shots on either side, which start flashing. The outer orbits only have one neighbor, so the
+   middle shots spread further.
+4. Bloom all 6 shots to complete the mode. That's always 6 hits, and there's always a flashing shot until then.
+5. Going 15 seconds without a bloom withers the last one: it goes back to flashing, and the shots it spread to go dark
+   unless another bloom or a seed still lights them. It keeps withering every 15 seconds until there's a bloom, down
+   to the two seeds.
 
-Every hit fills the arc ramp's lights by a sixth, from the left. 3 basins of 2 hits fill it completely, and the mode completes.
+Every bloom fills the arc ramp's lights by a sixth, from the left, and a wither takes a sixth back.
 
-A lit shot is always something to hit: green for a basin to plant, flashing for one to burst.
+A flashing shot is always something to hit, and a solid one is done.
+
+Each hit of a Root Lash blooms a flashing shot at random. A shot made during a spore burst blooms it and another
+flashing shot.
 
 ## Lighting
 
-- **Basins:** a basin's hex is solid green when lit, and flashes green once planted. Both are shot statuses, not scenes.
-- **Progress:** the arc ramp's lights fill from the left, a sixth per hit.
-- **Burst:** a scene of green energy exploding out from the shot.
+- **Basins:** a hex flashes green when it can be hit, and is solid green once bloomed. Both are shot statuses, not
+  scenes.
+- **Progress:** the arc ramp's lights fill from the left, a sixth per bloom.
+- **Bloom** (`bloom.scene`): green energy exploding out from the shot.
 - **Completion:** a scene of 7 to 10 bursts firing all over the playfield, in a wondrous display of green.
 
-No intensity scenes as the mode goes on. The bursts and the arc ramp carry it.
+No intensity scenes as the mode goes on. The blooms and the arc ramp carry it.
 
 ## Sound
 
@@ -39,8 +48,9 @@ The farms have no obvious background sound, so there's no bed under the mode. Th
 **Effects:**
 
 - Start: an air pressure release as the farm's systems react (`sfx/pressure-release-light`).
-- Burst: a short swell of growth, with the burst scene.
-- Completion: the bursts building into one swell, with the completion scene and the DMD animation.
+- Bloom: a short swell of growth, with the bloom scene.
+- Wither: none yet (TODO.md, Sound effects needed).
+- Completion: the blooms building into one swell, with the completion scene and the DMD animation.
 
 **Callouts:** only at the start and the end.
 
@@ -59,14 +69,10 @@ The DMD shows the scores while the mode runs. It only plays an animation at the 
 
 ## To build
 
-- New code for the mode: 4 random basins, 2 hits each, 3 to complete, with progress on the arc ramp.
-- Lit basins green, as a shot status.
-- Planted basins flashing, as a shot status. A status should be either a static color or flashing, and anything more is a scene. If the status API can't flash yet, add it.
-- A scene for a basin bursting.
-- A scene for the completion.
-- Drop the old mode's intensity scene and its progress callouts.
+- A wither sound, and maybe a scene of the bloom draining away.
 - DMD animations for the start (rows of plants fading in) and the completion (roots wrapping the plants), each with its sound.
 
 ## Open questions
 
+- Whether 15 seconds to wither is too harsh or too soft.
 - Whether its multiball companion (today Floodgates) still fits once it's no longer about water channels.

@@ -216,19 +216,22 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
 
 | District | Current | Plan |
 |---|---|---|
-| Meridian Basins | Sweeping window of 3 lit shots | Keep; trim the sweep to the main shots |
+| Meridian Basins | Sweeping window of 3 lit shots | Rework as **spreading growth** (built) |
 | Hydro Core | Timed 5-shot combo | Keep; hexes flash faster as time runs out (TODO) |
 | Nimbus Promenade | Pops (non-exclusive) | Rework as **choke points** |
 | Skyrail Station | Lift ramp and drops in turn, then 2-ball | Rework as **the train** (built) |
 | Apex Terraces | Pop targets + charged center spinner (non-exclusive) | Rework as **overload** |
 | Solarium Atrium | Ramps — too thin | Rework as **crawling vine** |
 
-**Meridian Basins: sweeping basins.** The forest floods the basins one channel at a time, and you ride the current.
-- 3 neighboring shots are lit. Every couple of seconds the window moves one shot to the right, starting at the left
-  orbit. After the far right it wraps back to the left.
-- Hitting a lit shot is a hit. Complete: 6 hits.
-- Today the sweep also passes over the pops and the captive ball. Trim it to the 6 main shots so the pops stay with
-  the side quests.
+**Meridian Basins: spreading growth.** The forest takes root in the farm's basins and spreads from one to the next
+(design/city/meridian-basins.md).
+- 2 main shots are seeded at random, flashing green.
+- Hitting a flashing shot blooms it (solid green), and the growth spreads to the shots on either side, which start
+  flashing. The outer orbits have only one neighbor.
+- 15 seconds without a bloom withers the last one back to flashing, along with the spread it gave, and again every 15
+  seconds after.
+- Each hit of a Root Lash blooms a flashing shot at random.
+- Complete: all 6 shots bloomed.
 
 **Hydro Core: coolant combo.** The forest drinks the core dry, one pipe at a time, before the Steward can reroute.
 - A timed combo: lift ramp → arc ramp → left orbit → center orbit → dome ramp. Each shot has 25s.
@@ -236,16 +239,15 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
 - Complete: make the full combo.
 - Each hit of a Root Lash makes the shot the combo is on.
 
-**Skyrail Station: the train.** The forest knocks the cars off the city's train one at a time
+**Skyrail Station: the train.** The forest destroys the stations before the city's train can reach them
 (design/city/skyrail-station.md).
-- The train is 3 neighboring main shots lit blue, with a brighter front car. It runs back and forth along the shots,
-  too fast to hit, and stops for 5 seconds at a station. Each trip it picks a station at random at the end it's heading
-  to: the left orbit or dome ramp on the left, the lift ramp or right orbit on the right. The front car stops on it.
-- While it's stopped, a car's first hit turns it cyan and the second knocks it off. The train closes up behind its front
-  car, from 3 shots to 2 to 1. Shots made while it's moving don't count.
-- Each car lost makes it move faster. After 20 seconds without a hit the stops get longer, 6 seconds, until the next hit.
-- Each hit of a Root Lash goes to the front car, even while the train is moving.
-- Complete: knock off the last car (6 hits). Single ball, no add-a-ball.
+- A station, any main shot but the last one, flashes blue for 3 seconds as the train is announced. Then the train, a
+  comet with a fading tail, runs along the hexes to it in 3 seconds and fades out, leaving the station lit.
+- Destroying the station before the train gets there is worth double a mode hit, and after, three quarters. Then the
+  next station is announced, and the train leaves from the one just destroyed.
+- Each hit of a Root Lash destroys a station, at the rate it's at.
+- Complete: 4 stations. Destroying all 4 before the train gets there is a perfect, worth half the completion again.
+  Single ball, no add-a-ball.
 
 **Nimbus Promenade: choke points.** The Steward is sealing the walkways between the pavilions to keep the forest out
 of the upper city.
@@ -567,18 +569,17 @@ Lines in quotes are callouts: **S** is the Steward, **O** is the Oaks. Lines are
 
 ### District modes
 
-#### Meridian Basins — sweeping basins, orange
+#### Meridian Basins — spreading growth, green
 
-The canal and reservoir district. The lit window is the current moving through the channels, and the roots break the
-channel walls.
+The hydroponic farms. The forest's seeds take root in the sterile basins and spread from one to the next.
 
 | Phase | LEDs | Sound / callouts | DMD |
 |---|---|---|---|
-| Start | An orange current runs across all the main shots from left to right, then settles into the first window of 3 | S: *"Notice: root intrusion in the Meridian channels. Channel gates are closing."* | Overhead view of the basins with channels traced in orange |
-| Attention | The 3 lit hexes ripple like water flowing right. As the window moves, the shot leaving drains away and the one arriving fills in | Low water hum; a lock gate clunk each time the window moves | The lit channels flow across the basins |
-| Hit | A wave of water from the shot, with green streaks bleeding in. Later hits have more green | A rush of water + concrete cracking; S counts: *"Channel breach. Two of six."* | A crack runs along a channel |
-| Intensity | 25%: GI shimmers like light on water (orange/blue noise). 50%: the shimmer speeds up. 75%: flashers pulse with the water | Distant sirens come in | Water level rises in the basins |
-| Completion | Roots pour in through every channel and spread across the playfield; the Meridian insert turns green | S: *"Meridian Basins… reclassified."* O: *"Ours."* | Channels overflow with green |
+| Start | The mode's start scene in green, then 2 seeded hexes flash | Air pressure release; S: *"Crop contamination detected."* | Rows of plants fade in |
+| Attention | Flashing hexes are the shots to hit; bloomed hexes are solid green | — | — |
+| Bloom | Green energy bursts from the shot, and the hexes on either side start flashing | A swell of growth | — |
+| Wither | The last bloomed hex goes back to flashing, and the hexes it spread to go dark | — (TODO) | — |
+| Completion | 7 to 10 bursts all over the playfield | The swell builds; S: *"Meridian Basins uninhabitable."* O: *"Ours."* | Roots wrap the rows of plants |
 
 #### Hydro Core — coolant combo, timed, cyan
 
@@ -611,11 +612,11 @@ The elevated train hub.
 | Phase | LEDs | Sound / callouts | DMD |
 |---|---|---|---|
 | Start | The mode's start scene in blue | S: *"Skyrail service is suspended. Clear the platform."* | A train pulls into the station |
-| Moving | The cars sweep along the hexes, blue with a brighter front car, easing in and out of stations; the station it's heading to has its ring lit | Train rushing past (stand-in: `woosh-light`) | Departures board: next station and a countdown |
-| Stopped | The cars pulse; the flashers swap like crossing lights, faster as departure nears | Brakes and a chime (stand-in: `latch-double`) | — |
-| Hit | The car turns cyan | `city_hit` | — |
-| Car knocked off | An explosion: flash, shockwave, debris thrown toward the flippers, the wreck smoldering; the flashers spin and skid to a stop | Rail screech and a crash (stand-in: `impact-cinematic-heavy`); S: *"The 5:15 is delayed."* on the first car | A line flips to DELAYED |
-| Completion | The last car stops dead and stutters, derails down the playfield to a crash at the flippers, the hexes close one by one, then green spreads from the roots | S: *"All lines are now closed."* | Every line DELAYED, then roots tear up the track |
+| Announced | The station's hex flashes blue; the flashers swap like crossing lights, faster as departure nears | Crossing bells (TODO) | Departures board: next station and a countdown |
+| Travelling | A comet with a fading tail runs along the hexes to the station, easing in and out | Train rushing past (stand-in: `woosh-light`) | — |
+| Arrived | The comet fades out as its tail catches up; the station's hex is solid blue | Brakes and a chime (stand-in: `latch-double`) | — |
+| Station destroyed | An explosion: flash, shockwave, debris thrown toward the flippers, the wreck smoldering; the flashers spin and skid to a stop | `city_hit`, rail screech and a crash (TODO); S: *"The 5:15 is delayed."* on the first | A line flips to DELAYED |
+| Completion | The last station stops dead and stutters, derails down the playfield to a crash at the flippers, the hexes close one by one, then green spreads from the roots | S: *"Skyrail unavailable."* for a perfect (stand-in), then *"All lines are now closed."* | Every line DELAYED, then roots tear up the track |
 
 #### Apex Terraces — overload, gold
 

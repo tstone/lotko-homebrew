@@ -251,6 +251,14 @@ impl Multiball {
     }
   }
 
+  /// Whether the multiball's track replaces a running mode's. When it doesn't, it plays only when no mode is running.
+  pub fn music_plays_over_modes(&self) -> bool {
+    match self {
+      Self::Heartwood => false,
+      Self::Groundswell => true,
+    }
+  }
+
   /// Starts the multiball's system as a child of the caller, for those that have one so far. It despawns itself when
   /// the multiball ends.
   pub fn spawn(&self, ctx: &SystemContext) {

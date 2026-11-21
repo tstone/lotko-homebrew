@@ -469,6 +469,7 @@ the trough. Counts are read from the trough's occupancy, not kept as running tot
 - Making the arc ramp all the way to the subway twice adds a ball, once a multiball, with S: *"Additional
   deployment."*
 - Cannot stack with Groundswell but can stack with any mode
+- Its track plays only when no mode is running. Over a mode, the mode's music keeps playing.
 
 ## Extra balls and saves
 

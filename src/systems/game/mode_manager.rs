@@ -169,7 +169,8 @@ impl ModeManager {
     }
   }
 
-  /// The color the playfield is lit in, by the same priority as the music. White when nothing is running.
+  /// The color the playfield is lit in: a mini-wizard's, the multiball's, then the district's. White when nothing is
+  /// running.
   pub fn illumination(&self) -> Rgba<u8> {
     match (self.mode, self.multiball) {
       (Some(mode), _) if mode.is_mini_wizard() => mode.color(),
@@ -453,12 +454,14 @@ enum MapPulse {
   Running,
 }
 
-/// The track to play: a mini-wizard's, the multiball's, the district's, and the default for anything without one
+/// The track to play: a mini-wizard's, the multiball's, the district's, and the default for anything without one.
+/// A multiball whose track doesn't play over modes leaves the district's playing.
 fn music_for(mode: Option<Mode>, multiball: Option<Multiball>) -> PathBuf {
   let mini_wizard = mode.filter(Mode::is_mini_wizard);
   let track = match (mini_wizard, multiball, mode) {
     (Some(mini_wizard), _, _) => mini_wizard.music(),
-    (_, Some(multiball), _) => multiball.music(),
+    (_, Some(multiball), None) => multiball.music(),
+    (_, Some(multiball), Some(_)) if multiball.music_plays_over_modes() => multiball.music(),
     (_, _, Some(mode)) => mode.music(),
     _ => None,
   };
@@ -494,10 +497,22 @@ mod tests {
   use super::*;
 
   #[test]
-  fn multiball_music_plays_over_a_district() {
+  fn heartwood_keeps_the_district_music_playing() {
     assert_eq!(
       music_for(Some(Mode::HydroCore), Some(Multiball::Heartwood)),
+      Mode::HydroCore.music().unwrap()
+    );
+    assert_eq!(
+      music_for(None, Some(Multiball::Heartwood)),
       Multiball::Heartwood.music().unwrap()
+    );
+  }
+
+  #[test]
+  fn groundswell_music_plays_over_a_district() {
+    assert_eq!(
+      music_for(Some(Mode::HydroCore), Some(Multiball::Groundswell)),
+      Multiball::Groundswell.music().unwrap()
     );
   }
 

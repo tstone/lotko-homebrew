@@ -11,7 +11,7 @@ use crate::systems::game::{MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, poin
 ///   once the first leaves the scoop, and the ball save is timed from when it's in play.
 /// - It ends when a drain that stands leaves one ball or none (decision 5), unless it keeps going on one ball
 ///   ([`Mode::ends_with_multiball`]). It counts as played, and if it wasn't completed it stays in the menu to resume,
-///   keeping its progress.
+///   keeping its progress. An earned one ([`Mode::is_earned`]) doesn't: it's over, and has to be earned again.
 /// - What it scores is its total, for its high score.
 ///
 /// The mini-wizard's system calls it from the same places as a [`ModeRun`], and scores through [`Self::score`].
@@ -56,6 +56,10 @@ impl MiniWizardRun {
     self.balls_added = false;
     self.eject_id = None;
     self.run.interrupt(ctx);
+    // an earned mode isn't resumed, so the next time it's lit starts fresh
+    if self.mode.is_earned() {
+      ctx.systems.despawn_self();
+    }
   }
 
   pub fn on_event(&mut self, event: &dyn Event, ctx: &SystemContext) {

@@ -136,7 +136,8 @@ one after. The ramp feeds back to the scoop, so keep looping it. Miss one and th
 - **Groundswell.** 2-ball. Spread the roots on all three orbits, over any number of balls, to light it at the left
   scoop: no lit shots needed, and it doesn't close anything on the map. The lift ramp goes up and feeds the upper
   flipper. The drops are the city's foundations: each target is a jackpot, and each bank clear breaks one. Break 3.
-  Each time after, lighting it takes one more spread on every orbit.
+  It plays once each time it's lit, finished or not, and each time after, lighting it takes one more spread on
+  every orbit.
 - **Heartwood.** 2-ball, from a full Heartwood charge. Main shots are jackpots. A jackpot dims once it's hit, scores
   half the next time, then goes out. Every 5th jackpot lights the captive ball as the super jackpot, which relights
   them all. Make the arc ramp to the subway twice to add a ball.

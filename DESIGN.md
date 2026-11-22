@@ -208,7 +208,7 @@ no insert on the city map, which has six.
   A mode only ends by completing it or by draining.
 - **No going back or sideways.** Choosing Meridian closes Cargo Quay for the rest of the game, and so on.
 - **Exception: unfinished modes can be resumed.** A mode that was played but not completed stays in the menu, and
-  resuming it keeps its progress.
+  resuming it keeps its progress. Groundswell isn't resumed: see Multiballs.
 - **Completing a district earns a persistent perk** for the rest of the game (see Perks).
 - **Starting modes:** lit shots (white hex centers) light the left scoop. A shot into the scoop, from the arc ramp or
   the front, opens the mode select menu. Multiball places qualify the same way as districts.
@@ -503,8 +503,8 @@ becoming a punishment.
   rings start over each ball. Each time after, it needs one more spread on every orbit (2 each, then 3). The Steward
   says *"Seismic activity alert."*
 - **Lit at the scoop without qualifying.** It's the first row of the menu, and choosing it neither uses up a qualify
-  nor closes anything on the map. Unfinished, it stays in the menu to resume like any mode. Completed, it can be lit
-  again.
+  nor closes anything on the map. Each lighting plays it once: whether it's completed or ends unfinished, it goes
+  out, and lighting it again takes the roots spread again. It starts fresh each time.
 - **2-ball.** It takes the mode slot, so it runs between districts. Heartwood can stack on it.
 - **Play:** the lift ramp is up for the whole mode, so the balls feed the upper flipper into the drops: the city's
   foundations. Each drop target is a jackpot, and each bank clear breaks a foundation for a super jackpot. Complete:

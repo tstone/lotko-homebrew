@@ -101,6 +101,14 @@ impl Progression {
     }
   }
 
+  /// A mode gave up its slot unfinished. An earned one can't be resumed: it goes back to unlit, to be earned again.
+  /// Anything else waits to be resumed.
+  pub fn end(&mut self, mode: Mode) {
+    if mode.is_earned() {
+      self.states.remove(&mode);
+    }
+  }
+
   /// An earned mode goes back to unlit, to be earned again
   pub fn complete(&mut self, mode: Mode) {
     if mode.is_earned() {
@@ -342,6 +350,20 @@ mod tests {
     assert_eq!(progression.state(Mode::Groundswell), ModeState::Unplayed);
     assert!(progression.light(Mode::Groundswell));
     assert_eq!(progression.state(Mode::Groundswell), ModeState::Available);
+  }
+
+  #[test]
+  fn an_earned_mode_ended_unfinished_is_not_resumed() {
+    let mut progression = Progression::new();
+    progression.light(Mode::Groundswell);
+    progression.start(Mode::Groundswell);
+    progression.end(Mode::Groundswell);
+    assert_eq!(progression.state(Mode::Groundswell), ModeState::Unplayed);
+    assert!(!progression.available_modes(None).contains(&Mode::Groundswell));
+
+    progression.start(Mode::CargoQuay);
+    progression.end(Mode::CargoQuay);
+    assert_eq!(progression.state(Mode::CargoQuay), ModeState::Played);
   }
 
   #[test]

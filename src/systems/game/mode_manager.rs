@@ -235,7 +235,7 @@ impl ModeManager {
     Ok(())
   }
 
-  /// Give up the mode slot, leaving the mode to be resumed
+  /// Give up the mode slot, leaving the mode to be resumed, unless it's earned ([`Mode::is_earned`])
   pub fn end_mode(&mut self, mode: Mode, ctx: &ServiceContext) {
     if self.mode == Some(mode) {
       let ctx = &ctx.for_system(self.handle);
@@ -325,7 +325,9 @@ impl ModeManager {
   }
 
   fn clear_mode(&mut self, ctx: &SystemContext) {
-    self.mode = None;
+    if let Some(mode) = self.mode.take() {
+      self.progression.end(mode);
+    }
     self.slots_changed(ctx);
     self.render_map(ctx);
     ctx.emit(ModeEnded);

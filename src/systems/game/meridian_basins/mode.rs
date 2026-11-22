@@ -18,6 +18,9 @@ const REQUIRED_HITS: u8 = MainShot::ALL.len() as u8;
 /// Time without a bloom before the last one withers
 const WITHER_AFTER: Duration = Duration::from_secs(15);
 
+/// The chance a wither that's due takes the last bloom
+const WITHER_CHANCE: f64 = 0.5;
+
 /// LEDs on the arc ramp, which show the progress
 const ARC_LEDS: usize = 18;
 
@@ -26,7 +29,8 @@ const BASIN_Z: i8 = 10;
 
 /// The hydroponic farms (design/city/meridian-basins.md). Two basins are seeded at random, and they flash. Hitting a
 /// flashing basin blooms it, and the growth spreads to the shots on either side, which start flashing. Blooming all six
-/// completes it. Going 15 seconds without a bloom withers the last one, along with the spread it gave.
+/// completes it. Going 15 seconds without a bloom has an even chance to wither the last one, along with the spread it
+/// gave.
 ///
 /// Every bloom fills a sixth of the arc ramp.
 pub struct MeridianBasinsMode {
@@ -122,12 +126,19 @@ impl MeridianBasinsMode {
     self.render(ctx);
   }
 
-  /// The last bloom goes back to lit, and the shots it spread to go dark unless something else lights them
+  /// Half the time, the last bloom goes back to lit, and the shots it spread to go dark unless something else lights
+  /// them. Otherwise it's spared until the next wither is due.
   fn wither(&mut self, ctx: &SystemContext) {
     self.wither_timer = None;
-    let Some(shot) = self.bloomed.pop() else {
+    let Some(shot) = self.bloomed.last().copied() else {
       return;
     };
+    if !rand::random_bool(WITHER_CHANCE) {
+      log::info!("MeridianBasins: {shot:?} spared from withering");
+      self.restart_wither_timer(ctx);
+      return;
+    }
+    self.bloomed.pop();
     log::info!("MeridianBasins: {shot:?} withered, {} left", self.bloomed.len());
     if !self.bloomed.is_empty() {
       self.restart_wither_timer(ctx);

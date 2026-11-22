@@ -20,9 +20,9 @@ Growth spreading. The forest's seeds take root in the city's basins, and spread 
 3. A bloom spreads to the shots on either side, which start flashing. The outer orbits only have one neighbor, so the
    middle shots spread further.
 4. Bloom all 6 shots to complete the mode. That's always 6 hits, and there's always a flashing shot until then.
-5. Going 15 seconds without a bloom withers the last one: it goes back to flashing, and the shots it spread to go dark
-   unless another bloom or a seed still lights them. It keeps withering every 15 seconds until there's a bloom, down
-   to the two seeds.
+5. Going 15 seconds without a bloom has an even chance to wither the last one: it goes back to flashing, and the
+   shots it spread to go dark unless another bloom or a seed still lights them. If it's spared, it gets another chance
+   15 seconds later. This keeps on until there's a bloom, down to the two seeds.
 
 Every bloom fills the arc ramp's lights by a sixth, from the left, and a wither takes a sixth back.
 

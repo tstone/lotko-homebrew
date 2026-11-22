@@ -241,8 +241,8 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
 - 2 main shots are seeded at random, flashing yellow: the farm's grow lights.
 - Hitting a flashing shot blooms it (it goes dark, as it's done), and the growth spreads to the shots on either side, which start
   flashing. The outer orbits have only one neighbor.
-- 15 seconds without a bloom withers the last one back to flashing, along with the spread it gave, and again every 15
-  seconds after.
+- Every 15 seconds without a bloom, there's an even chance the last one withers back to flashing, along with the
+  spread it gave.
 - Each hit of a Root Lash blooms a flashing shot at random.
 - Complete: all 6 shots bloomed.
 
@@ -252,6 +252,7 @@ orbit) plus the drops. The pops, pop targets and vertical spinner are left to th
   orbit, left orbit and right orbit, or dome ramp and arc ramp.
 - Hitting a container's shot pushes it one shot toward the crane. Containers pushed onto the same shot stack (the
   whole hex lights) and move together.
+- Once a mode, a hit has a 1 in 3 chance to push two shots instead. It's only rolled 2 or more shots from the crane.
 - Once both are in, the ramp goes up and the crane (the lift ramp's hex and the bolt under it) flashes. Shoot it to
   complete.
 - Each hit of a Root Lash pushes a container at random, or makes the crane shot once both are in.

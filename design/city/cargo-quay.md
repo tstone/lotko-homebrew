@@ -20,7 +20,8 @@ The other five main shots are the quay, in a row toward the crane: left orbit, d
    - left orbit and center orbit
    - left orbit and right orbit
    - dome ramp and arc ramp
-2. Hit a container's shot to push it one shot toward the crane.
+2. Hit a container's shot to push it one shot toward the crane. Once a mode, a hit has a 1 in 3 chance to push it two
+   shots instead. It's only rolled 2 or more shots from the crane, so it isn't spent on the last step.
 3. A container pushed onto the other one's shot stacks on it, and from then on one hit pushes both.
 4. Once both are in, the ramp goes up and the crane flashes. Shoot the lift ramp to lift them and complete the mode.
 5. Each hit of a Root Lash pushes a container at random, or makes the crane shot once both are in. A shot during a

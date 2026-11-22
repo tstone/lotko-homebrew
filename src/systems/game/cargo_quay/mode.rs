@@ -23,17 +23,23 @@ const LAYOUTS: [[MainShot; 2]; 3] = [
 /// Pushes to load both containers, whichever layout
 const PUSHES: u8 = 5;
 
+/// The chance a hit pushes a container two shots instead of one, until it happens once
+const JUMP_CHANCE: f64 = 1.0 / 3.0;
+
 /// The z of a container on its hex, the mode attention z
 const CONTAINER_Z: i8 = 10;
 
 /// The river freight terminal (design/city/cargo-quay.md). The lift ramp is the crane. Two containers sit on main
 /// shots, and hitting a container's shot pushes it one shot along toward the crane. Containers pushed onto the same
-/// shot stack, and move together from then on. Once both are in, the crane flashes and the ramp goes up, and hitting it
+/// shot stack, and move together from then on. Once a mode, a hit has a third of a chance to push two shots instead.
+/// Once both are in, the crane flashes and the ramp goes up, and hitting it
 /// completes the mode. The ramp stays down until then, as its coil buzzes while it holds the ramp up.
 pub struct CargoQuayMode {
   run: ModeRun,
   /// Where each container is. One at [`CRANE`] is loaded.
   containers: [MainShot; 2],
+  /// A hit has pushed two shots, which happens once a mode
+  jumped: bool,
 }
 
 impl CargoQuayMode {
@@ -41,6 +47,7 @@ impl CargoQuayMode {
     Self {
       run: ModeRun::new(Mode::CargoQuay, PUSHES + 1),
       containers: *LAYOUTS.choose(&mut rand::rng()).unwrap(),
+      jumped: false,
     }
   }
 
@@ -80,7 +87,13 @@ impl CargoQuayMode {
     if !self.containers.contains(&shot) {
       return;
     }
-    let times = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
+    let mut times = ctx.systems.expect::<SporesSystem>().mode_shot(ctx.into());
+    // only rolled where a jump can move it two, so it isn't spent next to the crane
+    if !self.jumped && distance_to_crane(shot) >= 2 && rand::random_bool(JUMP_CHANCE) {
+      log::info!("CargoQuay: {shot:?} jumps two");
+      self.jumped = true;
+      times += 1;
+    }
     self.push_from(shot, times, ctx);
   }
 

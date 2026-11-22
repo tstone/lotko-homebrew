@@ -61,4 +61,5 @@ Oaks' `oak/fall`. Cargo Quay needs its own Steward lines for both.
 ## Open questions
 
 - Whether 5 pushes plus the crane is the right length for tier 1.
-- Its perk, and its insert on the city map, which has six for seven districts.
+- Its insert on the city map, which has six for seven districts. Its perk is pops charging spores twice as fast,
+  taken from Nimbus Promenade.

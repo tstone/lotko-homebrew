@@ -397,6 +397,10 @@ impl ModeManager {
       // what's under a pulse, which needs nothing there while it's only offered
       let color = match state {
         ModeState::Completed => Rgba::green(),
+        // lost for the game
+        ModeState::Played if self.mode != Some(mode) && self.progression.is_out_of_tries(mode) => {
+          Rgba::default()
+        }
         ModeState::Played => mode.color(),
         _ if self.highlighted == Some(mode) => mode.color(),
         _ => Rgba::default(),

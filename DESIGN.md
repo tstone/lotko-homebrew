@@ -209,6 +209,11 @@ no insert on the city map, which has six.
 - **No going back or sideways.** Choosing Meridian closes Cargo Quay for the rest of the game, and so on.
 - **Exception: unfinished modes can be resumed.** A mode that was played but not completed stays in the menu, and
   resuming it keeps its progress. Groundswell isn't resumed: see Multiballs.
+- **Two tries at each place.** Every start or resume from the menu is a try, and a place gets two: the first and one
+  resume. One given back by the Sentinels doesn't use one. Out of tries, it's lost for the game: it leaves the menu,
+  its map insert goes dark, and its perk can't be had. The route doesn't wait on it, as the next step opened when it
+  was first started. Completing Nimbus Promenade, which everyone plays, gives every place a third try, including
+  ones already lost.
 - **Completing a district earns a persistent perk** for the rest of the game (see Perks).
 - **Starting modes:** lit shots (white hex centers) light the left scoop. A shot into the scoop, from the arc ramp or
   the front, opens the mode select menu. Multiball places qualify the same way as districts.
@@ -307,9 +312,9 @@ Each perk boosts a side quest, so the progression and the side quests feed each 
 | District | Perk |
 |---|---|
 | Meridian | Spread roots grow twice as fast |
-| Cargo Quay | None yet |
+| Cargo Quay | Pops charge spores twice as fast |
 | Hydro | +5s on all mode timers and hurry-ups |
-| Nimbus | Pops charge spores twice as fast |
+| Nimbus | One more try at every place (3 plays, normally 2) |
 | Skyrail | One Sentinel clear lights a lock (normally two) |
 | Apex | Center spinner values ×2 |
 | Solarium | Captive ball hits charge Heartwood twice as fast |

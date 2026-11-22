@@ -300,6 +300,8 @@ pub enum Perk {
   LongerTimers,
   /// Pops charge twice as fast
   FasterPopCharge,
+  /// Every mode on the route gets one more try
+  ExtraTry,
   /// One drop bank clear lights a lock
   QuickLocks,
   /// The center spinner scores double
@@ -314,7 +316,8 @@ impl Perk {
     match self {
       Self::DoubleRoots => Mode::MeridianBasins,
       Self::LongerTimers => Mode::HydroCore,
-      Self::FasterPopCharge => Mode::NimbusPromenade,
+      Self::FasterPopCharge => Mode::CargoQuay,
+      Self::ExtraTry => Mode::NimbusPromenade,
       Self::QuickLocks => Mode::SkyrailStation,
       Self::DoubleCenterSpinner => Mode::ApexTerraces,
       Self::FasterHeartCharge => Mode::SolariumAtrium,

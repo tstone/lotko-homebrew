@@ -8,6 +8,8 @@ use crate::systems::game::{Mode, ModeState, Perk};
 #[derive(Debug, Clone)]
 pub struct Progression {
   states: HashMap<Mode, ModeState>,
+  /// Times each mode on the route has been started or resumed from the menu
+  plays: HashMap<Mode, u8>,
   /// For testing: every mode can be chosen, wherever the route has got to
   all_open: bool,
 }
@@ -16,6 +18,7 @@ impl Progression {
   pub fn new() -> Self {
     let mut progression = Self {
       states: HashMap::new(),
+      plays: HashMap::new(),
       all_open: false,
     };
     progression.open(&[Mode::MeridianBasins, Mode::CargoQuay]);
@@ -56,7 +59,7 @@ impl Progression {
     }
     let with_state = |state| modes().filter(move |mode| self.state(*mode) == state);
     with_state(ModeState::Available)
-      .chain(with_state(ModeState::Played))
+      .chain(with_state(ModeState::Played).filter(|mode| !self.is_out_of_tries(*mode)))
       .collect()
   }
 
@@ -82,6 +85,9 @@ impl Progression {
   /// Mark a mode as started. The first time, that closes the rest of its step and opens the next one. After that it's
   /// being resumed, which changes nothing.
   pub fn start(&mut self, mode: Mode) {
+    if !mode.is_earned() && self.state(mode) != ModeState::Completed {
+      *self.plays.entry(mode).or_default() += 1;
+    }
     // one started off the route is marked played, so it's resumed rather than started again
     if self.all_open && self.state(mode) == ModeState::Unplayed {
       self.states.insert(mode, ModeState::Played);
@@ -107,6 +113,17 @@ impl Progression {
     if mode.is_earned() {
       self.states.remove(&mode);
     }
+  }
+
+  /// Starts and resumes a mode on the route gets: [`TRIES`], and one more with [`Perk::ExtraTry`]
+  pub fn tries(&self) -> u8 {
+    TRIES + self.has_perk(Perk::ExtraTry) as u8
+  }
+
+  /// Played unfinished, with every try used, so it's lost for the game. The perk can give one back.
+  pub fn is_out_of_tries(&self, mode: Mode) -> bool {
+    self.state(mode) == ModeState::Played
+      && self.plays.get(&mode).copied().unwrap_or(0) >= self.tries()
   }
 
   /// An earned mode goes back to unlit, to be earned again
@@ -174,6 +191,9 @@ const ROUTE: [&[Mode]; 6] = [
   // the finale
   &[Mode::SolariumAtrium],
 ];
+
+/// Times a mode on the route can be started or resumed: the first try and one resume
+const TRIES: u8 = 2;
 
 /// Modes lit by play rather than by the route ([`Mode::is_earned`])
 const EARNED: &[Mode] = &[Mode::Groundswell];
@@ -350,6 +370,22 @@ mod tests {
     assert_eq!(progression.state(Mode::Groundswell), ModeState::Unplayed);
     assert!(progression.light(Mode::Groundswell));
     assert_eq!(progression.state(Mode::Groundswell), ModeState::Available);
+  }
+
+  #[test]
+  fn a_mode_can_be_resumed_once_and_nimbus_gives_another_try() {
+    let mut progression = Progression::new();
+    progression.start(Mode::CargoQuay);
+    assert!(progression.available_modes(None).contains(&Mode::CargoQuay));
+    progression.start(Mode::CargoQuay);
+    assert!(progression.is_out_of_tries(Mode::CargoQuay));
+    assert!(!progression.available_modes(None).contains(&Mode::CargoQuay));
+
+    progression.start(Mode::NimbusPromenade);
+    progression.complete(Mode::NimbusPromenade);
+    assert!(!progression.is_out_of_tries(Mode::CargoQuay));
+    progression.start(Mode::CargoQuay);
+    assert!(progression.is_out_of_tries(Mode::CargoQuay));
   }
 
   #[test]

@@ -33,7 +33,7 @@ choose.
 
 - Choosing a place closes the others on that step for the rest of the game.
 - A place ends when you complete it or drain. An unfinished place stays in the menu, and you can resume it with its
-  progress.
+  progress, but only once: a place gets two tries, and then it's lost for the game.
 - **Completing a district** earns a perk for the rest of the game. The multiballs don't have one.
 
 ## Districts
@@ -70,8 +70,9 @@ up. Hit it 6 times.
 | Complete | Perk |
 |---|---|
 | Meridian Basins | Roots spread twice as fast |
+| Cargo Quay | Pops charge spores twice as fast |
 | Hydro Core | +5 seconds on all mode timers |
-| Nimbus Promenade | Pops charge spores twice as fast |
+| Nimbus Promenade | A third try at every place, even ones already lost |
 | Skyrail Station | Every drone downed lights a lock |
 | Apex Terraces | Center spinner values ×2 |
 | Solarium Atrium | Captive ball charges Heartwood twice as fast |

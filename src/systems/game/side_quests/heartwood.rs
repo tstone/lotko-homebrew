@@ -12,7 +12,10 @@ use crate::systems::sounds;
 /// Charge for the first multiball (start value)
 const FIRST_CHARGE: u8 = 4;
 
-/// How much more each multiball after that needs (start value)
+/// Charge for the second multiball, a bigger jump than the ones after (start value)
+const SECOND_CHARGE: u8 = 8;
+
+/// How much more each multiball after the second needs (start value)
 const CHARGE_STEP: u8 = 2;
 
 /// The bolts' beat with no charge, which speeds up to [`FULL_BEAT`]
@@ -20,7 +23,7 @@ const EMPTY_BEAT: Duration = Duration::from_millis(1400);
 const FULL_BEAT: Duration = Duration::from_millis(500);
 
 /// The captive ball charges the heart of the oak (DESIGN.md, Heartwood), and the bolts beat faster as it does. Full
-/// charge starts Heartwood multiball, and each one after needs more. Hits count double with the Solarium perk.
+/// charge starts Heartwood multiball, and each one after needs more: 4, 8, 10, 12, and so on. Hits count double with the Solarium perk.
 ///
 /// Waits while another multiball runs, as Heartwood has the captive ball to itself.
 ///
@@ -76,7 +79,7 @@ impl HeartwoodCharge {
     {
       log::info!("Heartwood: multiball");
       self.charge = 0;
-      self.required += CHARGE_STEP;
+      self.required = next_required(self.required);
       self.beat_scene.replace_scene(Self::beat_scene(0.0), ctx);
       ctx.play_scene(&completing_scene!(
         "heartwood_multiball/startable_hit.scene"
@@ -103,5 +106,30 @@ impl System for HeartwoodCharge {
 
   fn on_tick(&mut self, _delta: Duration, ctx: &SystemContext) {
     self.beat_scene.start(ctx);
+  }
+}
+
+/// The charge the next multiball needs, after one that needed `required`
+fn next_required(required: u8) -> u8 {
+  if required == FIRST_CHARGE {
+    SECOND_CHARGE
+  } else {
+    required.saturating_add(CHARGE_STEP)
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn each_multiball_needs_more_charge_skipping_six() {
+    let mut required = FIRST_CHARGE;
+    let mut seen = vec![required];
+    for _ in 0..3 {
+      required = next_required(required);
+      seen.push(required);
+    }
+    assert_eq!(seen, [4, 8, 10, 12]);
   }
 }

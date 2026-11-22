@@ -102,7 +102,7 @@ These run all the time, alongside the districts.
   drones: points. 15: big points. *(These rewards are left over from the old Sentinels and will
   be revisited.)*
 - **Heartwood — lime.** Hit the captive ball to charge the heart. A full charge starts **Heartwood multiball**. It
-  needs more each time.
+  takes 4 hits, then 8, then 2 more each time.
 - **Spread roots — brown.** Orbits grow roots around that shot's ring. A full ring arms **Root Lash**: press the
   action button during a mode for 2 shots in it. The roots then rest for 50 switch hits. The rings start over each
   ball, and spreading all three orbits in one ball lights an extra ball. Spreading all three over the game lights
@@ -137,8 +137,9 @@ one after. The ramp feeds back to the scoop, so keep looping it. Miss one and th
   scoop: no lit shots needed, and it doesn't close anything on the map. The lift ramp goes up and feeds the upper
   flipper. The drops are the city's foundations: each target is a jackpot, and each bank clear breaks one. Break 3.
   Each time after, lighting it takes one more spread on every orbit.
-- **Heartwood.** 2-ball, from a full Heartwood charge. Main shots are jackpots. Make the arc ramp to the subway twice
-  to add a ball.
+- **Heartwood.** 2-ball, from a full Heartwood charge. Main shots are jackpots. A jackpot dims once it's hit, scores
+  half the next time, then goes out. Every 5th jackpot lights the captive ball as the super jackpot, which relights
+  them all. Make the arc ramp to the subway twice to add a ball.
 
 ## Saves
 

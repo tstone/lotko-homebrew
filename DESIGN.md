@@ -420,8 +420,8 @@ A takeover mode: the city's drones are the drop targets.
 ### Heartwood (captive ball)
 
 - Captive ball hits charge the heart; the bolts show the charge, beating from 1.4s down to 0.5s as it charges.
-- Fully charged starts **Heartwood multiball** (replaces Spore Multiball). It needs more charge each time: 4 hits, then
-  2 more each time.
+- Fully charged starts **Heartwood multiball** (replaces Spore Multiball). It needs more charge each
+  time: 4 hits, then 8, then 2 more each time (10, 12, ...).
 
 ### Spread roots (orbits)
 
@@ -515,7 +515,9 @@ becoming a punishment.
 ### Heartwood multiball
 
 - 2-ball, from the captive ball.
-- Every main shot is a jackpot. Every 5th jackpot lights the captive ball as a super jackpot for 20s.
+- Every main shot is a jackpot. A hit dims that shot, and hitting it again scores half a jackpot and puts it out.
+- Every 5th jackpot lights the captive ball as a super jackpot for 20s. Hitting it lights every jackpot again. With
+  every shot out, the super jackpot stays lit until it's hit.
 - Making the arc ramp all the way to the subway twice adds a ball, once a multiball, with S: *"Additional
   deployment."*
 - Can stack with any mode, multiballs included

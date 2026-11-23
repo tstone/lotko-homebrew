@@ -127,7 +127,6 @@ Scene(
     ),
     Sound(
       sound: "sfx/impact-cinematic-heavy.mp3",
-      volume: Fixed(1.0),
     ),
   ],
 )

@@ -27,11 +27,8 @@ Scene(
                   ],
                   spread: Color(
                     hue: (76.0, 206.0),
-                    brightness: (0.63, 1.0),
-                    alpha: (1.0, 1.0),
                   ),
                   seed: 1813778996,
-                  force_unique: true,
                 ),
               ),
               (
@@ -74,7 +71,6 @@ Scene(
                     y: (0.0, 15.5),
                   ),
                   seed: 190007651,
-                  force_unique: true,
                 )),
                 reach: Fixed(7.0),
                 density: Random(
@@ -87,7 +83,6 @@ Scene(
                   ],
                   spread: Float(10.0, 20.0),
                   seed: 4151935040,
-                  force_unique: true,
                 ),
                 branching: Random(
                   picks: [
@@ -99,7 +94,6 @@ Scene(
                   ],
                   spread: Float(0.28, 0.58),
                   seed: 1282961988,
-                  force_unique: true,
                 ),
                 wander: Random(
                   picks: [
@@ -111,7 +105,6 @@ Scene(
                   ],
                   spread: Float(0.45, 1.61),
                   seed: 1742930201,
-                  force_unique: true,
                 ),
               ),
               speed: Duration(None),

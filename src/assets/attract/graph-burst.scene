@@ -27,11 +27,8 @@ Scene(
                   ],
                   spread: Color(
                     hue: (0.0, 109.0),
-                    brightness: (0.68, 1.0),
-                    alpha: (1.0, 1.0),
                   ),
                   seed: 3394521963,
-                  force_unique: true,
                 ),
               ),
               (
@@ -46,11 +43,8 @@ Scene(
                   ],
                   spread: Color(
                     hue: (163.0, 269.0),
-                    brightness: (0.77, 1.0),
-                    alpha: (1.0, 1.0),
                   ),
                   seed: 4238376293,
-                  force_unique: true,
                 ),
               ),
             ],
@@ -87,7 +81,6 @@ Scene(
                   y: (0.0, 45.0),
                 ),
                 seed: 3107479734,
-                force_unique: true,
               )),
               algorithm: BreadthFirst(
                 wander: Fixed(0.0),

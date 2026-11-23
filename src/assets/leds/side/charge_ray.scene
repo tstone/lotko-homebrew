@@ -39,19 +39,19 @@ Scene(
           base: Gradient(
             stops: [
               (
-                at: 0.0,
+                at: Fixed(0.0),
                 color: Param("color"),
               ),
               (
-                at: 0.16666667,
+                at: Fixed(0.16666667),
                 color: Param("color"),
               ),
               (
-                at: 0.16666667,
+                at: Fixed(0.16666667),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 1.0,
+                at: Fixed(1.0),
                 color: Fixed(0, 0, 0, 0),
               ),
             ],

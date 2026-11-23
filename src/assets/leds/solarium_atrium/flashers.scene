@@ -30,131 +30,131 @@ Scene(
           base: Gradient(
             stops: [
               (
-                at: 0.0,
+                at: Fixed(0.0),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.033333335,
+                at: Fixed(0.033333335),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.033333335,
+                at: Fixed(0.033333335),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.1,
+                at: Fixed(0.1),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.1,
+                at: Fixed(0.1),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.16666667,
+                at: Fixed(0.16666667),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.16666667,
+                at: Fixed(0.16666667),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.23333333,
+                at: Fixed(0.23333333),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.23333333,
+                at: Fixed(0.23333333),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.3,
+                at: Fixed(0.3),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.3,
+                at: Fixed(0.3),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.36666667,
+                at: Fixed(0.36666667),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.36666667,
+                at: Fixed(0.36666667),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.43333334,
+                at: Fixed(0.43333334),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.43333334,
+                at: Fixed(0.43333334),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.5,
+                at: Fixed(0.5),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.5,
+                at: Fixed(0.5),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.56666666,
+                at: Fixed(0.56666666),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.56666666,
+                at: Fixed(0.56666666),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.6333333,
+                at: Fixed(0.6333333),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.6333333,
+                at: Fixed(0.6333333),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.7,
+                at: Fixed(0.7),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.7,
+                at: Fixed(0.7),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.76666665,
+                at: Fixed(0.76666665),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.76666665,
+                at: Fixed(0.76666665),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.8333333,
+                at: Fixed(0.8333333),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.8333333,
+                at: Fixed(0.8333333),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.9,
+                at: Fixed(0.9),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 0.9,
+                at: Fixed(0.9),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.96666664,
+                at: Fixed(0.96666664),
                 color: Fixed(127, 0, 210, 255),
               ),
               (
-                at: 0.96666664,
+                at: Fixed(0.96666664),
                 color: Fixed(0, 0, 0, 0),
               ),
               (
-                at: 1.0,
+                at: Fixed(1.0),
                 color: Fixed(0, 0, 0, 0),
               ),
             ],

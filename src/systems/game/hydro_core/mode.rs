@@ -232,3 +232,14 @@ impl System for HydroCoreMode {
 
 #[derive(serde::Serialize, Event)]
 struct ComboTimeUp;
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn the_scenes_load() {
+    HydroCoreMode::new();
+    HydroCoreMode::progress_scene(Duration::from_secs(1));
+  }
+}

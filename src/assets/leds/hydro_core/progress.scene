@@ -42,31 +42,53 @@ Scene(
             style: Linear,
           ),
         ),
-        mask: (
-          fill: (
-            base: Solid(Fixed(255, 255, 255, 255)),
-          ),
-          region: (
-            base: Rect(
-              width: Keyframes(
-                keys: [
-                  (
-                    at: 0.0,
-                    value: 2.07,
-                    curve: Linear,
-                  ),
-                  (
-                    at: 1.0,
-                    value: 0.0,
-                    curve: Linear,
-                  ),
-                ],
-                cycle: Once,
-              ),
-              height: Fixed(1.0),
+      ),
+    ),
+    Lights(
+      lights: Names([
+        "___child::spore_count::15",
+        "___child::spore_count::14",
+        "___child::spore_count::13",
+        "___child::spore_count::12",
+        "___child::spore_count::11",
+        "___child::spore_count::10",
+        "___child::spore_count::9",
+        "___child::spore_count::8",
+        "___child::spore_count::7",
+        "___child::spore_count::6",
+        "___child::spore_count::5",
+        "___child::spore_count::4",
+        "___child::spore_count::3",
+        "___child::spore_count::2",
+        "___child::spore_count::1",
+        "___child::spore_count::0",
+      ]),
+      surface: Sequence,
+      layer: (
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+        ),
+        region: (
+          base: Rect(
+            width: Keyframes(
+              keys: [
+                (
+                  at: 0.0,
+                  value: 2.07,
+                  curve: Linear,
+                ),
+                (
+                  at: 1.0,
+                  value: 0.0,
+                  curve: Linear,
+                ),
+              ],
+              cycle: Once,
             ),
+            height: Fixed(1.0),
           ),
         ),
+        mask: true,
       ),
     ),
   ],

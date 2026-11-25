@@ -24,6 +24,30 @@ Scene(
       z: 11,
       surface: Area("Playfield"),
       layer: (
+        name: Some("track"),
+        visible: Fixed(false),
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+        ),
+        region: (
+          base: Polyline(
+            points: [
+              Variable("p0"),
+              Variable("p1"),
+              Variable("p2"),
+              Variable("p3"),
+              Variable("p4"),
+              Variable("p5"),
+            ],
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 11,
+      surface: Area("Playfield"),
+      layer: (
         name: Some("tail 4"),
         fill: (
           base: Solid(Fixed(0, 0, 255, 255)),
@@ -35,18 +59,7 @@ Scene(
         region: (
           transform: [
             Translate(Sweep(
-              path: (
-                base: Polyline(
-                  points: [
-                    Variable("p0"),
-                    Variable("p1"),
-                    Variable("p2"),
-                    Variable("p3"),
-                    Variable("p4"),
-                    Variable("p5"),
-                  ],
-                ),
-              ),
+              layer: "track",
               position: Variable("seg4_pos"),
             )),
           ],
@@ -72,18 +85,7 @@ Scene(
         region: (
           transform: [
             Translate(Sweep(
-              path: (
-                base: Polyline(
-                  points: [
-                    Variable("p0"),
-                    Variable("p1"),
-                    Variable("p2"),
-                    Variable("p3"),
-                    Variable("p4"),
-                    Variable("p5"),
-                  ],
-                ),
-              ),
+              layer: "track",
               position: Variable("seg3_pos"),
             )),
           ],
@@ -109,18 +111,7 @@ Scene(
         region: (
           transform: [
             Translate(Sweep(
-              path: (
-                base: Polyline(
-                  points: [
-                    Variable("p0"),
-                    Variable("p1"),
-                    Variable("p2"),
-                    Variable("p3"),
-                    Variable("p4"),
-                    Variable("p5"),
-                  ],
-                ),
-              ),
+              layer: "track",
               position: Variable("seg2_pos"),
             )),
           ],
@@ -146,18 +137,7 @@ Scene(
         region: (
           transform: [
             Translate(Sweep(
-              path: (
-                base: Polyline(
-                  points: [
-                    Variable("p0"),
-                    Variable("p1"),
-                    Variable("p2"),
-                    Variable("p3"),
-                    Variable("p4"),
-                    Variable("p5"),
-                  ],
-                ),
-              ),
+              layer: "track",
               position: Variable("seg1_pos"),
             )),
           ],
@@ -182,18 +162,7 @@ Scene(
         region: (
           transform: [
             Translate(Sweep(
-              path: (
-                base: Polyline(
-                  points: [
-                    Variable("p0"),
-                    Variable("p1"),
-                    Variable("p2"),
-                    Variable("p3"),
-                    Variable("p4"),
-                    Variable("p5"),
-                  ],
-                ),
-              ),
+              layer: "track",
               position: Variable("seg0_pos"),
             )),
           ],

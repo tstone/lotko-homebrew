@@ -14,6 +14,26 @@ Scene(
       z: 11,
       surface: Area("Playfield"),
       layer: (
+        name: Some("track"),
+        visible: Fixed(false),
+        fill: (
+          base: Solid(Fixed(255, 255, 255, 255)),
+        ),
+        region: (
+          base: Polyline(
+            points: [
+              Variable("from"),
+              Variable("to"),
+            ],
+          ),
+        ),
+      ),
+    ),
+    Lights(
+      lights: Tag("Playfield"),
+      z: 11,
+      surface: Area("Playfield"),
+      layer: (
         name: Some("tail"),
         fill: (
           base: Solid(Fixed(255, 90, 0, 255)),
@@ -32,14 +52,7 @@ Scene(
         region: (
           transform: [
             Translate(Sweep(
-              path: (
-                base: Polyline(
-                  points: [
-                    Variable("from"),
-                    Variable("to"),
-                  ],
-                ),
-              ),
+              layer: "track",
               position: Keyframes(
                 keys: [
                   (at: 0.0, value: 0.0),
@@ -78,14 +91,7 @@ Scene(
         region: (
           transform: [
             Translate(Sweep(
-              path: (
-                base: Polyline(
-                  points: [
-                    Variable("from"),
-                    Variable("to"),
-                  ],
-                ),
-              ),
+              layer: "track",
               position: Keyframes(
                 keys: [
                   (at: 0.0, value: 0.0),

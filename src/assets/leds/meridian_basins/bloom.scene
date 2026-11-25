@@ -14,24 +14,7 @@ Scene(
       surface: Area("Playfield"),
       layer: (
         fill: (
-          base: Solid(Fixed(80, 255, 40, 255)),
-          adjust: [
-            Opacity(Keyframes(
-              keys: [
-                (
-                  at: 0.0,
-                  value: 1.0,
-                  curve: Linear,
-                ),
-                (
-                  at: 0.8,
-                  value: 0.0,
-                  curve: EaseIn,
-                ),
-              ],
-              cycle: Once,
-            )),
-          ],
+          base: Solid(Fixed(0, 0, 0, 0)),
         ),
         region: (
           transform: [
@@ -58,6 +41,26 @@ Scene(
             Stroke(
               width: Fixed(1.5),
               align: Inside,
+              fill: (
+                base: Solid(Fixed(80, 255, 40, 255)),
+                adjust: [
+                  Opacity(Keyframes(
+                    keys: [
+                      (
+                        at: 0.0,
+                        value: 1.0,
+                        curve: Linear,
+                      ),
+                      (
+                        at: 0.8,
+                        value: 0.0,
+                        curve: EaseIn,
+                      ),
+                    ],
+                    cycle: Once,
+                  )),
+                ],
+              ),
             ),
           ],
         ),

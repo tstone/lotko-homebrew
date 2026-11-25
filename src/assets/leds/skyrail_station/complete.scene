@@ -293,18 +293,7 @@ Scene(
       layer: (
         name: Some("crash shockwave"),
         fill: (
-          base: Solid(Fixed(255, 200, 80, 255)),
-          adjust: [
-            Opacity(Keyframes(
-              keys: [
-                (at: 0.0, value: 0.0),
-                (at: 1.4, value: 0.0),
-                (at: 1.42, value: 1.0),
-                (at: 2.8, value: 0.0, curve: EaseIn),
-              ],
-              cycle: Once,
-            )),
-          ],
+          base: Solid(Fixed(0, 0, 0, 0)),
         ),
         region: (
           transform: [
@@ -323,6 +312,20 @@ Scene(
             Stroke(
               width: Fixed(2.0),
               align: Inside,
+              fill: (
+                base: Solid(Fixed(255, 200, 80, 255)),
+                adjust: [
+                  Opacity(Keyframes(
+                    keys: [
+                      (at: 0.0, value: 0.0),
+                      (at: 1.4, value: 0.0),
+                      (at: 1.42, value: 1.0),
+                      (at: 2.8, value: 0.0, curve: EaseIn),
+                    ],
+                    cycle: Once,
+                  )),
+                ],
+              ),
             ),
           ],
         ),

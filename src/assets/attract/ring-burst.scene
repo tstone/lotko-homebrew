@@ -10,19 +10,7 @@ Scene(
       surface: Area("Playfield"),
       layer: (
         fill: (
-          base: Gradient(
-            stops: [
-              (
-                at: Fixed(0.0),
-                color: Fixed(0, 255, 255, 255),
-              ),
-              (
-                at: Fixed(1.0),
-                color: Fixed(255, 212, 0, 255),
-              ),
-            ],
-            style: Conical,
-          ),
+          base: Solid(Fixed(0, 0, 0, 0)),
         ),
         region: (
           transform: [
@@ -55,6 +43,21 @@ Scene(
             Stroke(
               width: Fixed(1.316),
               align: Outside,
+              fill: (
+                base: Gradient(
+                  stops: [
+                    (
+                      at: Fixed(0.0),
+                      color: Fixed(0, 255, 255, 255),
+                    ),
+                    (
+                      at: Fixed(1.0),
+                      color: Fixed(255, 212, 0, 255),
+                    ),
+                  ],
+                  style: Conical,
+                ),
+              ),
             ),
           ],
         ),

@@ -51,7 +51,11 @@ impl ModeRun {
   /// The start phase: the ball waits in the scoop through the intro and the Steward's announcement. A district the
   /// Sentinels give back skips it, picking up in play where it left off.
   pub fn begin(&mut self, ctx: &SystemContext) {
-    if ctx.systems.expect::<ModeManager>().take_returning(self.mode) {
+    if ctx
+      .systems
+      .expect::<ModeManager>()
+      .take_returning(self.mode)
+    {
       log::info!("ModeRun: {:?} picks up again in play", self.mode);
       return;
     }

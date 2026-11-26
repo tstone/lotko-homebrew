@@ -133,7 +133,9 @@ impl ApexTerracesMode {
 
   fn move_to(&mut self, shot: MainShot, ctx: &SystemContext) {
     self.shot = shot;
-    self.center_scene.replace_scene(Self::center_scene(shot), ctx);
+    self
+      .center_scene
+      .replace_scene(Self::center_scene(shot), ctx);
     self.render_ring(ctx);
   }
 

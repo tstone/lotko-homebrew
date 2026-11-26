@@ -101,7 +101,10 @@ impl OutlaneSaveSystem {
     if let Some((_, timer)) = self.recent.take() {
       ctx.timers.cancel(timer);
     }
-    self.recent = Some((side, ctx.timers.start(OutlaneDrainOver, OUTLANE_DRAIN.once())));
+    self.recent = Some((
+      side,
+      ctx.timers.start(OutlaneDrainOver, OUTLANE_DRAIN.once()),
+    ));
   }
 
   fn on_pass_lane(&mut self, ctx: &SystemContext) {

@@ -4,11 +4,12 @@ use frontbox_core::prelude::*;
 use frontbox_lighting::prelude::*;
 
 use crate::hardware::city_map;
-use crate::systems::{Callout, sounds};
 use crate::systems::game::{
-  ApexTerracesMode, CalderaGeneratorMode, CargoQuayMode, HalcyonVentsMode, GroundswellMode, HeartwoodMultiballMode,
-  HelixVaultsMode, HydroCoreMode, MeridianBasinsMode, NimbusPromenadeMode, SkyrailStationMode, SolariumAtriumMode,
+  ApexTerracesMode, CalderaGeneratorMode, CargoQuayMode, GroundswellMode, HalcyonVentsMode,
+  HeartwoodMultiballMode, HelixVaultsMode, HydroCoreMode, MeridianBasinsMode, NimbusPromenadeMode,
+  SkyrailStationMode, SolariumAtriumMode,
 };
+use crate::systems::{Callout, sounds};
 
 const MUSIC_FOLDER: &str = "/userdata/home/armsom/music";
 
@@ -107,7 +108,6 @@ impl Mode {
   pub fn uses_drops_or_balls(&self) -> bool {
     self.is_mini_wizard()
   }
-
 
   /// The step on the route it's on (DESIGN.md, Primary progression), from 1, which sets what it's worth
   pub fn step(&self) -> u8 {

@@ -6,9 +6,7 @@ use frontbox_sound::SoundSystemExt;
 use crate::hardware::drop_bank::{self, DropBankCleared, DropBankSystem, DropBankTargetHit};
 use crate::hardware::lift_ramp::LiftRampSystem;
 use crate::systems::game::side_quests::{LockLit, SentinelsDispatched};
-use crate::systems::game::{
-  ModeManager, Perk, flash_scene, points,
-};
+use crate::systems::game::{ModeManager, Perk, flash_scene, points};
 use crate::systems::{Callout, SayExt, sounds};
 
 /// The city's drones are the drop targets (DESIGN.md, Sentinels). Surveillance dispatches them
@@ -69,8 +67,14 @@ impl SentinelsSystem {
     ctx.say(Callout::SentinelsDeployed);
     ctx.play_sfx(sounds::SCAN_HEAVY_STUTTER);
     // every drone starts with the whole bank up
-    if targets().iter().any(|(_, switch)| ctx.switches.is_closed(switch).unwrap_or(false)) {
-      ctx.systems.expect::<DropBankSystem>().raise_targets(ctx.into());
+    if targets()
+      .iter()
+      .any(|(_, switch)| ctx.switches.is_closed(switch).unwrap_or(false))
+    {
+      ctx
+        .systems
+        .expect::<DropBankSystem>()
+        .raise_targets(ctx.into());
     }
     self.render(ctx);
   }
@@ -78,7 +82,11 @@ impl SentinelsSystem {
   fn drone_down(&mut self, ctx: &SystemContext) {
     self.drones += 1;
     self.remaining = self.remaining.saturating_sub(1);
-    log::info!("Sentinels: {} drones down, {} to go", self.drones, self.remaining);
+    log::info!(
+      "Sentinels: {} drones down, {} to go",
+      self.drones,
+      self.remaining
+    );
     ctx.add_points(points::DRONE_DOWN);
     ctx.play_sfx(sounds::IMPACT_DIRT);
     match self.drones {
@@ -128,7 +136,10 @@ impl SentinelsSystem {
     log::info!("Sentinels: defeated");
     self.running = false;
     self.end_takeover(ctx);
-    ctx.systems.expect::<ModeManager>().end_sentinels(ctx.into());
+    ctx
+      .systems
+      .expect::<ModeManager>()
+      .end_sentinels(ctx.into());
     self.render(ctx);
   }
 
@@ -178,7 +189,10 @@ impl System for SentinelsSystem {
   /// The turn ended, which ends the Sentinels. The dispatch still counts toward the next one's drones.
   fn on_deactivate(&mut self, ctx: &SystemContext) {
     if self.running {
-      log::info!("Sentinels: the ball ended with {} drones still up", self.remaining);
+      log::info!(
+        "Sentinels: the ball ended with {} drones still up",
+        self.remaining
+      );
       self.running = false;
       self.remaining = 0;
       self.end_takeover(ctx);

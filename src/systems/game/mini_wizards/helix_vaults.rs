@@ -60,7 +60,12 @@ impl HelixVaultsMode {
   }
 
   fn vat_scene(lit: usize) -> PlayableScene {
-    fill_scene(&arc_ramp::SUBWAY_LEDS.q(), SUBWAY_LEDS, lit, Mode::HelixVaults.color())
+    fill_scene(
+      &arc_ramp::SUBWAY_LEDS.q(),
+      SUBWAY_LEDS,
+      lit,
+      Mode::HelixVaults.color(),
+    )
   }
 
   /// A blob of goo from the vat to the shot
@@ -101,7 +106,10 @@ impl HelixVaultsMode {
       return;
     }
     self.drained += 1;
-    log::info!("HelixVaults: drained {} of {DRAIN_PER_RUPTURE}", self.drained);
+    log::info!(
+      "HelixVaults: drained {} of {DRAIN_PER_RUPTURE}",
+      self.drained
+    );
     self.wizard.score(points::HELIX_DRAIN, ctx);
     self.wizard.progress(self.total_drained());
     ctx.play_scene(&Self::discharge_scene(shot));
@@ -124,7 +132,9 @@ impl HelixVaultsMode {
   fn rupture(&mut self, shot: MainShot, ctx: &SystemContext) {
     self.ruptures += 1;
     log::info!("HelixVaults: rupture {}", self.ruptures);
-    self.wizard.score(points::HELIX_RUPTURE * self.ruptures as u64, ctx);
+    self
+      .wizard
+      .score(points::HELIX_RUPTURE * self.ruptures as u64, ctx);
 
     self.drained = 0;
     self.lit_ramp = None;

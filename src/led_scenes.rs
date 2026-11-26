@@ -36,7 +36,11 @@ macro_rules! load {
 
 pub(crate) use load;
 
-pub fn scene(path: &str, loaded: Result<Scene, FormatError>, leds: Option<LightQ>) -> PlayableScene {
+pub fn scene(
+  path: &str,
+  loaded: Result<Scene, FormatError>,
+  leds: Option<LightQ>,
+) -> PlayableScene {
   let scene = PlayableScene::new(loaded.unwrap_or_else(|e| panic!("{path}: {e}")));
   match leds {
     Some(leds) => scene

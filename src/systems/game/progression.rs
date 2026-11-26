@@ -172,7 +172,10 @@ impl Progression {
   }
 
   fn next_step(&self, step: usize) -> Vec<Mode> {
-    ROUTE.get(step + 1).map(|next| next.to_vec()).unwrap_or_default()
+    ROUTE
+      .get(step + 1)
+      .map(|next| next.to_vec())
+      .unwrap_or_default()
   }
 }
 
@@ -354,7 +357,10 @@ mod tests {
 
     progression.start(Mode::Groundswell);
     assert!(progression.lit_earned_modes().is_empty());
-    assert_eq!(progression.state(Mode::MeridianBasins), ModeState::Available);
+    assert_eq!(
+      progression.state(Mode::MeridianBasins),
+      ModeState::Available
+    );
     assert_eq!(progression.state(Mode::CargoQuay), ModeState::Available);
   }
 
@@ -395,7 +401,11 @@ mod tests {
     progression.start(Mode::Groundswell);
     progression.end(Mode::Groundswell);
     assert_eq!(progression.state(Mode::Groundswell), ModeState::Unplayed);
-    assert!(!progression.available_modes(None).contains(&Mode::Groundswell));
+    assert!(
+      !progression
+        .available_modes(None)
+        .contains(&Mode::Groundswell)
+    );
 
     progression.start(Mode::CargoQuay);
     progression.end(Mode::CargoQuay);

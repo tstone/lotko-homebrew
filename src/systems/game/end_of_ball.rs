@@ -1,7 +1,8 @@
 use frontbox_core::prelude::*;
 use frontbox_display::{InitialsEntered, InitialsEntrySystem};
 use frontbox_pinball::{
-  GameEndReason, GameEnding, GameManagerExt, HighScoreSlot, HighScoresSystem, TurnEndReason, TurnEnding,
+  GameEndReason, GameEnding, GameManagerExt, HighScoreSlot, HighScoresSystem, TurnEndReason,
+  TurnEnding,
 };
 use frontbox_sound::SoundSystem;
 
@@ -93,7 +94,9 @@ impl System for EndOfBallSystem {
         ctx.say(Callout::GrowthContained);
       }
       // insert a slice delay to let hardware settle and final points come in
-      ctx.timers.start(Continue, Duration::from_millis(500).once());
+      ctx
+        .timers
+        .start(Continue, Duration::from_millis(500).once());
     } else if let Some(GameEnding { scores, reason }) = routine.downcast_ref::<GameEnding>() {
       // the forest promises to be back once it has taken enough of the city, as the last player to play left it. Their
       // `ModeManager` is in their group, which this system (at the top level) has to name to reach.

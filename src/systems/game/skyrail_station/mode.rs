@@ -120,18 +120,28 @@ impl SkyrailStationMode {
 
   /// Sends the train from the last station to this one, each tail segment a little behind the one before
   fn depart(&mut self, ctx: &SystemContext) {
-    log::info!("Skyrail: the train leaves {:?} for {:?}", self.from, self.station);
+    log::info!(
+      "Skyrail: the train leaves {:?} for {:?}",
+      self.from,
+      self.station
+    );
     self.phase = Phase::Travelling;
     self.stop_crossing(ctx);
     ctx.play_sfx(sounds::WOOSH_LIGHT);
     self.train_scene.set_variable("opacity", 1.0, ctx);
     for segment in 0..SEGMENTS {
       let name = segment_variable(segment);
-      self.train_scene.set_variable(&name, self.path[self.from as usize], ctx);
-      let duration = TRAVEL + TAIL_LAG * segment as u32;
       self
         .train_scene
-        .ease_variable(name, self.path[self.station as usize], duration, Curve::EaseInOut, ctx);
+        .set_variable(&name, self.path[self.from as usize], ctx);
+      let duration = TRAVEL + TAIL_LAG * segment as u32;
+      self.train_scene.ease_variable(
+        name,
+        self.path[self.station as usize],
+        duration,
+        Curve::EaseInOut,
+        ctx,
+      );
     }
     self.timer = Some(ctx.timers.start(ArrivalDue, TRAVEL.once()));
   }
@@ -174,7 +184,11 @@ impl SkyrailStationMode {
     self.destroyed += 1;
     log::info!(
       "Skyrail: destroyed {station:?} {}, {} of {STATIONS}",
-      if early { "before the train" } else { "after the train" },
+      if early {
+        "before the train"
+      } else {
+        "after the train"
+      },
       self.destroyed
     );
 
@@ -310,7 +324,10 @@ struct ArrivalDue;
 
 /// Any main shot but the one the train is leaving from
 fn next_station(from: MainShot) -> MainShot {
-  let others: Vec<_> = MainShot::ALL.into_iter().filter(|shot| *shot != from).collect();
+  let others: Vec<_> = MainShot::ALL
+    .into_iter()
+    .filter(|shot| *shot != from)
+    .collect();
   *others.choose(&mut rand::rng()).unwrap()
 }
 

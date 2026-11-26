@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
-use frontbox_pinball::tags::*;
 use frontbox_pinball::TroughSystem;
+use frontbox_pinball::tags::*;
 
 use crate::hardware::{more_tags::*, planes};
 

@@ -79,7 +79,10 @@ impl GroundswellMode {
 
   fn cleared(&mut self, ctx: &SystemContext) {
     self.clears += 1;
-    log::info!("Groundswell: foundation broken, {} of {CLEARS}", self.clears);
+    log::info!(
+      "Groundswell: foundation broken, {} of {CLEARS}",
+      self.clears
+    );
     self
       .wizard
       .score(points::GROUNDSWELL_SUPER_JACKPOT * self.clears as u64, ctx);

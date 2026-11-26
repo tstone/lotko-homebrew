@@ -101,7 +101,7 @@ Scene(
           ],
           base: Text(
             text: Fixed("Last"),
-            font: "Webslinger",
+            font: "frontbox/fonts/Webslinger.ttf",
             size: Fixed(16.0),
             width: Fixed(128.0),
             height: Fixed(16.0),
@@ -190,7 +190,7 @@ Scene(
           ],
           base: Text(
             text: Fixed("Kilmore\nOaks"),
-            font: "Webslinger",
+            font: "frontbox/fonts/Webslinger.ttf",
             size: Fixed(16.0),
             width: Fixed(128.0),
             height: Fixed(26.0),
@@ -247,7 +247,7 @@ Scene(
           ],
           base: Text(
             text: Fixed("of the"),
-            font: "Minimal4",
+            font: "frontbox/fonts/Minimal4.ttf",
             size: Fixed(16.0),
             width: Fixed(128.0),
             height: Fixed(16.0),

@@ -189,7 +189,10 @@ impl NimbusPromenadeMode {
       return;
     };
 
-    self.blocking = Some((shot, ScenePlayer::started(Self::block_warning_scene(shot), ctx)));
+    self.blocking = Some((
+      shot,
+      ScenePlayer::started(Self::block_warning_scene(shot), ctx),
+    ));
     self.refresh(ctx);
     self.block_timer = Some(ctx.timers.start(BlockLanded, BLOCK_WARNING.once()));
   }
@@ -201,7 +204,11 @@ impl NimbusPromenadeMode {
       && self.hittable_shots().len() > 1
     {
       log::info!("NimbusPromenade: {shot:?} blocked");
-      self.blocks[shot as usize] = Some(ctx.timers.start(BlockLifted { shot }, BLOCK_DURATION.once()));
+      self.blocks[shot as usize] = Some(
+        ctx
+          .timers
+          .start(BlockLifted { shot }, BLOCK_DURATION.once()),
+      );
       ctx.play_sfx(sounds::rnd_latch());
       // walkways are numbered in playfield order, and only the fourth has its line recorded
       if shot == MainShot::CenterOrbit {

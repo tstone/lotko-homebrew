@@ -71,7 +71,12 @@ impl CargoQuayMode {
 
   /// Pushes made so far: the shots between each container and the crane, taken off the start
   fn pushes(&self) -> u8 {
-    PUSHES - self.containers.iter().map(|shot| distance_to_crane(*shot)).sum::<u8>()
+    PUSHES
+      - self
+        .containers
+        .iter()
+        .map(|shot| distance_to_crane(*shot))
+        .sum::<u8>()
   }
 
   fn on_shot_hit(&mut self, shot: MainShot, ctx: &SystemContext) {
@@ -104,7 +109,11 @@ impl CargoQuayMode {
         self.complete(ctx);
         return;
       }
-      let waiting: Vec<MainShot> = self.containers.into_iter().filter(|shot| *shot != CRANE).collect();
+      let waiting: Vec<MainShot> = self
+        .containers
+        .into_iter()
+        .filter(|shot| *shot != CRANE)
+        .collect();
       if let Some(shot) = waiting.choose(&mut rand::rng()).copied() {
         self.push_from(shot, 1, ctx);
       }
@@ -150,7 +159,11 @@ impl CargoQuayMode {
   /// it flash.
   fn render(&self, ctx: &SystemContext) {
     for shot in MainShot::ALL.into_iter().filter(|shot| *shot != CRANE) {
-      let here = self.containers.iter().filter(|container| **container == shot).count();
+      let here = self
+        .containers
+        .iter()
+        .filter(|container| **container == shot)
+        .count();
       ctx.undeclare_lights(&shot.hex_leds().q(), CONTAINER_Z);
       match here {
         0 => {}
@@ -239,7 +252,10 @@ fn distance_to_crane(shot: MainShot) -> u8 {
 fn push(containers: &mut [MainShot; 2], from: MainShot) -> u8 {
   let to = step_toward_crane(from);
   let mut moved = 0;
-  for container in containers.iter_mut().filter(|container| **container == from) {
+  for container in containers
+    .iter_mut()
+    .filter(|container| **container == from)
+  {
     *container = to;
     moved += 1;
   }
@@ -282,7 +298,12 @@ mod tests {
     push(&mut mode.containers, MainShot::RightOrbit);
     assert_eq!(mode.pushes(), 1);
     assert!(!mode.is_loaded());
-    for shot in [MainShot::LeftOrbit, MainShot::DomeRamp, MainShot::ArcRamp, MainShot::CenterOrbit] {
+    for shot in [
+      MainShot::LeftOrbit,
+      MainShot::DomeRamp,
+      MainShot::ArcRamp,
+      MainShot::CenterOrbit,
+    ] {
       push(&mut mode.containers, shot);
     }
     assert_eq!(mode.pushes(), PUSHES);

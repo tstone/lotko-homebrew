@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
-use frontbox_pinball::tags::GeneralIllumination;
 use frontbox_lighting::prelude::*;
+use frontbox_pinball::tags::GeneralIllumination;
 
 use crate::hardware::{arc_ramp, gi};
 use crate::systems::game::{ModeManager, ModeSlotsChanged};
@@ -29,7 +29,12 @@ impl System for PlayfieldIllumination {
       let mode_manager = ctx.systems.expect::<ModeManager>();
       self.sentinels = mode_manager.sentinels_running();
       // under the Sentinels the rest of the GI is plain white
-      self.color = if self.sentinels { Rgba::white() } else { mode_manager.illumination() }.lighten(0.35);
+      self.color = if self.sentinels {
+        Rgba::white()
+      } else {
+        mode_manager.illumination()
+      }
+      .lighten(0.35);
       self.update = true;
     }
   }

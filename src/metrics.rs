@@ -85,9 +85,12 @@ pub static HELIX_VAULTS_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
 });
 
 pub static CALDERA_GENERATOR_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
-  Counter::new("Caldera Generator Completed", "Times Caldera Generator was completed")
-    .key("caldera_generator_completed")
-    .category("Modes")
+  Counter::new(
+    "Caldera Generator Completed",
+    "Times Caldera Generator was completed",
+  )
+  .key("caldera_generator_completed")
+  .category("Modes")
 });
 
 pub static CARGO_QUAY_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
@@ -103,9 +106,12 @@ pub static GROUNDSWELL_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
 });
 
 pub static HALCYON_VENTS_COMPLETED: LazyLock<Counter> = LazyLock::new(|| {
-  Counter::new("Halcyon Vents Completed", "Times Halcyon Vents was completed")
-    .key("halcyon_vents_completed")
-    .category("Modes")
+  Counter::new(
+    "Halcyon Vents Completed",
+    "Times Halcyon Vents was completed",
+  )
+  .key("halcyon_vents_completed")
+  .category("Modes")
 });
 
 /// The counter for completions of a mode

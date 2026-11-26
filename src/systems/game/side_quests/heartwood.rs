@@ -4,9 +4,7 @@ use frontbox_pinball::{GameManagerExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::captive_ball::{self, CaptiveBallHit};
-use crate::systems::game::{
-  ModeManager, Multiball, Perk, heartbeat_scene, points,
-};
+use crate::systems::game::{ModeManager, Multiball, Perk, heartbeat_scene, points};
 use crate::systems::sounds;
 
 /// Charge for the first multiball (start value)

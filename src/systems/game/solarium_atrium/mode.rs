@@ -130,7 +130,9 @@ impl SolariumAtriumMode {
 
   /// The head glows
   fn render(&mut self, ctx: &SystemContext) {
-    self.head_scene.replace_scene(Self::head_scene(self.head), ctx);
+    self
+      .head_scene
+      .replace_scene(Self::head_scene(self.head), ctx);
   }
 
   fn schedule_move(&mut self, ctx: &SystemContext) {

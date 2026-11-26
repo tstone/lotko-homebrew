@@ -96,7 +96,10 @@ impl ExtraBallSystem {
     } else {
       log::info!("Extra ball collected past the limit, awarding points");
       ctx.add_points(points::EXTRA_BALL_AS_POINTS);
-      self.show(&NumberFormat::Grouped.write(points::EXTRA_BALL_AS_POINTS as i64), ctx);
+      self.show(
+        &NumberFormat::Grouped.write(points::EXTRA_BALL_AS_POINTS as i64),
+        ctx,
+      );
     }
     self.update_lit_scene(ctx);
   }
@@ -119,7 +122,10 @@ impl ExtraBallSystem {
   }
 
   fn show(&mut self, label: &str, ctx: &SystemContext) {
-    self.screen.show([("text", label.into()), ("color", Rgba::white().into())], ctx);
+    self.screen.show(
+      [("text", label.into()), ("color", Rgba::white().into())],
+      ctx,
+    );
     if let Some(timer) = self.screen_timer.take() {
       ctx.timers.cancel(timer);
     }

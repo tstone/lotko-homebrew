@@ -1,6 +1,6 @@
-use frontbox_pinball::tags::Playfield;
 use frontbox_core::prelude::*;
 use frontbox_lighting::prelude::*;
+use frontbox_pinball::tags::Playfield;
 use frontbox_pinball::*;
 use frontbox_sound::*;
 

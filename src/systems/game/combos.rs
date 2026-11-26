@@ -81,7 +81,9 @@ impl ComboSystem {
 impl System for ComboSystem {
   fn on_spawn(&mut self, ctx: &SystemContext) {
     // so the first route made isn't heard late, while its sound loads
-    ctx.systems.with::<SoundSystem, _>(|sound| sound.preload_scene(route_scene(&LightQ::Every).scene()));
+    ctx
+      .systems
+      .with::<SoundSystem, _>(|sound| sound.preload_scene(route_scene(&LightQ::Every).scene()));
   }
 
   fn is_active(&self, ctx: &SystemContext) -> bool {
@@ -229,7 +231,10 @@ mod tests {
   #[test]
   fn a_route_flashes_with_its_sound() {
     let scene = route_scene(&LightQ::Every);
-    assert_eq!(scene.scene().sound_names().collect::<Vec<_>>(), ["sounds/arp-hit1.mp3"]);
+    assert_eq!(
+      scene.scene().sound_names().collect::<Vec<_>>(),
+      ["sounds/arp-hit1.mp3"]
+    );
   }
 
   #[test]

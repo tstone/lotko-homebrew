@@ -26,7 +26,7 @@ Scene(
           ],
           base: Text(
             text: Fixed("GROUNDSWELL"),
-            font: "TenFatGuys",
+            font: "frontbox/fonts/TenFatGuys.ttf",
             size: Fixed(16.0),
             width: Fixed(124.0),
             height: Fixed(32.0),

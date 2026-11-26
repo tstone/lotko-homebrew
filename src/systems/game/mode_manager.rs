@@ -6,9 +6,9 @@ use frontbox_lighting::prelude::*;
 use frontbox_pinball::{TurnEnding, TurnStarting};
 use frontbox_sound::{SoundSystem, SoundSystemExt};
 
-use crate::{configs, metrics};
 use crate::systems::game::{Mode, ModeState, Multiball, Perk, Progression, music_file};
 use crate::systems::{Callout, SayExt, sounds};
+use crate::{configs, metrics};
 
 /// How long an insert takes to pulse once for a mode that can be chosen, which is calmer than a running mode's flash
 const OFFERED_PULSE: Duration = Duration::from_millis(900);
@@ -117,7 +117,10 @@ impl ModeManager {
     if !self.sentinels {
       return;
     }
-    log::info!("ModeManager: the Sentinels are defeated, giving back {:?}", self.suspended);
+    log::info!(
+      "ModeManager: the Sentinels are defeated, giving back {:?}",
+      self.suspended
+    );
     let ctx = &ctx.for_system(self.handle);
     self.sentinels = false;
     self.mode = self.suspended.take();
@@ -202,7 +205,9 @@ impl ModeManager {
   /// Start a mode or resume one, taking the mode slot. Its system takes it from there.
   pub fn start_mode(&mut self, mode: Mode, ctx: &ServiceContext) -> Result<(), String> {
     if self.sentinels {
-      return self.refuse(format!("{mode:?} can't start while the Sentinels are running"));
+      return self.refuse(format!(
+        "{mode:?} can't start while the Sentinels are running"
+      ));
     }
     if let Some(existing) = self.mode {
       return self.refuse(format!(
@@ -272,7 +277,9 @@ impl ModeManager {
     ctx: &ServiceContext,
   ) -> Result<(), String> {
     if self.sentinels {
-      return self.refuse(format!("{multiball:?} can't start while the Sentinels are running"));
+      return self.refuse(format!(
+        "{multiball:?} can't start while the Sentinels are running"
+      ));
     }
     if let Some(existing) = self.multiball {
       return self.refuse(format!("{multiball:?} can't start during {existing:?}"));
@@ -428,7 +435,9 @@ impl ModeManager {
         MapPulse::Running => scene,
         MapPulse::Offered => scene.over(OFFERED_PULSE),
       };
-      self.map_pulses.insert(mode, (pulse, ScenePlayer::started(scene, ctx)));
+      self
+        .map_pulses
+        .insert(mode, (pulse, ScenePlayer::started(scene, ctx)));
     }
   }
 }

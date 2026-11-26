@@ -44,7 +44,10 @@ pub struct MeridianBasinsMode {
 
 impl MeridianBasinsMode {
   pub fn new() -> Self {
-    let seeds = MainShot::ALL.sample(&mut rand::rng(), SEEDS).copied().collect();
+    let seeds = MainShot::ALL
+      .sample(&mut rand::rng(), SEEDS)
+      .copied()
+      .collect();
     Self {
       run: ModeRun::new(Mode::MeridianBasins, REQUIRED_HITS),
       seeds,
@@ -71,7 +74,10 @@ impl MeridianBasinsMode {
   fn is_lit(&self, shot: MainShot) -> bool {
     !self.bloomed.contains(&shot)
       && (self.seeds.contains(&shot)
-        || shot.neighbors().iter().any(|neighbor| self.bloomed.contains(neighbor)))
+        || shot
+          .neighbors()
+          .iter()
+          .any(|neighbor| self.bloomed.contains(neighbor)))
   }
 
   fn lit(&self) -> Vec<MainShot> {
@@ -108,7 +114,10 @@ impl MeridianBasinsMode {
 
   fn bloom(&mut self, shot: MainShot, ctx: &SystemContext) {
     self.bloomed.push(shot);
-    log::info!("MeridianBasins: {shot:?} bloomed, {} of {REQUIRED_HITS}", self.bloomed.len());
+    log::info!(
+      "MeridianBasins: {shot:?} bloomed, {} of {REQUIRED_HITS}",
+      self.bloomed.len()
+    );
     ctx.play_scene(&Self::bloom_scene(shot));
     ctx.play_sfx(sounds::GUITAR_SWELL);
   }
@@ -139,7 +148,10 @@ impl MeridianBasinsMode {
       return;
     }
     self.bloomed.pop();
-    log::info!("MeridianBasins: {shot:?} withered, {} left", self.bloomed.len());
+    log::info!(
+      "MeridianBasins: {shot:?} withered, {} left",
+      self.bloomed.len()
+    );
     if !self.bloomed.is_empty() {
       self.restart_wither_timer(ctx);
     }
@@ -241,7 +253,11 @@ mod tests {
     mode.bloomed.push(MainShot::ArcRamp);
     assert_eq!(
       mode.lit(),
-      vec![MainShot::DomeRamp, MainShot::CenterOrbit, MainShot::RightOrbit]
+      vec![
+        MainShot::DomeRamp,
+        MainShot::CenterOrbit,
+        MainShot::RightOrbit
+      ]
     );
   }
 

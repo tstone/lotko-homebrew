@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
-use frontbox_pinball::tags::Playfield;
 use frontbox_lighting::prelude::*;
+use frontbox_pinball::tags::Playfield;
 use frontbox_pinball::{GameManagerExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
@@ -84,7 +84,12 @@ impl SpreadRootsSystem {
 
   /// A drop target's strip, filled by how far its orbit is toward the `needed` spreads that light Groundswell
   fn strip_scene(index: usize, spreads: u8, needed: u8) -> PlayableScene {
-    fill_scene(&target_strip(index).q(), STRIP_LEDS, strip_lit(spreads, needed), Rgba::bronze())
+    fill_scene(
+      &target_strip(index).q(),
+      STRIP_LEDS,
+      strip_lit(spreads, needed),
+      Rgba::bronze(),
+    )
   }
 
   fn ring_scene(orbit: MainShot, grown: u8) -> PlayableScene {
@@ -159,7 +164,10 @@ impl SpreadRootsSystem {
     if !lit {
       return;
     }
-    log::info!("SpreadRoots: Groundswell lit, {} times this game", self.groundswell_lit + 1);
+    log::info!(
+      "SpreadRoots: Groundswell lit, {} times this game",
+      self.groundswell_lit + 1
+    );
     self.toward_groundswell = [0; 3];
     self.groundswell_lit += 1;
     self.update_strips(ctx);
@@ -196,7 +204,10 @@ impl SpreadRootsSystem {
   fn update_strips(&mut self, ctx: &SystemContext) {
     let needed = self.groundswell_lit + 1;
     for (index, scene) in self.strip_scenes.iter_mut().enumerate() {
-      scene.replace_scene(Self::strip_scene(index, self.toward_groundswell[index], needed), ctx);
+      scene.replace_scene(
+        Self::strip_scene(index, self.toward_groundswell[index], needed),
+        ctx,
+      );
     }
   }
 
@@ -205,7 +216,10 @@ impl SpreadRootsSystem {
   fn render_strips(&mut self, ctx: &SystemContext) {
     let taken = Self::drops_taken(ctx);
     for (index, scene) in self.strip_scenes.iter_mut().enumerate() {
-      let down = ctx.switches.is_closed(target_switch(index).name).unwrap_or(false);
+      let down = ctx
+        .switches
+        .is_closed(target_switch(index).name)
+        .unwrap_or(false);
       if taken || down {
         scene.stop(ctx);
       } else {

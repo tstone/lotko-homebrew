@@ -70,6 +70,8 @@ async fn main() {
     ..Default::default()
   })
   .configure(|app| {
+    frontbox_display::add_bundle(app.resources());
+
     let ball_save_scene = scene!("ball_save.scene");
 
     app.plane(app_plane!(planes::PLAYFIELD));

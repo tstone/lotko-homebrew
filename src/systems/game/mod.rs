@@ -1,7 +1,7 @@
 mod apex_terraces;
-mod cargo_quay;
 mod arc_streak;
 mod bonus;
+mod cargo_quay;
 mod center_spinner;
 mod combos;
 mod end_of_ball;
@@ -29,9 +29,9 @@ mod spores;
 mod tilt_presenter;
 
 pub use apex_terraces::*;
-pub use cargo_quay::*;
 pub use arc_streak::*;
 pub use bonus::*;
+pub use cargo_quay::*;
 pub use center_spinner::*;
 pub use combos::*;
 pub use end_of_ball::*;

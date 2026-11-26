@@ -36,7 +36,7 @@ Scene(
           ],
           base: Text(
             text: Fixed("MERIDIAN \nBASINS"),
-            font: "SirClive",
+            font: "frontbox/fonts/SirClive.ttf",
             size: Fixed(16.0),
             width: Fixed(119.0),
             height: Fixed(32.0),

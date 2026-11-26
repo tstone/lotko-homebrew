@@ -1,8 +1,8 @@
 use crate::hardware::more_tags::DropBank;
 use crate::hardware::planes;
 use frontbox_core::prelude::*;
-use frontbox_pinball::tags::*;
 use frontbox_pinball::BallSearching;
+use frontbox_pinball::tags::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum DropBankTarget {

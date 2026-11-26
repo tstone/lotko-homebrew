@@ -67,7 +67,9 @@ impl BonusSystem {
   /// would flash the game score in between.
   fn show_next_screen(&mut self, ctx: &SystemContext) {
     if let Some((amount, label)) = self.screens.pop_front() {
-      self.screen.show([("amount", amount.into()), ("label", label.into())], ctx);
+      self
+        .screen
+        .show([("amount", amount.into()), ("label", label.into())], ctx);
       self.screen_timer = Some(ctx.timers.start(BonusScreenShown, SCREEN_DURATION.once()));
     } else {
       self.screen_timer = None;

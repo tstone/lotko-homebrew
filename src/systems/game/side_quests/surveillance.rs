@@ -1,6 +1,6 @@
 use frontbox_core::prelude::*;
-use frontbox_pinball::tags::Playfield;
 use frontbox_lighting::prelude::*;
+use frontbox_pinball::tags::Playfield;
 use frontbox_pinball::{BallManagerExt, GameManagerExt, TurnPhase};
 use frontbox_sound::SoundSystemExt;
 
@@ -157,7 +157,10 @@ impl SurveillanceSystem {
 
   /// The Sentinels wait for a single ball loose on the playfield, and nothing running that they'd get in the way of
   fn can_dispatch(&self, ctx: &SystemContext) -> bool {
-    ctx.systems.expect::<ModeManager>().sentinels_can_take_over()
+    ctx
+      .systems
+      .expect::<ModeManager>()
+      .sentinels_can_take_over()
       && ctx.balls_in_play() <= 1
       && !ball_waiting(ctx)
   }
@@ -236,9 +239,7 @@ impl System for SurveillanceSystem {
       if self.can_dispatch(ctx) {
         self.dispatch(ctx);
       }
-    } else if self.deadline.is_none()
-      && !ctx.systems.expect::<ModeManager>().sentinels_running()
-    {
+    } else if self.deadline.is_none() && !ctx.systems.expect::<ModeManager>().sentinels_running() {
       // the Sentinels are gone, so the cameras get a full deadline again
       self.restart_deadline();
     }

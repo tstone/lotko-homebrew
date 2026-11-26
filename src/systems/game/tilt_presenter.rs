@@ -62,7 +62,9 @@ impl TiltPresenter {
   }
 
   fn show(&mut self, label: String, ctx: &SystemContext) {
-    self.screen.show([("text", label.into()), ("color", Rgba::red().into())], ctx);
+    self
+      .screen
+      .show([("text", label.into()), ("color", Rgba::red().into())], ctx);
   }
 
   fn remove_screen(&mut self, ctx: &SystemContext) {

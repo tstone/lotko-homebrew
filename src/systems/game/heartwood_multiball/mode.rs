@@ -96,7 +96,10 @@ impl HeartwoodMultiballMode {
       Jackpot::Out => return,
     };
     *jackpot = jackpot.after_hit();
-    log::info!("HeartwoodMultiball: {shot:?} jackpot, now {:?}", self.jackpots[shot as usize]);
+    log::info!(
+      "HeartwoodMultiball: {shot:?} jackpot, now {:?}",
+      self.jackpots[shot as usize]
+    );
     self.hit_scene.restart(ctx);
     self.hits += 1;
     ctx.play_scene(&Self::progress_scene(self.hits));
@@ -161,7 +164,11 @@ impl HeartwoodMultiballMode {
   fn start_super_jackpot(&mut self, ctx: &SystemContext) {
     // restart timer if another one is triggered
     self.cancel_super_jackpot_timer(ctx);
-    self.timer_id = Some(ctx.timers.start(SuperJackpotOver, SUPER_JACKPOT_TIME.once()));
+    self.timer_id = Some(
+      ctx
+        .timers
+        .start(SuperJackpotOver, SUPER_JACKPOT_TIME.once()),
+    );
 
     self.super_jackpot_active = true;
     self.super_jackpot_attention_scene.restart(ctx);
@@ -271,7 +278,11 @@ impl Jackpot {
 
 /// The three LEDs of a shot's hex that light as its jackpot
 fn jackpot_leds(shot: MainShot) -> LightQ {
-  let children: [u16; 3] = if shot == MainShot::ArcRamp { [0, 6, 3] } else { [2, 6, 5] };
+  let children: [u16; 3] = if shot == MainShot::ArcRamp {
+    [0, 6, 3]
+  } else {
+    [2, 6, 5]
+  };
   let leds = shot.hex_leds();
   LightQ::any(
     children

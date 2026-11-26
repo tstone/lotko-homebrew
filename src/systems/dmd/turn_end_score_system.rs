@@ -18,7 +18,10 @@ pub struct TurnEndScoreSystem {
 
 impl TurnEndScoreSystem {
   pub fn new() -> Self {
-    Self { score_timer: None, screen: DmdScreen::new("dmd/turn_end_score.scene", TURN_END_DMD_LAYER) }
+    Self {
+      score_timer: None,
+      screen: DmdScreen::new("dmd/turn_end_score.scene", TURN_END_DMD_LAYER),
+    }
   }
 
   fn on_turn_ending(&mut self, turn_ending: &TurnEnding, ctx: &SystemContext) {
@@ -32,7 +35,10 @@ impl TurnEndScoreSystem {
       .unwrap_or(0);
 
     let label = format!("PLAYER {}", turn_ending.current_player + 1);
-    self.screen.show([("label", label.into()), ("score", Value::Int(score as i64))], ctx);
+    self.screen.show(
+      [("label", label.into()), ("score", Value::Int(score as i64))],
+      ctx,
+    );
     ctx.play_sfx(sounds::QUEST_COMPLETE);
     self.score_timer = Some(ctx.timers.start(ScoreShown, Duration::from_secs(2).once()));
   }

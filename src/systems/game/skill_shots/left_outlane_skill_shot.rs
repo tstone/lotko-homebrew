@@ -1,6 +1,6 @@
-use frontbox_pinball::tags::Playfield;
 use frontbox_core::prelude::*;
 use frontbox_lighting::prelude::*;
+use frontbox_pinball::tags::Playfield;
 use frontbox_pinball::{GameManagerExt, TurnPhase};
 
 use crate::hardware::left_outlane::LeftOutlaneRollover;

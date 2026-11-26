@@ -1,7 +1,7 @@
 use frontbox_core::prelude::DriverTriggerMode::VirtualSwitchTrue;
 use frontbox_core::prelude::*;
-use frontbox_pinball::tags::*;
 use frontbox_pinball::ScoopSystem;
+use frontbox_pinball::tags::*;
 
 use crate::hardware::planes;
 

@@ -1,6 +1,6 @@
-use frontbox_pinball::tags::Playfield;
 use frontbox_core::prelude::*;
 use frontbox_lighting::prelude::*;
+use frontbox_pinball::tags::Playfield;
 use frontbox_pinball::*;
 use frontbox_sound::*;
 
@@ -50,7 +50,9 @@ impl DropBankSkillShot {
       // A ball hitting the lit target near its edge can drop the neighbouring target a few ms first, so give the lit
       // target a moment to drop too before calling it a miss
       self.grace_period = true;
-      ctx.timers.start(GracePeriodElapsed, Timer::Once(GRACE_PERIOD));
+      ctx
+        .timers
+        .start(GracePeriodElapsed, Timer::Once(GRACE_PERIOD));
     }
   }
 

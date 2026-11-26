@@ -2,8 +2,7 @@ use std::collections::HashMap;
 
 use frontbox_core::prelude::*;
 use frontbox_pinball::{
-  BallManagerExt, GameManagerExt, PlayerEntry, ScoopBallEntered, ScoopEntry, ScoopSystem,
-  TurnPhase,
+  BallManagerExt, GameManagerExt, PlayerEntry, ScoopBallEntered, ScoopEntry, ScoopSystem, TurnPhase,
 };
 use frontbox_sound::SoundSystemExt;
 
@@ -102,7 +101,11 @@ impl ModeSelectSystem {
       if let Some(timer) = self.timeout_timer.take() {
         ctx.timers.cancel(timer);
       }
-      let timeout = if rows.len() == 1 { SINGLE_OPTION_TIME } else { MENU_TIMEOUT };
+      let timeout = if rows.len() == 1 {
+        SINGLE_OPTION_TIME
+      } else {
+        MENU_TIMEOUT
+      };
       self.timeout_timer = Some(ctx.timers.start(MenuTimedOut, timeout.once()));
       self.show_selection(ctx);
     }
@@ -137,7 +140,10 @@ impl ModeSelectSystem {
     }
     if matches!(self.state, State::Menu { .. }) {
       ctx.systems.expect::<ModeManager>().hide_menu(ctx.into());
-      self.screens.values_mut().for_each(|screen| screen.clear(ctx));
+      self
+        .screens
+        .values_mut()
+        .for_each(|screen| screen.clear(ctx));
     }
     self.pending_move = None;
     self.state = State::Idle;

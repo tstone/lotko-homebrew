@@ -1,0 +1,281 @@
+Scene(
+  version: 2,
+  variables: {
+    // how full the vats are, which a game sets as they're drained
+    "vat_level": Value("vat_level"),
+  },
+  values: {
+    "vat_level": Float(Keyframes(
+      keys: [
+        (at: 0.0, value: 1.0),
+        (at: 2.0, value: 1.0),
+        (at: 6.0, value: 0.15, curve: EaseInOut),
+        (at: 8.0, value: 0.15),
+      ],
+      cycle: Once,
+    )),
+  },
+  timing: (
+    // a multiple of the vats' period, so their bubbles loop without a jump
+    duration: 8.0,
+    cycle: Forever,
+  ),
+  layers: [
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Background",
+        fill: (
+          base: Solid(Fixed(0, 0, 0, 255)),
+        ),
+      ),
+    ),
+    // the back row: smaller, dimmer, and in the gaps of the front row
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Back Vat 1",
+        fill: (
+          base: External(
+            generator: "vat",
+            settings: {
+              "level": Variable("vat_level"),
+              "width": Fixed(8.0),
+              "height": Fixed(22.0),
+              "variant": Fixed(11.0),
+            },
+            size: Native,
+          ),
+          adjust: [
+            Brightness(Fixed(0.45)),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(37.0, 15.0)),
+          ],
+          base: Rect(
+            width: Fixed(8.0),
+            height: Fixed(22.0),
+          ),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Back Vat 2",
+        fill: (
+          base: External(
+            generator: "vat",
+            settings: {
+              "level": Variable("vat_level"),
+              "width": Fixed(8.0),
+              "height": Fixed(22.0),
+              "variant": Fixed(12.0),
+            },
+            size: Native,
+          ),
+          adjust: [
+            Brightness(Fixed(0.45)),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(55.0, 15.0)),
+          ],
+          base: Rect(
+            width: Fixed(8.0),
+            height: Fixed(22.0),
+          ),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Back Vat 3",
+        fill: (
+          base: External(
+            generator: "vat",
+            settings: {
+              "level": Variable("vat_level"),
+              "width": Fixed(8.0),
+              "height": Fixed(22.0),
+              "variant": Fixed(13.0),
+            },
+            size: Native,
+          ),
+          adjust: [
+            Brightness(Fixed(0.45)),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(73.0, 15.0)),
+          ],
+          base: Rect(
+            width: Fixed(8.0),
+            height: Fixed(22.0),
+          ),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Back Vat 4",
+        fill: (
+          base: External(
+            generator: "vat",
+            settings: {
+              "level": Variable("vat_level"),
+              "width": Fixed(8.0),
+              "height": Fixed(22.0),
+              "variant": Fixed(14.0),
+            },
+            size: Native,
+          ),
+          adjust: [
+            Brightness(Fixed(0.45)),
+          ],
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(91.0, 15.0)),
+          ],
+          base: Rect(
+            width: Fixed(8.0),
+            height: Fixed(22.0),
+          ),
+        ),
+      ),
+    ),
+    // the front row
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Front Vat 1",
+        fill: (
+          base: External(
+            generator: "vat",
+            settings: {
+              "level": Variable("vat_level"),
+              "variant": Fixed(1.0),
+            },
+            size: Native,
+          ),
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(28.0, 16.0)),
+          ],
+          base: Rect(
+            width: Fixed(12.0),
+            height: Fixed(30.0),
+          ),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Front Vat 2",
+        fill: (
+          base: External(
+            generator: "vat",
+            settings: {
+              "level": Variable("vat_level"),
+              "variant": Fixed(2.0),
+            },
+            size: Native,
+          ),
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(46.0, 16.0)),
+          ],
+          base: Rect(
+            width: Fixed(12.0),
+            height: Fixed(30.0),
+          ),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Front Vat 3",
+        fill: (
+          base: External(
+            generator: "vat",
+            settings: {
+              "level": Variable("vat_level"),
+              "variant": Fixed(3.0),
+            },
+            size: Native,
+          ),
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(64.0, 16.0)),
+          ],
+          base: Rect(
+            width: Fixed(12.0),
+            height: Fixed(30.0),
+          ),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Front Vat 4",
+        fill: (
+          base: External(
+            generator: "vat",
+            settings: {
+              "level": Variable("vat_level"),
+              "variant": Fixed(4.0),
+            },
+            size: Native,
+          ),
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(82.0, 16.0)),
+          ],
+          base: Rect(
+            width: Fixed(12.0),
+            height: Fixed(30.0),
+          ),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Front Vat 5",
+        fill: (
+          base: External(
+            generator: "vat",
+            settings: {
+              "level": Variable("vat_level"),
+              "variant": Fixed(5.0),
+            },
+            size: Native,
+          ),
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(100.0, 16.0)),
+          ],
+          base: Rect(
+            width: Fixed(12.0),
+            height: Fixed(30.0),
+          ),
+        ),
+      ),
+    ),
+  ],
+)

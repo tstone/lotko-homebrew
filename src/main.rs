@@ -14,6 +14,7 @@ mod led_scenes;
 mod systems;
 use systems::*;
 mod hardware;
+mod helix;
 pub mod menu;
 mod metrics;
 mod roots;
@@ -85,6 +86,10 @@ async fn main() {
     app.resources().add::<frontbox_scene::ImageGenerators>(
       steward::StewardGenerator::NAME,
       std::sync::Arc::new(steward::StewardGenerator),
+    );
+    app.resources().add::<frontbox_scene::ImageGenerators>(
+      helix::VatGenerator::NAME,
+      std::sync::Arc::new(helix::VatGenerator),
     );
 
     let ball_save_scene = scene!("ball_save.scene");

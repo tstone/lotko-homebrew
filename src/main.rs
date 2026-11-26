@@ -16,6 +16,7 @@ use systems::*;
 mod hardware;
 pub mod menu;
 mod metrics;
+mod roots;
 
 use hardware::*;
 
@@ -71,6 +72,14 @@ async fn main() {
   })
   .configure(|app| {
     frontbox_display::add_bundle(app.resources());
+    app.resources().add::<frontbox_scene::ShapeGenerators>(
+      roots::RootGenerator::NAME,
+      std::sync::Arc::new(roots::RootGenerator),
+    );
+    app.resources().add::<frontbox_scene::ShapeGenerators>(
+      roots::RootLeavesGenerator::NAME,
+      std::sync::Arc::new(roots::RootLeavesGenerator),
+    );
 
     let ball_save_scene = scene!("ball_save.scene");
 

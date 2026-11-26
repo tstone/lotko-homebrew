@@ -1,0 +1,99 @@
+Scene(
+  version: 2,
+  // what the Root and Leaves layers share, so that they stay one root
+  variables: {
+    "root_at": Vec2(4.0, 16.0),
+    "root_target_x": Float(120.0),
+    "root_target_y": Float(0.0),
+    "root_through_x": Float(60.0),
+    "root_through_y": Float(6.0),
+    "root_meander": Float(0.1),
+    "root_thickness": Float(5.0),
+    "root_seed": Float(3.0),
+    "root_growth": Value("root_growth"),
+  },
+  values: {
+    "root_growth": Float(Keyframes(
+      keys: [
+        (at: 0.0, value: 0.0),
+        (at: 5.0, value: 1.0, curve: EaseInOut),
+        (at: 6.0, value: 1.0),
+      ],
+      cycle: Once,
+    )),
+  },
+  timing: (
+    duration: 6.0,
+    cycle: Forever,
+  ),
+  layers: [
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Background",
+        fill: (
+          base: Solid(Fixed(0, 0, 0, 255)),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Leaves",
+        fill: (
+          base: Solid(Fixed(70, 140, 60, 255)),
+        ),
+        region: (
+          transform: [
+            Translate(Variable("root_at")),
+          ],
+          base: External(
+            generator: "root_leaves",
+            settings: {
+              "target_x": Variable("root_target_x"),
+              "target_y": Variable("root_target_y"),
+              "through_x": Variable("root_through_x"),
+              "through_y": Variable("root_through_y"),
+              "meander": Variable("root_meander"),
+              "thickness": Variable("root_thickness"),
+              "seed": Variable("root_seed"),
+              "leaves": Fixed(5.0),
+              "leaf_size": Fixed(5.0),
+              "growth": Variable("root_growth"),
+            },
+          ),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Root",
+        fill: (
+          base: Solid(Fixed(150, 95, 50, 255)),
+        ),
+        region: (
+          transform: [
+            Translate(Variable("root_at")),
+          ],
+          base: External(
+            generator: "root",
+            settings: {
+              "target_x": Variable("root_target_x"),
+              "target_y": Variable("root_target_y"),
+              "through_x": Variable("root_through_x"),
+              "through_y": Variable("root_through_y"),
+              "meander": Variable("root_meander"),
+              "thickness": Variable("root_thickness"),
+              "gnarl": Fixed(0.35),
+              "seed": Variable("root_seed"),
+              "rootlets": Fixed(4.0),
+              "rootlet_length": Fixed(0.15),
+              "growth": Variable("root_growth"),
+            },
+          ),
+        ),
+      ),
+    ),
+  ],
+)

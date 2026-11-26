@@ -17,6 +17,7 @@ mod hardware;
 pub mod menu;
 mod metrics;
 mod roots;
+mod steward;
 
 use hardware::*;
 
@@ -79,6 +80,11 @@ async fn main() {
     app.resources().add::<frontbox_scene::ShapeGenerators>(
       roots::RootLeavesGenerator::NAME,
       std::sync::Arc::new(roots::RootLeavesGenerator),
+    );
+
+    app.resources().add::<frontbox_scene::ImageGenerators>(
+      steward::StewardGenerator::NAME,
+      std::sync::Arc::new(steward::StewardGenerator),
     );
 
     let ball_save_scene = scene!("ball_save.scene");

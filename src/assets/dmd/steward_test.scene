@@ -1,0 +1,53 @@
+Scene(
+  version: 2,
+  timing: (
+    duration: 4.0,
+    cycle: Forever,
+  ),
+  layers: [
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Background",
+        fill: (
+          base: Solid(Fixed(0, 0, 0, 255)),
+        ),
+      ),
+    ),
+    Display(
+      display: "Dmd",
+      layer: (
+        name: "Steward",
+        fill: (
+          base: External(
+            generator: "steward",
+            settings: {
+              // the red in its visor follows its voice
+              "speech": ExternalEnvelope(
+                source: Sound(layer: "Voice"),
+                spread: Float(0.0, 1.0),
+                attack: 0.02,
+                release: 0.12,
+              ),
+            },
+            size: Native,
+          ),
+        ),
+        region: (
+          transform: [
+            Translate(Fixed(20.0, 16.0)),
+          ],
+          base: Rect(
+            width: Fixed(36.0),
+            height: Fixed(32.0),
+          ),
+        ),
+      ),
+    ),
+    Sound(
+      name: "Voice",
+      sound: "callouts/all-systems-within-operational-tolerance.mp3",
+      start: 0.5,
+    ),
+  ],
+)

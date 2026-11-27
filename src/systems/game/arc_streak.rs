@@ -4,6 +4,7 @@ use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::arc_ramp::ArcRampHit;
 use crate::hardware::lower_scoop::Lower;
+use crate::leaderboards;
 use crate::systems::game::points;
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -42,6 +43,8 @@ impl ArcStreakSystem {
     let award = points::ARC_STREAK[self.streak.min(points::ARC_STREAK.len() - 1)];
     self.streak += 1;
     log::info!("ArcStreak: reflex shot {} for {award}", self.streak);
+    let streak = self.streak as u32;
+    leaderboards::submit(&leaderboards::ARC_STREAK_CHAMPION, streak, ctx);
     ctx.add_points(award);
     ctx.play_sfx(sounds::ARP_HIT1);
     ctx.say(match self.streak {

@@ -3,6 +3,7 @@ use frontbox_lighting::prelude::*;
 use frontbox_pinball::*;
 
 use crate::hardware::lower_scoop::Lower;
+use crate::leaderboards;
 use crate::systems::game::{MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, points};
 
 /// What every mini-wizard shares on top of its [`ModeRun`]: the balls, the ball save, the end and the total.
@@ -12,7 +13,9 @@ use crate::systems::game::{MULTIBALL_BALL_SAVE, Mode, ModeManager, ModeRun, poin
 /// - It ends when a drain that stands leaves one ball or none (decision 5), unless it keeps going on one ball
 ///   ([`Mode::ends_with_multiball`]). It counts as played, and if it wasn't completed it stays in the menu to resume,
 ///   keeping its progress. An earned one ([`Mode::is_earned`]) doesn't: it's over, and has to be earned again.
-/// - What it scores is its total, for its high score.
+/// - What it scores is its total, which goes to its leaderboard if it has one
+///   ([`leaderboards::mini_wizard_total`]). The total runs over the whole game for a place, as it's resumed, and over
+///   one run for an earned mode.
 ///
 /// The mini-wizard's system calls it from the same places as a [`ModeRun`], and scores through [`Self::score`].
 #[derive(Clone)]
@@ -34,13 +37,6 @@ impl MiniWizardRun {
       eject_id: None,
       total: 0,
     }
-  }
-
-  /// What it has scored, over every run of it this game
-  // For the mini-wizard high scores (TODO.md, High scores)
-  #[allow(dead_code)]
-  pub fn total(&self) -> u64 {
-    self.total
   }
 
   pub fn begin(&mut self, ctx: &SystemContext) {
@@ -88,6 +84,7 @@ impl MiniWizardRun {
   pub fn score(&mut self, points: u64, ctx: &SystemContext) {
     ctx.add_points(points);
     self.total += points as u64;
+    self.submit_total(ctx);
   }
 
   /// See [`ModeRun::progress`]
@@ -97,8 +94,16 @@ impl MiniWizardRun {
 
   pub fn complete(&mut self, scene: PlayableScene<Completes>, ctx: &SystemContext) {
     self.total += points::mode_completion(self.mode) as u64;
+    self.submit_total(ctx);
     log::info!("{:?}: completed, {} scored", self.mode, self.total);
     self.run.complete(scene, ctx);
+  }
+
+  /// Offers the total so far for the mode's leaderboard, if it has one
+  fn submit_total(&self, ctx: &SystemContext) {
+    if let Some(board) = leaderboards::mini_wizard_total(self.mode) {
+      leaderboards::submit(board, self.total, ctx);
+    }
   }
 
   fn add_balls(&mut self, ctx: &SystemContext) {

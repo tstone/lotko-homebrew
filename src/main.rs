@@ -239,12 +239,11 @@ async fn main() {
     ]);
 
     app.system(
-      LeaderboardsSystem::new(if virtual_mode {
+      leaderboards::system(if virtual_mode {
         concat!(env!("CARGO_MANIFEST_DIR"), "/leaderboards.toml")
       } else {
         "/userdata/home/armsom/leaderboards.toml"
       })
-      .final_scores(&leaderboards::HIGH_SCORES)
       .initials_entry(
         LEFT_FLIPPER_SWITCH1.q(),
         RIGHT_FLIPPER_SWITCH1.q(),

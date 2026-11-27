@@ -6,6 +6,7 @@ use frontbox_sound::SoundSystemExt;
 
 use crate::hardware::main_shot::MainShotHit;
 use crate::hardware::pop_cluster::{self, PopBumper};
+use crate::leaderboards;
 use crate::systems::game::side_quests::SentinelsDispatched;
 use crate::systems::game::{
   ModeManager, ModeSelectSystem, OutlaneSaveSystem, ScoopQualifier, flash_scene, points, ray_scene,
@@ -112,6 +113,7 @@ impl SurveillanceSystem {
   fn on_set(&mut self, ctx: &SystemContext) {
     let sets = self.cameras.next_set();
     log::info!("Surveillance: set {sets}");
+    leaderboards::submit(&leaderboards::BLIND_SPOT, sets as u32, ctx);
     ctx.add_points(points::SURVEILLANCE_SET);
     ctx.play_sfx(sounds::SCAN_HEAVY_STUTTER);
     ctx.say(Callout::CameraNetworkOffline);

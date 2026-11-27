@@ -7,6 +7,7 @@ use crate::hardware::city_map;
 use crate::hardware::left_inlane;
 use crate::hardware::pop_cluster;
 use crate::hardware::vspinner::VerticalSpinnerHit;
+use crate::leaderboards;
 use crate::metrics;
 use crate::systems::game::{ModeManager, Perk, flash_scene, points};
 use crate::systems::{Callout, SayExt, sounds};
@@ -43,6 +44,7 @@ pub struct SporesSystem {
   ready_scene: Option<ScenePlayer>,
   /// While a burst is running
   burst_timer: Option<u64>,
+  handle: SystemHandle,
 }
 
 impl SporesSystem {
@@ -54,6 +56,7 @@ impl SporesSystem {
       bar_scene: ScenePlayer::new(Self::bar_scene(0.0)),
       ready_scene: None,
       burst_timer: None,
+      handle: SystemHandle::default(),
     }
   }
 
@@ -75,6 +78,8 @@ impl SporesSystem {
     let spores = if self.burst_timer.is_some() { 2 } else { 1 };
     self.count += spores;
     ctx.metrics.add(&metrics::SPORES_APPLIED, spores as u64);
+    let ctx = &ctx.for_system(self.handle);
+    leaderboards::submit(&leaderboards::SPORE_CHAMPION, self.count, ctx);
     spores as u8
   }
 
@@ -139,6 +144,10 @@ impl SporesSystem {
 impl System for SporesSystem {
   fn is_active(&self, ctx: &SystemContext) -> bool {
     ctx.states.is(TurnPhase::Active)
+  }
+
+  fn on_spawn(&mut self, ctx: &SystemContext) {
+    self.handle = ctx.handle();
   }
 
   /// A burst doesn't carry over to the next ball, while the charge and a burst that's ready do

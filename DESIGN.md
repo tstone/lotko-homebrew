@@ -795,25 +795,27 @@ Most of these share a template with art swapped in, which cuts down the amount o
 
 ## High scores
 
-Custom categories, each a `Leaderboard` on `LeaderboardsSystem`:
+Custom categories, each a `Leaderboard` on `LeaderboardsSystem` (`leaderboards.rs`), with a single champion and no
+default entry. They're shown in this order, after the high scores:
 
 | Category | Measure |
 |---|---|
+| Biggest Flood | Highest Helix Vaults total in a game |
+| Halcyon Vents Champion | Highest Halcyon Vents total in a game |
+| Groundswell Champion | Highest total from one Groundswell |
+| Heartwood Champion | Highest total from one Heartwood multiball |
+| Deep Roots | Most times the roots were spread in a game |
 | Spore Champion | Most spores applied in a game |
-| Fastest Caldera Generator | Shortest time to complete Caldera Generator |
-| Biggest Flood | Highest Helix Vaults total |
-| Halcyon Vents Champion | Highest Halcyon Vents total |
-| Groundswell Champion | Highest Groundswell total |
-| Heartwood Champion | Highest Heartwood multiball total |
-| Sentinel Hunter | Most drones downed in a game |
-| Deep Roots | Most roots spread in a game |
-| Overgrowth | Most districts completed (ties broken by score) |
+| ArcStreak Champion | Longest run of reflex shots |
+| Blind Spot | Most camera sets blinded in a game |
 
-Notes:
-- "Fastest" scores are lower-is-better. The caller must compare before setting, and the DMD must show the value as a
-  time.
-- Each category is a single entry today. That's fine to start with.
-- Fastest Caldera Generator counts only the time it was running, from the dark coming down to the super jackpot.
+Left out for now:
+- **Fastest completions**, of each district and of Caldera Generator. A district scores much the same every time, so
+  points make a flat board and time is the measure that varies. They wait until something else varies a district's
+  score, which building out Spread roots is likely to bring. Caldera Generator's time is still kept
+  (`CalderaGeneratorMode`), counting only the time it was running, from the dark coming down to the super jackpot.
+- **Sentinel Hunter** (most drones downed): it would top out at 3 to 5.
+- **Overgrowth** (most districts completed) and **combos**: they top out at 6 and 8, so they'd fill with ties.
 
 ## Code impact (lotko-homebrew)
 

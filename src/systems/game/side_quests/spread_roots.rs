@@ -8,6 +8,7 @@ use crate::hardware::cabinet::action_button;
 use crate::hardware::drop_bank::{self, DropBankCleared, DropBankTargetHit};
 use crate::hardware::main_shot::{MainShot, MainShotHit};
 use crate::hardware::plunge_lane;
+use crate::leaderboards;
 use crate::systems::game::side_quests::RootLashed;
 use crate::systems::game::{
   ExtraBallSource, ExtraBallSystem, Mode, ModeManager, ModeSelectSystem, ModeSlotsChanged, Perk,
@@ -60,6 +61,8 @@ pub struct SpreadRootsSystem {
   toward_groundswell: [u8; 3],
   /// Times Groundswell has been lit this game
   groundswell_lit: u8,
+  /// Times the roots have spread this game, on any orbit
+  spreads: u32,
   lash: Lash,
   ring_scenes: [ScenePlayer; 3],
   /// Each drop target's strip, showing its orbit's spreads toward Groundswell, in [`ORBITS`] order
@@ -75,6 +78,7 @@ impl SpreadRootsSystem {
       spread_this_ball: [false; 3],
       toward_groundswell: [0; 3],
       groundswell_lit: 0,
+      spreads: 0,
       lash: Lash::Ready,
       ring_scenes: ORBITS.map(|orbit| ScenePlayer::new(Self::ring_scene(orbit, 0))),
       strip_scenes: [0, 1, 2].map(|index| ScenePlayer::new(Self::strip_scene(index, 0, 0))),
@@ -132,6 +136,8 @@ impl SpreadRootsSystem {
     ctx.add_points(points::ROOTS_SPREAD);
     ctx.play_sfx(sounds::IMPACT_DIRT);
     ctx.play_scene(&flash_scene(shot.hex_ring(), Rgba::bronze()));
+    self.spreads += 1;
+    leaderboards::submit(&leaderboards::DEEP_ROOTS, self.spreads, ctx);
 
     if self.lash == Lash::Ready {
       log::info!("SpreadRoots: root lash armed");

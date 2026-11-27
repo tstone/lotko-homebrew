@@ -7,6 +7,7 @@ use crate::hardware::arc_ramp::ArcRampSubwayHit;
 use crate::hardware::captive_ball::CaptiveBallHit;
 use crate::hardware::city_map;
 use crate::hardware::main_shot::{MainShot, MainShotHit};
+use crate::leaderboards;
 use crate::systems::game::{self, MULTIBALL_BALL_SAVE, ModeManager, Multiball};
 use crate::systems::{Callout, SayExt, sounds};
 
@@ -37,6 +38,8 @@ pub struct HeartwoodMultiballMode {
   hit_scene: ScenePlayer,
   super_jackpot_hit_scene: ScenePlayer,
   hits: u8,
+  /// What this multiball has scored, for its leaderboard
+  total: u64,
   /// Arc ramps made to the subway, toward adding a ball
   subway_ramps: u8,
   super_jackpot_active: bool,
@@ -57,6 +60,7 @@ impl HeartwoodMultiballMode {
       super_jackpot_hit_scene: ScenePlayer::new(Self::super_jackpot_hit_scene()),
       hits: 0,
       subway_ramps: 0,
+      total: 0,
       super_jackpot_active: false,
       timer_id: None,
       eject_id: None,
@@ -103,7 +107,7 @@ impl HeartwoodMultiballMode {
     self.hit_scene.restart(ctx);
     self.hits += 1;
     ctx.play_scene(&Self::progress_scene(self.hits));
-    ctx.add_points(points);
+    self.score(points, ctx);
     // rises toward the super jackpot that every 5th hit lights
     ctx.play_sfx(sounds::city_hit(
       ((self.hits - 1) % JACKPOTS_PER_SUPER) as f32 / (JACKPOTS_PER_SUPER - 1) as f32,
@@ -122,6 +126,12 @@ impl HeartwoodMultiballMode {
       }
     }
     self.render(ctx);
+  }
+
+  fn score(&mut self, points: u64, ctx: &SystemContext) {
+    ctx.add_points(points);
+    self.total += points;
+    leaderboards::submit(&leaderboards::HEARTWOOD_CHAMPION, self.total, ctx);
   }
 
   fn all_out(&self) -> bool {
@@ -151,7 +161,7 @@ impl HeartwoodMultiballMode {
   }
 
   fn super_jackpot_hit(&mut self, ctx: &SystemContext) {
-    ctx.add_points(game::points::HEARTWOOD_SUPER_JACKPOT);
+    self.score(game::points::HEARTWOOD_SUPER_JACKPOT, ctx);
     ctx.play_sfx(sounds::ARP_HIT1);
     self.super_jackpot_hit_scene.restart(ctx);
     self.cancel_super_jackpot_timer(ctx);

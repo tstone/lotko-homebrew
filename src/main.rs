@@ -166,6 +166,7 @@ async fn main() {
       .z(BASE_DMD_LAYER),
     );
     app.system(DmdPointsSystem::new().z(BASE_DMD_LAYER));
+    app.system(DmdInitialsEntrySystem::new().z(INITIALS_ENTRY_DMD_LAYER));
 
     // hardware ops
     app.system(drop_bank::DropBankSystem::new());
@@ -213,7 +214,7 @@ async fn main() {
     >()));
     app.routine::<TurnEnding>(routine![EndOfBallSystem, BonusSystem, TurnEndScoreSystem]);
     app.routine::<BallDraining>(routine![BallSaveSystem, OutlaneSaveSystem]);
-    app.routine::<GameEnding>(routine![EndOfBallSystem]);
+    app.routine::<GameEnding>(routine![EndOfBallSystem, LeaderboardsSystem]);
 
     // ball search
     app.system(
@@ -243,7 +244,12 @@ async fn main() {
       } else {
         "/userdata/home/armsom/leaderboards.toml"
       })
-      .final_scores(&leaderboards::HIGH_SCORES),
+      .final_scores(&leaderboards::HIGH_SCORES)
+      .initials_entry(
+        LEFT_FLIPPER_SWITCH1.q(),
+        RIGHT_FLIPPER_SWITCH1.q(),
+        SwitchQ::any(vec![&start_button::SWITCH.q(), &action_button::SWITCH.q()]),
+      ),
     );
     app.system(EndOfBallSystem::new());
     app.system(GameGreeting::new());

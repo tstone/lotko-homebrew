@@ -42,6 +42,7 @@ pub static MENU: LazyLock<MenuSection> = LazyLock::new(|| {
       configs::MAX_EXTRA_BALLS.display(),
       configs::TILT_WARNINGS.display(),
       configs::TILT_WARNINGS_PER_TURN.display(),
+      configs::INITIALS_ENTRY_TIMEOUT.display(),
     ]));
   // for testing, so only where it does anything
   let menu = if cfg!(debug_assertions) {

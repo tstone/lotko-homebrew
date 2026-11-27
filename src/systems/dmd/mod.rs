@@ -13,5 +13,8 @@ pub const TURN_END_DMD_LAYER: i8 = 1;
 /// The DMD layer for announcements during a game (tilt, extra ball), above the end-of-turn screens
 pub const ANNOUNCEMENT_DMD_LAYER: i8 = 2;
 
-/// The DMD layer for the mode select menu, above everything else
+/// The DMD layer for the mode select menu, above everything else during play
 pub const MENU_DMD_LAYER: i8 = 3;
+
+/// The DMD layer for initials entry when a game ends, above whatever the game left up
+pub const INITIALS_ENTRY_DMD_LAYER: i8 = 4;

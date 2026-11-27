@@ -1,7 +1,7 @@
 use frontbox_console::WebTracer;
 use frontbox_core::prelude::*;
 use frontbox_display::menu::{DmdMenuSystem, MenuSwitches};
-use frontbox_display::{DisplayDefinition, DisplaySystem};
+use frontbox_display::{DisplayDefinition, DisplaySystem, DmdWarningSystem};
 use frontbox_dmd::{PanelType, Pin2Dmd};
 use frontbox_lighting::prelude::*;
 use frontbox_pinball::*;
@@ -166,6 +166,7 @@ async fn main() {
       .z(BASE_DMD_LAYER),
     );
     app.system(DmdPointsSystem::new().z(BASE_DMD_LAYER));
+    app.system(DmdWarningSystem::new());
     app.system(DmdInitialsEntrySystem::new().z(INITIALS_ENTRY_DMD_LAYER));
 
     // hardware ops

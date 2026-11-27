@@ -2,6 +2,8 @@
 # operator config saved from the menu/console
 /operator_config.toml
 /metrics.db/
+# high scores and other leaderboards, saved as players earn them
+/leaderboards.toml
 # Ableton live file
 *.asd
 # Ableton raw recordings (held open by Live while the set is loaded)

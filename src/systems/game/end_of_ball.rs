@@ -1,8 +1,7 @@
 use frontbox_core::prelude::*;
 use frontbox_display::{InitialsEntered, InitialsEntrySystem};
 use frontbox_pinball::{
-  GameEndReason, GameEnding, GameManagerExt, HighScoreSlot, HighScoresSystem, TurnEndReason,
-  TurnEnding,
+  GameEndReason, GameEnding, GameManagerExt, LeaderboardsSystem, TurnEndReason, TurnEnding,
 };
 use frontbox_sound::SoundSystem;
 
@@ -18,9 +17,8 @@ const HIGH_OVERGROWTH: usize = 3;
 /// slam tilt)
 #[derive(Default)]
 pub struct EndOfBallSystem {
-  /// Players still to enter initials, in player order
-  /// Each with the player's index (0 for player 1)
-  initials_needed: Vec<(HighScoreSlot, usize, u64)>,
+  /// Players (0 for player 1) who made a leaderboard and still have to enter initials, in player order
+  initials_needed: Vec<u8>,
 }
 
 impl EndOfBallSystem {
@@ -40,24 +38,25 @@ impl EndOfBallSystem {
     ctx.routines.complete_step::<TurnEnding>();
   }
 
-  fn on_game_end(&mut self, scores: &[u64], ctx: &SystemContext) {
-    self.initials_needed = match ctx.systems.get::<HighScoresSystem>() {
-      Some(high_scores) => scores
-        .iter()
-        .enumerate()
-        .filter_map(|(player, score)| {
-          high_scores
-            .is_high_score(*score)
-            .map(|slot| (slot, player, *score))
-        })
-        .collect(),
+  fn on_game_end(&mut self, ctx: &SystemContext) {
+    self.initials_needed = match ctx.systems.get::<LeaderboardsSystem>() {
+      Some(leaderboards) => {
+        let mut players: Vec<u8> = leaderboards
+          .placements()
+          .iter()
+          .map(|placement| placement.player)
+          .collect();
+        players.sort();
+        players.dedup();
+        players
+      }
       None => Vec::new(),
     };
     self.get_next_initials(ctx);
   }
 
   fn get_next_initials(&mut self, ctx: &SystemContext) {
-    if let Some(&(_, player, _)) = self.initials_needed.first() {
+    if let Some(&player) = self.initials_needed.first() {
       ctx.systems.spawn(InitialsEntrySystem::new(
         format!("Player {}", player + 1),
         cabinet::LEFT_FLIPPER_SWITCH1.q(),
@@ -80,9 +79,9 @@ impl System for EndOfBallSystem {
     } else if let Some(event) = event.downcast_ref::<InitialsEntered>()
       && !self.initials_needed.is_empty()
     {
-      let (slot, _, score) = self.initials_needed.remove(0);
-      if let Some(mut high_scores) = ctx.systems.get::<HighScoresSystem>() {
-        high_scores.set_high_score(slot, event.initials.clone(), score);
+      let player = self.initials_needed.remove(0);
+      if let Some(mut leaderboards) = ctx.systems.get::<LeaderboardsSystem>() {
+        leaderboards.enter_initials(player, &event.initials);
       }
       self.get_next_initials(ctx);
     }
@@ -97,7 +96,7 @@ impl System for EndOfBallSystem {
       ctx
         .timers
         .start(Continue, Duration::from_millis(500).once());
-    } else if let Some(GameEnding { scores, reason }) = routine.downcast_ref::<GameEnding>() {
+    } else if let Some(GameEnding { reason, .. }) = routine.downcast_ref::<GameEnding>() {
       // the forest promises to be back once it has taken enough of the city, as the last player to play left it. Their
       // `ModeManager` is in their group, which this system (at the top level) has to name to reach.
       let last_player_group = ctx
@@ -114,7 +113,7 @@ impl System for EndOfBallSystem {
         log::info!("No high score entry after a slam tilt");
         ctx.routines.complete_step::<GameEnding>();
       } else {
-        self.on_game_end(scores, ctx);
+        self.on_game_end(ctx);
       }
     }
   }

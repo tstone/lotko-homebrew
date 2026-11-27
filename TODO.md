@@ -70,7 +70,7 @@ Effects a built feature wants but plays a stand-in for, or nothing. Delete a lin
 
 # High scores
 
-- [ ] Register `HighScoresSystem` in `main.rs`, so scores are saved and entered, and set the custom categories at game end. Say `new-high-score`.
+- [ ] Declare and submit the custom leaderboard categories (`leaderboards.rs`). Say `new-high-score`.
 - [ ] The fastest Caldera Generator is lower-is-better, so it needs comparing by hand and showing as a time.
 - [ ] Record the mini-wizard totals (`MiniWizardRun::total`) and Caldera Generator's time, which are kept but only logged.
 

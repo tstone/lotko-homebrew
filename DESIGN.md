@@ -795,7 +795,7 @@ Most of these share a template with art swapped in, which cuts down the amount o
 
 ## High scores
 
-Custom categories, stored with `HighScoresSystem::set_custom_score`:
+Custom categories, each a `Leaderboard` on `LeaderboardsSystem`:
 
 | Category | Measure |
 |---|---|

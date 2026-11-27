@@ -15,6 +15,7 @@ mod systems;
 use systems::*;
 mod hardware;
 mod helix;
+mod leaderboards;
 pub mod menu;
 mod metrics;
 mod roots;
@@ -158,6 +159,7 @@ async fn main() {
         AttractScreen::PressStart,
         AttractScreen::LastScore(2),
         AttractScreen::LastScore(3),
+        AttractScreen::Leaderboards,
         AttractScreen::Scene("dmd/fast_frontbox_logos.scene"),
       ])
       .flippers(LEFT_FLIPPER_SWITCH1.name, RIGHT_FLIPPER_SWITCH1.name)
@@ -235,6 +237,14 @@ async fn main() {
       drop_bank::DropBankSystem,
     ]);
 
+    app.system(
+      LeaderboardsSystem::new(if virtual_mode {
+        concat!(env!("CARGO_MANIFEST_DIR"), "/leaderboards.toml")
+      } else {
+        "/userdata/home/armsom/leaderboards.toml"
+      })
+      .final_scores(&leaderboards::HIGH_SCORES),
+    );
     app.system(EndOfBallSystem::new());
     app.system(GameGreeting::new());
     app.system(TiltPresenter::new());
